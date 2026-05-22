@@ -622,6 +622,26 @@ Pre-trained 3D Backbone (Frozen)
 - Maintain pre-trained knowledge while adapting to airside domain
 - Multiple LoRA adapters: different airports, different seasons, different GSE types
 
+### 5.5 Offline Aggregated-Map Segmentation: A Distinct Downstream Task
+
+§5.1-5.4 frame pre-training around **on-vehicle, real-time** perception — single-scan detection and segmentation inside the Orin budget. There is a second downstream task with the *opposite* constraints that the same pre-trained backbones serve: **offline semantic segmentation of the aggregated (registered multi-scan) LiDAR map.** It is documented in full in `aggregated-map-semantic-segmentation.md`; this subsection covers what it means for foundation-model strategy.
+
+| Dimension | On-vehicle single-scan | Offline aggregated-map |
+|---|---|---|
+| Latency budget | 10-100 ms (control loop) | Minutes-hours (batch) |
+| Hardware | Orin / Thor, quantized | Depot / cloud GPU, full precision |
+| Model size | Constrained — distilled / pruned | Unconstrained — heaviest backbone |
+| Input | One sparse sensor frame | 10⁷-10⁹-point dense accumulated cloud |
+| What pre-training buys | Label efficiency + transfer | Label efficiency + transfer **+ the ability to run the full uncompressed backbone** |
+
+**Why foundation models matter even more offline.** Three reasons specific to the map task:
+
+1. **No latency ceiling — deploy the backbone uncompressed.** On-vehicle, a PTv3/Sonata backbone must be distilled or quantized to fit Orin (§6); offline, the full model runs as-is. The map task is where a foundation model delivers its *full* accuracy, not its deployable approximation.
+2. **The map is the ideal SSL corpus.** Every survey drive produces a large unlabeled accumulated cloud — exactly the input for continued self-supervised pre-training (GD-MAE / Occupancy-MAE / Sonata-style, §2). Continuing SSL on *accumulated* clouds also closes the single-scan→accumulated density gap a road-pretrained backbone otherwise inherits.
+3. **The offline model bootstraps the on-vehicle model.** Labels produced once on the segmented map back-project onto every contributing single scan via pose look-up — the auto-label flywheel — generating the very training set §5.1-5.3 assume for the on-vehicle model. The two downstream tasks are coupled: the offline map model is the cheapest data source for the on-vehicle one.
+
+**Recommended strategy.** Pre-train one backbone (§5.1 recipe); fine-tune **two heads from it** — a heavy offline map-segmentation head (no Orin constraint) and a light on-vehicle head (Orin-constrained, §6) — keeping their class taxonomies aligned so auto-labels transfer cleanly. See `aggregated-map-semantic-segmentation.md` §7.6 for the map-side pre-training treatment and §15 for the end-to-end pipeline.
+
 ---
 
 ## 6. Practical Deployment on NVIDIA Orin
@@ -1060,6 +1080,7 @@ Part of NVIDIA Cosmos ecosystem:
 - **NVIDIA Thor specs (~1000 TOPS):** `20-av-platform/compute/nvidia-drive-thor.md`
 - **Vision foundation models (SAM, DINOv2, CLIP):** `30-autonomy-stack/perception/overview/vision-foundation-models.md`
 - **Open-vocabulary detection (Grounding DINO, YOLO-World):** `30-autonomy-stack/perception/overview/open-vocab-detection.md`
+- **Aggregated-map semantic segmentation (offline map-labeling downstream task):** `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
 - **DINOv2 for driving (LoRA integration):** `30-autonomy-stack/perception/overview/dinov2-foundation-models-driving.md`
 - **Occupancy world models:** `30-autonomy-stack/world-models/occupancy-world-models.md`
 - **Sensor fusion architectures:** `30-autonomy-stack/perception/overview/sensor-fusion-architectures.md`

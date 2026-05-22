@@ -537,6 +537,38 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **The meta-rule.** For airside specifically, the honest guidance is: do not over-invest in architecture search. §7.4's pattern holds — a well-pre-trained sparse-conv or superpoint model beats a poorly-trained transformer. Pick one architecture the team can support, get §7.6 (pre-training) and §9 (conditioning) right, and let the flywheel (§12) drive accuracy. Architecture is a P4 refinement (§15.2), not a P1 decision.
 
+### 7.8 Training Architecture Comparison: Advantages and Disadvantages
+
+§7.1-7.3 introduced the model families; §7.4 gave accuracy ranges; §7.7 gave a selection rule. This subsection compares the families head-to-head specifically through the **training lens** — the axes that decide cost, schedule, and risk when a map segmenter is actually trained, not just which leaderboard number is highest.
+
+**Head-to-head comparison.**
+
+| Axis | Point-based conv (KPConv, RandLA-Net) | Sparse-voxel conv (MinkowskiNet, SpConv U-Net) | Serialized transformer (PTv3) | Superpoint transformer (SPT, SuperCluster) |
+|---|---|---|---|---|
+| Input representation | Raw points + local neighborhoods | Voxelized sparse tensor | Serialized point patches (space-filling curve) | Geometric superpoint graph |
+| Typical parameters | 1-15 M | 5-40 M | 15-100 M+ | 0.2-1 M (≈10²-10³× fewer) |
+| GPU memory at tile scale | High (neighbor search, kernel points) | Moderate, predictable | High (attention) | Very low |
+| Training-data hunger | Moderate | Moderate | High from scratch; low if pre-trained | Low |
+| Convergence behavior | Stable, slow; sampling adds variance | Stable, fast, well-behaved | Sensitive — needs warmup, LR schedule, often pre-training to converge well | Fast; partition is a deterministic pre-pass |
+| Augmentation sensitivity | Moderate | Low — robust to standard augments | High — benefits most from heavy augmentation + TTA | Moderate; partition must be recomputed per augment |
+| Pre-training ecosystem | Limited public checkpoints | Some (contrastive, MAE) | Strongest — Sonata/PPT checkpoints, the §7.6 lever | Growing but smaller |
+| Tiling interaction | Sphere sampling native | Needs explicit tiling + halo | Tiles cleanly; serialization is tile-friendly | Largely dissolves tiling (§8.2) |
+| Inference scaling to map | Many overlapping inferences | Tile-parallel, predictable | Tile-parallel, heaviest per tile | Best — whole-scene graph |
+| Tooling / reproducibility | Mature, widely reproduced | Very mature, production-standard | Mature, active, well-maintained | Newer, smaller ecosystem |
+| TensorRT / deployment | Awkward (custom ops) | Best — TensorRT-friendly | Improving; attention kernels heavier | Graph ops less standard |
+
+**Per-architecture training characteristics:**
+
+- **Point-based convolution.** *Advantage:* operates on raw geometry with no voxelization loss, so thin and fine structure is preserved at training time; deformable KPConv adapts kernels to local shape. *Disadvantage:* neighbor search and kernel-point bookkeeping make memory and training time high; RandLA-Net's random sampling injects run-to-run variance and can statistically drop rare thin classes from a training batch unless rare-class-aware sampling is added (§8.3). Best when the team wants a well-understood, geometry-faithful baseline and can absorb the training cost.
+
+- **Sparse-voxel convolution.** *Advantage:* the most *predictable* family to train — stable convergence, low augmentation sensitivity, fast epochs, mature tooling, and the cleanest path to a TensorRT-deployable single-scan sibling. That predictability is exactly why it is the deployed industry baseline (§12). *Disadvantage:* voxelization caps the resolution of thin classes — markings and wires can fall below the voxel grid; the fix (finer voxels) costs memory steeply. Best as the default production choice and the safe first model.
+
+- **Serialized transformer (PTv3).** *Advantage:* the highest accuracy ceiling, and the family with the strongest pre-training ecosystem — a Sonata/PPT-pretrained PTv3 is the §7.6 recommendation, and pre-training is what makes its otherwise-high data hunger manageable. *Disadvantage:* trained from scratch it is the most finicky — sensitive to learning-rate schedule, warmup, batch size, and augmentation; without pre-training it can underperform a sparse-conv U-Net while costing far more. Best when pre-training is in place and tiling (§8) is well-engineered.
+
+- **Superpoint transformer.** *Advantage:* built for exactly this problem — it trains fast, fits in tiny memory, sees whole-scene context, and partly dissolves the tiling problem; the small parameter count overfits less on small label sets. *Disadvantage:* accuracy is upper-bounded by the geometric superpoint partition — a bad partition cannot be recovered by the network, and the partition must be recomputed when geometry-altering augmentation is applied; tooling is less standard. Best for airport-scale maps and small label budgets.
+
+**The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all four, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
+
 ---
 
 ## 8. Tiling, Chunking, and Stitching
