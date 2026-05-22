@@ -88,5 +88,5 @@ method-priority:end -->
 
 - WaffleIron paper: https://arxiv.org/abs/2301.10100
 - Reference implementation: https://github.com/valeoai/WaffleIron
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares WaffleIron head-to-head against the four other model families
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation

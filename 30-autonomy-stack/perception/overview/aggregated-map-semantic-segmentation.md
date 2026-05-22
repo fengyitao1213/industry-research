@@ -620,19 +620,19 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **Head-to-head comparison.**
 
-| Axis | Point-based conv (KPConv, RandLA-Net) | Sparse-voxel conv (MinkowskiNet, SpConv U-Net) | Serialized transformer (PTv3) | Superpoint transformer (SPT, SuperCluster) |
-|---|---|---|---|---|
-| Input representation | Raw points + local neighborhoods | Voxelized sparse tensor | Serialized point patches (space-filling curve) | Geometric superpoint graph |
-| Typical parameters | 1-15 M | 5-40 M | 15-100 M+ | 0.2-1 M (≈10²-10³× fewer) |
-| GPU memory at tile scale | High (neighbor search, kernel points) | Moderate, predictable | High (attention) | Very low |
-| Training-data hunger | Moderate | Moderate | High from scratch; low if pre-trained | Low |
-| Convergence behavior | Stable, slow; sampling adds variance | Stable, fast, well-behaved | Sensitive — needs warmup, LR schedule, often pre-training to converge well | Fast; partition is a deterministic pre-pass |
-| Augmentation sensitivity | Moderate | Low — robust to standard augments | High — benefits most from heavy augmentation + TTA | Moderate; partition must be recomputed per augment |
-| Pre-training ecosystem | Limited public checkpoints | Some (contrastive, MAE) | Strongest — Sonata/PPT checkpoints, the §7.6 lever | Growing but smaller |
-| Tiling interaction | Sphere sampling native | Needs explicit tiling + halo | Tiles cleanly; serialization is tile-friendly | Largely dissolves tiling (§8.2) |
-| Inference scaling to map | Many overlapping inferences | Tile-parallel, predictable | Tile-parallel, heaviest per tile | Best — whole-scene graph |
-| Tooling / reproducibility | Mature, widely reproduced | Very mature, production-standard | Mature, active, well-maintained | Newer, smaller ecosystem |
-| TensorRT / deployment | Awkward (custom ops) | Best — TensorRT-friendly | Improving; attention kernels heavier | Graph ops less standard |
+| Axis | Point-based conv (KPConv, RandLA-Net) | Sparse-voxel conv (MinkowskiNet, SpConv U-Net) | Serialized transformer (PTv3) | Superpoint transformer (SPT, SuperCluster) | Projection-based (WaffleIron) |
+|---|---|---|---|---|---|
+| Input representation | Raw points + local neighborhoods | Voxelized sparse tensor | Serialized point patches (space-filling curve) | Geometric superpoint graph | Points projected to 2D feature planes |
+| Typical parameters | 1-15 M | 5-40 M | 15-100 M+ | 0.2-1 M (≈10²-10³× fewer) | Moderate (~6-15 M) |
+| GPU memory at tile scale | High (neighbor search, kernel points) | Moderate, predictable | High (attention) | Very low | Moderate (dense 2D conv) |
+| Training-data hunger | Moderate | Moderate | High from scratch; low if pre-trained | Low | Moderate |
+| Convergence behavior | Stable, slow; sampling adds variance | Stable, fast, well-behaved | Sensitive — needs warmup, LR schedule, often pre-training to converge well | Fast; partition is a deterministic pre-pass | Stable — standard conv training |
+| Augmentation sensitivity | Moderate | Low — robust to standard augments | High — benefits most from heavy augmentation + TTA | Moderate; partition must be recomputed per augment | Low-moderate |
+| Pre-training ecosystem | Limited public checkpoints | Some (contrastive, MAE) | Strongest — Sonata/PPT checkpoints, the §7.6 lever | Growing but smaller | Limited; ScaLR distills onto it |
+| Tiling interaction | Sphere sampling native | Needs explicit tiling + halo | Tiles cleanly; serialization is tile-friendly | Largely dissolves tiling (§8.2) | Needs explicit tiling |
+| Inference scaling to map | Many overlapping inferences | Tile-parallel, predictable | Tile-parallel, heaviest per tile | Best — whole-scene graph | Tile-parallel, efficient |
+| Tooling / reproducibility | Mature, widely reproduced | Very mature, production-standard | Mature, active, well-maintained | Newer, smaller ecosystem | Excellent — only standard ops, no custom kernels |
+| TensorRT / deployment | Awkward (custom ops) | Best — TensorRT-friendly | Improving; attention kernels heavier | Graph ops less standard | Best — pure standard ops |
 
 **Per-architecture training characteristics:**
 
