@@ -47,6 +47,8 @@ This playbook defines the commissioning sequence for airside perception, SLAM/lo
 | Run source-session timing and calibration checks | Red/unknown sessions excluded from automatic map publication |
 | Run map publication gates | No false-free-space, frame, tile, overlay, or route mismatch blocker |
 
+The "build map bundle and semantic layers" task is executed by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) — it segments the registered capture into the permanent / movable-static / hazard / unknown layers this table requires, and back-projects per-scan auto-labels for the perception models commissioned in later phases. Its QA gates (that page's §13) feed the map-publication gates above; its §5.4 and §15.2 give the per-airport effort and roadmap.
+
 ## Phase 4: Closed-Course and Controlled Route Tests
 
 | Test | Gate |
@@ -106,6 +108,7 @@ This playbook defines the commissioning sequence for airside perception, SLAM/lo
 
 - `70-operations-domains/deployment-playbooks/deployment-playbook.md`
 - `70-operations-domains/deployment-playbooks/multi-airport-adaptation.md`
+- `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
 - `70-operations-domains/airside/operations/ground-control-instructions.md`
 - `50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md`
 - `40-runtime-systems/software-operations/sensor-calibration-fleet-ops.md`
