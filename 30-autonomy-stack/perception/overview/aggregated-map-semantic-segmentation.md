@@ -590,6 +590,9 @@ A model trained on single-scan data and run on an accumulated map sees an off-di
 
 ### 7.6 Self-Supervised Pre-Training and 3D Foundation Models
 
+> Deep-dive companion: `3d-segmentation-training-paradigms.md` — the *way-you-train* comparison across all eleven paradigms (fully-supervised, multi-dataset pre-training, SSL, cross-modal distillation, weakly-supervised, semi-supervised, domain/test-time adaptation, synthetic, PEFT, active learning, auto-labeling), with advantages/disadvantages and the layered airside recipe. Section 7.8 below is the *which-model* training-lens comparison; the two are complementary.
+
+
 §7.4 ends on the central claim: pre-training outweighs the last few points of architecture. This subsection makes that claim operational, because for an airside pipeline it is the **single highest-leverage model decision** — in-domain labels are scarce (§5.4) while unlabeled airside maps are abundant (every survey drive produces one).
 
 **Why pre-training is decisive here.** A 3D segmentation model trained from random initialization needs thousands of labeled tiles to reach its accuracy ceiling; a realistic airside annotation budget is hundreds. Pre-training shifts the label-efficiency curve: a backbone that has already learned generic 3D structure — planarity, verticality, object compactness, density gradients — from unlabeled or out-of-domain data reaches the same mIoU with roughly 5-20× fewer labels. The corpus stance that SSL pre-training plus active learning cut labeling cost 50-80% is precisely this lever applied to map segmentation.
@@ -690,6 +693,8 @@ Both are emerging rather than production-proven, but they point the same directi
 ---
 
 ## 8. Tiling, Chunking, and Stitching
+
+> Deep-dive companion: `large-scale-3d-segmentation-tiling-and-throughput.md` — partition strategies, tile-size and halo selection, logit merging, normalization-layer seam artifacts, batched-inference orchestration, throughput engineering, the cost model, and the recommended tiling recipe.
 
 This is the engineering core that distinguishes a *map* segmentation pipeline from a single-scan one. A million-to-billion-point cloud cannot enter one forward pass; the pipeline must partition, infer, and re-merge — without leaving seams.
 
