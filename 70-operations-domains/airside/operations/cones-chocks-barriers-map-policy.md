@@ -47,6 +47,8 @@ Cones, chocks, and portable barriers are safety-relevant airside objects, but th
 | FOD/hazard | loose, unexpected, or unsafe small objects | normal approved closure geometry |
 | unknown/quarantine | ambiguous or conflicting evidence | silently assumed free space |
 
+These layer rules are the policy; the **mechanism** that classifies each map point into them is the offline aggregated-map semantic segmentation pipeline (`../../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`). Its airside taxonomy carries explicit `staged GSE / permitted-static` and `unknown` classes (its §6.3) that map directly onto the temporary-overlay and unknown/quarantine layers above — so cones, chocks, and barriers are classified, never baked into permanent static. The model assigns the class; this matrix decides the layer.
+
 ## Publication And Monitoring
 
 | Check | Required evidence |

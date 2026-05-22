@@ -1007,6 +1007,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `30-autonomy-stack/localization-mapping/maps/hd-map-change-detection-maintenance.md` — semantic change detection consumes the labeled map this pipeline produces
 - `30-autonomy-stack/localization-mapping/overview/production-lidar-map-localization.md` — semantic-weighted scan matching consumes the labeled map's per-voxel class field
 - `70-operations-domains/deployment-playbooks/airside-perception-slam-commissioning.md` — new-airport commissioning playbook; Phase 3 builds the semantic layers via this pipeline
+- `70-operations-domains/airside/operations/cones-chocks-barriers-map-policy.md` — airside map-layer policy for the movable objects this taxonomy classifies
 - `30-autonomy-stack/localization-mapping/maps/map-construction-pipeline.md` — the offline HD-map construction pipeline that produces the aggregated map and consumes the semantic layer
 - `30-autonomy-stack/localization-mapping/maps/semantic-mapping-learned-priors.md` — semantic map layers and learned priors
 - `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic-object removal (required pre-processing)
