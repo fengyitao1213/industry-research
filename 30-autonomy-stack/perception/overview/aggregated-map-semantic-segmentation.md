@@ -685,6 +685,17 @@ Each point in an overlap region receives multiple predictions; the merge step re
 - **Mixed precision (FP16/BF16)** — offline accuracy tolerates it; roughly doubles throughput.
 - **Checkpoint per tile** — a crash at tile 8,000 of 10,000 should resume, not restart. Offline batches are long; resumability is not optional.
 
+### 8.6 Pipeline Operations and Reproducibility
+
+A map-segmentation pipeline is a long-running offline batch that produces artifacts other systems depend on — it needs the operational discipline of a production data pipeline, not a one-off script.
+
+- **Orchestrate as a DAG.** The stages of §3.2 (condition → tile → infer → stitch → post-process → QA → package) form a directed acyclic graph; run them under a workflow orchestrator so individual stages are retryable, cacheable, and observable. Tile-level inference is an embarrassingly-parallel fan-out within that DAG.
+- **Version everything together.** A labeled map is a function of (raw map + model weights + taxonomy + pipeline config). Version all four — DVC or equivalent for the map and labels, a model registry for weights, git for config — so any labeled output is reproducible and any regression is bisectable. This rides the same DVC/CI system the map itself uses (`../../localization-mapping/maps/map-construction-pipeline.md` §12).
+- **Make runs resumable and observable.** Per-tile checkpointing (§8.5) plus a run manifest (which tiles done, with which model, at what confidence) turns a multi-hour batch from all-or-nothing into a monitorable, resumable job. Emit progress and per-tile metrics, not just a final number.
+- **Trigger re-runs on change.** When the map is re-surveyed or the model retrained, only affected tiles need re-segmentation — a change-aware trigger (changed map region ∪ new model) avoids re-running the whole airport. This is the flywheel's operational form (§12).
+- **Carry provenance into the output.** Every labeled point should trace to the model version, pipeline config, and source tiles that produced it — the same provenance discipline as `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`, and what makes the labeled map auditable safety-case evidence (§1.3).
+- **Pin the environment.** The pre-/post-processing dependency stack (sparse-conv kernels, CUDA, point-cloud libraries) is version-fragile; a labeled map produced six months apart should be reproducible given the same inputs only if that stack is pinned.
+
 ---
 
 ## 9. Pre-Processing and Map Conditioning

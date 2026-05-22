@@ -1203,7 +1203,7 @@ Map update size optimization:
 
 ### 12.1 DVC for Map Data
 
-From `cloud-backend-infrastructure.md`, DVC (Data Version Control) manages large map files alongside code:
+From `cloud-backend-infrastructure.md`, DVC (Data Version Control) manages large map files alongside code. The same DVC pipeline also versions the **semantic-segmentation model weights, taxonomy, and the labeled-map output** of §8.5 alongside the geometric map — a labeled map is reproducible only when all four (raw map, weights, taxonomy, config) are version-pinned together (see `../../perception/overview/aggregated-map-semantic-segmentation.md` §8.6):
 
 ```yaml
 # dvc.yaml — Map construction pipeline
