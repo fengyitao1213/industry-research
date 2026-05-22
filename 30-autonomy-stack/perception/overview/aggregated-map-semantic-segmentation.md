@@ -540,6 +540,8 @@ Sparse-conv U-Nets are the most common production backbone — predictable, fast
 
 **Superpoint methods deserve a specific call-out for this topic**: they were *designed* for the exact problem — semantic (and panoptic) segmentation of very large registered scenes — and partly dissolve the tiling problem (§8) by partitioning into a superpoint graph instead of fixed tiles. For an airport-scale map, an SPT-class model is the strongest fit; a sparse-conv U-Net is the safe, well-tooled fallback; PTv3 is the accuracy ceiling when tiling is well-engineered.
 
+A **fifth family — projection-based methods** — deliberately avoids point, voxel, and attention operators: it projects point features onto 2D planes and applies standard dense 2D convolution (**WaffleIron**, see `../methods/waffleiron.md`). It trades a little accuracy for implementation simplicity and a clean dependency footprint — no custom kernels — which can matter more than the last point of mIoU for a team that wants to avoid a sparse-conv or transformer stack.
+
 ### 7.4 Representative Accuracy
 
 Approximate mIoU, public leaderboards as of early 2026 — read as *families and ranges*, not precise rankings:
@@ -638,7 +640,9 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 - **Superpoint transformer.** *Advantage:* built for exactly this problem — it trains fast, fits in tiny memory, sees whole-scene context, and partly dissolves the tiling problem; the small parameter count overfits less on small label sets. *Disadvantage:* accuracy is upper-bounded by the geometric superpoint partition — a bad partition cannot be recovered by the network, and the partition must be recomputed when geometry-altering augmentation is applied; tooling is less standard. Best for airport-scale maps and small label budgets.
 
-**The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all four, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
+- **Projection-based (WaffleIron).** *Advantage:* built only from standard dense 2D convolutions and MLPs — the simplest family to implement, optimize, and deploy, with no custom kernels and strong hardware efficiency. *Disadvantage:* the 2D projection carries a resolution trade-off like voxelization and discards some 3D structure per layer; accuracy is competitive but generally a little below the top transformers. Best when implementation simplicity and a clean dependency footprint outweigh the last point of mIoU; see `../methods/waffleiron.md`.
+
+**The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all five families, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
 
 ---
 
