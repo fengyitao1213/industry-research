@@ -237,6 +237,21 @@ Instead of baking colour into points, keep the image stream as a parallel modali
 
 Independently of modality, the network consumes the cloud in one of: **raw points** (KPConv, RandLA-Net, Point Transformer), **sparse voxels** (MinkowskiNet, SpConv backbones), **superpoints** (Superpoint Transformer), or **2D rasterization** (top-down BEV / elevation images for ALS). §7 maps these to model families; §8 maps them to tiling strategies.
 
+### 4.5 LiDAR-Image Fusion Methods: A Comparison
+
+§4.3 frames the three fusion *strategies*; this is the named-method comparison behind them. The choice that matters most is **fusion stage** — input, feature, or supervision — because it decides whether imagery is needed at inference.
+
+| Method | Fusion stage | Inference needs | Key idea | Advantage | Disadvantage |
+|---|---|---|---|---|---|
+| **PointPainting** | Input-level | LiDAR + image + calib | Paint each point with the image segmenter's class scores before the 3D net | Simple, model-agnostic, easy to add | Hard camera dependency at inference; 2D-net errors propagate directly |
+| **PMF** (perception-aware fusion) | Feature-level, perspective space | LiDAR + image + calib | Fuse LiDAR and image features in the camera/perspective view | High accuracy in controlled conditions | Camera-at-inference; limited to camera FOV; calibration-sensitive |
+| **2DPASS** | Feature-level, train-time distillation | **LiDAR-only** | Distill multi-scale 2D knowledge into the 3D branch during training | Image gains at train time, LiDAR-only robustness at deploy — the recommended pattern | Needs paired image+LiDAR training data; no inference-time image |
+| **SLidR** | Pre-training (image→LiDAR SSL) | **LiDAR-only** | Superpixel-driven self-supervised distillation of a 2D foundation model into the 3D backbone | Brings 2D semantics with *no* 3D labels; pure pre-training | A pre-training step, not a segmenter; gains shrink as labels grow |
+| **2D3DNet** | Supervision-level (pseudo-labels) | **LiDAR-only** | Use a 2D segmenter to generate 3D pseudo-labels for weak supervision | Cuts 3D labeling cost; cross-modal label transfer | Pseudo-label noise; bounded by the 2D segmenter's classes |
+| **xMUDA** | Feature-level, cross-modal consistency | LiDAR (+ image at train) | Enforce 2D-3D prediction consistency as a domain-adaptation signal | Strong for cross-domain / unlabeled-target adaptation | A domain-adaptation technique, not a standalone accuracy method |
+
+**Reading the table.** The decisive column is inference needs. Methods that require the camera at inference (PointPainting, PMF) buy accuracy with a hard camera dependency — a poor fit for a LiDAR-primary stack and useless on a night-only map. Methods that use imagery only at train time (2DPASS, SLidR, 2D3DNet) gain the 2D supervision while keeping a LiDAR-only, illumination-invariant deployed model. For aggregated-map segmentation the recommendation of §4.3 stands: **2DPASS-style feature distillation** if paired imagery exists, **SLidR-style image-to-LiDAR pre-training** to bootstrap when 3D labels are scarce, and PointPainting/PMF only in controlled surveys where the camera is guaranteed and well-calibrated.
+
 ---
 
 ## 5. Datasets and Benchmarks
