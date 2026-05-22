@@ -48,6 +48,8 @@
 **Overall TRL: 4 → Target: 7**
 **Go/No-Go:** Achieve mAP > 40% on 10+ airside classes with < 25ms on Orin.
 
+**Auto-label source:** the offline aggregated-map semantic segmentation pipeline (`30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) is the documented mechanism behind the auto-labeling row — it segments the registered survey map once with the heaviest available model and back-projects per-scan labels, directly attacking the class-definition and annotation blockers above. Its own readiness mirrors this row: TRL ~4 (proven in the surveying industry and in offboard AV auto-labeling; airside-untested), gated on airside data, taxonomy, and the single-scan→accumulated density gap.
+
 ### POC 3: Prediction-Aware Frenet Planner
 
 | Component | Current TRL | Target TRL | Blocker | Risk |
