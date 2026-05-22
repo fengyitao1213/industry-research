@@ -883,7 +883,7 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 - **Staged GSE quarantine.** The "staged GSE" class (§6.3, ID 9) prevents transient equipment being baked into the permanent map — coordinate with `../../localization-mapping/maps/potentially-dynamic-object-map-policy.md`.
 - **Transfer path.** Pre-train on Paris-Lille-3D / Toronto-3D / KITTI-360 (MLS, ground-level), self-supervised pre-train on unlabeled airside maps, then fine-tune with a few hundred labeled airside tiles via PointLoRA-class adapters (`lidar-foundation-models.md`, `self-supervised-pretraining-driving.md`).
 
-The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2.
+The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2, and it slots into the new-airport onboarding playbook in `../../../70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` §2.
 
 ### 14.4 The Segmented Map as Safety-Case Evidence
 

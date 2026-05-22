@@ -341,6 +341,8 @@ class SLAMMapRefinement:
 
 **Recommendation**: AMDB bootstrap + SLAM refinement for first deployment at a new airport (±0.2m sufficient for service roads), with RTK survey refinement for stand approach paths (need ±0.1m for docking accuracy).
 
+**Semantic layer per airport.** The strategies above produce the *geometric* map. Its **semantic layer** — per-point classes, vectorized markings, structure footprints — is produced by running the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) over each new airport's registered survey cloud. That pipeline also back-projects per-scan auto-labels, which is the cheapest source of the in-domain training data the perception adaptation of §3 needs — so the per-airport map effort and the per-airport perception-labeling effort become one pass. Its per-airport rollout and cost model are §5.4 and §15.2 of that page.
+
 ---
 
 ## 3. Perception Adaptation Pipeline
