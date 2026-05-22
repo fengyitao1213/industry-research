@@ -469,6 +469,25 @@ This taxonomy maps cleanly onto the 18-class single-scan airside taxonomy in `li
 
 Pavement and building can be 90%+ of points; markings, poles, signs are well under 1%. Standard mitigations apply and are *more* important here because aggregation does not balance the distribution: inverse-frequency or effective-number class weighting, focal/Lovász-softmax loss, point-repeat or tile-resampling toward rare classes, and rare-class-aware tile selection (§8). Report **per-class IoU**, never accuracy — a 95%-accurate map model can have ~0 IoU on markings.
 
+### 6.5 Loss Functions for Map Segmentation
+
+The taxonomy and its imbalance (§6.4) make the *training objective* a first-class design choice — as consequential as the architecture (§7). Plain cross-entropy optimizes per-point likelihood, but the metric that matters is per-class IoU (§13), and the two diverge sharply when one class is 90% of points and another is 0.1%. The loss must be chosen, not defaulted.
+
+| Loss | What it optimizes | Strength | Weakness / cost |
+|---|---|---|---|
+| **Cross-entropy (CE)** | Per-point class likelihood | Stable, fast, the universal baseline | Dominated by bulk classes; rare-class gradient is negligible |
+| **Weighted / inverse-frequency CE** | CE re-weighted by class frequency | Cheap fix; lifts rare-class gradient | Aggressive weights destabilize training; weight tuning is fiddly |
+| **Class-balanced CE (effective number)** | CE weighted by *effective* sample count | Smoother than raw inverse-frequency | Still a re-weighting heuristic, not an IoU surrogate |
+| **Focal loss** | CE down-weighting easy points | Focuses gradient on hard/rare points; no explicit per-class weight | A focusing hyperparameter to tune; can over-focus on label noise |
+| **Lovász-softmax** | A direct, differentiable surrogate for IoU | Optimizes the actual metric; strong on rare classes | Costlier per step; best used jointly with CE, not alone |
+| **Dice / soft-IoU loss** | Region overlap per class | Robust to imbalance; overlap-oriented | Noisy gradients for tiny classes; unstable on near-empty tiles |
+| **Tversky / focal-Tversky** | Dice generalized with tunable FP/FN penalty | Lets recall be favoured for safety classes | Two more hyperparameters |
+| **Boundary loss** | Accuracy near class transitions | Sharpens edges; targets the boundary-IoU metric (§13.1) | An auxiliary term only — never the primary loss |
+
+**Recommended combination.** No single loss wins. The industry-standard recipe for imbalanced 3D segmentation is a **region loss plus a point loss**: Lovász-softmax (the IoU surrogate) combined with class-weighted or focal cross-entropy (stable gradients and convergence). Add a boundary term only if boundary IoU is a tracked metric and the budget allows. For safety-critical classes where a miss is worse than a false positive (markings, fencing), focal-Tversky with a recall-favouring penalty is the principled choice.
+
+**Loss is not a substitute for sampling.** The loss reshapes gradients but cannot recover a class that never appears in a training batch — pair it with rare-class-aware tile/sphere seeding (§8.3) and, where labels allow, point-repeat resampling. Loss, sampling, and the per-class-IoU metric (§13) must be designed together.
+
 ---
 
 ## 7. Model Families and SOTA Methods
@@ -666,6 +685,7 @@ Moving objects captured during the survey leave ghost trails that no static clas
 - **Statistical outlier removal** — drop isolated noise (k≈30 neighbors, std-ratio ≈2.0).
 - **Normal estimation** — per-point normals (k≈20), oriented toward the originating sensor pose; required for normal-based features (§4.1) and any meshing.
 - **Drift-aware cleanup** — where loop closure left double surfaces, a local re-registration or surface-consistency filter reduces blur before segmentation.
+- **Weather and sensor artifacts** — snow/rain/dust speckle, reflective ghosts, and saturation/bloom are removed here too; the technique catalogue is `lidar-artifact-removal-techniques.md`. A multi-pass survey map suppresses these better than a single live scan (transient particles fail the multi-session persistence test), but reflective ghosts and bloom around retroreflective signs/markings persist and pollute appearance-based classes if left in.
 
 ### 9.3 Resampling and Voxelization
 

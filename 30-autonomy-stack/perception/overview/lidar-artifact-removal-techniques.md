@@ -23,6 +23,7 @@ For airside autonomous vehicles, the broad removal layer should include:
 | Dynamic map cleaning | [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) | Static map construction and dynamic clutter removal. |
 | ERASOR | [ERASOR](../../localization-mapping/slam-methods/erasor.md) | Pseudo-occupancy dynamic object removal. |
 | Removert | [Removert](../../localization-mapping/slam-methods/removert.md) | Remove-then-revert static map cleaning. |
+| Map segmentation conditioning | [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) | Artifact removal is a map-conditioning prerequisite (§9) before segmenting the aggregated cloud. |
 
 ## Artifact Taxonomy
 
