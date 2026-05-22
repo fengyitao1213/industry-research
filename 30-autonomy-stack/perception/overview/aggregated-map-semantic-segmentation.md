@@ -263,7 +263,109 @@ Aggregated-map segmentation has a *richer* public dataset landscape than single-
 | **SUM** | Textured urban mesh | large | 6 | Urban (Helsinki) | RGB | Mesh-based; relevant if the map is meshed |
 | **WildScenes / RELLIS-3D** | MLS, off-road | varies | varies | Natural / off-road | RGB | Closest public proxy for unstructured airside-adjacent terrain |
 
-### 5.2 How to Read This Landscape
+### 5.2 Per-Dataset Profiles
+
+The table above is a selection map; the profiles below give the detail a pipeline builder needs — acquisition geometry, exact class sets, density, access terms, and **airside transfer relevance**. They are ordered by how directly they inform an airside MLS pipeline.
+
+#### Paris-Lille-3D (NPM3D) — the primary MLS pre-training source
+
+- **Acquisition:** mobile laser scanning — a Velodyne HDL-32E on the L3D2 survey vehicle, ~2 km of streets in Paris and Lille, France.
+- **Scale & density:** ~143 M points; dense along the vehicle corridor, thinning off-path — the same density signature as an airside survey drive.
+- **Classes:** 50 fine classes collapsed to ~9-10 coarse for the NPM3D benchmark — ground, building, pole, bollard, trash can, barrier, pedestrian, car, natural (vegetation).
+- **Access:** free for research; LiDAR geometry + intensity only, no RGB.
+- **Strengths / use:** the closest public analog to an airside MLS corridor map — same sensor class, same ground-level viewpoint. Primary supervised pre-training source for the recommended pipeline (§7.5, §14.3).
+- **Limitations:** dense European streets, no open-apron analog; no colour channel.
+- **Airside transfer:** **high** — ground, pole, bollard, barrier map almost one-to-one onto the airside taxonomy (§6.3).
+
+#### Toronto-3D — AV-relevant classes including markings
+
+- **Acquisition:** mobile mapping (Teledyne Optech Maverick MMS), ~1 km of urban roadway in Toronto.
+- **Scale & density:** ~78.3 M points; corridor-dense.
+- **Classes (8):** road, road marking, natural, building, utility line, pole, car, fence.
+- **Access:** free for research; RGB available.
+- **Strengths / use:** carries an explicit **road marking** class and **utility line** / **pole** / **fence** — the exact thin/appearance-defined classes hardest to learn and most valuable to transfer to airside markings and perimeter furniture.
+- **Limitations:** small (1 km); 8 coarse classes only.
+- **Airside transfer:** **high** — marking, pole, fence transfer directly; the best public source for the airside marking class.
+
+#### Semantic3D — the dense static-scan reference
+
+- **Acquisition:** static terrestrial laser scanning (survey-grade scanners), ~30 scans of European urban and rural scenes.
+- **Scale & density:** >4 billion points; very high, near-uniform density per station (falls off with range from each tripod position). Two test splits: `semantic-8` (full) and `reduced-8` (subsampled).
+- **Classes (8):** man-made terrain, natural terrain, high vegetation, low vegetation, buildings, hardscape, scanning artefacts, cars.
+- **Access:** free for research; RGB from the scanners.
+- **Strengths / use:** the canonical "what a heavily-accumulated cloud looks like" benchmark; clean labels; the right place to validate density-robustness at the dense extreme.
+- **Limitations:** static tripod viewpoint, not vehicle MLS — the scan pattern differs; only 8 coarse classes; explicit `scanning artefacts` class is TLS-specific.
+- **Airside transfer:** **moderate** — excellent for density-robust pre-training and as the high-density bracket; viewpoint mismatch with MLS.
+
+#### SemanticKITTI (multi-scan task) — the honest accumulated-cloud proxy
+
+- **Acquisition:** mobile laser scanning (Velodyne HDL-64E), urban driving; the **multi-scan task** accumulates a sliding window of past scans before labeling.
+- **Classes:** single-scan task evaluates 19 classes; the **multi-scan task evaluates 25**, adding six *moving* variants (moving-car, -person, -bicyclist, -motorcyclist, -truck, -other-vehicle) — forcing explicit static/moving reasoning on the accumulated input.
+- **Access:** free for research; LiDAR only.
+- **Strengths / use:** the most honest AV-domain proxy for "segment an accumulated cloud" — it *is* accumulated-LiDAR segmentation, and its moving/static split mirrors the staged-GSE quarantine problem (§6.3, §9.1).
+- **Limitations:** accumulation window is short (a few seconds), not a full survey map; urban driving scenes.
+- **Airside transfer:** **high (conceptual)** — the task formulation, not the scenes, is what transfers.
+
+#### KITTI-360 — accumulated clouds with 2D-3D label consistency
+
+- **Acquisition:** mobile mapping (Velodyne HDL-64E + 2 SICK + 2 perspective + 2 fisheye cameras), 73.7 km of suburban Karlsruhe.
+- **Scale:** ~100 k laser scans accumulated into dense semantic point clouds; ~320 k images with consistent 2D labels.
+- **Classes:** a Cityscapes-aligned set (~19 evaluated) applied consistently in 2D and 3D.
+- **Access:** free for research; RGB.
+- **Strengths / use:** the reference for **2D-3D label consistency** and label back-projection — directly relevant to the auto-label flywheel (§10.5).
+- **Airside transfer:** **high** — accumulated MLS with the multimodal setup an airside survey vehicle also has.
+
+#### SensatUrban — city-scale tiling benchmark (photogrammetric)
+
+- **Acquisition:** UAV photogrammetry — an RGB point cloud reconstructed from aerial imagery (**not LiDAR**), ~7.6 km² across Birmingham, Cambridge and York.
+- **Scale:** ~3 billion points.
+- **Classes (13):** ground, vegetation, building, wall, bridge, parking, rail, traffic road, street furniture, car, footpath, bike, water.
+- **Access:** free for research; RGB-native.
+- **Strengths / use:** the standard **scale and tiling** benchmark — the right dataset to harden the tiling/stitching pipeline (§8) and RGB-point models.
+- **Limitations:** photogrammetric noise and density statistics differ from LiDAR; aerial-oblique viewpoint.
+- **Airside transfer:** **low-moderate** — use for tiling R&D and colour pipelines, not for LiDAR-statistics transfer.
+
+#### DALES — the sparse aerial-LiDAR bracket
+
+- **Acquisition:** airborne laser scanning (ALS), ~40 km² of mixed urban/rural terrain.
+- **Scale & density:** ~505 M points at roughly 50 pts/m² — sparse and nadir.
+- **Classes (8):** ground, vegetation, cars, trucks, power lines, fences, poles, buildings.
+- **Access:** free for research; LiDAR only.
+- **Strengths / use:** large-area aerial coverage; clean power-line/pole/fence labels.
+- **Limitations:** top-down viewpoint undersamples vertical structure — facades and thin verticals are weak.
+- **Airside transfer:** **low-moderate** — viewpoint mismatch; useful as the *sparse* density bracket and for fence/pole label diversity, not as a primary source.
+
+#### Hessigheim 3D (H3D) — high-density UAV LiDAR + mesh, multi-epoch
+
+- **Acquisition:** UAV-borne LiDAR (RIEGL) plus a co-registered photogrammetric textured mesh; an ISPRS benchmark captured at multiple epochs.
+- **Scale & density:** very high — on the order of ~800 pts/m², comparable to a well-accumulated map.
+- **Classes (11):** low vegetation, impervious surface, vehicle, urban furniture, roof, facade, shrub, tree, soil/gravel, vertical surface, chimney.
+- **Access:** free for research; RGB via the mesh.
+- **Strengths / use:** density close to an accumulated map; paired LiDAR + mesh tracks let you study point-vs-mesh segmentation; multi-epoch capture supports change studies.
+- **Airside transfer:** **moderate** — high density is representative; UAV viewpoint is not.
+
+#### STPLS3D — synthetic augmentation for rare classes
+
+- **Acquisition:** aerial photogrammetry; a **real** split (~1.27 km²) plus a large **synthetic** split generated with a controllable simulator.
+- **Classes:** the synthetic taxonomy reaches ~18 fine classes and includes rare categories (specialized vehicles, light poles, signs) seldom found together in other benchmarks.
+- **Access:** free for research; RGB.
+- **Strengths / use:** the synthetic split is the interesting part — it shows how simulator-generated labels cut annotation cost and rebalance rare classes, the same lever an airside pipeline needs given the labeling gap (§5.4, §12).
+- **Airside transfer:** **moderate** — the synthetic-augmentation methodology transfers even where the scenes do not.
+
+#### Supporting and specialized datasets
+
+- **nuScenes-lidarseg (16 classes) / Waymo Open (23 classes)** — large single-scan MLS datasets; with per-frame poses they are accumulated into local maps on demand. Best used to train the *single-scan* models that the map pipeline later auto-labels.
+- **WHU-Railway3D** — large MLS+ALS railway-corridor dataset (~11 classes incl. masts and overhead lines); corridor geometry is a useful analog for taxiways and service roads.
+- **Swiss3DCities** — UAV-photogrammetry, three Swiss cities, ~5 coarse classes; useful for self-supervised pre-training at scale.
+- **ISPRS Vaihingen-3D, LASDU, DublinCity, ECLAIR** — established ALS urban benchmarks; supplementary label diversity for ground/vegetation/building/structure.
+- **SUM** — semantic *textured-mesh* benchmark (Helsinki, 6 classes); relevant if the pipeline meshes the map before labeling.
+- **WildScenes / RELLIS-3D** — off-road MLS datasets; the closest public proxy for unstructured airside-adjacent terrain (grass margins, gravel, vegetation edges).
+
+#### Licensing and commercial-use note
+
+Almost every dataset above is released for **research / non-commercial use** (commonly CC-BY-NC or a custom academic licence). For a commercial airside product this matters: public datasets are fine for **pre-training, architecture selection, and benchmarking**, but a model whose weights are *shipped* should have its supervised fine-tuning grounded in **owned, in-domain airside data** — which the auto-label flywheel (§2.1, §10.5, §12) is designed to produce. Verify each licence before any production use; treat the public corpus as a pre-training and evaluation asset, not a deliverable.
+
+### 5.3 How to Read This Landscape
 
 - **There is no airside-domain aggregated-map dataset.** Consistent with the corpus theme — no public airside LiDAR datasets exist. The pipeline must be bootstrapped from out-of-domain data and adapted.
 - **Match the survey geometry, not just "outdoor."** An airside MLS apron map resembles **Paris-Lille-3D / Toronto-3D / KITTI-360** (vehicle-mounted, ground-level, corridor + open-area) far more than DALES (nadir aerial). Pre-train on MLS sources; treat ALS as supplementary.
@@ -271,7 +373,7 @@ Aggregated-map segmentation has a *richer* public dataset landscape than single-
 - **The multi-scan SemanticKITTI task is the most honest proxy** for "segment an accumulated cloud" in the AV domain — it explicitly accumulates frames and forces static/moving reasoning.
 - **Density spread is the transfer risk.** Semantic3D (TLS, dense, uniform) and DALES (ALS, sparse, top-down) bracket the extremes; an MLS airside map sits between and is internally non-uniform. A model picked on one density will need adaptation.
 
-### 5.3 The Airside Benchmark Gap
+### 5.4 The Airside Benchmark Gap
 
 A minimum-viable airside aggregated-map benchmark (to be expanded in a later revision of this page):
 
@@ -530,7 +632,7 @@ Aggregated-map segmentation is **mature in industry** — more so than its publi
 - **HD-map production.** Map vendors build semantic HD-map layers (lane geometry, markings, signs, poles) from accumulated survey clouds — a direct industrial instance of this pipeline; see `../../localization-mapping/maps/map-construction-pipeline.md` and `semantic-mapping-learned-priors.md`.
 - **Foundation-model-assisted labeling.** SAM/CLIP-assisted and semi-automatic LiDAR labeling tools (e.g. SALT-class tools) cut annotation cost 50-70% and are now standard in the bootstrap phase.
 
-**Takeaway for an airside pipeline:** the industry-proven recipe is *not* exotic — a KPConv/RandLA-Net or sparse-conv backbone, sphere/tile partitioning, overlap voting, geometric smoothing, and an auto-labeling flywheel. The differentiation for airside is the **data and taxonomy** (§5.3, §6.3), not the architecture.
+**Takeaway for an airside pipeline:** the industry-proven recipe is *not* exotic — a KPConv/RandLA-Net or sparse-conv backbone, sphere/tile partitioning, overlap voting, geometric smoothing, and an auto-labeling flywheel. The differentiation for airside is the **data and taxonomy** (§5.4, §6.3), not the architecture.
 
 ---
 
