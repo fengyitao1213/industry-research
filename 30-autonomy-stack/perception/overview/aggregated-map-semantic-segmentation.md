@@ -459,6 +459,8 @@ If the benchmark is published, the public-corpus licensing caution of §5.2 inve
 
 ## 6. Class Taxonomies
 
+> Deep-dive companion: `3d-segmentation-class-taxonomy-design.md` — taxonomy granularity, hierarchical taxonomies, cross-dataset harmonization, safety-criticality weighting, open-set/unknown handling, the airside aggregated-map taxonomy in full.
+
 ### 6.1 The "Stuff vs Things" Balance Shifts
 
 In single-scan driving segmentation, "things" (cars, pedestrians) dominate the safety story. In an aggregated **static** map, dynamics have been removed (§9) — what remains is overwhelmingly **stuff**: ground, structures, vegetation, infrastructure furniture. The taxonomy therefore emphasizes:
@@ -810,6 +812,8 @@ If the pipeline uses colorized input (§4.2): project imagery per point, resolve
 ---
 
 ## 10. Post-Processing and Refinement
+
+> Deep-dive companion: `segmentation-post-processing-label-refinement.md` — CRF, geometric/graph smoothing, TTA, ensembling, training-free and learned panoptic extraction, calibration/uncertainty handling, multi-pass fusion, tile stitching, the recommended production stack.
 
 ### 10.1 Geometric Label Smoothing
 
