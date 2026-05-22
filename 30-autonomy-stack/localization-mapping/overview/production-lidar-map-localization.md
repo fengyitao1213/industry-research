@@ -135,6 +135,11 @@ struct Voxel {
     uint8_t  semantic_label;            // Optional: ground, building, infrastructure
     uint8_t  stability_score;           // 0-255, how stable over time (from fleet)
 };
+```
+
+The optional `semantic_label` field is populated by the offline aggregated-map semantic segmentation pipeline (`../../perception/overview/aggregated-map-semantic-segmentation.md`). When present it enables **semantic-weighted scan matching**: weight correspondences on geometrically stable classes (buildings, poles, fixed structure) above unstable ones (vegetation, staged GSE), so transient or seasonal content does not bias the pose estimate. This pairs naturally with the `stability_score` and with the robust kernels of §4.4 — semantic class is a *prior* on which points to trust, the robust kernel handles the residual outliers.
+
+```cpp
 
 // Spatial hash for O(1) lookup
 struct VoxelKey {

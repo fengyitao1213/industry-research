@@ -999,6 +999,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` — closing the train/inference domain gap
 - `90-synthesis/readiness-risk/technology-readiness.md` — TRL of the pipeline as the auto-label source for the learned-detection POC
 - `30-autonomy-stack/localization-mapping/maps/hd-map-change-detection-maintenance.md` — semantic change detection consumes the labeled map this pipeline produces
+- `30-autonomy-stack/localization-mapping/overview/production-lidar-map-localization.md` — semantic-weighted scan matching consumes the labeled map's per-voxel class field
 - `30-autonomy-stack/localization-mapping/maps/map-construction-pipeline.md` — the offline HD-map construction pipeline that produces the aggregated map and consumes the semantic layer
 - `30-autonomy-stack/localization-mapping/maps/semantic-mapping-learned-priors.md` — semantic map layers and learned priors
 - `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic-object removal (required pre-processing)
