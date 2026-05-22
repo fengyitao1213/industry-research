@@ -136,9 +136,9 @@ Discretize space into regular 3D voxels, apply 3D sparse convolutions.
 | Method | Voxel Type | Pros | Cons |
 |--------|-----------|------|------|
 | [MinkUNet](../methods/minkowskinet.md) (2019) | Cubic voxels + sparse conv (Minkowski Engine) | Strong baseline, well-tested | Fixed resolution tradeoff |
-| SPVCNN (2020) | Sparse voxel conv + point-based branch | Best of both worlds | Complex pipeline |
+| [SPVCNN](../methods/spvcnn.md) (2020) | Sparse voxel conv + point-based branch | Best of both worlds | Complex pipeline |
 | [Cylinder3D](../methods/cylinder3d.md) (2021) | **Cylindrical** voxels (r, θ, z) | Matches LiDAR scan pattern | Custom CUDA kernels |
-| SphereFormer (2023) | Radial windows for attention | Handles range-dependent density | Higher latency |
+| [SphereFormer](../methods/sphereformer.md) (2023) | Radial windows for attention | Handles range-dependent density | Higher latency |
 
 **Cylindrical voxelization** is particularly relevant for LiDAR because sensor density naturally decreases with range — cylindrical cells have approximately equal point counts regardless of distance.
 
@@ -149,7 +149,7 @@ Project 3D points onto a 2D range image (azimuth × elevation), apply 2D CNNs.
 | Method | Backbone | Pros | Cons |
 |--------|----------|------|------|
 | SqueezeSeg (2018) | SqueezeNet | Very fast | Low accuracy |
-| SalsaNext (2020) | Dilated conv + pixel shuffle | **Real-time on Orin** | ~60 mIoU (low) |
+| [SalsaNext](../methods/salsanext.md) (2020) | Dilated conv + pixel shuffle | **Real-time on Orin** | ~60 mIoU (low) |
 | FIDNet (2021) | Fully interpolation decoding | Handles discretization loss | Moderate accuracy |
 | CENet (2022) | Range image + multi-scale context | Better boundary quality | Still 2D projection artifacts |
 

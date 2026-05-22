@@ -626,7 +626,7 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 | Airport/city-scale map; tiling is the pain point | Superpoint Transformer / SuperCluster | Partitioning is intrinsic, whole-scene context, tiny models (§7.3, §8.2) |
 | Maximum accuracy, tiling well-engineered | PTv3 + Sonata pre-training | Accuracy ceiling on public benchmarks (§7.4) |
 | In-domain labels very scarce (the airside reality) | Any of the above + invest in §7.6 | Pre-training outweighs architecture choice (§7.4) |
-| Sparse far-field, off-trajectory map regions | Add SphereFormer-style radial attention or density-randomized augmentation | Handles the intra-map density gap (§2.3, §7.5) |
+| Sparse far-field, off-trajectory map regions | Add [SphereFormer](../methods/sphereformer.md)-style radial attention or density-randomized augmentation | Handles the intra-map density gap (§2.3, §7.5) |
 | A single-scan model must also ship | Keep map and on-vehicle architectures aligned | Consistent auto-label back-projection across taxonomies (§6.3) |
 
 **The meta-rule.** For airside specifically, the honest guidance is: do not over-invest in architecture search. §7.4's pattern holds — a well-pre-trained sparse-conv or superpoint model beats a poorly-trained transformer. Pick one architecture the team can support, get §7.6 (pre-training) and §9 (conditioning) right, and let the flywheel (§12) drive accuracy. Architecture is a P4 refinement (§15.2), not a P1 decision.
