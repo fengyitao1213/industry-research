@@ -773,6 +773,21 @@ Aggregated-map segmentation is **mature in industry** — more so than its publi
 - **Human spot-review** — route the lowest-confidence and highest-disagreement tiles (not random tiles) to annotators; this is the active-learning loop.
 - **Stability across map versions** — when the map is re-surveyed, label churn in unchanged regions should be near zero.
 
+### 13.3 Benchmarking Protocol and Statistical Rigor
+
+Headline mIoU is easy to report and easy to inflate. A research-grade evaluation of an aggregated-map segmenter follows a stricter protocol:
+
+- **Geographic, leak-free splits.** Adjacent tiles share structure — a random tile split lets the model memorize geometry that recurs across the train/test boundary. Split by geography with a buffer zone, and hold out at least one entire airport for the cross-site number (§5.4). Report in-site and cross-site mIoU separately; the gap is the real generalization signal.
+- **Evaluate at full point resolution.** A voxelized model predicts per voxel; metrics computed at voxel resolution are optimistic because they ignore the within-voxel points the prediction is propagated to. Always propagate labels to the original full-resolution cloud and score there (§9.3).
+- **Density-stratified reporting.** Intra-map density varies by orders of magnitude (§2.3). A single mIoU averages away far-field collapse — report mIoU bucketed by local density (trajectory-near vs. off-trajectory) so the density-gap failure (§7.5) is visible, not hidden.
+- **Multiple seeds.** Models with stochastic components (RandLA-Net's random sampling, tile seeding, augmentation) vary run to run — report mean ± standard deviation over ≥3 seeds, not a single best run. A 0.5-point mIoU difference inside one standard deviation is not an improvement.
+- **Per-class IoU, rare classes called out.** mIoU is reported but never alone; thin/rare classes (markings, poles, signs, wires) get their own line — a model can gain mIoU while a safety-relevant class collapses.
+- **Boundary metrics at multiple tolerances.** Boundary IoU/F1 evaluated at several distance tolerances catches edge blur and seam artifacts a volumetric IoU misses (§8).
+- **Fair baseline comparison.** When comparing architectures (§7.8), fix everything else — same conditioning, same tiles, same taxonomy, same augmentation, same label set — so the delta is attributable to the model, not the pipeline around it.
+- **Evaluate the auto-labels, not just the map.** The pipeline's product is also back-projected single-scan labels (§10.5). Score the back-projected labels against a small manually-labeled single-scan set — auto-label quality, not just map mIoU, is what bounds the downstream on-vehicle model.
+
+Each metric should ship with the conditions it was measured under — voxel size, dynamic-removal method, density bucket, seed count — so two results are genuinely comparable (§5.4 metadata).
+
 ---
 
 ## 14. Airside Application
