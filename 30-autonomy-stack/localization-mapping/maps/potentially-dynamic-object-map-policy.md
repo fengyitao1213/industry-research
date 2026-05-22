@@ -55,6 +55,17 @@ The policy goal is not simply "remove dynamic objects." It is to prevent movable
 | Fixed signs, lights, poles | Permanent static | Multi-session observation and map QA |
 | Pavement markings | Permanent static/regulatory | Multi-view evidence and approval when safety-critical |
 
+## Relationship to Aggregated-Map Semantic Segmentation
+
+This page defines the *policy* — which object classes may enter the permanent map and under what evidence. The **end-to-end aggregated-map semantic segmentation pipeline** (`../../perception/overview/aggregated-map-semantic-segmentation.md`) is one *mechanism* that operationalizes it.
+
+- That pipeline's airside class taxonomy includes an explicit **"staged GSE / permitted-static"** class (its §6.3, class ID 9) — a deliberate quarantine class for equipment that is static now but is not permanent map structure. It is the learned-model realization of the movable-static layer in the Policy Matrix above.
+- Division of labour: the **segmentation model decides the class** of every map point; **this policy decides what happens to each class** — exclude from the permanent map, keep as a live obstacle, route to a FOD alert. A learned per-point class (with confidence) plus this policy matrix yields an auditable, per-point layer assignment.
+- Keeping the segmentation taxonomy aligned one-to-one with this policy matrix is what makes the learned output directly consumable: every class the model can predict must have a row here, and every movable class here must be a class the model is trained to recognize.
+- The pipeline also enforces the FOD safety rule of the Source Lessons — it carries an explicit "unknown" catch-all class so small hazards are flagged for review, never silently cleaned away.
+
+Cross-reference: `../../perception/overview/aggregated-map-semantic-segmentation.md` §6.3 (taxonomy), §2.4 and §9.1 (dynamic removal vs. quarantine).
+
 ## Acceptance Metrics
 
 | Metric | Target behavior |

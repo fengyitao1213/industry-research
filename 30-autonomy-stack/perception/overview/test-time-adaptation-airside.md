@@ -1061,6 +1061,23 @@ reference airside AV stack uses RoboSense RSHELIOS (32-beam, 905nm) and RSBP (32
 | **Firmware updates** | New firmware may change point cloud characteristics | Re-run TTA after any firmware update |
 | **Lens contamination** | De-icing spray, dust, insects | Detect via sudden density drop, trigger cleaning |
 
+### 8.5 Domain Adaptation for Offline Aggregated-Map Segmentation
+
+§8.1-8.4 address the on-vehicle, single-scan setting. The offline pipeline that segments the *aggregated (registered multi-scan) LiDAR map* (`aggregated-map-semantic-segmentation.md`) carries a different domain shift — and it is the one that page's §7.5 explicitly defers to this document.
+
+**The shift is single-scan → accumulated, not cross-vehicle.** Most public 3D segmentation models are trained on single-scan data (SemanticKITTI single-scan, nuScenes). Run on an accumulated map, the input distribution is off-distribution in three ways: (1) far higher, multi-viewpoint density; (2) completed geometry — occlusion filled in; (3) no ego-centric range pattern. On top of that the map is *internally* non-uniform — thousands of points/m² near the survey trajectory, tens of points/m² off it — an intra-map domain shift a single density-trained model handles poorly.
+
+**Adaptation strategies, cheapest first** (mirroring `aggregated-map-semantic-segmentation.md` §7.5):
+
+1. **Train on accumulated clouds directly** — accumulate the training data the same way the map is built. The cleanest fix when labeled accumulated data exists.
+2. **Density-randomized augmentation** — randomly subsample tiles across the full density range the map spans, so the model is density-robust by construction (the same lever as the §8.1 random-point-dropping strategy, applied to map density rather than sensor count).
+3. **Self-supervised pre-training on unlabeled airside maps** — then fine-tune with few labels; the unlabeled maps are free.
+4. **Test-time adaptation on the target map** — BN-statistic or entropy adaptation (TENT/EATA-style, §3) computed over the whole map.
+
+**The offline setting makes adaptation easier, not harder.** Unlike on-vehicle TTA, there is no latency budget: heavy multi-scale TTA, test-time augmentation, and ensembles are all affordable, and because the entire map is available at once, adaptation statistics (BN means/variances, entropy estimates) are stable rather than computed from a single noisy frame. Domain adaptation for the offline map task is therefore lower-risk than the live-stack TTA of §3 and §9.
+
+Cross-reference: `aggregated-map-semantic-segmentation.md` §2.3 (failure modes), §7.5 (the train/inference density gap), §7.6 (SSL pre-training).
+
 ---
 
 ## 9. Practical Fleet-Scale Strategy
