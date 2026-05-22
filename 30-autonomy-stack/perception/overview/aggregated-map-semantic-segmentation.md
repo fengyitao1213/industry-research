@@ -1173,16 +1173,31 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 ### Related Repository Documents
 - `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` — single-scan / real-time on-vehicle segmentation (the complementary page)
 - `30-autonomy-stack/perception/overview/lidar-foundation-models.md` — PTv3, Sonata, ScaLR, PointLoRA pre-training
+- `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md` — class-taxonomy design deep dive (§6 companion)
+- `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md` — post-processing & refinement deep dive (§10 companion)
+- `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md` — tiling, stitching, and throughput-engineering deep dive (§8 companion)
+- `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md` — training-paradigm comparison across all 11 paradigms (§7.6 companion)
+- `30-autonomy-stack/perception/overview/lidar-artifact-removal-techniques.md` — pre-processing / conditioning deep dive (§9 companion)
+- `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic object removal as a segmentation prerequisite (§9.1)
+- `10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md` — losses and metrics first-principles KB
+- `10-knowledge-base/geometry-3d/point-cloud-representations-voxelization-first-principles.md` — representations and voxelization first-principles KB
+- `10-knowledge-base/geometry-3d/correspondence-search-data-structures.md` — neighbor-search and data-structure fundamentals behind the point-based backbones
+- `10-knowledge-base/machine-learning/foundation-model-training-first-principles.md` — foundation-model training fundamentals
 - `10-knowledge-base/machine-learning/sparse-attention-3d-perception.md` — attention-mechanics fundamentals behind the transformer backbones (PTv3, OctFormer)
 - `30-autonomy-stack/perception/methods/minkowskinet.md` — MinkowskiNet deep-dive (sparse-voxel convolution U-Net baseline)
+- `30-autonomy-stack/perception/methods/spvcnn.md` — SPVCNN deep-dive (sparse point-voxel hybrid)
 - `30-autonomy-stack/perception/methods/kpconv.md` — KPConv deep-dive (point-based convolution baseline)
 - `30-autonomy-stack/perception/methods/randla-net.md` — RandLA-Net deep-dive (efficient large-scale point-based segmentation)
 - `30-autonomy-stack/perception/methods/cylinder3d.md` — Cylinder3D deep-dive (cylindrical sparse-voxel, single-scan oriented)
+- `30-autonomy-stack/perception/methods/sphereformer.md` — SphereFormer deep-dive (radial-window attention, single-scan oriented)
 - `30-autonomy-stack/perception/methods/waffleiron.md` — WaffleIron deep-dive (projection-based, standard dense 2D convolutions)
+- `30-autonomy-stack/perception/methods/salsanext.md` — SalsaNext deep-dive (canonical real-time range-image segmenter)
 - `30-autonomy-stack/perception/methods/point-transformer-v3.md` — PTv3 backbone deep-dive (serialized-attention 3D transformer)
+- `30-autonomy-stack/perception/methods/flatformer.md` — FlatFormer deep-dive (flattened window attention, real-time on Orin)
 - `30-autonomy-stack/perception/methods/octformer.md` — OctFormer deep-dive (octree-based transformer for large clouds)
 - `30-autonomy-stack/perception/methods/superpoint-transformer.md` — Superpoint Transformer deep-dive (large-scale superpoint-graph segmentation)
 - `30-autonomy-stack/perception/methods/2dpass.md` — 2DPASS deep-dive (image-assisted training, LiDAR-only inference)
+- `30-autonomy-stack/perception/methods/mosaic3d.md` — Mosaic3D deep-dive (open-vocabulary 3D segmentation)
 - `30-autonomy-stack/perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md` — benchmark-usage reference (splits, metrics, servers, formats, licensing)
 - `30-autonomy-stack/perception/overview/self-supervised-pretraining-driving.md` — SSL pre-training for label-efficient fine-tuning
 - `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` — closing the train/inference domain gap
