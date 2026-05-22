@@ -53,6 +53,7 @@
 | **HD Map** | High-Definition Map — centimeter-accurate road map |
 | **L4** | SAE Level 4 — high driving automation (no human fallback in ODD) |
 | **LiDAR** | Light Detection and Ranging — laser-based 3D scanning |
+| **MLS / ALS / TLS** | Mobile / Airborne / Terrestrial Laser Scanning — vehicle-, aircraft-, and tripod-mounted LiDAR survey modalities |
 | **MPC** | Model Predictive Control — optimization-based control |
 | **OTA** | Over-the-Air — remote software/model updates |
 | **PID** | Proportional-Integral-Derivative — basic control algorithm |
@@ -84,10 +85,12 @@
 | **IoU** | Intersection over Union — overlap metric |
 | **ISAM2** | Incremental Smoothing and Mapping — fast factor graph optimization |
 | **JEPA** | Joint Embedding Predictive Architecture — LeCun's world model paradigm |
+| **KPConv** | Kernel Point Convolution — point-based 3D convolution operator for point clouds |
 | **KV-cache** | Key-Value cache — transformer inference optimization |
 | **LoRA** | Low-Rank Adaptation — efficient fine-tuning method |
 | **mAP** | Mean Average Precision — detection accuracy metric |
 | **MBRL** | Model-Based Reinforcement Learning |
+| **mIoU** | mean Intersection over Union — primary semantic segmentation metric (mean of per-class IoU) |
 | **MoE** | Mixture of Experts — conditional computation |
 | **NDS** | nuScenes Detection Score — composite metric |
 | **NeRF** | Neural Radiance Fields — neural scene representation |
@@ -96,8 +99,10 @@
 | **PAC** | Probably Approximately Correct — learning theory bound |
 | **POMDP** | Partially Observable Markov Decision Process |
 | **PTQ/QAT** | Post-Training Quantization / Quantization-Aware Training |
+| **PTv3** | Point Transformer V3 — serialized-attention 3D point cloud backbone |
 | **RoPE** | Rotary Position Embedding |
 | **RSSM** | Recurrent State-Space Model — Dreamer's dynamics model |
+| **SPT** | Superpoint Transformer — superpoint-graph architecture for large-scale 3D segmentation |
 | **SSM** | State Space Model — O(n) sequence model (Mamba) |
 | **TOPS** | Tera Operations Per Second — compute performance |
 | **TRT** | TensorRT — NVIDIA inference optimization |
