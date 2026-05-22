@@ -197,7 +197,7 @@ Combine multiple representations for best accuracy.
 1. **PTv3 dominates accuracy** but requires desktop GPU for full inference
 2. **Cylinder3D remains the best accuracy/speed tradeoff** for voxel methods
 3. **SalsaNext is the only method achieving real-time on Orin** without TensorRT optimization — but accuracy is ~20% lower than SOTA
-4. **FlatFormer** (CVPR 2023, MIT Han Lab) bridges the gap: first point cloud transformer achieving **4.6x speedup over SST** while maintaining competitive accuracy. Uses sorted grouping instead of spatial windows
+4. **[FlatFormer](../methods/flatformer.md)** (CVPR 2023, MIT Han Lab) bridges the gap: first point cloud transformer achieving **4.6x speedup over SST** while maintaining competitive accuracy. Uses sorted grouping instead of spatial windows
 5. **Pre-training** (Sonata, ScaLR) adds 5-10% mIoU on top of any base architecture
 
 ---
