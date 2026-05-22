@@ -102,6 +102,18 @@ Metrics:
 - Change-detection precision across map versions.
 - Manual QA burden per kilometer or per stand.
 
+## Map Cleaning as a Prerequisite for Map Segmentation
+
+Cleaning is not only a localization concern — it is a hard **prerequisite for end-to-end semantic segmentation of the aggregated map** (see `../../perception/overview/aggregated-map-semantic-segmentation.md`, which treats dynamic removal as non-optional pre-processing). The relationship runs both ways.
+
+**Cleaning feeds segmentation.** Ghost trails left by un-removed dynamic objects belong to no semantic class. A segmentation model forced to label them pollutes the dominant "stuff" classes (ground, building) and — worse — corrupts the single-scan auto-labels back-projected from the map. Segment a dirty map and the error propagates into every downstream training set.
+
+**The aggressiveness trade-off, seen from the segmentation side.** The "static erosion" failure mode above is precisely the failure that hurts segmentation most: over-cleaning deletes thin static structure — poles, fences, kerbs, painted markings — which are exactly the rare, hard, high-value classes whose IoU is already fragile. Under-cleaning leaves residue. The resolution is the one the segmentation taxonomy assumes: **clean conservatively, and let the segmentation taxonomy's quarantine class absorb the residue.** The *movable-static layer* defined in this page's Executive Summary maps one-to-one onto the segmentation taxonomy's "staged GSE / permitted-static" class. Keeping the layer definition and the class definition aligned is what lets the cleaner's output and the segmenter's output agree.
+
+**Segmentation feeds cleaning QA.** Once a learned segmentation model exists it becomes a downstream *validator* of cleaning quality: a region the model labels with persistently low confidence, or that no class explains, is a strong candidate for incomplete cleaning or ghosting. Agreement between the per-point map-layer assignment (static / movable-static / dynamic / artifact) and the semantic label is a free cross-check — it complements the "cleaner disagreement → manual QA" rule in Deployment Decision Rules.
+
+**Ordering and provenance.** The pipeline order is fixed: **clean → condition → segment**. The point provenance recommended in Implementation Notes (source scan, timestamp, pose, cleaner decision, map layer) should carry through to the labeled map, so a mis-segmented region can be traced back to the cleaner decision that produced it.
+
 ## Implementation Notes
 
 - Store point provenance: source scan, timestamp, pose, cleaner decision, and map layer.

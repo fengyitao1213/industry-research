@@ -1179,11 +1179,30 @@ Layer 0: Base (AMDB)           ← Aerodrome mapping database geometry
 | L0: AMDB | FAA/EUROCONTROL AIRAC | 28 days | Automatic download |
 | L1: Metric | Vehicle SLAM | Per mission | Loop closure check |
 | L2: Geometric | HD survey + SLAM refinement | Monthly | RTK comparison |
-| L3: Infrastructure | Manual annotation + fleet detection | Quarterly | Human review |
+| L3: Infrastructure | Aggregated-map segmentation (§9.3) + manual QC | Quarterly → per re-survey | Human review of low-confidence regions |
 | L4: Semantic | Fleet observation + NMP | Weekly | Fleet consensus |
 | L5: Dynamic | NOTAM feed + A-CDM + perception | Real-time | Automatic |
 | L6: Behavioral | Fleet statistics + NMP | Daily | Statistical tests |
 | L7: Mission | Fleet management system | Real-time | Operational |
+
+### 9.3 Populating the Physical Layers from Aggregated-Map Segmentation
+
+§9.1 defines *what* the layers are; this subsection defines *where the content of the physical layers comes from*. The bridge from **L1 (metric point cloud)** to **L2-L3 (geometric and infrastructure semantics)** is the end-to-end **aggregated-map semantic segmentation pipeline** — documented in full in `../../perception/overview/aggregated-map-semantic-segmentation.md` (datasets, class taxonomies, model families, tiling/stitching, design trade-offs).
+
+**The producer relationship.** §9.2 lists the L3 update source as "manual annotation" — that is the cold-start. At scale, the automated producer is the learned segmentation pipeline: it assigns a semantic class to every point of the L1 cloud, then its post-processing **polygonizes pavement/terrain surfaces, vectorizes painted markings, and extracts structure/furniture footprints** into discrete L2-L3 elements, each carrying a confidence value that feeds the map-uncertainty layer (§7).
+
+```
+L1 metric point cloud (raw LiDAR SLAM map)
+   │  dynamic removal      (slam-methods/lidar-map-cleaning-dynamic-removal.md)
+   │  aggregated-map segmentation  -> per-point class + confidence
+   │  post-processing: polygonize / vectorize / footprint extraction
+   ▼
+L2 geometric elements + L3 infrastructure elements (with per-element confidence)
+```
+
+**Scope boundary — segmentation populates the *physical* layers only.** Point-wise semantic segmentation produces L1-L3 content: surfaces, markings, structures, fencing, poles, signs. It does **not** produce L4+ — semantic rules, dynamic constraints, behavioral and mission layers come from topology reasoning (§5), scene-graph mapping (§6), fleet observation (§8), and external feeds (NOTAM, A-CDM). The two are complementary: segmentation gives the *physical substrate*; topology and fleet learning give the *rules and behavior* defined over it.
+
+**Why this matters for the update strategy.** Treating the segmentation pipeline as the L2-L3 producer changes the §9.2 cadence: L3 need not be a quarterly *manual* effort — each survey re-drive re-segments the map and proposes L2-L3 updates automatically, with human QC reduced to reviewing low-confidence and changed regions. This is the same auto-labeling flywheel that supplies on-vehicle perception training data (`../../perception/overview/lidar-semantic-segmentation.md` §9.4) — one segmentation pass serves both the map layers and the perception models.
 
 ---
 
@@ -1403,3 +1422,4 @@ class MultiAirportMapModel:
 - `70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` — AMDB bootstrap, per-airport adaptation
 - `30-autonomy-stack/perception/overview/lidar-foundation-models.md` — PTv3 for BEV feature extraction
 - `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` — Domain adaptation for map models
+- `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` — end-to-end semantic segmentation of the aggregated map; producer of the L1-L3 semantic content (§9.3)
