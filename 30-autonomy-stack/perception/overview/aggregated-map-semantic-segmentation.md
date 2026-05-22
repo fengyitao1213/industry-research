@@ -216,6 +216,8 @@ The aggregated map is colorized by projecting camera imagery onto each point usi
 - **Cons:** colorization quality depends on camera–LiDAR calibration and exposure consistency; moving shadows and rolling-shutter artifacts bleed into colour; multi-pass colour conflicts must be resolved (median/most-confident projection); colour is illumination-dependent — a night-only map has poor colour.
 - **Verdict:** strong accuracy gain when imagery is well-calibrated and well-lit; treat colour as an *augmenting* channel the network can learn to down-weight, never a required one.
 
+Colorization stands or falls on the camera-LiDAR projection — the extrinsics, time-sync, and distortion handling that decide whether colour lands on the right point. Those mechanics are covered in `camera-lidar-fusion-interfaces.md`; a miscalibrated projection here is the dominant failure mode of colorized input.
+
 ### 4.3 Multimodal LiDAR + Image Fusion
 
 Instead of baking colour into points, keep the image stream as a parallel modality and fuse learned features:

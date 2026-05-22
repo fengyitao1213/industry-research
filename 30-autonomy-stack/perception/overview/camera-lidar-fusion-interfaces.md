@@ -73,6 +73,10 @@
 - Train with missing modalities, degraded cameras, sparse LiDAR, and calibration perturbations.
 - Require a conservative fallback when camera and LiDAR disagree inside the planned path.
 
+## Offline Map Colorization
+
+The same camera-LiDAR projection mechanics serve an *offline* consumer: colorizing an aggregated LiDAR map by projecting survey imagery onto each map point, so a 3D segmenter can ingest `(x,y,z,intensity,r,g,b)`. The interface concerns above — extrinsics, time-sync, distortion, rolling-shutter — apply unchanged, with two offline-specific additions: multi-pass colour conflicts must be resolved (median or most-confident projection), and grazing-angle projections rejected. See `aggregated-map-semantic-segmentation.md` §4.2 (colorized input) and §9.5 (colorization conditioning).
+
 ## Sources
 
 - FUTR3D arXiv paper: https://arxiv.org/abs/2203.10642
