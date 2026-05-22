@@ -305,7 +305,7 @@ The table above is a selection map; the profiles below give the detail a pipelin
 - **Scale & density:** ~143 M points; dense along the vehicle corridor, thinning off-path — the same density signature as an airside survey drive.
 - **Classes:** 50 fine classes collapsed to ~9-10 coarse for the NPM3D benchmark — ground, building, pole, bollard, trash can, barrier, pedestrian, car, natural (vegetation).
 - **Access:** free for research; LiDAR geometry + intensity only, no RGB.
-- **Strengths / use:** the closest public analog to an airside MLS corridor map — same sensor class, same ground-level viewpoint. Primary supervised pre-training source for the recommended pipeline (§7.5, §14.3).
+- **Strengths / use:** the closest public analog to an airside MLS corridor map — same sensor class, same ground-level viewpoint. Primary supervised pre-training source for the recommended pipeline (§7.5, §14.4).
 - **Limitations:** dense European streets, no open-apron analog; no colour channel.
 - **Airside transfer:** **high** — ground, pole, bollard, barrier map almost one-to-one onto the airside taxonomy (§6.3).
 
@@ -408,6 +408,8 @@ Almost every dataset above is released for **research / non-commercial use** (co
 ### 5.4 The Airside Benchmark Gap
 
 No public airside aggregated-map dataset exists (§5.3) — creating one is an open opportunity and the cheapest route to closing the corpus-wide airside data gap. This section specifies a concrete minimum-viable benchmark, the annotation protocol that produces it, and the cost model that governs it.
+
+**The gap is confirmed, not merely asserted.** A survey of the airside-segmentation literature through 2024-2026 verifies the corpus conclusion holds: *every* published airside LiDAR semantic-segmentation paper trains and evaluates on **private or synthetic data** — there is no public, labeled, real-world airside point-cloud benchmark, aggregated or single-scan. The closest academic prior (the TU Dresden synthetic-LiDAR line, §14.2) uses **CAD/BIM-simulated** point clouds; the rare peer-reviewed real-data papers (e.g. the 2024 jetbridge engine-detection work, §14.2) use **proprietary** captures and release neither the data nor the architecture; and the operational vendors deploying vehicle-mounted airside LiDAR (Aurrigo, Toyota, ThorDrive — §14.2) publish nothing. The practical consequence is unchanged but reinforced: an airside aggregated-map dataset must be **bootstrapped in-house**, and the field's de facto substitute for the missing real benchmark is a **synthetic CAD/BIM airport model** — which makes the synthetic-data lever of §5.2 and §12 not optional but the field-standard starting point.
 
 #### Benchmark Specification
 
@@ -601,7 +603,7 @@ A model trained on single-scan data and run on an accumulated map sees an off-di
 | **Multi-dataset joint training** | One backbone, many datasets, dataset-specific prompts/norms | Point Prompt Training (PPT) | Turns the fragmented public-dataset landscape (§5) into one pre-training corpus |
 | **Generalist SSL backbone** | Large-scale SSL producing a reusable, optionally frozen backbone | Sonata (builds on PTv3) | Current SOTA generalist; strong linear-probe and few-shot; the lead backbone candidate |
 
-**Recommended pre-training path for airside** (consistent with §7.5, §14.3, and `self-supervised-pretraining-driving.md`, `lidar-foundation-models.md`):
+**Recommended pre-training path for airside** (consistent with §7.5, §14.4, and `self-supervised-pretraining-driving.md`, `lidar-foundation-models.md`):
 
 1. **Start from a generalist backbone.** Initialize from a Sonata/PTv3-class checkpoint pre-trained at scale rather than random weights — it already encodes transferable 3D structure.
 2. **Continue SSL on unlabeled airside maps.** Masked-voxel modeling over the airside map corpus closes the domain gap (apron geometry, airside density signature, intensity statistics) *before* any label is spent. It is effectively free — it consumes only compute and maps the survey program already produces.
@@ -720,6 +722,10 @@ Each point in an overlap region receives multiple predictions; the merge step re
 
 **Seam handling:** even with overlap, residual seams appear at tile borders. Restrict each tile's *committed* predictions to its inner core (the sphere-sampling pattern), and run a light geometric label smoothing across the full merged cloud afterward (§10.1) to erase remaining discontinuities.
 
+**The interior-substitution stitching rule (Geo-Tiles).** A principled alternative to averaging or voting in the overlap zone is to *substitute by interior membership*: for each unit (point, pixel, or cell), keep the prediction from whichever overlapping tile holds that unit furthest inside its *interior* — i.e. the tile that gave that unit the fullest, least-truncated context — and discard the other tiles' predictions for it outright. The "Geo-Tiles" work formalizes this for tiled geospatial inference: rather than blending predictions of differing context quality, it commits each unit to the single best-contextualized tile, yielding a seam-free merge with no blurring of the overlap region. This is the generalization of the inner-core rule above — instead of a fixed inner-core radius, interior-substitution picks the best tile per unit — and it composes with logit averaging (substitute first, then average only where two tiles are equally interior). For an airside map with large tiles and 10-25% overlap (§8.3) it is the cleaner default than blind overlap voting. ("Geo-Tiles for Semantic Segmentation of Earth Observation Imagery" — [arxiv.org/abs/2306.00823](https://arxiv.org/abs/2306.00823); the rule is representation-agnostic and transfers from raster tiles to 3D point/voxel tiles.)
+
+**The "no-clipping-point" policy (PTv3-Extreme).** A second seam-prevention rule operates *before* stitching, at the partition step: do **not** drop points that fall at clip or partition boundaries. Many tiling implementations silently discard points outside a tile's clip radius or on the wrong side of a partition cut; those points either go unlabeled or are labeled from a single truncated-context tile. The 2024 Waymo Open Dataset 3D semantic segmentation challenge winner (a PTv3-based system, "PTv3-Extreme") makes a no-clipping-point policy explicit — every point is retained and predicted by every tile that covers it — and pairs it with **multi-model / multi-augmentation ensemble inference** at test time. The two together attack seams from both ends: no point is ever orphaned at a boundary, and ensembling averages out the residual per-tile edge noise. For this pipeline the takeaway is concrete: when configuring tiling (§8.2-8.3), retain boundary points rather than clip them, and reserve the offline budget for ensemble inference (§13's TTA discussion in §10.1). ("Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation" — [arxiv.org/abs/2407.15282](https://arxiv.org/abs/2407.15282); challenge-report, reported as the challenge winner.)
+
 ### 8.5 Throughput Engineering
 
 - **Spatial index once** (k-d tree / voxel hash) and reuse for tiling, neighbor queries, and stitching.
@@ -727,6 +733,10 @@ Each point in an overlap region receives multiple predictions; the merge step re
 - **Tile-level parallelism** — tiles are independent; scale across GPUs trivially. This is the pipeline's main throughput lever.
 - **Mixed precision (FP16/BF16)** — offline accuracy tolerates it; roughly doubles throughput.
 - **Checkpoint per tile** — a crash at tile 8,000 of 10,000 should resume, not restart. Offline batches are long; resumability is not optional.
+
+**Sparse-convolution acceleration libraries.** When the core model is a sparse-voxel backbone (§7.2), the kernel-map construction and gather/scatter inside the sparse convolution — not the GEMMs — are often the throughput bottleneck on a map-sized cloud. Two recent libraries directly target this and are the current state of the art over the long-standing MinkowskiEngine / SpConv implementations: **TorchSparse++** redesigns the sparse-conv dataflow (group/fused kernels, adaptive grouping) and reports a measured **1.7-3.3× end-to-end inference speedup on an A100** over MinkowskiEngine and SpConv across detection and segmentation backbones; **Minuet** replaces the hash-table kernel-map lookups with a **segmented binary search**, a memory-access pattern far friendlier to the GPU's cache hierarchy, accelerating the kernel-map construction step that dominates small-kernel sparse convolution. For an offline map pipeline these libraries are a near-free throughput win — a drop-in backend change, no accuracy cost — and they directly shorten the multi-hour batch of §3.2. See `../methods/minkowskinet.md` for the sparse-conv mechanics they accelerate. ("TorchSparse++: Efficient Training and Inference Framework for Sparse Convolution on GPUs" — [arxiv.org/abs/2311.12862](https://arxiv.org/abs/2311.12862), MICRO 2023, speedup figures are the paper's reported A100 measurements; "Minuet: Accelerating 3D Sparse Convolutions on GPUs" — [arxiv.org/abs/2401.06145](https://arxiv.org/abs/2401.06145).)
+
+**COPC — a cloud-native data layer for map-scale clouds.** The out-of-core and streaming requirements above have a standardized data-format answer: **COPC (Cloud-Optimized Point Cloud)** is a valid LAZ 1.4 file that additionally embeds a **clustered-octree spatial index** inside the file. Because the octree is internal, a client can issue HTTP **range requests** to fetch only the octree nodes intersecting a region of interest — streaming an arbitrary tile, or a coarse level-of-detail of the whole site, out of a billion-point cloud **without any pre-built tile pyramid or server-side tiling service**. For this pipeline COPC is the natural on-disk/object-store representation of the aggregated map: it makes the §8.2 partition step a pure read operation (range-fetch the tile) rather than a materialization step, and it makes the labeled-cloud *output* (§10.5) streamable to downstream consumers the same way. It is an open specification with broad tooling support (PDAL, GDAL, laspy/lazrs). (Specification: copc.io — a community standard, not a peer-reviewed paper.)
 
 ### 8.6 Pipeline Operations and Reproducibility
 
@@ -739,9 +749,11 @@ A map-segmentation pipeline is a long-running offline batch that produces artifa
 - **Carry provenance into the output.** Every labeled point should trace to the model version, pipeline config, and source tiles that produced it — the same provenance discipline as `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`, and what makes the labeled map auditable safety-case evidence (§1.3).
 - **Pin the environment.** The pre-/post-processing dependency stack (sparse-conv kernels, CUDA, point-cloud libraries) is version-fragile; a labeled map produced six months apart should be reproducible given the same inputs only if that stack is pinned.
 
+**A worked large-scale tiling pipeline — FRACTAL.** The operational disciplines above are abstract; **FRACTAL** is a published, concrete instance of them at country scale — the construction pipeline behind a large ALS segmentation dataset built from France's national Lidar HD program. Two of its design choices are directly transferable to an airside map pipeline. First, it is **catalog-driven**: every candidate tile is registered in a **PostGIS** spatial catalog with per-tile **scene descriptors** (class histograms, density, terrain type), and the training set is then assembled by **stratified sampling over those descriptors** — deliberately concentrating tiles that contain rare classes rather than sampling tiles uniformly. This is the §8.3 "density-aware seeding" and §6.4 rare-class-resampling idea promoted to a cataloged, query-able pipeline stage, and it is the right model for an airside benchmark where markings, poles, and signs are <1% of points (§5.4). Second — and load-bearing for evaluation rigor — FRACTAL constructs **spatially-disjoint train/validation/test splits**: tiles in different splits are geographically separated so that spatial autocorrelation (adjacent tiles sharing the same structures) cannot leak structure across the split boundary. This is independent confirmation of the geographic-split rule in §13.3 and §5.4: a random tile split inflates measured mIoU because the model memorizes geometry that recurs on both sides of the split; a spatially-disjoint split is the only honest protocol. ("FRACTAL: An Ultra-Large-Scale Aerial Lidar Dataset for 3D Semantic Segmentation of Diverse Landscapes" — [arxiv.org/abs/2405.04634](https://arxiv.org/abs/2405.04634); the dataset is ALS, but the cataloged-stratified-sampling and spatially-disjoint-splitting pipeline patterns transfer regardless of sensor.)
+
 ### 8.7 Multi-Resolution Segmentation
 
-The §11 decision guide and §14.3 both recommend *multi-resolution* processing without explaining it; this subsection does. The driver is the airside **scale spread**: aircraft (30-65 m) and marking/FOD-scale detail (1-10 cm) span three to four orders of magnitude. No single working resolution serves both — a fine voxel/tile resolution blows up memory and truncates large-object context, while a coarse one drops thin classes below the grid before the network sees them.
+The §11 decision guide and §14.4 both recommend *multi-resolution* processing without explaining it; this subsection does. The driver is the airside **scale spread**: aircraft (30-65 m) and marking/FOD-scale detail (1-10 cm) span three to four orders of magnitude. No single working resolution serves both — a fine voxel/tile resolution blows up memory and truncates large-object context, while a coarse one drops thin classes below the grid before the network sees them.
 
 | Approach | How | Pros | Cons |
 |---|---|---|---|
@@ -962,7 +974,7 @@ Each metric should ship with the conditions it was measured under — voxel size
 
 ### 13.4 Beyond mIoU: Error Decomposition, Calibration, and Corruption Robustness
 
-A single mIoU number answers "how good" but not "how it fails" — and for a safety-relevant labeled map (§14.4) the failure modes are what the safety case must reason about. Three evaluation dimensions beyond the §13.1 headline metrics make the failure structure visible.
+A single mIoU number answers "how good" but not "how it fails" — and for a safety-relevant labeled map (§14.5) the failure modes are what the safety case must reason about. Three evaluation dimensions beyond the §13.1 headline metrics make the failure structure visible.
 
 **Boundary-error decomposition.** Boundary IoU (§13.1) flags that edges are wrong but not *why*. **BFANet** introduces a decomposition that splits 3D segmentation error near boundaries into four named types — **Region-classification error** (a whole region given the wrong class), **False-response error** (spurious predictions where no boundary exists), **Merging error** (two classes blurred into one across a boundary), and **Displacement error** (the boundary is in roughly the right place but shifted). For this pipeline the decomposition is directly actionable: a high *displacement* error points at registration blur or voxel resolution (§9.3); a high *merging* error points at tiling/stitching seams (§8.4) or insufficient context; a high *false-response* error points at post-processing over-smoothing (§10.1). Report Boundary-IoU as the standard companion to mIoU, and the BFANet decomposition when boundary quality is being actively debugged. BFANet — "BFANet: Revisiting 3D Semantic Segmentation with Boundary Feature Analysis" ([arxiv.org/abs/2503.12539](https://arxiv.org/abs/2503.12539), CVPR 2025).
 
@@ -970,7 +982,7 @@ A single mIoU number answers "how good" but not "how it fails" — and for a saf
 
 **Corruption robustness.** Public benchmark mIoU is measured on clean clouds; an airside survey map carries rain/snow/dust speckle, reflective ghosts, and density loss (§9.2). The **Robo3D** benchmark quantifies robustness by applying eight corruption types (fog, wet ground, snow, motion blur, beam missing, crosstalk, incomplete echo, cross-sensor) at multiple severities and reporting a **mean Corruption Error (mCE)** relative to a clean baseline, via the **SemanticKITTI-C** and **nuScenes-C** corrupted test sets. For an airside pipeline, mCE answers the question clean mIoU cannot — whether the map segmenter holds up when the survey was driven in adverse weather, or whether conditioning (§9) must remove the corruption first. Report mCE alongside mIoU when adverse-condition surveys are in scope. Robo3D — "Robo3D: Towards Robust and Reliable 3D Perception against Corruptions" ([arxiv.org/abs/2303.17597](https://arxiv.org/abs/2303.17597)).
 
-Together these three dimensions answer the questions a headline mIoU hides — *where* the model fails (boundary decomposition), *whether its confidence can be trusted* (ACE, especially per rare class), and *whether accuracy survives adverse input* (mCE). For the safety-case role of §14.4 they are not optional refinements; they are the evidence that a mIoU number is defensible.
+Together these three dimensions answer the questions a headline mIoU hides — *where* the model fails (boundary decomposition), *whether its confidence can be trusted* (ACE, especially per rare class), and *whether accuracy survives adverse input* (mCE). For the safety-case role of §14.5 they are not optional refinements; they are the evidence that a mIoU number is defensible.
 
 ---
 
@@ -986,7 +998,17 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 - **Mostly static, structured scenes.** After dynamic removal, the apron is dominated by pavement, markings, structures, fencing, and poles — a taxonomy (§6.3) that transfers well from public MLS datasets.
 - **Offline budget removes the Orin constraint.** The map pipeline runs in the cloud/depot with the heaviest models; only the *single-scan* models inherit auto-labels and must hit the Orin cycle (`lidar-semantic-segmentation.md`).
 
-### 14.3 Airside-Specific Considerations
+### 14.3 Prior Work: Airside LiDAR Segmentation Today
+
+There is almost no published airside LiDAR semantic-segmentation work, and what exists confirms the §5.4 gap. Three reference points are worth knowing — they are the closest prior art an airside pipeline can position against.
+
+- **The TU Dresden synthetic-LiDAR apron-segmentation line (≈2013-2022).** The closest sustained academic effort is a series of projects at TU Dresden (the "LiDAR I" / "LiDAR II" projects) that address the missing-real-dataset problem head-on with a **CAD/BIM-then-simulate** methodology: build a *true-to-scale 3D CAD model* of a real airport (Dresden, and later a Changi apron), place a simulated LiDAR sensor inside that model, generate synthetic point clouds with perfect per-point labels for free, and train segmentation networks (RangeNet++, PointNet++) on the synthetic clouds. The two representative papers are "3D Modeling of the Airport Environment for Fast and Accurate LiDAR Semantic Segmentation of Apron Operations" (IEEE) and "Towards Automated Apron Operations — Training of Neural Networks for Semantic Segmentation Using Synthetic LiDAR Sensors" (IEEE). The take-away for this pipeline is methodological and significant: **a CAD/BIM airport model used as a synthetic-data substrate is the field's de facto answer to the absent real dataset** — it is precisely the synthetic-augmentation lever of §5.2 (STPLS3D) and §12, applied to airside, and it is the most credible way to bootstrap §5.4 round 1 before any real airside tile is labeled. The standing caveat is the sim-to-real gap: a model trained purely on simulated LiDAR inherits the simulator's noise model and material reflectivity assumptions, so synthetic pre-training must still be followed by real-data fine-tuning via the flywheel (§5.4, §7.6).
+
+- **The 2024 jetbridge engine-detection paper — a rare real-data point.** "Real-Time Semantic Segmentation of 3D LiDAR Point Clouds for Aircraft Engine Detection in Autonomous Jetbridge Operations" (*Applied Sciences* 14(21):9685, 2024) is one of the few recent peer-reviewed airside LiDAR-segmentation results on real data. Its pipeline is deliberately classical — **RANSAC ground-plane removal followed by PointNet** — applied to the narrow task of segmenting the aircraft engine for autonomous passenger-bridge docking, with a reported **~81% mIoU** on engine detection. Two things matter here: it is a real-data data point confirming that airside LiDAR segmentation works in practice, and its architecture (RANSAC guard + a point network) is exactly the heuristic-guard-plus-learned-core hybrid this page recommends (§3.3) — independent, airside-specific confirmation of the recipe. Note the scope is single-object docking, not whole-map segmentation, and the data is proprietary (mIoU is the paper's reported figure).
+
+- **Industry-proven: vehicle-mounted airside LiDAR autonomy is already deploying.** Outside academia, vehicle-mounted LiDAR airside autonomy has moved from pilot to operational deployment — but the vendors publish neither datasets nor perception architectures, the industry/research divergence already noted in §12. **Aurrigo's Auto-DollyTug** (an autonomous baggage/cargo tug with 360° LiDAR) is in operational trials at Zurich, Stuttgart and Cincinnati/CVG, and Aurrigo has published a **rainwater point-cloud filtering algorithm** for adverse-weather robustness — a rare technical disclosure, and one that aligns with the conditioning/artifact-removal stage of §9.2. **Toyota** operates L4 autonomous towing tractors airside at Tokyo Haneda, and **ThorDrive** runs driverless ground-support-equipment (GSE) at CVG. The signal for this pipeline: airside LiDAR perception is no longer speculative — it is deployed — but because no vendor releases data or architectures, the **owned auto-label flywheel of §5.4 remains the only route to an in-domain training corpus**; there is nothing public to build on.
+
+### 14.4 Airside-Specific Considerations
 
 - **Scale extremes.** Aircraft (30-65 m) and FOD-scale objects (1-10 cm) span 3-4 orders of magnitude — tiles must be large enough for aircraft context yet resolution fine enough for markings (argues for multi-resolution, §11).
 - **High-vis and specular returns.** Crew vests and wet concrete saturate or absorb intensity — intensity calibration (§9.4) must be robust to it.
@@ -995,7 +1017,7 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 
 The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2, and it slots into the new-airport onboarding playbook in `../../../70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` §2.
 
-### 14.4 The Segmented Map as Safety-Case Evidence
+### 14.5 The Segmented Map as Safety-Case Evidence
 
 For an airside L4 vehicle the HD-map semantic layer is safety-relevant infrastructure, so the segmented map is not just a data product — it is **reviewable artifact evidence** for the safety case (§1.3).
 
@@ -1072,6 +1094,13 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **SegNet4D** — "SegNet4D: Effective and Efficient 4D LiDAR Semantic Segmentation in Autonomous Driving Environments" — [arxiv.org/abs/2406.16279](https://arxiv.org/abs/2406.16279)
 - **Pamba** — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" — [arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442)
 - **gitmerge3D** — "Graph-Based Token Merging for 3D Point Cloud Transformers" — [arxiv.org/abs/2511.05449](https://arxiv.org/abs/2511.05449)
+- **PTv3-Extreme** — "Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation" — [arxiv.org/abs/2407.15282](https://arxiv.org/abs/2407.15282)
+
+### Tiling, Stitching, and Sparse-Convolution Acceleration
+- **Geo-Tiles** — "Geo-Tiles for Semantic Segmentation of Earth Observation Imagery" (interior-substitution tile-stitching rule) — [arxiv.org/abs/2306.00823](https://arxiv.org/abs/2306.00823)
+- **TorchSparse++** — "TorchSparse++: Efficient Training and Inference Framework for Sparse Convolution on GPUs" (MICRO 2023) — [arxiv.org/abs/2311.12862](https://arxiv.org/abs/2311.12862)
+- **Minuet** — "Minuet: Accelerating 3D Sparse Convolutions on GPUs" — [arxiv.org/abs/2401.06145](https://arxiv.org/abs/2401.06145)
+- **COPC (Cloud-Optimized Point Cloud)** — LAZ 1.4 with an embedded clustered-octree index for HTTP range-request streaming; community specification — [copc.io](https://copc.io)
 
 ### Instance and Panoptic Segmentation
 - **EZ-SP** — "EZ-SP: Learnable and Efficient Superpoint Partition" (ICRA 2026) — [arxiv.org/abs/2512.00385](https://arxiv.org/abs/2512.00385)
@@ -1123,6 +1152,11 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **SemanticKITTI** — Behley et al., "SemanticKITTI: A Dataset for Semantic Scene Understanding of LiDAR Sequences" (ICCV 2019)
 - **KITTI-360** — Liao et al., "KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D" (TPAMI 2022)
 - **Robo3D** — Kong et al., "Robo3D: Towards Robust and Reliable 3D Perception against Corruptions" (ICCV 2023) — [arxiv.org/abs/2303.17597](https://arxiv.org/abs/2303.17597)
+- **FRACTAL** — "FRACTAL: An Ultra-Large-Scale Aerial Lidar Dataset for 3D Semantic Segmentation of Diverse Landscapes" (PostGIS-cataloged stratified sampling + spatially-disjoint splits) — [arxiv.org/abs/2405.04634](https://arxiv.org/abs/2405.04634)
+
+### Airside LiDAR Segmentation (Prior Work)
+- **TU Dresden synthetic-LiDAR apron line** — "3D Modeling of the Airport Environment for Fast and Accurate LiDAR Semantic Segmentation of Apron Operations" (IEEE); and "Towards Automated Apron Operations — Training of Neural Networks for Semantic Segmentation Using Synthetic LiDAR Sensors" (IEEE) — CAD/BIM airport models as a synthetic-data substrate
+- **Jetbridge engine detection** — "Real-Time Semantic Segmentation of 3D LiDAR Point Clouds for Aircraft Engine Detection in Autonomous Jetbridge Operations" (*Applied Sciences* 14(21):9685, 2024) — RANSAC ground removal + PointNet, ~81% mIoU on a proprietary dataset
 
 ### Evaluation
 - **BFANet** — "BFANet: Revisiting 3D Semantic Segmentation with Boundary Feature Analysis" (CVPR 2025) — [arxiv.org/abs/2503.12539](https://arxiv.org/abs/2503.12539)

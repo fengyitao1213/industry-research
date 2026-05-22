@@ -42,6 +42,8 @@ method-priority:end -->
 - Strided sparse convolutions down-sample; sparse transposed convolutions up-sample; skip connections carry fine detail.
 - The Minkowski Engine provides the sparse convolution, pooling, and broadcast operators with autodiff.
 - Faster alternative sparse-convolution libraries — **TorchSparse** and **SpConv** — implement the same operator family with optimized kernels and are widely used in its place.
+- **TorchSparse++** (MICRO 2023) is the current high-performance option: it merges the SpConv2 and PCEngine optimizations into one training/inference framework that supports both weight-stationary and gather-scatter dataflows, and reports measured end-to-end inference speedups on an NVIDIA A100 of roughly 1.7-3.3x over Minkowski Engine, SpConv 1.2, TorchSparse, and SpConv v2.
+- A second line of work targets the **kernel-map construction** step itself — the coordinate-matching pass that decides which input sites feed which output sites. **Minuet** (2024) replaces the hash-table coordinate lookups used by Minkowski Engine, SpConv, and TorchSparse with a cache-conscious sorted **binary-search** scheme plus a GPU-cache-aware data layout, easing the memory-bandwidth bottleneck and reporting substantial paper-reported (approximate) speedups on this stage.
 - The backbone underlies many later systems: 3D detectors, panoptic-segmentation heads, and self-supervised pre-training pipelines.
 
 ## Training and Evaluation
@@ -83,7 +85,7 @@ method-priority:end -->
 ## Implementation Notes
 
 - Choose the voxel size deliberately — 2-5 cm for airside maps; too coarse and the marking/wire classes are lost, too fine and memory blows up.
-- Prefer TorchSparse or SpConv over the original Minkowski Engine for new work unless an existing pipeline depends on it.
+- Prefer a maintained, optimized library over the original Minkowski Engine for new work unless an existing pipeline depends on it — **TorchSparse++** is the current high-performance default (1.7-3.3x A100 inference speedups over older sparse-conv libraries); SpConv v2 and TorchSparse remain solid choices. Where kernel-map construction dominates runtime, the Minuet binary-search approach is the relevant accelerator.
 - Use Lovász-softmax or class-weighted loss — voxelization does not fix class imbalance.
 - For aggregated maps, tile with halo regions and merge by per-class logit averaging; checkpoint per tile so long batches are resumable.
 - Keep a voxel-to-point index so labels propagate back to full-resolution points.
@@ -95,6 +97,8 @@ method-priority:end -->
 - Minkowski Engine: https://github.com/NVIDIA/MinkowskiEngine
 - TorchSparse (optimized sparse-conv library): https://github.com/mit-han-lab/torchsparse
 - SpConv (optimized sparse-conv library): https://github.com/traveller59/spconv
+- TorchSparse++ paper: Tang et al., "TorchSparse++: Efficient Training and Inference Framework for Sparse Convolution on GPUs" (MICRO 2023): https://arxiv.org/abs/2311.12862
+- Minuet paper: Yang et al., "Minuet: Accelerating 3D Sparse Convolutions on GPUs" (2024): https://arxiv.org/abs/2401.06145
 - SparseConvNet / submanifold sparse convolution: Graham et al., "3D Semantic Segmentation with Submanifold Sparse Convolutional Networks" (CVPR 2018)
 - Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares sparse-voxel conv head-to-head against the other four model families
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation

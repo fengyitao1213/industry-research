@@ -15,11 +15,12 @@
 6. [Multi-Modal Pre-training](#6-multi-modal-pre-training)
 7. [Pre-training to Fine-tuning Pipeline](#7-pre-training-to-fine-tuning-pipeline)
 8. [Pre-training for Specific Tasks](#8-pre-training-for-specific-tasks)
-9. [Training Infrastructure and Efficiency](#9-training-infrastructure-and-efficiency)
-10. [Airside Pre-training Strategy](#10-airside-pre-training-strategy)
-11. [Comprehensive Comparison Table](#11-comprehensive-comparison-table)
-12. [Key Findings Summary](#12-key-findings-summary)
-13. [References](#13-references)
+9. [Weakly-/Semi-Supervised Learning and Active Learning](#9-weakly-semi-supervised-learning-and-active-learning)
+10. [Training Infrastructure and Efficiency](#10-training-infrastructure-and-efficiency)
+11. [Airside Pre-training Strategy](#11-airside-pre-training-strategy)
+12. [Comprehensive Comparison Table](#12-comprehensive-comparison-table)
+13. [Key Findings Summary](#13-key-findings-summary)
+14. [References](#14-references)
 
 ---
 
@@ -1401,7 +1402,241 @@ Motion forecasting benefits from temporal pre-training:
 
 ---
 
-## 9. Training Infrastructure and Efficiency
+## 9. Weakly-/Semi-Supervised Learning and Active Learning
+
+### 9.1 Where These Methods Sit Relative to SSL
+
+Self-supervised pre-training (Sections 2-8) attacks the labeled-data bottleneck by learning representations from *unlabeled* data, then fine-tuning on a small labeled set. It is one lever. There are three further label-efficiency levers that are **not** pre-training and are **orthogonal** to it -- they change *what* you label and *how much* of each frame you label, rather than how the backbone is initialized:
+
+- **Weakly-supervised learning** -- train the final segmentation/detection model directly from *cheap, sparse, or imprecise* labels (scribbles, clicks, boxes, scene-level tags) instead of dense per-point annotation.
+- **Semi-supervised learning** -- train on a small labeled set plus a large unlabeled set jointly, using teacher-student consistency and pseudo-labels.
+- **Active learning** -- spend a fixed annotation budget optimally by selecting *which* frames/points are most informative to label next.
+
+These combine multiplicatively with SSL and with the auto-label flywheel:
+
+```
+        Label-efficiency levers (combine them -- they are orthogonal)
+        ┌────────────────────────────────────────────────────────────┐
+        │ SSL pre-training      → good backbone init (Sections 2-8)   │
+        │ Weak supervision      → cheaper labels per frame  (§9.2)    │
+        │ Semi-supervised       → exploit the unlabeled majority(§9.3)│
+        │ Active learning       → label the right frames first (§9.4) │
+        │ Auto-label flywheel   → offline map model labels scans      │
+        │                          (aggregated-map-segmentation.md)   │
+        └────────────────────────────────────────────────────────────┘
+                A practical airside stack uses ALL of them:
+   SSL-pretrained backbone → AL picks frames → annotators place scribbles/clicks
+        (weak labels) → semi-supervised teacher-student exploits the rest
+        → offline aggregated-map model back-projects auto-labels
+```
+
+A useful mental model: SSL improves the *prior* (representation), weak/semi-supervision reduces the *cost per labeled frame*, and active learning improves the *sample efficiency of the labeling budget*. None of them substitutes for the others; the cheapest airside annotation pipeline stacks all four. The dense per-point baseline costs in Section 1.1 ($25-50/frame for 3D segmentation) are what every method below is measured against.
+
+> **Scope note.** This section covers 3D LiDAR segmentation specifically. Sub-section numbers under §9.2-§9.4 group methods by the type of supervision they consume. All quoted figures are paper-reported on the cited public benchmark; most cited works are **preprints** -- flagged inline as `[preprint]`.
+
+### 9.2 Weakly-Supervised 3D Segmentation
+
+Weakly-supervised methods train the segmentation network from labels that are *much cheaper* to produce than dense per-point annotation. The spectrum runs from scribbles (a few percent of points) through clicks (one per object) down to scene-level tags (no spatial annotation at all). All trade a modest accuracy drop for a large annotation-cost drop.
+
+**Annotation-strength spectrum (cheapest at the bottom):**
+
+```
+Dense per-point        100% of points labeled        — the expensive baseline
+   │
+Scribbles              ~5-8% of points               — ScribbleKITTI
+   │
+Scattered points       <0.1% of points               — ScatterNet
+   │
+One click per object   ~1 click / instance           — YoCo
+   │
+3D boxes               box geometry only             — Box2Mask, Sketchy-3DIS
+   │
+Scene-level tags       "these classes are present"   — DBGroup
+```
+
+#### 9.2.1 Scribble Supervision -- ScribbleKITTI
+
+**Paper:** "Scribble-Supervised LiDAR Semantic Segmentation" (CVPR 2022) -- [arXiv:2203.08537](https://arxiv.org/abs/2203.08537)
+
+ScribbleKITTI re-annotated the SemanticKITTI training set with **scribbles** -- annotators draw quick free-form strokes over each class region rather than labeling every point. The result labels only **~8.06% of points** yet the released benchmark is the standard anchor for all subsequent weak-label LiDAR work.
+
+- The accompanying training pipeline (class-range-balanced self-training + a descriptor-based mean-teacher with pyramid local semantic-context features) reaches **paper-reported up to 95.7% of fully-supervised mIoU** while using scribble labels only.
+- ScribbleKITTI is both a *dataset* (the scribble annotations) and a *method* (the self-training pipeline). For airside it is the reference point: it sets the expectation that ~8% point coverage retains ~95% of accuracy.
+
+**Airside relevance:** HIGH as the anchor. Scribble annotation of apron scans is straightforward -- annotators stroke over "aircraft fuselage," "apron surface," "GSE," etc. -- and the ~8% coverage figure gives a concrete budgeting baseline for the airside taxonomy.
+
+#### 9.2.2 Scattered-Point Supervision -- ScatterNet
+
+**Paper:** "Fully Sparse Scattered-Point Supervision for LiDAR Semantic Segmentation" / ScatterNet -- [arXiv:2404.12861](https://arxiv.org/abs/2404.12861) `[preprint]`
+
+ScatterNet pushes weak supervision to the extreme: annotators click a *handful of scattered points* on the LiDAR **range image**, and labels are then propagated across the rest of the cloud using vision foundation models for spatial grouping and optical flow for temporal propagation.
+
+- Paper-reported: labels **<0.02% of points** and still recovers **>95% of full-supervision performance**.
+- The range-image annotation interface is fast (clicking on a 2D projection), and foundation-model + optical-flow propagation does the heavy lifting -- no dense annotation anywhere in the loop.
+
+**Airside relevance:** HIGH. The <0.02% label budget is roughly 400x cheaper per frame than dense annotation. Optical-flow propagation is well-suited to airside's slow speeds and high inter-frame overlap (the same property that makes temporal SSL attractive, Section 6.4).
+
+#### 9.2.3 One-Click Supervision -- YoCo ("You Only Click Once")
+
+**Paper:** "YoCo: You Only Click Once for Weakly-Supervised 3D Semantic Segmentation" -- [arXiv:2502.19698](https://arxiv.org/abs/2502.19698) `[preprint]`
+
+YoCo asks the annotator for **one click per object in the BEV plane**, then expands each click into full 3D pseudo-labels for outdoor driving LiDAR via geometric and feature-space propagation seeded by foundation models.
+
+- Paper-reported on Waymo: **~74.8 mIoU**, i.e. **~93% of fully-supervised performance**, from one click per object.
+- Paper-reported: when the one-click pseudo-labels are used to fine-tune with only **~0.8% labeled points**, the model **matches full supervision**.
+- BEV-plane clicking is faster and less error-prone than 3D-viewport interaction.
+
+**Airside relevance:** VERY HIGH. One BEV click per object maps cleanly onto the airside object set (one click per aircraft, per GSE unit, per ramp worker). The ~93%-of-full result at near-zero annotation cost makes YoCo a strong candidate for the airside annotation protocol -- see the cross-reference in Section 9.5.
+
+#### 9.2.4 Box- and Scene-Level Supervision
+
+When even clicks are too expensive, *box-level* and *scene-level* supervision train instance/semantic segmentation from labels that carry no per-point information at all:
+
+- **Box2Mask** -- "Box2Mask: Box-supervised Instance Segmentation via Level-set Evolution" / 3D variant (ECCV 2022) -- [arXiv:2206.01203](https://arxiv.org/abs/2206.01203). Trains 3D instance segmentation from **3D bounding boxes only**; paper-reported **~97% of fully-supervised mAP50 on ScanNet**. Boxes are ~10-30x cheaper than dense masks, and the airside detection pipeline already produces 3D boxes -- those boxes can double as segmentation supervision.
+- **Sketchy-3DIS** -- "Sketchy-3DIS: Weakly-Supervised 3D Instance Segmentation from Imprecise Boxes" (CVPR 2025) -- [arXiv:2503.13639](https://arxiv.org/abs/2503.13639) `[preprint]`. Explicitly robust to *imprecise/loose* boxes: a sketchy-box-aware pseudo-labeler and an adaptive refinement stage tolerate annotation that is fast but sloppy. This matters operationally -- the cheapest boxes are the loosest ones, and Sketchy-3DIS lets the pipeline use them directly.
+- **DBGroup** -- "DBGroup: Dual-Branch Grouping for Scene-Level Weakly-Supervised 3D Instance Segmentation" -- [arXiv:2511.10003](https://arxiv.org/abs/2511.10003) `[preprint]`. Uses **scene-level tags only** ("this scan contains aircraft, GSE, and personnel") -- no spatial annotation -- with a dual-branch grouping mechanism to recover instances. The weakest supervision in this section; it sets the floor on annotation cost.
+
+**Airside relevance:** Box-level supervision (Box2Mask, Sketchy-3DIS) is the pragmatic pick because the airside stack *already* annotates 3D boxes for detection -- segmentation comes "for free" from existing labels. Scene-level (DBGroup) is a research-grade fallback for bootstrapping when even box annotation is not yet underway.
+
+#### 9.2.5 Pseudo-Label Hardening
+
+A recurring failure mode of all weak-supervision methods is **noisy pseudo-labels**: propagated or projected labels are wrong for some points, and naive training amplifies that noise. Two recent preprints harden the pseudo-label stage:
+
+- **Class-balanced top-k + geometry-filtered refinement** -- [arXiv:2510.17875](https://arxiv.org/abs/2510.17875) `[preprint]`. Selects only the most confident pseudo-labels per class (top-k, balanced across classes so rare classes are not starved) and filters them with geometric consistency checks before they enter training. Directly relevant to rare airside classes (de-icing trucks, FOD) that a naive confidence threshold would drop entirely.
+- **Noise-robust losses for 2D→3D projection error** -- [arXiv:2508.19909](https://arxiv.org/abs/2508.19909) `[preprint]`. Targets the specific noise introduced when 2D image labels are projected onto 3D points (calibration error, occlusion boundaries) and uses noise-robust loss functions so projection error does not corrupt the 3D model. Relevant whenever camera labels are lifted to LiDAR -- the SLidR/ScaLR cross-modal setting of Section 2.
+
+These are not standalone label-efficiency methods; they are *components* that make the §9.2-§9.3 pipelines robust enough for safety-relevant deployment.
+
+### 9.3 Semi-Supervised 3D Segmentation
+
+Semi-supervised methods assume a *small labeled set + large unlabeled set* and train both jointly. The dominant paradigm is teacher-student consistency: a teacher produces pseudo-labels on unlabeled (or perturbed) scans, and the student is trained to match them. The art is in the perturbation (what consistency to enforce) and in the pseudo-label quality control.
+
+#### 9.3.1 LaserMix / LaserMix++
+
+**Paper:** "LaserMix for Semi-Supervised LiDAR Semantic Segmentation" (CVPR 2023) -- [arXiv:2207.00026](https://arxiv.org/abs/2207.00026)
+
+LaserMix exploits the **spatial prior of laser-beam geometry**: a LiDAR scan is organized into beams/inclination ranges, and the scene's semantics are strongly correlated with beam geometry. LaserMix mixes laser beams from two scans (one labeled, one unlabeled) and enforces that predictions are consistent before and after mixing. LaserMix++ extends this with stronger augmentation and a more capable mixing strategy.
+
+- LaserMix is the most widely-cited semi-supervised LiDAR-segmentation baseline; subsequent methods (AIScene, spatio-temporal PLE) report against it.
+- The laser-beam-mixing idea is sensor-geometry-aware and transfers directly to any rotating LiDAR -- including the RoboSense units in the reference airside stack.
+
+**Airside relevance:** HIGH as a baseline and as a directly-usable method. The beam-geometry prior holds for airside LiDAR; LaserMix consistency can be applied to the abundant unlabeled apron scans with no annotation at all.
+
+#### 9.3.2 AIScene -- Scene-Affinity Teacher-Student
+
+**Paper:** "AIScene: Affinity-Aware Semi-Supervised 3D Semantic Segmentation" (CVPR 2025) -- [arXiv:2408.11280](https://arxiv.org/abs/2408.11280) `[preprint]`
+
+AIScene introduces a **scene-affinity** signal into the teacher-student loop: rather than enforcing only point-wise consistency, it propagates supervision through learned affinities between points/regions, producing cleaner pseudo-labels in low-label regimes.
+
+- Paper-reported: **61.2 mIoU on SemanticKITTI with only 1% of labels** -- a strong result at an extreme label scarcity.
+
+**Airside relevance:** HIGH. The 1%-label operating point is exactly the airside situation (a few hundred labeled tiles against tens of thousands of unlabeled scans). Scene-affinity propagation should help on the large coherent regions typical of aprons (runway/taxiway surface, aircraft bodies).
+
+#### 9.3.3 Spatio-Temporal Pseudo-Label Enhancement
+
+**Paper:** "Spatio-Temporal Pseudo-Label Enhancement for Semi-Supervised LiDAR Segmentation" -- [arXiv:2410.06893](https://arxiv.org/abs/2410.06893) `[preprint]`
+
+This method generates higher-quality pseudo-labels by **aggregating predictions across the temporal overlap of sequential scans**: a point seen in several consecutive frames accumulates evidence, and inconsistent predictions are corrected by majority/consistency over the temporal window.
+
+- Paper-reported gains: **+5.6 mIoU on SemanticKITTI** and **+6.6 mIoU on nuScenes** over the respective baselines.
+- The mechanism is strongest when consecutive scans overlap heavily.
+
+**Airside relevance:** VERY HIGH and structurally well-matched. Airside vehicles run **fixed routes at low speed**, so temporal scan overlap is unusually high -- exactly the condition this method exploits. The same fixed-route property also feeds the offline aggregated-map pipeline (Section 8.2). For an airside fleet, spatio-temporal PLE is among the most natural semi-supervised choices.
+
+#### 9.3.4 RePL -- Repairing Unreliable Pseudo-Labels
+
+**Paper:** "RePL: Masked-Reconstruction Repair of Unreliable Pseudo-Labels for Semi-Supervised 3D Segmentation" -- [arXiv:2604.06825](https://arxiv.org/abs/2604.06825) `[preprint, very recent]`
+
+RePL treats unreliable pseudo-labels not as samples to discard but as samples to **repair**: a masked-reconstruction objective is used to in-fill and correct low-confidence pseudo-label regions before they are consumed by the student. This recovers supervisory signal that confidence-thresholding methods throw away -- important because the discarded low-confidence points are disproportionately rare/safety-critical classes.
+
+**Airside relevance:** MEDIUM-HIGH. The repair-rather-than-discard philosophy directly addresses the airside concern that rare classes (FOD, emergency vehicles) sit in the low-confidence tail. Flagged as a very recent preprint -- treat results as provisional until independently reproduced.
+
+### 9.4 Active Learning for 3D Segmentation
+
+Active learning (AL) assumes the model itself chooses *what to annotate next*. Given a fixed budget (e.g. 6,000 points, or N frames), an acquisition function ranks candidates by expected informativeness; annotators label only the top picks; the model retrains; repeat. AL is orthogonal to weak/semi-supervision -- it decides *which* scans or points enter the (possibly weak) annotation pipeline.
+
+#### 9.4.1 SSDR-AL -- Superpoint-Based Acquisition
+
+**Paper:** "SSDR-AL: Superpoint-guided Sampling and Diversity-aware Region Active Learning for 3D Semantic Segmentation" (ACM MM 2022) -- [arXiv:2210.11782](https://arxiv.org/abs/2210.11782)
+
+SSDR-AL operates at the **superpoint** level (geometrically homogeneous point groups) rather than individual points, and combines uncertainty with a diversity term so the budget is not spent on redundant near-duplicate regions.
+
+- Paper-reported: reaches **90% of fully-supervised performance** while cutting annotation cost by **~63%** (S3DIS) / **~24%** (SemanticKITTI) relative to prior AL baselines.
+- Superpoint-level annotation is also cheaper per click than point-level.
+
+**Airside relevance:** HIGH. Superpoint grouping is robust on the large planar structures of aprons; the diversity term avoids wasting budget on the visually repetitive apron surface.
+
+#### 9.4.2 SELECT -- Submodular Selection for Class Imbalance
+
+**Paper:** "SELECT: Submodular Active Learning for Class-Imbalanced 3D Semantic Segmentation" -- [arXiv:2505.11516](https://arxiv.org/abs/2505.11516) `[preprint]`
+
+SELECT formulates acquisition as **submodular optimization explicitly targeting class imbalance** -- it deliberately steers the budget toward rare classes that uncertainty-only acquisition under-samples.
+
+- Paper-reported: **+5 mIoU over prior SOTA at a 6,000-point annotation budget**.
+
+**Airside relevance:** VERY HIGH and arguably the most safety-relevant AL method here. The airside taxonomy is severely imbalanced -- apron surface and aircraft dominate, while FOD, de-icing trucks, marshallers, and emergency vehicles are rare *but safety-critical*. An acquisition function that intentionally over-samples rare classes is directly aligned with the airside safety case; uncertainty-only AL would systematically under-label exactly the classes that matter most.
+
+#### 9.4.3 LLM-Taxonomy Active Learning
+
+**Paper:** "Hierarchical Active Learning for 3D Segmentation with LLM-Derived Class Taxonomies" -- [arXiv:2505.18924](https://arxiv.org/abs/2505.18924) `[preprint]`
+
+This method uses an **LLM to derive a class hierarchy** (e.g. vehicle → GSE → belt-loader) and then performs **hierarchical-uncertainty acquisition**: the model can be uncertain at a coarse level or a fine level, and the acquisition function exploits the hierarchy to ask for the most informative label granularity.
+
+**Airside relevance:** MEDIUM-HIGH. The airside GSE taxonomy is naturally hierarchical (GSE → {baggage tractor, belt loader, pushback tug, catering truck, ...}); an LLM-derived hierarchy plus hierarchical acquisition fits the domain. The LLM step is offline and uncritical, so this carries no runtime cost.
+
+#### 9.4.4 Established Outdoor Baselines -- LiDAL and Discwise AL
+
+- **LiDAL** -- "LiDAL: Inter-frame Uncertainty Based Active Learning for 3D LiDAR Semantic Segmentation" (ECCV 2022) -- [arXiv:2211.05997](https://arxiv.org/abs/2211.05997). Acquires frames/regions where predictions are *inconsistent across consecutive frames* -- inter-frame inconsistency as an uncertainty proxy. A well-established outdoor-driving AL baseline.
+- **Discwise AL** -- "Discwise Active Learning for LiDAR Semantic Segmentation" (WACV 2024) -- [arXiv:2309.13276](https://arxiv.org/abs/2309.13276). Selects annotation regions as angular "discs" of a LiDAR scan, aligning the acquisition unit with the sensor's native sampling geometry and with practical annotation workflows.
+
+Both are sensible, sensor-aware starting points and are the standard baselines any new airside AL component should be compared against.
+
+#### 9.4.5 Caveat -- Benchmark Active Learning Against Random
+
+A 2025 meta-evaluation -- "On the Reliability of 3D Active Learning Benchmarks" / re-evaluation study -- [arXiv:2512.05759](https://arxiv.org/abs/2512.05759) `[preprint]` -- warns that **many published 3D AL methods do not consistently beat random sampling** once evaluation protocols, label budgets, and seeds are controlled.
+
+**Practical rule for airside:** treat any AL component as unproven until it has been benchmarked **against random sampling at an equal annotation budget** on airside data. AL adds engineering complexity and a retraining loop; if it does not beat random at equal budget, random is the correct choice. SELECT's explicit rare-class targeting is the most defensible AL bet for airside precisely because rare-class coverage -- not just average mIoU -- is the metric that matters, and random sampling under-covers rare classes by construction.
+
+### 9.5 Label-Budget Summary and Airside Integration
+
+The methods in this section, expressed as label budget → paper-reported result:
+
+| Method | Venue / Status | Supervision | Label Budget | Paper-Reported Result | Benchmark |
+|--------|----------------|-------------|--------------|----------------------|-----------|
+| **Weakly-supervised** | | | | | |
+| ScribbleKITTI | CVPR 2022 | Scribbles | ~8.06% of points | up to **95.7%** of full mIoU | SemanticKITTI |
+| ScatterNet | arXiv 2404.12861 `[preprint]` | Scattered range-image points | **<0.02%** of points | **>95%** of full performance | outdoor LiDAR |
+| YoCo | arXiv 2502.19698 `[preprint]` | 1 BEV click / object | 1 click/object (~0.8% pts to fine-tune) | **~74.8 mIoU (~93% of full)**; matches full at 0.8% | Waymo |
+| Box2Mask (3D) | ECCV 2022 | 3D boxes only | box geometry | **~97%** of full mAP50 | ScanNet |
+| Sketchy-3DIS | CVPR 2025 `[preprint]` | Imprecise 3D boxes | loose box geometry | robust to imprecise boxes | indoor 3DIS |
+| DBGroup | arXiv 2511.10003 `[preprint]` | Scene-level tags | tags only, no spatial labels | scene-level weak 3DIS | indoor 3DIS |
+| **Semi-supervised** | | | | | |
+| LaserMix / LaserMix++ | CVPR 2023 | Small labeled + unlabeled | varies (1-50% labeled) | beam-mix consistency baseline | SemanticKITTI / nuScenes |
+| AIScene | CVPR 2025 `[preprint]` | Small labeled + unlabeled | **1% labels** | **61.2 mIoU** | SemanticKITTI |
+| Spatio-temporal PLE | arXiv 2410.06893 `[preprint]` | Small labeled + unlabeled | low-label regime | **+5.6** SemKITTI / **+6.6** nuScenes | SemanticKITTI / nuScenes |
+| RePL | arXiv 2604.06825 `[preprint]` | Small labeled + unlabeled | low-label regime | repairs unreliable pseudo-labels | 3D segmentation |
+| **Active learning** | | | | | |
+| SSDR-AL | ACM MM 2022 | AL budget (superpoints) | budget to reach 90% of full | **-63% / -24%** annotation cost | S3DIS / SemanticKITTI |
+| SELECT | arXiv 2505.11516 `[preprint]` | AL budget (submodular) | 6,000-point budget | **+5 mIoU** over prior SOTA | class-imbalanced 3D seg |
+| LLM-Taxonomy AL | arXiv 2505.18924 `[preprint]` | AL budget (hierarchical) | hierarchical budget | hierarchical-uncertainty acquisition | 3D segmentation |
+| LiDAL | ECCV 2022 | AL budget (inter-frame) | iterative budget | inter-frame inconsistency baseline | SemanticKITTI / nuScenes |
+| Discwise AL | WACV 2024 | AL budget (angular discs) | iterative budget | disc-wise outdoor baseline | SemanticKITTI / nuScenes |
+
+All figures are paper-reported on the cited public benchmark; results on airside data are unverified. Most cited works are preprints (flagged). Treat preprint numbers as provisional and re-benchmark on airside data before relying on them.
+
+**Recommended airside annotation protocol** (combining all four levers):
+
+1. **Initialize** the on-vehicle segmentation backbone via SSL pre-training (Sections 2-8) -- a good prior before any label is spent.
+2. **Select** frames to annotate with active learning. Use **SELECT** (class-imbalanced/submodular) as the primary acquisition function so rare safety-critical classes (FOD, de-icing trucks, emergency vehicles) are deliberately over-sampled; benchmark it against random sampling at equal budget per the §9.4.5 caveat.
+3. **Annotate cheaply** with weak supervision -- **YoCo**-style one-BEV-click-per-object for instances, or **ScribbleKITTI**-style scribbles for stuff classes (apron surface, grass, runway). If the detection pipeline already produces 3D boxes, reuse them as **Box2Mask/Sketchy-3DIS** segmentation supervision at no extra annotation cost.
+4. **Exploit the unlabeled majority** with semi-supervised teacher-student training. **Spatio-temporal PLE** is the natural fit for fixed-route airside fleets (high inter-frame overlap); **LaserMix** is the simple sensor-geometry baseline; **AIScene** targets the extreme 1%-label regime.
+5. **Harden** pseudo-labels with class-balanced top-k refinement (arXiv 2510.17875) and noise-robust 2D→3D losses (arXiv 2508.19909) so rare classes survive confidence filtering.
+
+These levers complement -- they do not replace -- the SSL curriculum in Section 11 and the offline auto-label flywheel. The offline aggregated-map segmentation pipeline labels the registered multi-scan map once and **back-projects those labels onto single scans as auto-labels**; see `aggregated-map-semantic-segmentation.md` §5.4 (annotation protocol -- where weak/active labels enter the map-labeling loop) and §7.5. The cleanest division of labor for an airside program: spend the *active-learning-selected, weakly-annotated* budget on the offline map, let semi-supervised training and the back-projection flywheel propagate that investment to every single scan.
+
+---
+
+## 10. Training Infrastructure and Efficiency
 
 ### 9.1 Data Requirements
 
@@ -1543,9 +1778,9 @@ See `20-av-platform/compute/tensorrt-deployment-guide.md` for detailed Orin opti
 
 ---
 
-## 10. Airside Pre-training Strategy
+## 11. Airside Pre-training Strategy
 
-### 10.1 Current State Assessment
+### 11.1 Current State Assessment
 
 **reference airside AV stack capabilities:**
 - LiDAR-only perception (4-8 RoboSense, RANSAC segmentation)
@@ -1559,7 +1794,7 @@ See `20-av-platform/compute/tensorrt-deployment-guide.md` for detailed Orin opti
 - Airside camera data: Limited (no systematic collection)
 - Public airside datasets: None (zero public 3D airside datasets exist)
 
-### 10.2 Recommended Pre-training Curriculum
+### 11.2 Recommended Pre-training Curriculum
 
 **Phase 0: Preparation (Week 1-2)**
 - Select and download road driving datasets (nuScenes trainval: ~300GB)
@@ -1609,7 +1844,7 @@ See `20-av-platform/compute/tensorrt-deployment-guide.md` for detailed Orin opti
 - Shadow mode testing alongside existing RANSAC pipeline
 - A/B comparison of perception quality
 
-### 10.3 Expected Data Needs
+### 11.3 Expected Data Needs
 
 | Data Type | Amount | Source | Cost |
 |-----------|--------|--------|------|
@@ -1620,7 +1855,7 @@ See `20-av-platform/compute/tensorrt-deployment-guide.md` for detailed Orin opti
 
 **Total data cost: $20-40K** (vs. $150-500K without pre-training)
 
-### 10.4 Cost Estimation
+### 11.4 Cost Estimation
 
 | Component | Cost | Timeline |
 |-----------|------|----------|
@@ -1642,7 +1877,7 @@ See `20-av-platform/compute/tensorrt-deployment-guide.md` for detailed Orin opti
 
 **Savings from pre-training: $85-200K (60-80% reduction)**
 
-### 10.5 Multi-Airport Scaling
+### 11.5 Multi-Airport Scaling
 
 Pre-training enables efficient scaling to additional airports:
 
@@ -1661,9 +1896,9 @@ See `70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` for
 
 ---
 
-## 11. Comprehensive Comparison Table
+## 12. Comprehensive Comparison Table
 
-### 11.1 All Pre-training Methods Compared
+### 12.1 All Pre-training Methods Compared
 
 | Method | Venue | Year | Type | Modality | Data Efficiency Gain | Compute (GPU-hrs) | Best For |
 |--------|-------|------|------|----------|---------------------|-------------------|----------|
@@ -1700,7 +1935,7 @@ See `70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` for
 | AD-PT | NeurIPS | 2023 | Semi-supervised | LiDAR | **60-70%** | 48-96 | Cross-dataset transfer |
 | TREND | NeurIPS | 2025 | Temporal forecasting | LiDAR | Significant | 24-48 | Temporal perception |
 
-### 11.2 Cross-Modal Contrastive Loss Implementation
+### 12.2 Cross-Modal Contrastive Loss Implementation
 
 ```python
 import torch
@@ -1898,7 +2133,7 @@ class ScaLRPretrainer(nn.Module):
         return sampled.squeeze(2).permute(0, 2, 1)  # [B, N, D]
 ```
 
-### 11.3 Method Selection Guide
+### 12.3 Method Selection Guide
 
 ```
 What modalities are available?
@@ -1940,7 +2175,7 @@ What modalities are available?
 
 ---
 
-## 12. Key Findings Summary
+## 13. Key Findings Summary
 
 | # | Finding | Source | Relevance |
 |---|---------|--------|-----------|
@@ -1959,10 +2194,12 @@ What modalities are available?
 | 13 | **Temporal pre-training (TREND) adds +1.77-2.11% mAP** beyond spatial-only pre-training by learning dynamics from sequential LiDAR frames. Particularly valuable for airside where motion patterns (pushback, GSE traversal) are distinctive. | TREND (NeurIPS 2025) | MEDIUM |
 | 14 | **Language-guided features enable zero-shot airside understanding** via CLIP alignment. Open-vocabulary 3D methods (ULIP-2, OpenScene, Concerto) allow querying scenes with natural language without explicit class definitions. | ULIP-2 (CVPR 2024), OpenScene (CVPR 2023) | MEDIUM |
 | 15 | **The complete SSL landscape is converging**: Contrastive + MAE + JEPA hybrid methods (like Concerto) outperform any single approach by 4.8%+. The next generation of methods will likely combine all three paradigms. | Concerto (NeurIPS 2025) | MEDIUM |
+| 16 | **Weak, semi-supervised, and active learning are orthogonal label-efficiency levers to SSL -- stack them.** Weak labels cut cost per frame (ScribbleKITTI ~95.7% of full mIoU at ~8% points; ScatterNet >95% at <0.02%; YoCo ~93% at one BEV click/object), semi-supervision exploits the unlabeled majority (AIScene 61.2 mIoU at 1% labels; spatio-temporal PLE +5.6/+6.6 mIoU -- ideal for fixed-route airside fleets), and active learning targets the budget (SELECT +5 mIoU via class-imbalance-aware acquisition). | ScribbleKITTI (CVPR 2022), ScatterNet, YoCo, AIScene, SELECT (preprints) | HIGH |
+| 17 | **For airside, SELECT's class-imbalance-aware active learning is the most safety-relevant AL choice** -- it deliberately over-samples rare safety-critical classes (FOD, de-icing trucks, emergency vehicles) that uncertainty-only AL under-labels. But a 2025 meta-evaluation warns many 3D AL methods do not beat random sampling; benchmark any AL component against random at equal budget. | SELECT (arXiv 2505.11516), AL meta-evaluation (arXiv 2512.05759) | MEDIUM |
 
 ---
 
-## 13. References
+## 14. References
 
 ### Contrastive Learning
 - [PointContrast](https://arxiv.org/abs/2007.10985) (Xie et al., ECCV 2020) -- Point-level contrastive pre-training for 3D understanding
@@ -2013,6 +2250,30 @@ What modalities are available?
 - [AD-PT](https://arxiv.org/abs/2306.00612) (Yuan et al., NeurIPS 2023) -- Autonomous driving pre-training with large-scale point cloud dataset
 - [PSA-SSL](https://arxiv.org/abs/2410.09014) (CVPR 2025) -- Pose/size-aware self-supervised learning
 - [PointGPT](https://arxiv.org/abs/2305.11487) (Chen et al., NeurIPS 2023) -- Auto-regressive generative pre-training from point clouds
+
+### Weakly-Supervised 3D Segmentation
+- [ScribbleKITTI](https://arxiv.org/abs/2203.08537) (Unal et al., CVPR 2022) -- Scribble-supervised LiDAR semantic segmentation
+- [ScatterNet](https://arxiv.org/abs/2404.12861) (2024, preprint) -- Scattered-point supervision; foundation-model + optical-flow label propagation, <0.02% labeled points
+- [YoCo](https://arxiv.org/abs/2502.19698) (2025, preprint) -- "You Only Click Once" -- one BEV click per object for weakly-supervised 3D segmentation
+- [Box2Mask](https://arxiv.org/abs/2206.01203) (Li et al., ECCV 2022) -- Box-supervised instance segmentation via level-set evolution
+- [Sketchy-3DIS](https://arxiv.org/abs/2503.13639) (CVPR 2025, preprint) -- Weakly-supervised 3D instance segmentation robust to imprecise boxes
+- [DBGroup](https://arxiv.org/abs/2511.10003) (2025, preprint) -- Dual-branch grouping for scene-level weakly-supervised 3D instance segmentation
+- [Class-balanced top-k pseudo-label refinement](https://arxiv.org/abs/2510.17875) (2025, preprint) -- Class-balanced top-k + geometry-filtered pseudo-label hardening
+- [Noise-robust losses for 2D→3D projection error](https://arxiv.org/abs/2508.19909) (2025, preprint) -- Noise-robust training under 2D-to-3D label projection error
+
+### Semi-Supervised 3D Segmentation
+- [LaserMix](https://arxiv.org/abs/2207.00026) (Kong et al., CVPR 2023) -- Laser-beam-mixing consistency for semi-supervised LiDAR segmentation (LaserMix / LaserMix++)
+- [AIScene](https://arxiv.org/abs/2408.11280) (CVPR 2025, preprint) -- Affinity-aware semi-supervised 3D segmentation; 61.2 mIoU at 1% labels
+- [Spatio-Temporal Pseudo-Label Enhancement](https://arxiv.org/abs/2410.06893) (2024, preprint) -- Temporal-overlap pseudo-labels; +5.6/+6.6 mIoU
+- [RePL](https://arxiv.org/abs/2604.06825) (2026, preprint) -- Masked-reconstruction repair of unreliable pseudo-labels
+
+### Active Learning for 3D Segmentation
+- [SSDR-AL](https://arxiv.org/abs/2210.11782) (Shao et al., ACM MM 2022) -- Superpoint-guided diversity-aware region active learning
+- [SELECT](https://arxiv.org/abs/2505.11516) (2025, preprint) -- Submodular active learning for class-imbalanced 3D segmentation
+- [LLM-Taxonomy Active Learning](https://arxiv.org/abs/2505.18924) (2025, preprint) -- Hierarchical active learning with LLM-derived class taxonomies
+- [LiDAL](https://arxiv.org/abs/2211.05997) (Hu et al., ECCV 2022) -- Inter-frame uncertainty based active learning for 3D LiDAR segmentation
+- [Discwise Active Learning](https://arxiv.org/abs/2309.13276) (WACV 2024) -- Disc-wise region selection for LiDAR semantic segmentation active learning
+- [3D Active Learning Meta-Evaluation](https://arxiv.org/abs/2512.05759) (2025, preprint) -- Re-evaluation showing many 3D AL methods do not consistently beat random sampling
 
 ### Language-Aligned 3D
 - [CLIP](https://arxiv.org/abs/2103.00020) (Radford et al., ICML 2021) -- Learning transferable visual models from natural language supervision
