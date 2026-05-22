@@ -985,6 +985,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `30-autonomy-stack/perception/methods/kpconv.md` — KPConv deep-dive (point-based convolution baseline)
 - `30-autonomy-stack/perception/methods/randla-net.md` — RandLA-Net deep-dive (efficient large-scale point-based segmentation)
 - `30-autonomy-stack/perception/methods/cylinder3d.md` — Cylinder3D deep-dive (cylindrical sparse-voxel, single-scan oriented)
+- `30-autonomy-stack/perception/methods/waffleiron.md` — WaffleIron deep-dive (projection-based, standard dense 2D convolutions)
 - `30-autonomy-stack/perception/methods/point-transformer-v3.md` — PTv3 backbone deep-dive (serialized-attention 3D transformer)
 - `30-autonomy-stack/perception/methods/octformer.md` — OctFormer deep-dive (octree-based transformer for large clouds)
 - `30-autonomy-stack/perception/methods/superpoint-transformer.md` — Superpoint Transformer deep-dive (large-scale superpoint-graph segmentation)
