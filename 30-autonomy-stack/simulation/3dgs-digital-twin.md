@@ -215,6 +215,8 @@ For the static background digital twin, dynamic objects (vehicles, personnel, pu
 - Uses a probabilistic mask to coordinate composition
 - Generalizes across real-world scenarios without complex heuristics
 
+**Semantic digital twin — ingesting a labeled map.** If the PCD map has already been run through the offline aggregated-map semantic segmentation pipeline (`../perception/overview/aggregated-map-semantic-segmentation.md`), every point carries a class label. Initializing 3DGS from that labeled cloud yields **semantic Gaussians** — each primitive inherits a class — which makes the digital twin queryable and editable by class (swap a building facade, vary vegetation, isolate the apron surface) and lets simulation/scenario tools reason about asset types. The segmentation pipeline's `staged GSE` quarantine class (its §6.3) also pre-marks the movable-static objects this section removes, so dynamic-object removal and semantic labeling share one upstream pass rather than two.
+
 ### 2.4 Quality Validation
 
 **Quantitative Metrics:**

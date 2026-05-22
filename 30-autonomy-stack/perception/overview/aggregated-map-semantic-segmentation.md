@@ -696,6 +696,18 @@ A map-segmentation pipeline is a long-running offline batch that produces artifa
 - **Carry provenance into the output.** Every labeled point should trace to the model version, pipeline config, and source tiles that produced it — the same provenance discipline as `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`, and what makes the labeled map auditable safety-case evidence (§1.3).
 - **Pin the environment.** The pre-/post-processing dependency stack (sparse-conv kernels, CUDA, point-cloud libraries) is version-fragile; a labeled map produced six months apart should be reproducible given the same inputs only if that stack is pinned.
 
+### 8.7 Multi-Resolution Segmentation
+
+The §11 decision guide and §14.3 both recommend *multi-resolution* processing without explaining it; this subsection does. The driver is the airside **scale spread**: aircraft (30-65 m) and marking/FOD-scale detail (1-10 cm) span three to four orders of magnitude. No single working resolution serves both — a fine voxel/tile resolution blows up memory and truncates large-object context, while a coarse one drops thin classes below the grid before the network sees them.
+
+| Approach | How | Pros | Cons |
+|---|---|---|---|
+| **Coarse-to-fine cascade** | A coarse pass (large tiles, coarse voxels) labels bulk classes and large structures; a fine pass re-segments at fine resolution; the two are fused | Each pass sized to its job; bounded memory | Two passes; the fuse step is another stitch with its own seam risk |
+| **Class-routed resolution** | Run the fine pass *only* where the coarse pass predicts — or is uncertain about — thin classes | Compute spent only where detail is needed | Routing depends on coarse-pass recall; a missed thin region is never refined |
+| **In-model multi-scale only** | Rely on the backbone's own encoder-decoder hierarchy (U-Net, PTv3) at one input resolution | Simplest; no extra pass | The *input* voxel size still caps the finest recoverable detail |
+
+**Recommendation.** A coarse authoritative pass plus a fine pass **routed by confidence and predicted class** to thin-class and low-confidence regions, fused with the §10.6 confidence machinery, is the best balance — it spends fine-resolution compute only where it changes labels. Treat the coarse/fine boundary as a seam and apply the §10.1 smoothing across it. In-model multi-scale alone is acceptable only when the taxonomy has no sub-voxel-scale classes.
+
 ---
 
 ## 9. Pre-Processing and Map Conditioning
