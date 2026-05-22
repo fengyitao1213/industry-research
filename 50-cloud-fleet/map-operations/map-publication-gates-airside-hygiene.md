@@ -28,6 +28,8 @@ Airside map publication must combine map quality, operational approval, safety e
 | deployment readiness | signed bundle, compatible vehicle/software, rollback cache, canary monitors | fleet ops |
 | post-release review | monitoring window, interventions, map disagreements, FOD tickets | release manager |
 
+The **semantic-integrity** gate is evaluated against the semantic layer produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`). That pipeline's own QA gates — held-out mIoU, per-class IoU on safety-relevant classes, cross-pass consistency, seam audit, version-to-version label churn (its §13.2-13.3) — are the upstream evidence this gate consumes; per-point confidence and provenance (its §8.6, §10.6) make the layer auditable for the safety-case-delta gate.
+
 ## Map Hygiene Checks
 
 | Check | Pass signal | Blocker |
