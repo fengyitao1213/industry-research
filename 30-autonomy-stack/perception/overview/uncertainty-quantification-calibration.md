@@ -1236,6 +1236,17 @@ Uncertainty Assessment
 └────────────────────────────────────┘
 ```
 
+### 12.5 Offline Aggregated-Map Segmentation
+
+The UQ methods above are framed for on-vehicle, real-time perception. The offline pipeline that segments the **aggregated LiDAR map** (`aggregated-map-semantic-segmentation.md`) uses UQ differently, and the offline setting makes it easier:
+
+- **No latency budget** — expensive epistemic estimators (deep ensembles §5, MC-dropout §4) that are marginal on Orin are fully affordable on the offline map pass.
+- **Confidence gates auto-labels.** The map model's per-point confidence decides which back-projected single-scan labels are exported as training data — calibration (§8) is a hard prerequisite, since an uncalibrated threshold gates on noise.
+- **Abstention to an explicit `unknown` class** below the confidence threshold keeps low-confidence regions out of the HD-map semantic layer and routes them to human review — the active-learning loop.
+- **Cross-pass disagreement** between the accumulate-then-segment and segment-then-accumulate passes is a cheap epistemic-uncertainty signal specific to the map task.
+
+See `aggregated-map-semantic-segmentation.md` §10.6 (uncertainty in post-processing) and §13 (QA gates).
+
 ---
 
 ## 13. Key Takeaways

@@ -750,6 +750,15 @@ Cheap, high-value sanity corrections: enforce ground continuity/flatness for the
 
 The pipeline emits: a **labeled point cloud** (per-point class + confidence), an optional **labeled semantic mesh**, the **HD-map semantic layer** (§14, polygonized surfaces / vectorized markings / structure footprints), and **back-projected single-scan auto-labels** (per-scan labels via pose look-up — the data-flywheel output).
 
+### 10.6 Uncertainty and Confidence Handling
+
+The pipeline emits a per-point confidence alongside each label (§10.5); post-processing should *use* it, not just store it.
+
+- **Abstention to `unknown`.** Where the calibrated confidence falls below a threshold, relabel the point to the explicit `unknown` class (§6.1, §6.3) rather than committing a guess. A silent low-confidence label pollutes both the map and the auto-labels; an explicit `unknown` is honest and feeds active learning (§13.2).
+- **Confidence-gated auto-label export.** The back-projected single-scan labels (§10.5) are training data — export only points above the confidence gate, because training a downstream model on low-confidence guesses propagates error. The gate is a precision/coverage trade-off: a stricter gate yields fewer but cleaner auto-labels.
+- **Uncertainty propagation to the map layer.** Carry per-point (or per-element) confidence into the HD-map semantic layer so downstream consumers — localization weighting, planning margins, the map-uncertainty layer of `../../localization-mapping/maps/semantic-mapping-learned-priors.md` §7 — can down-weight uncertain regions.
+- **Calibration is a prerequisite.** Raw softmax scores are not probabilities; before any confidence threshold is meaningful the model must be calibrated (temperature scaling, measured by ECE — §13.1). The offline budget also affords expensive epistemic-uncertainty estimators (deep ensembles, MC-dropout) infeasible on-vehicle, and cross-pass disagreement (§10.3) is itself a cheap, strong epistemic signal. See `uncertainty-quantification-calibration.md` for the estimator and calibration mechanics.
+
 ---
 
 ## 11. Pipeline Design Trade-offs and Decision Guide
