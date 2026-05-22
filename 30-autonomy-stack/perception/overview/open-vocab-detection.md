@@ -871,6 +871,87 @@ This provides ~21 FPS end-to-end including the full 2D-to-3D pipeline, well with
 
 ---
 
+## 8. Open-Vocabulary 3D Point-Cloud Semantic Segmentation
+
+Sections 1-7 cover open-vocabulary *detection* -- producing 2D or 3D boxes for objects named by text. A closely related but distinct capability is open-vocabulary *semantic segmentation* of the LiDAR point cloud: assigning a class label (or panoptic instance) to **every point** rather than fitting boxes to discrete objects. For airside this matters because much of the safety-relevant scene is non-object structure -- drivable apron versus restricted zone, pavement versus grass, jet-blast plume, spilled fluid, painted markings, cabling -- that a box-based detector cannot represent. Per-point labels also feed BEV semantic maps, cost maps, and the long-tail safety net described in `aggregated-map-semantic-segmentation.md` (its §4.3 explicitly uses open-vocabulary lifting for rare classes never in the training taxonomy).
+
+### 8.1 The Consolidation Pattern
+
+Outdoor open-vocabulary 3D segmentation has, over 2023-2026, converged on a common four-stage recipe. The methods below differ mainly in **stage 3**:
+
+```
+(1) 2D vision foundation model     -- SAM / SAM 2 masks + CLIP / a VLM
+        |                            run on calibrated camera frames
+(2) Lift to 3D                     -- project pixel labels/features onto
+        |                            LiDAR points via camera-LiDAR calibration
+(3) Consolidate noisy labels       -- temporal / multi-view / augmentation /
+        |                            Bayesian voting across frames and crops
+(4) Distill into a LiDAR model     -- train a point-cloud network so inference
+                                     is LiDAR-only (no camera, no VLM at runtime)
+```
+
+Stages 1, 2 and 4 are now largely shared infrastructure. The *consolidation* step (stage 3) is where the open research lies, because raw per-frame 2D-VLM labels lifted to LiDAR are inconsistent: a point may be labeled differently across frames, masks bleed across depth discontinuities, and CLIP confidence is noisy for small or distant objects. How a method denoises this signal determines its accuracy. This pattern is the single most useful organizing insight for the area -- evaluate a new method by asking which consolidation strategy it uses.
+
+The key deployment payoff of stage 4 distillation: the camera, the calibration dependency, and the heavyweight 2D foundation model are all needed *only at training time*. The shipped model is a standard LiDAR segmentation network. This matters for airside, where a 4-8 LiDAR rig is the production sensor and camera coverage/calibration is uneven (consistent with the reference airside stack's LiDAR-only perception).
+
+### 8.2 Text-Promptable Zero-Shot LiDAR Segmentation -- the SAL Family
+
+**SAL ("Better Call SAL: Towards Learning to Segment Anything in Lidar", ECCV 2024)** is the reference method for label-free, text-promptable LiDAR segmentation. It trains with **zero manual 3D labels**: a 2D vision foundation model (SAM-class) produces instance masks on camera images, CLIP supplies open-vocabulary semantics, both are lifted into the LiDAR point cloud via calibration, and a single LiDAR network is then distilled to reproduce class-agnostic instance masks plus per-mask CLIP features. At inference it is fully promptable -- supply any text query and it segments matching points, with no camera needed. Reported results: roughly **91% of fully supervised performance on class-agnostic segmentation** and about **44% of supervised performance on zero-shot LiDAR panoptic segmentation** (verify against the paper for the exact datasets and splits). Project page: <https://research.nvidia.com/labs/dvl/projects/sal/>.
+
+**SAL-4D ("SAL-4D: Segment Anything in Lidar in 4D", CVPR 2025)** extends SAL from single scans to **zero-shot 4D LiDAR panoptic segmentation** -- segmentation plus instance tracking consistent over a sequence. It distills not only spatial masks but temporal correspondences, so objects keep stable IDs across scans without manual track labels. Reported: approximately **59% of supervised PQ on SemanticKITTI** and **72% on nuScenes** (preprint figures -- treat as provisional). arXiv: <https://arxiv.org/abs/2504.00848>. For airside this is the more relevant variant: GSE and crew tracking around a parked aircraft is inherently a 4D problem, and SAL-4D supplies promptable per-point tracks without the closed taxonomy of a supervised tracker.
+
+The SAL family's consolidation strategy is **distillation-based**: noise is absorbed by training a 3D model to fit the aggregate of many lifted 2D masks, with the network's inductive bias smoothing per-frame inconsistency. It does not add an explicit voting stage -- which is precisely the gap the next method closes.
+
+### 8.3 Explicit Label Consolidation -- LOSC
+
+**LOSC ("LOSC: LiDAR Open-vocabulary Segmentation with Consolidated labels", arXiv 2507.07605, accepted to 3DV 2026)** targets the noise problem head-on. It is annotation-free, generating pseudo-labels from a 2D VLM, but inserts an explicit **consolidation stage**: noisy per-frame 2D-VLM labels are reconciled by **temporal voting** (aggregating predictions for the same physical point seen across multiple scans) and **augmentation voting** (aggregating predictions under different input augmentations), yielding a cleaner pseudo-label set before the LiDAR model is trained. Reported results -- the current outdoor open-vocabulary segmentation state of the art at time of writing: **nuScenes 49.3 mIoU / SemanticKITTI 35.2 mIoU** for semantic segmentation, and **panoptic PQ 48.4 (nuScenes) / 32.4 (SemanticKITTI)**. arXiv: <https://arxiv.org/abs/2507.07605> (preprint -- numbers unverified pending the camera-ready). LOSC is the cleanest illustration of the §8.1 pattern: same lift-and-distill skeleton as SAL, but with the consolidation step made explicit and shown to be where the accuracy gain comes from.
+
+### 8.4 Cross-Domain and Native-3D Promptable Segmentation
+
+The methods above are LiDAR-specific and outdoor-tuned. Two recent models generalize the promptable-segmentation idea across domains and prompt types:
+
+**SNAP ("SNAP: A Single Cross-Domain Model for Interactive 3D Segmentation", arXiv 2510.11565)** is a single interactive 3D segmentation model trained jointly across **indoor, outdoor, and aerial** point clouds. It accepts both **spatial prompts** (a click/point on the cloud) and **text prompts**, and reports state-of-the-art results on 8 of 9 zero-shot spatial-prompt benchmarks. The cross-domain training is notable: it suggests a single backbone can serve apron-level LiDAR, indoor terminal/hangar scans, and drone survey data -- relevant if airside perception ever spans more than the ground vehicle. arXiv: <https://arxiv.org/abs/2510.11565> (preprint).
+
+**Point-SAM ("Point-SAM: Promptable 3D Segmentation Model for Point Clouds", ICLR 2025, arXiv 2406.17741)** is a **native-3D** promptable segmentation model -- a SAM analog that operates directly on point clouds rather than lifting from 2D. It supports interactive 3D annotation (point/box prompts in 3D) and zero-shot 3D instance proposals. For airside its primary value is as an **annotation accelerator**: it plays the same role in a 3D labeling pipeline that Grounded-SAM 2 (Section 3) plays for 2D, letting an annotator click an object in the LiDAR scan and get a clean instance mask. arXiv: <https://arxiv.org/abs/2406.17741>.
+
+Both are class-agnostic / interactive-first; they do not, on their own, replace a trained closed-set segmentation model for autonomous operation, but they materially cut the cost of building the labeled 3D dataset that such a model needs.
+
+### 8.5 LiDAR-Only Open-World Discovery (No Camera)
+
+The §8.1 pattern assumes calibrated imagery. Where cameras are absent, miscalibrated, or unusable (low sun, fog, jet-blast glare), a separate line of work performs open-world discovery from **LiDAR alone** -- relevant for airside, where the reference stack is LiDAR-primary and camera calibration across a 4-8 sensor rig is a maintenance burden.
+
+**OYSTER ("Towards Unsupervised Object Detection from LiDAR Point Clouds", CVPR 2023, arXiv 2311.02007)** performs unsupervised, class-agnostic object *discovery* from LiDAR alone -- it finds and boxes movable objects with no labels and no camera, bootstrapping from motion and geometric cues and self-improving across iterations. It produces class-agnostic objects, not named classes.
+
+**ViLGOD ("Vision-Language Guided Open-world Object Detection" / LiDAR-only open-world detection, BMVC 2024, arXiv 2408.03790)** closes the naming gap without a camera: it clusters objects from LiDAR using spatio-temporal cues and then uses CLIP to assign open-vocabulary *names* to the discovered clusters -- notably **without camera imagery and without requiring repeated drives over the same area**. The combination -- LiDAR-only discovery (OYSTER) plus LiDAR-only open-vocabulary naming (ViLGOD) -- is the fallback path when the calibrated-camera precondition of SAL/LOSC cannot be met. arXiv: <https://arxiv.org/abs/2311.02007> (OYSTER), <https://arxiv.org/abs/2408.03790> (ViLGOD).
+
+### 8.6 Image-to-LiDAR Distillation Lineage
+
+Stage 4 of the §8.1 pattern -- distilling 2D vision-foundation-model knowledge into a 3D backbone -- is itself an established research line that predates the fully promptable methods above and underpins them. Two representative methods:
+
+**Seal ("Segment Any Point Cloud Sequences by Distilling Vision Foundation Models", NeurIPS 2023)** distills SAM-class vision foundation models into a LiDAR network using **camera-to-LiDAR** spatial consistency plus a **point-to-segment** consistency loss (points within one 2D segment should share representation), producing strong label-efficient and zero-shot LiDAR features.
+
+**LiMA ("LiMA: Long-Horizon Multi-Agent / cross-view long-horizon image-to-LiDAR distillation", ICCV 2025, arXiv 2507.05260)** advances the recipe with **cross-view** consistency (multiple cameras) and **long-horizon temporal** distillation (aggregating supervision over extended sequences rather than single frame pairs), improving the quality and temporal stability of the distilled 3D representation. arXiv: <https://arxiv.org/abs/2507.05260> (preprint).
+
+These distillation methods are mainly *pre-training / representation-learning* techniques -- they produce a strong LiDAR backbone that is then fine-tuned, rather than a directly promptable open-vocabulary segmenter. They are the foundation the SAL family and LOSC build their stage-4 model on, and they are also discussed from the pre-training angle in `aggregated-map-semantic-segmentation.md` (§4.3, image-to-LiDAR distillation row) and `self-supervised-pretraining-driving.md`.
+
+### 8.7 Airside Implications
+
+| Capability | Recommended method | Role on airside |
+|---|---|---|
+| Text-promptable per-point LiDAR labels, no manual 3D labels | SAL / SAL-4D | Long-tail / novel structure the closed-set segmenter misses; SAL-4D adds tracking |
+| Highest-accuracy annotation-free outdoor segmentation | LOSC | Best current pseudo-label quality where calibrated cameras exist |
+| LiDAR-only open-world discovery + naming | OYSTER + ViLGOD | Fallback when camera coverage/calibration is unavailable or degraded |
+| Interactive 3D annotation accelerator | Point-SAM (native 3D), SNAP (multi-domain) | Cut cost of building the labeled 3D dataset for the production closed-set model |
+| 3D backbone pre-training | Seal, LiMA | Stage-4 representation underlying the above; see `self-supervised-pretraining-driving.md` |
+
+Practical guidance, consistent with the rest of this page and with the reference LiDAR-only airside stack:
+
+- Treat open-vocabulary 3D segmentation as a **long-tail safety net layered over a supervised closed-set segmenter**, not a replacement -- the same role `aggregated-map-semantic-segmentation.md` §4.3 assigns it. Supervised mIoU on the known airside taxonomy will exceed any zero-shot method; the open-vocabulary path exists to catch what the taxonomy omits.
+- Prefer the **distill-to-LiDAR** variants (SAL family, LOSC) so the deployed model is camera-free at runtime, matching the production sensor configuration. Reserve OYSTER + ViLGOD for the camera-absent fallback path.
+- All segmentation numbers cited above are from **public-road datasets (nuScenes, SemanticKITTI)** and most are **preprint figures** -- no airside-specific evaluation exists. Expect a cross-domain drop; airside structure (jet-blast, GSE, painted apron markings) is out of distribution. As elsewhere in this corpus, building the airside benchmark is itself the open opportunity.
+
+---
+
 ## Summary: Recommended Airside Open-Vocab Detection Stack
 
 | Component | Model | Role | Hardware | FPS |
