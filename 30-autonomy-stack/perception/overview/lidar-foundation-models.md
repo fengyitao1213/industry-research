@@ -573,6 +573,30 @@ ULIP-2 outperforms PointCLIP by 28.8% on zero-shot classification.
 - Pre-train on diverse driving datasets, then fine-tune on airside
 - Produces strong frozen LiDAR features that transfer across domains
 
+#### 5.2.1 DITR / D-DITR -- Injecting vs. Distilling 2D-Foundation-Model Features (arXiv 2025)
+
+**Paper:** "DINO in the Room: Leveraging 2D Foundation Models for 3D Segmentation"
+**Link:** [arXiv 2503.18944](https://arxiv.org/abs/2503.18944)
+
+`dinov2-foundation-models-driving.md` and §4.3 establish a recurring negative result: directly swapping a 3D backbone for a DINOv2 image encoder fails -- 2D foundation models are not point-cloud backbones. DITR is the concrete, quantified demonstration of the *correct* pattern: **do not replace the 3D backbone, feed it 2D-foundation-model knowledge.**
+
+**Two variants, two deployment profiles:**
+
+- **DITR** -- projects DINOv2 image features into 3D (via camera geometry) and *injects* them into a 3D segmentation backbone (PTv3). Cameras are required **at inference**.
+- **D-DITR** -- *distills* the DINOv2-enriched representation into the 3D backbone at training time, so inference is **LiDAR-only**. This is the deployment-relevant variant for a LiDAR-primary stack.
+
+**Key Results:**
+| Variant | Dataset | Metric | Score | vs. PTv3 baseline |
+|---|---|---|---|---|
+| DITR | nuScenes (val) | mIoU | 84.2 | **+4.3** |
+| DITR | ScanNet200 | mIoU | -- | **+7.1** |
+| D-DITR (LiDAR-only inference) | nuScenes (val) | mIoU | 80.7 | positive, smaller than DITR |
+| DITR | SemanticKITTI (single front camera) | mIoU | -- | **underperforms PTv3** |
+
+**Critical caveat -- camera coverage is the gating factor.** On nuScenes (6-camera 360-degree rig) DITR delivers large gains; on SemanticKITTI (single forward-facing camera) DITR *underperforms* the plain PTv3 baseline. 2D-foundation-model injection only pays off when most LiDAR points fall inside a camera frustum -- sparse or single-camera coverage leaves much of the cloud un-enriched and the projection noise outweighs the signal.
+
+**Airside Relevance:** HIGH. This is the concrete evidence for the strategy §5.2 and §4.3 advocate: distil 2D-FM knowledge at train time, deploy LiDAR-only. The reference airside stack has 360-degree cameras, so it sits closer to the favorable nuScenes regime than the SemanticKITTI failure case -- but the take-away is conditional: **expect the D-DITR LiDAR-only gain to scale with multi-camera coverage of the LiDAR field of view.** Recommended use: D-DITR as the distillation recipe (camera-enriched training, LiDAR-only inference), with camera placement audited so the working LiDAR FOV is adequately covered before counting on the gain. The DITR (camera-at-inference) variant is only worth it if cameras are already trusted in the runtime path -- not the case for a LiDAR-primary safety stack.
+
 ### 5.3 Few-Shot 3D Detection with Pre-trained Models
 
 | Approach | Setting | Result |
@@ -712,6 +736,21 @@ This means the pre-training methods from Section 2 (GD-MAE, AD-PT, Occupancy-MAE
 - PTv3 + Sonata/Concerto pre-training when Thor hardware available
 - Expected: ~30ms on Thor, >85% mAP with full pre-training pipeline
 
+### 6.5 Token-Merging: Making Large Backbones Affordable (gitmerge3D, arXiv 2025)
+
+**Paper:** "How Many Tokens Do 3D Point Cloud Transformer Architectures Really Need?"
+**Link:** [arXiv 2511.05449](https://arxiv.org/abs/2511.05449)
+
+A structural obstacle to running foundation-model-scale backbones (PTv3, Sonata, Concerto) on Orin is that point-cloud transformers are **massively over-tokenized** -- they carry one token per voxel/point group even though most are redundant. gitmerge3D applies *globally-informed graph token merging* on top of PTv3: it collapses redundant tokens while preserving accuracy.
+
+**Key Result:** Up to **85-95% token reduction** with near-unchanged accuracy on outdoor data, translating to roughly **5-6x lower memory and FLOPs**. The reduction is a post-hoc, architecture-agnostic operation -- no retraining of the base backbone required.
+
+**Airside Relevance:** HIGH, and complementary to D-DITR and the offline map task. Two concrete uses:
+- **On-vehicle (§6.4 Phase 3):** token merging is one of the levers -- alongside distillation (D-DITR) and quantization -- that can pull a PTv3-class backbone toward the Orin/Thor budget without a full architecture redesign.
+- **Offline aggregated-map segmentation (§5.5):** accumulated multi-scan clouds are 10^7-10^9 points, where over-tokenization is most acute; 5-6x memory savings directly enlarges the cloud that fits in a single GPU pass.
+
+It does not by itself make PTv3 real-time on today's Orin, but it materially narrows the gap and is free accuracy-neutral headroom for any large 3D backbone.
+
 ---
 
 ## 7. LiDAR World Models & Generation
@@ -823,6 +862,8 @@ Part of NVIDIA Cosmos ecosystem:
 **Architecture:**
 - Single self-supervised encoder across heterogeneous domains: remote sensing, outdoor LiDAR, indoor RGB-D, CAD models, RGB-lifted point clouds
 - Three designs: Causal Modality Blinding, Perceptual Granularity Rescale, RoPE for Cross-Domain Spatial Encoding
+- **Perceptual Granularity Rescale** directly targets LiDAR density non-uniformity -- it normalizes the wildly varying point spacing (dense near-sensor returns vs. sparse distant returns) so one encoder handles both indoor RGB-D density and outdoor LiDAR sparsity
+- **RoPE applied on raw coordinates** addresses the large coordinate extents of outdoor LiDAR scenes (hundreds of metres) without the brittleness of absolute positional encodings tuned to a single scene scale
 - Unified representation space across fundamentally different sensing geometries
 - Emergent cross-domain behaviors from joint training
 
@@ -1035,6 +1076,7 @@ Part of NVIDIA Cosmos ecosystem:
 | Concerto | NeurIPS | 2025 | [arXiv](https://arxiv.org/abs/2510.23607), [GitHub](https://github.com/Pointcept/Concerto) |
 | Utonia | arXiv | 2026 | [arXiv](https://arxiv.org/abs/2603.03283), [GitHub](https://github.com/Pointcept/Utonia) |
 | Pointcept | Framework | 2022-2026 | [GitHub](https://github.com/Pointcept/Pointcept) (2,900 stars) |
+| gitmerge3D (token merging) | arXiv | 2025 | [arXiv](https://arxiv.org/abs/2511.05449) |
 | DSVT | CVPR | 2023 | [arXiv](https://arxiv.org/abs/2301.06051), [GitHub](https://github.com/Haiyang-W/DSVT) |
 | FlatFormer | CVPR | 2023 | [arXiv](https://arxiv.org/abs/2301.08739), [GitHub](https://github.com/mit-han-lab/flatformer) |
 | SphereFormer | CVPR | 2023 | [arXiv](https://arxiv.org/abs/2303.12766), [GitHub](https://github.com/dvlab-research/SphereFormer) |
@@ -1050,6 +1092,7 @@ Part of NVIDIA Cosmos ecosystem:
 | PointCLIP V2 | ICCV | 2023 | [arXiv](https://arxiv.org/abs/2211.11682) |
 | OpenScene | CVPR | 2023 | [arXiv](https://arxiv.org/abs/2211.15654), [GitHub](https://github.com/pengsongyou/openscene) |
 | LiDAR-LLM | AAAI | 2025 | [arXiv](https://arxiv.org/abs/2312.14074) |
+| DITR / D-DITR ("DINO in the Room") | arXiv | 2025 | [arXiv](https://arxiv.org/abs/2503.18944) |
 
 ### LiDAR World Models & Generation
 

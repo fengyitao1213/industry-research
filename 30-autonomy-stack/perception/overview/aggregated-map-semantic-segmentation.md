@@ -2,7 +2,7 @@
 
 > The complete pipeline for assigning a semantic class to every point of a **registered, multi-scan LiDAR map** — the dense static point cloud produced by SLAM/mapping — as opposed to a single live sensor frame. Covers the aggregated-vs-single-scan distinction, pipeline architecture (tiling, inference, stitching, QA, operations), input modalities (LiDAR geometry + intensity, colorized clouds, LiDAR+image fusion), the large-scale 3D segmentation dataset landscape, class taxonomies, loss functions, the five model families (point-conv, sparse-voxel, transformer, superpoint, projection-based) with a training-architecture comparison, self-supervised pre-training and 3D foundation models, pre-/post-processing, uncertainty handling, design trade-offs, industry-proven practice, evaluation rigor, the safety-case role, and the airside application.
 
-**Last updated:** 2026-05-22
+**Last updated:** 2026-05-23
 
 **Scope note:** This page is the **map-scale / offline** counterpart to `lidar-semantic-segmentation.md` (single-scan, real-time, on-vehicle). The two are complementary: the on-vehicle model labels live frames inside the Orin cycle budget; the pipeline here labels the *accumulated* map once, offline, with the heaviest models available — to produce HD-map semantic layers, auto-labeled training data, digital-twin assets, and change-detection baselines.
 
@@ -253,6 +253,21 @@ Independently of modality, the network consumes the cloud in one of: **raw point
 | **xMUDA** | Feature-level, cross-modal consistency | LiDAR (+ image at train) | Enforce 2D-3D prediction consistency as a domain-adaptation signal | Strong for cross-domain / unlabeled-target adaptation | A domain-adaptation technique, not a standalone accuracy method |
 
 **Reading the table.** The decisive column is inference needs. Methods that require the camera at inference (PointPainting, PMF) buy accuracy with a hard camera dependency — a poor fit for a LiDAR-primary stack and useless on a night-only map. Methods that use imagery only at train time (2DPASS, SLidR, 2D3DNet) gain the 2D supervision while keeping a LiDAR-only, illumination-invariant deployed model. For aggregated-map segmentation the recommendation of §4.3 stands: **2DPASS-style feature distillation** if paired imagery exists, **SLidR-style image-to-LiDAR pre-training** to bootstrap when 3D labels are scarce, and PointPainting/PMF only in controlled surveys where the camera is guaranteed and well-calibrated.
+
+### 4.6 LiDAR-Image Fusion: 2024-2026 Directions
+
+The §4.5 table is the established baseline; fusion has since moved away from fixed projection toward three newer patterns — **promptable foundation fusion, uncertainty-guided fusion, and distill-to-LiDAR-only**.
+
+| Method | Fusion stage | Inference needs | Key idea | Why it matters for map segmentation |
+|---|---|---|---|---|
+| **SAM4D** | Feature-level, promptable foundation | LiDAR + image | Promptable cross-modal (camera + LiDAR) foundation segmentation — one promptable model spanning both modalities | Brings the SAM interaction paradigm to 3D; a promptable backbone for the §5.4 annotation flywheel |
+| **UP-Fuse** | Feature-level, uncertainty-weighted | LiDAR + image + calib | Weights the cross-modal interaction by *predicted uncertainty* — trusts each modality where it is reliable | Principled handling of the calibration/exposure noise that degrades colorized and fusion inputs (§4.2, §9.5) |
+| **KD-DiffSeg** | Diffusion fusion + knowledge distillation | **LiDAR-only** | Diffusion-based LiDAR-camera fusion distilled so deployed inference is LiDAR-only | The 2DPASS pattern with a diffusion fusion teacher — image gains, LiDAR-only deploy |
+| **DITR / D-DITR** | Feature-level, 2D-FM feature injection / distillation | DITR: LiDAR + cameras · **D-DITR: LiDAR-only** | "DINO in the Room" — projects DINOv2 2D-foundation-model features into 3D (DITR), or distills them so inference needs no camera (D-DITR) | Concrete evidence that a 2D foundation model helps as *injected/distilled features*, **not** as a backbone swap; gains scale with multi-camera coverage |
+
+**The DITR finding is the load-bearing one for this corpus.** It is direct evidence for the corpus stance that a 2D vision foundation model (DINOv2) should be integrated via adapter-mediated feature injection or distillation, not by replacing the 3D backbone: DITR projects DINOv2 features into the 3D network and gains accuracy, and D-DITR distils them so the deployed model is LiDAR-only — with the caveat that the gain depends on multi-camera coverage of the scene. For an aggregated map built from a multi-camera survey vehicle that coverage exists, making D-DITR-style distillation a credible way to inject 2D-FM semantics while keeping the LiDAR-only deployment §4.3 mandates.
+
+**The trend.** Across SAM4D, UP-Fuse, KD-DiffSeg and DITR the direction is consistent: fusion is moving from **fixed geometric projection** (PointPainting-era) toward **promptable** foundation models, **uncertainty-guided** weighting, and **distill-to-LiDAR-only** training. For a LiDAR-primary airside stack the takeaway is unchanged but reinforced — prefer the methods whose deployed model is LiDAR-only (KD-DiffSeg, D-DITR), and treat promptable/uncertainty-guided fusion as a training-time and labeling-time asset (§5.4), not an inference-time dependency. These methods cite: SAM4D ([arxiv.org/abs/2506.21547](https://arxiv.org/abs/2506.21547), ICCV 2025); UP-Fuse ([arxiv.org/abs/2602.19349](https://arxiv.org/abs/2602.19349)); KD-DiffSeg (Expert Systems with Applications, 2026); DITR/D-DITR — "DINO in the Room: Leveraging 2D Foundation Models for 3D Segmentation" ([arxiv.org/abs/2503.18944](https://arxiv.org/abs/2503.18944)).
 
 ---
 
@@ -648,6 +663,26 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all five families, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
 
+### 7.9 4D / Multi-Scan Segmentation Methods
+
+The five families above segment a *static* cloud — one cloud, one label set. The **segment-then-accumulate** route (§2.4) and the SemanticKITTI multi-scan task (§5.2) pose a different problem: segment a *temporal stack* of scans where the same surface appears in many frames, and a class label should be consistent across all of them. A dedicated **4D (space + time) segmentation** family targets exactly this.
+
+| Method | Mechanism | Strengths | Fit for this pipeline |
+|---|---|---|---|
+| **4D-CS** | Cluster-prior 4D segmentation — propagates a cluster prior across frames and enforces explicit cross-frame label consistency (SemanticKITTI multi-scan ~63.7 mIoU) | Directly optimizes temporal label consistency; the cluster prior stabilizes thin/rare classes across frames | The natural model for the segment-then-accumulate prior of §2.4 / §10.3 — cross-frame consistency is exactly what makes that prior reliable |
+| **SegNet4D** | Real-time, instance-aware 4D semantic segmentation over scan sequences | Adds per-instance reasoning to the 4D setting; fast enough for online use | Bridges segment-then-accumulate and panoptic (§10.2) — instance-aware temporal labels back-propagate cleanly to single scans |
+
+These methods are not competitors to the §7.1-7.3 backbones used for the *authoritative* accumulate-then-segment pass; they are the right tool for the **prior**. A strong production design uses a 4D method to produce a temporally-consistent per-voxel label histogram cheaply (segment-then-accumulate), then resolves it with a heavy static-cloud model on the aggregated map (accumulate-then-segment) — the two-pass design of §2.4 and §10.3. They cite: 4D-CS — "4D-CS: Exploiting Cluster Prior for 4D Spatio-Temporal Semantic Segmentation" ([arxiv.org/abs/2501.02937](https://arxiv.org/abs/2501.02937)); SegNet4D — "SegNet4D: Effective and Efficient 4D LiDAR Semantic Segmentation in Autonomous Driving Environments" ([arxiv.org/abs/2406.16279](https://arxiv.org/abs/2406.16279)).
+
+### 7.10 Efficiency Frontiers: SSM Backbones and Token Merging
+
+§8 frames tiling as the answer to map scale; an orthogonal line of work attacks the same bottleneck *inside* the model — the token count and memory cost that make a map-scale cloud expensive regardless of how it is tiled.
+
+- **State-space (Mamba/SSM) backbones.** **Pamba** applies a Mamba/SSM backbone to point-cloud segmentation, replacing quadratic attention with linear-complexity sequence modeling. For map-scale clouds — where token count is the cost driver — linear scaling is structurally attractive: it lets a tile carry more context for the same memory, easing the context-vs-memory trade-off of §8.3.
+- **Token-merging efficiency.** **gitmerge3D** applies graph-based token merging to 3D transformers, reporting roughly **85% memory reduction on outdoor data while retaining PTv3-class accuracy**. This directly relaxes the constraint that forces aggressive tiling — a model that needs far less memory per token can process larger tiles, reducing seam count and stitching error (§8.4).
+
+Both are emerging rather than production-proven, but they point the same direction as §8's engineering: the token-count/memory wall of map-scale clouds has two complementary answers — partition the cloud (tiling, §8) and shrink the per-token cost (SSM backbones, token merging). For an airside pipeline they are a P4-class efficiency refinement (§15.2), worth tracking but not a P1 dependency. They cite: Pamba — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" ([arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442)); gitmerge3D — "Graph-Based Token Merging for 3D Point Cloud Transformers" ([arxiv.org/abs/2511.05449](https://arxiv.org/abs/2511.05449)).
+
 ---
 
 ## 8. Tiling, Chunking, and Stitching
@@ -828,7 +863,36 @@ Aggregated-map segmentation is **mature in industry** — more so than its publi
 - **HD-map production.** Map vendors build semantic HD-map layers (lane geometry, markings, signs, poles) from accumulated survey clouds — a direct industrial instance of this pipeline; see `../../localization-mapping/maps/map-construction-pipeline.md` and `semantic-mapping-learned-priors.md`.
 - **Foundation-model-assisted labeling.** SAM/CLIP-assisted and semi-automatic LiDAR labeling tools (e.g. SALT-class tools) cut annotation cost 50-70% and are now standard in the bootstrap phase.
 
-**Takeaway for an airside pipeline:** the industry-proven recipe is *not* exotic — a KPConv/RandLA-Net or sparse-conv backbone, sphere/tile partitioning, overlap voting, geometric smoothing, and an auto-labeling flywheel. The differentiation for airside is the **data and taxonomy** (§5.4, §6.3), not the architecture.
+#### Named production and current-research systems
+
+The bullets above describe practice in the abstract; the systems below are concrete, named, and current — they are the reference points an airside pipeline should be benchmarked against.
+
+| System | What it is | Why it matters for this pipeline |
+|---|---|---|
+| **Waymo 3DAL** | Offboard 3D auto-labeling — heavy offline detection/tracking over accumulated multi-frame clouds, labels back-propagated to single frames | The canonical accumulate-then-segment + back-projection flywheel (§2.4, §10.5); class-supervised, closed-set |
+| **ZOPP** | Zero-shot offboard *panoptic* perception — Grounding-DINO + SAM + CLIP run over temporally-aggregated ~20 s sequences, producing semantic + instance labels with **no training labels at all** | Goes beyond 3DAL's closed-set supervision: a fully zero-shot offboard auto-labeler. The reference for bootstrapping an airside benchmark when *no* airside labels exist (§5.4 round 1) |
+| **Baidu LDMapNet-U** | Production city-scale, lane-level **semantic HD-map updating** — deployed across 360+ cities, compressing the map-refresh cycle from quarterly to weekly at a reported ~95% cost reduction (SIGKDD 2025) | Industrial proof that learned semantic mapping at city scale is a production reality, not research; the change-detection/update analogue of this pipeline's output (§13.2 stability-across-versions) |
+| **OpenUrban3D** | Annotation-free **open-vocabulary** segmentation of whole large-scale urban point clouds — requires neither posed imagery nor 3D pre-training | Shows whole-map open-vocabulary labeling without the camera/calibration dependency colorized and fusion pipelines carry (§4.2–4.5); a long-tail safety net complementing the closed-set model (§7.6) |
+
+The systems cite: ZOPP — "ZOPP: A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving" ([arxiv.org/abs/2411.05311](https://arxiv.org/abs/2411.05311)); LDMapNet-U — "LDMapNet-U: An End-to-End System for City-Scale Lane-Level Map Updating" ([arxiv.org/abs/2501.02763](https://arxiv.org/abs/2501.02763)); OpenUrban3D — "OpenUrban3D: Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds" ([arxiv.org/abs/2509.10842](https://arxiv.org/abs/2509.10842)).
+
+#### Commercial survey/GIS point-cloud classification software
+
+The generic "survey industry" and "GIS platforms" bullets above concretize into a mature, named software market — the productized form of this pipeline:
+
+- **Esri ArcGIS Pro** ships deep-learning LAS classification with **RandLA-Net, SQN, and PointCNN** models as a standard geoprocessing workflow over aerial and mobile LiDAR.
+- **Flai** offers cloud point-cloud classification spanning 40+ classes, applied at nationwide-ALS scale.
+- **Pointly** provides AI-assisted, browser-based point-cloud classification and annotation.
+- **Blue Marble Global Mapper Pro** runs a staged automatic-classification pipeline (ground → building → powerline → pole).
+- **Trimble Business Center** and **Terrasolid TerraScan** are the long-standing MLS/ALS classification toolchains in survey practice; TerraScan is paired with IGN's open-source **Myria3D** (a deep-learning point-cloud segmentation library) in France's national **Lidar HD** program — a public, country-scale instance of exactly this aggregated-map pipeline.
+
+These vendors converge on the same backbone families as §7 (RandLA-Net/KPConv/PointCNN-class, sparse-conv), and on the staged ground-first conditioning of §9 — independent confirmation that the recommended recipe is the deployed one.
+
+#### Foundation-model-assisted labeling — SALT
+
+The cleanest concrete instance of foundation-model-assisted offline labeling for this pipeline is **SALT** — a semi-automatic labeling tool whose core design *is* the map-scale pattern of this page: it accumulates SLAM multi-scan clouds and applies **SAM2 with 4D-consistent prompting** so a single annotation propagates across the temporal stack. It directly operationalizes the §5.4 annotation protocol — accumulate, pre-label with a 2D foundation model, route human effort to corrections. "SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" ([arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980)).
+
+**Takeaway for an airside pipeline:** the industry-proven recipe is *not* exotic — a KPConv/RandLA-Net or sparse-conv backbone, sphere/tile partitioning, overlap voting, geometric smoothing, and an auto-labeling flywheel. The differentiation for airside is the **data and taxonomy** (§5.4, §6.3), not the architecture. The named systems above set the bar: 3DAL/ZOPP for the offboard auto-label flywheel, LDMapNet-U for production city-scale semantic mapping, the survey/GIS software market for the productized classification workflow, and SALT for the bootstrap labeling tool.
 
 ---
 
@@ -840,10 +904,12 @@ Aggregated-map segmentation is **mature in industry** — more so than its publi
 |---|---|---|
 | **Per-class IoU** and **mIoU** | Intersection-over-union per class | The primary metric; per-class exposes rare-class collapse that mIoU/accuracy hide |
 | **Overall accuracy (OA)** | Fraction of points correct | Report for comparability only — dominated by pavement/building |
-| **Boundary IoU / boundary F1** | Accuracy near class transitions | Catches seam artifacts and edge blur (§8) |
+| **Boundary IoU / boundary F1** | Accuracy near class transitions | Catches seam artifacts and edge blur (§8); the standard companion to mIoU |
+| **Boundary-error decomposition** | Splits boundary error into named failure types (§13.4) | Turns a single boundary number into an actionable diagnosis |
 | **Panoptic Quality (PQ)** | If instances/panoptic produced | For staged-GSE and furniture instances |
 | **Coverage** | Fraction of map points with a confident label | Unlabeled/unknown rate; feeds active learning |
-| **Calibration (ECE)** | Confidence vs correctness | Needed if confidence gates auto-label acceptance |
+| **Calibration — ECE / ACE** | Confidence vs correctness | Needed if confidence gates auto-label acceptance; ACE preferred under class imbalance (§13.4) |
+| **Corruption Error (mCE)** | Robustness to sensor/weather corruptions | Whether map mIoU holds under adverse-condition input (§13.4) |
 
 ### 13.2 QA Gates
 
@@ -869,6 +935,18 @@ Headline mIoU is easy to report and easy to inflate. A research-grade evaluation
 - **Evaluate the auto-labels, not just the map.** The pipeline's product is also back-projected single-scan labels (§10.5). Score the back-projected labels against a small manually-labeled single-scan set — auto-label quality, not just map mIoU, is what bounds the downstream on-vehicle model.
 
 Each metric should ship with the conditions it was measured under — voxel size, dynamic-removal method, density bucket, seed count — so two results are genuinely comparable (§5.4 metadata).
+
+### 13.4 Beyond mIoU: Error Decomposition, Calibration, and Corruption Robustness
+
+A single mIoU number answers "how good" but not "how it fails" — and for a safety-relevant labeled map (§14.4) the failure modes are what the safety case must reason about. Three evaluation dimensions beyond the §13.1 headline metrics make the failure structure visible.
+
+**Boundary-error decomposition.** Boundary IoU (§13.1) flags that edges are wrong but not *why*. **BFANet** introduces a decomposition that splits 3D segmentation error near boundaries into four named types — **Region-classification error** (a whole region given the wrong class), **False-response error** (spurious predictions where no boundary exists), **Merging error** (two classes blurred into one across a boundary), and **Displacement error** (the boundary is in roughly the right place but shifted). For this pipeline the decomposition is directly actionable: a high *displacement* error points at registration blur or voxel resolution (§9.3); a high *merging* error points at tiling/stitching seams (§8.4) or insufficient context; a high *false-response* error points at post-processing over-smoothing (§10.1). Report Boundary-IoU as the standard companion to mIoU, and the BFANet decomposition when boundary quality is being actively debugged. BFANet — "BFANet: Revisiting 3D Semantic Segmentation with Boundary Feature Analysis" ([arxiv.org/abs/2503.12539](https://arxiv.org/abs/2503.12539), CVPR 2025).
+
+**Calibration metrics — ECE and ACE.** The pipeline gates auto-label export and `unknown`-abstention on confidence (§10.6), so calibration is a *first-class* metric, not an afterthought. Expected Calibration Error (ECE) bins predictions by confidence and measures the gap between confidence and accuracy per bin — but its fixed-width bins are misleading under the severe class imbalance of a map taxonomy (§6.4), because the rare-class points that matter most land in sparsely-populated bins. **Adaptive Calibration Error (ACE)** uses adaptive (equal-mass) binning and is the preferred metric here for exactly that reason. The open problem is **rare-class calibration**: a model can be well-calibrated overall while being badly overconfident on markings, poles, or signs — so report ACE per class, not just aggregate, and treat rare-class calibration as a tracked risk. This is the measurement layer under the confidence machinery of §10.6.
+
+**Corruption robustness.** Public benchmark mIoU is measured on clean clouds; an airside survey map carries rain/snow/dust speckle, reflective ghosts, and density loss (§9.2). The **Robo3D** benchmark quantifies robustness by applying eight corruption types (fog, wet ground, snow, motion blur, beam missing, crosstalk, incomplete echo, cross-sensor) at multiple severities and reporting a **mean Corruption Error (mCE)** relative to a clean baseline, via the **SemanticKITTI-C** and **nuScenes-C** corrupted test sets. For an airside pipeline, mCE answers the question clean mIoU cannot — whether the map segmenter holds up when the survey was driven in adverse weather, or whether conditioning (§9) must remove the corruption first. Report mCE alongside mIoU when adverse-condition surveys are in scope. Robo3D — "Robo3D: Towards Robust and Reliable 3D Perception against Corruptions" ([arxiv.org/abs/2303.17597](https://arxiv.org/abs/2303.17597)).
+
+Together these three dimensions answer the questions a headline mIoU hides — *where* the model fails (boundary decomposition), *whether its confidence can be trusted* (ACE, especially per rare class), and *whether accuracy survives adverse input* (mCE). For the safety-case role of §14.4 they are not optional refinements; they are the evidence that a mIoU number is defensible.
 
 ---
 
@@ -966,6 +1044,23 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **OctFormer** — Wang, "OctFormer: Octree-based Transformers for 3D Point Clouds" (SIGGRAPH 2023)
 - **2DPASS** — Yan et al., "2DPASS: 2D Priors Assisted Semantic Segmentation on LiDAR Point Clouds" (ECCV 2022)
 - **SphereFormer** — Lai et al., "Spherical Transformer for LiDAR-based 3D Recognition" (CVPR 2023)
+- **4D-CS** — "4D-CS: Exploiting Cluster Prior for 4D Spatio-Temporal Semantic Segmentation" — [arxiv.org/abs/2501.02937](https://arxiv.org/abs/2501.02937)
+- **SegNet4D** — "SegNet4D: Effective and Efficient 4D LiDAR Semantic Segmentation in Autonomous Driving Environments" — [arxiv.org/abs/2406.16279](https://arxiv.org/abs/2406.16279)
+- **Pamba** — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" — [arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442)
+- **gitmerge3D** — "Graph-Based Token Merging for 3D Point Cloud Transformers" — [arxiv.org/abs/2511.05449](https://arxiv.org/abs/2511.05449)
+
+### LiDAR-Image Fusion
+- **SAM4D** — "SAM4D: Segment Anything in Camera and LiDAR Streams" (ICCV 2025) — [arxiv.org/abs/2506.21547](https://arxiv.org/abs/2506.21547)
+- **UP-Fuse** — "Uncertainty-Guided LiDAR-Camera Fusion for 3D Perception" — [arxiv.org/abs/2602.19349](https://arxiv.org/abs/2602.19349)
+- **KD-DiffSeg** — diffusion-based LiDAR-camera fusion with knowledge distillation enabling LiDAR-only inference (Expert Systems with Applications, 2026)
+- **DITR / D-DITR** — "DINO in the Room: Leveraging 2D Foundation Models for 3D Segmentation" — [arxiv.org/abs/2503.18944](https://arxiv.org/abs/2503.18944)
+
+### Production Systems and Labeling Tools
+- **ZOPP** — "ZOPP: A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving" — [arxiv.org/abs/2411.05311](https://arxiv.org/abs/2411.05311)
+- **LDMapNet-U** — "LDMapNet-U: An End-to-End System for City-Scale Lane-Level Map Updating" (SIGKDD 2025) — [arxiv.org/abs/2501.02763](https://arxiv.org/abs/2501.02763)
+- **OpenUrban3D** — "OpenUrban3D: Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds" — [arxiv.org/abs/2509.10842](https://arxiv.org/abs/2509.10842)
+- **SALT** — "SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" — [arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980)
+- **Myria3D** — IGN open-source deep-learning point-cloud segmentation library (France's national Lidar HD program)
 
 ### Pre-Training and 3D Foundation Models
 - **PointContrast** — Xie et al., "PointContrast: Unsupervised Pre-training for 3D Point Cloud Understanding" (ECCV 2020)
@@ -986,6 +1081,10 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **STPLS3D** — Chen et al., "STPLS3D: A Large-Scale Synthetic and Real Aerial Photogrammetry 3D Point Cloud Dataset" (BMVC 2022)
 - **SemanticKITTI** — Behley et al., "SemanticKITTI: A Dataset for Semantic Scene Understanding of LiDAR Sequences" (ICCV 2019)
 - **KITTI-360** — Liao et al., "KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D" (TPAMI 2022)
+- **Robo3D** — Kong et al., "Robo3D: Towards Robust and Reliable 3D Perception against Corruptions" (ICCV 2023) — [arxiv.org/abs/2303.17597](https://arxiv.org/abs/2303.17597)
+
+### Evaluation
+- **BFANet** — "BFANet: Revisiting 3D Semantic Segmentation with Boundary Feature Analysis" (CVPR 2025) — [arxiv.org/abs/2503.12539](https://arxiv.org/abs/2503.12539)
 
 ### Related Repository Documents
 - `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` — single-scan / real-time on-vehicle segmentation (the complementary page)
