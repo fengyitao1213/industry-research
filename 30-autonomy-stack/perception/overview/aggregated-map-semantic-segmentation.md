@@ -806,7 +806,7 @@ The decisions that most shape an aggregated-map segmentation pipeline:
 | Decision | Option A | Option B | Guidance |
 |---|---|---|---|
 | Input modality | LiDAR-only | + RGB / image fusion | LiDAR-only default; add RGB only with calibrated, well-lit imagery; prefer distillation so deploy stays LiDAR-only (§4) |
-| Learned core | Sparse-conv U-Net | Transformer / superpoint | Sparse-conv = safe, well-tooled; SPT-class = best fit for map scale; PTv3 = accuracy ceiling with good tiling (§7) |
+| Learned core | Sparse-conv U-Net | Transformer / superpoint | Sparse-conv = safe, well-tooled; SPT-class = best fit for map scale; PTv3 = accuracy ceiling with good tiling; WaffleIron = projection-based, simplest to deploy (§7, §7.8) |
 | Partitioning | Fixed/overlap grid | Superpoint / sphere sampling | Superpoint dissolves seams; grid is simplest; never use non-overlapping grid (§8) |
 | Build order | Accumulate-then-segment | Segment-then-accumulate | Use both — prior + authoritative pass (§2.4, §10.3) |
 | Training data | Public out-of-domain | Auto-labeled in-domain | Bootstrap on MLS public data → adapt → grow in-domain via the flywheel (§5, §7.5) |

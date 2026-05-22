@@ -123,9 +123,9 @@ Process raw points directly using PointNet-style shared MLPs or transformer atte
 | Method | Mechanism | Pros | Cons |
 |--------|-----------|------|------|
 | PointNet++ (2017) | Hierarchical set abstraction, FPS + ball query | Theoretically elegant | Slow FPS, O(N log N) |
-| RandLA-Net (2020) | Random sampling + local feature aggregation | Fast sampling | Lower accuracy |
-| PTv3 (2024) | Serialize + patch attention via space-filling curves | **Current SOTA accuracy** | Moderate latency |
-| WaffleIron (2023) | 2D backbone on projected point features | Good accuracy | 4.8 FPS on Orin (too slow) |
+| [RandLA-Net](../methods/randla-net.md) (2020) | Random sampling + local feature aggregation | Fast sampling | Lower accuracy |
+| [PTv3](../methods/point-transformer-v3.md) (2024) | Serialize + patch attention via space-filling curves | **Current SOTA accuracy** | Moderate latency |
+| [WaffleIron](../methods/waffleiron.md) (2023) | 2D backbone on projected point features | Good accuracy | 4.8 FPS on Orin (too slow) |
 
 **Key insight**: PTv3 replaces expensive k-NN neighbor search with a **serialize-and-patch** paradigm — points are sorted along a space-filling curve, then grouped into fixed-size patches for self-attention. This achieves 3x faster inference and 10x less memory than PTv2.
 
@@ -135,9 +135,9 @@ Discretize space into regular 3D voxels, apply 3D sparse convolutions.
 
 | Method | Voxel Type | Pros | Cons |
 |--------|-----------|------|------|
-| MinkUNet (2019) | Cubic voxels + sparse conv (Minkowski Engine) | Strong baseline, well-tested | Fixed resolution tradeoff |
+| [MinkUNet](../methods/minkowskinet.md) (2019) | Cubic voxels + sparse conv (Minkowski Engine) | Strong baseline, well-tested | Fixed resolution tradeoff |
 | SPVCNN (2020) | Sparse voxel conv + point-based branch | Best of both worlds | Complex pipeline |
-| Cylinder3D (2021) | **Cylindrical** voxels (r, θ, z) | Matches LiDAR scan pattern | Custom CUDA kernels |
+| [Cylinder3D](../methods/cylinder3d.md) (2021) | **Cylindrical** voxels (r, θ, z) | Matches LiDAR scan pattern | Custom CUDA kernels |
 | SphereFormer (2023) | Radial windows for attention | Handles range-dependent density | Higher latency |
 
 **Cylindrical voxelization** is particularly relevant for LiDAR because sensor density naturally decreases with range — cylindrical cells have approximately equal point counts regardless of distance.
