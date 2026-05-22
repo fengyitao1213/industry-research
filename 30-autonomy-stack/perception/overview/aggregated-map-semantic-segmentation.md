@@ -375,14 +375,51 @@ Almost every dataset above is released for **research / non-commercial use** (co
 
 ### 5.4 The Airside Benchmark Gap
 
-A minimum-viable airside aggregated-map benchmark (to be expanded in a later revision of this page):
+No public airside aggregated-map dataset exists (§5.3) — creating one is an open opportunity and the cheapest route to closing the corpus-wide airside data gap. This section specifies a concrete minimum-viable benchmark, the annotation protocol that produces it, and the cost model that governs it.
 
-- 3-5 registered apron/taxiway-corridor maps from 2+ airports, 5 cm voxel resolution.
-- An 8-12 class taxonomy (§6.3) covering pavement, markings, structures, fencing, light/sign poles, GSE staging, vegetation, and a catch-all.
-- Held-out tiles for mIoU evaluation; a small fully-instanced subset for panoptic.
-- Labels back-projected to contributing single scans, doubling as a single-scan benchmark.
+#### Benchmark Specification
 
-Cost is dominated by annotation; foundation-model-assisted labeling (§12) plus the segment-then-accumulate prior (§2.4) can cut it substantially. *(Detailed benchmark spec, annotation protocol, and cost model: planned for a subsequent revision.)*
+| Component | Specification |
+|---|---|
+| **Maps** | 3-5 registered apron/taxiway/service-road maps from ≥2 airports, ideally of differing layout and climate, to expose cross-site domain shift. |
+| **Source** | MLS survey drives registered by the `../../localization-mapping/maps/map-construction-pipeline.md` process (GTSAM + VGICP), RTK-anchored. |
+| **Resolution** | 5 cm working voxel; full-resolution cloud retained with a back-index (§9.3). |
+| **Taxonomy** | The 11-class airside taxonomy of §6.3 — pavement, marking, terrain, kerb, building, fence/barrier, pole/mast, sign, fixed equipment, staged GSE, unknown. |
+| **Scale** | Target ≥2 km² total mapped area, ≥10⁹ points before voxel downsample. |
+| **Splits** | Geographic tile split — held-out tiles never seen in training; at least one entire airport held out for cross-site generalization measurement. |
+| **Panoptic subset** | A fully-instanced subset (poles, signs, staged-GSE units) for Panoptic Quality evaluation. |
+| **Single-scan derivative** | Labels back-projected to contributing scans (§10.5), shipping a paired single-scan benchmark at no extra annotation cost. |
+| **Formats** | Labeled point cloud (per-point class + confidence), tile manifest, train/val/test split file, per-scan label index. |
+| **Metadata** | Per-tile density, intensity-calibration status, dynamic-removal method, registration accuracy — so density and conditioning can be controlled for in evaluation. |
+
+#### Annotation Protocol
+
+Annotation is the cost driver, so the protocol is a **bootstrapped, tiered flywheel**, not a flat manual pass:
+
+1. **Heuristic pre-label.** Run the cheap geometric/intensity guards (§3.3) — ground plane, height-banded structures, intensity-masked markings — to pre-label the high-volume "easy" classes before any human touches the map.
+2. **Foundation-model-assisted pre-label.** Apply SAM/CLIP-class 2D-to-3D and open-vocabulary lifting (§4.3, §12) for appearance-defined and rare classes the heuristics miss; this cuts manual effort 50-70% (§12).
+3. **Segment-then-accumulate prior.** Where a single-scan model already exists, accumulate its per-voxel label histogram (§2.4, §10.3) as a second independent pre-label.
+4. **Disagreement-routed human QC.** Humans do not review uniformly — route to annotators the tiles where the three pre-label sources *disagree*, plus low-confidence and rare-class regions (§13.2). Human effort concentrates where it actually changes labels.
+5. **Authoritative pass and audit.** A trained reviewer signs off each tile; safety-relevant classes (markings, fencing) get 100% review, bulk classes get sampled audit — mirroring `../../localization-mapping/maps/map-construction-pipeline.md` §8.3-8.4.
+6. **Flywheel iteration.** Verified tiles train the learned model; the next map is pre-labeled by that model instead of by heuristics; human QC shrinks each round.
+
+Tooling: a CVAT-compatible 3D project (per `map-construction-pipeline.md` §8.4) carrying per-point confidence and pre-label provenance, so reviewers see *why* each point was labeled.
+
+#### Cost Model
+
+| Stage | Cost driver | Relative cost | Lever |
+|---|---|---|---|
+| Survey + registration | Drive time, SLAM compute | Low | Amortized — the map is built anyway |
+| Conditioning | Compute | Low | Automated (§9) |
+| Heuristic + FM pre-label | Compute | Low | Automated; near-free per map |
+| Human QC | Annotator hours | **Dominant** | Disagreement routing + flywheel cut it each round |
+| Audit + sign-off | Reviewer hours | Moderate | Sampled for bulk classes, full for safety classes |
+
+The economics: a flat manual labeling of a 2 km² map at 5 cm is infeasible by raw point count. The flywheel makes it tractable — round 1 is the most expensive (heuristics plus heavy QC); by round 3-4 the learned model pre-labels well enough that human QC is a small fraction of round 1. The first airport funds the benchmark; every airport after is progressively cheaper. This is the same auto-labeling-flywheel argument as §2.1 and `lidar-semantic-segmentation.md` §9.4.
+
+#### Release and Licensing
+
+If the benchmark is published, the public-corpus licensing caution of §5.2 inverts: it becomes the asset other teams pre-train on. A permissive research licence maximizes adoption, and an airside-specific benchmark with a published leaderboard would be the first of its kind and a strong community contribution. If kept proprietary, it remains the owned in-domain fine-tuning and evaluation set that a shipped commercial model needs (§5.2 licensing note).
 
 ---
 
@@ -757,7 +794,7 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 - **Staged GSE quarantine.** The "staged GSE" class (§6.3, ID 9) prevents transient equipment being baked into the permanent map — coordinate with `../../localization-mapping/maps/potentially-dynamic-object-map-policy.md`.
 - **Transfer path.** Pre-train on Paris-Lille-3D / Toronto-3D / KITTI-360 (MLS, ground-level), self-supervised pre-train on unlabeled airside maps, then fine-tune with a few hundred labeled airside tiles via PointLoRA-class adapters (`lidar-foundation-models.md`, `self-supervised-pretraining-driving.md`).
 
-*(A full airside benchmark spec, annotation protocol, cost model, and per-airport rollout plan are planned for subsequent revisions of this page.)*
+The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2.
 
 ---
 

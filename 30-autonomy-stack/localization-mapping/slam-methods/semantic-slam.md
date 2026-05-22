@@ -23,6 +23,7 @@ For AV and airside deployments, semantic SLAM is production-useful as an aid: dy
 |---|---|---|
 | SLAM family overview | [SLAM Method Library Overview](overview.md) | Places semantic SLAM in the broader odometry, SLAM, localization, and mapping taxonomy. |
 | Learned mapping priors | [Semantic Mapping and Learned Priors](../maps/semantic-mapping-learned-priors.md) | Semantic SLAM is one way learned priors become map layers and factors. |
+| Offline map segmentation | [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) | The accumulate-then-segment counterpart; semantic SLAM supplies its per-voxel label prior. |
 | Dynamic scenes | [Dynamic-Object-Aware SLAM](dynamic-object-aware-slam.md) | Semantic masks are often used to suppress moving or movable objects. |
 | Object landmarks | [Object-Level SLAM](object-level-slam.md) | Object-level SLAM is a semantic SLAM subfamily that maps instances as landmarks. |
 | Visual sparse SLAM | [ORB-SLAM2/ORB-SLAM3](orb-slam2-orb-slam3.md) | Many semantic visual SLAM systems extend ORB-SLAM2/3. |
@@ -203,6 +204,15 @@ Deployment guidance:
 - Validate semantic maps against surveyed HD-map layers and operations data.
 
 Semantic SLAM is a strong aid for airside map maintenance and scene understanding. It is not the certified pose source.
+
+## Relationship to Aggregated-Map Semantic Segmentation
+
+Semantic SLAM and offline **aggregated-map semantic segmentation** (`../../perception/overview/aggregated-map-semantic-segmentation.md`) are the two ways to obtain a semantically labeled map, and they are complementary rather than competing.
+
+- **Semantic SLAM is the "segment-then-accumulate" approach.** It segments each live frame and fuses the per-frame labels into the map online, Bayesian-style, as the map is built (the `p_i(c)` fusion update in Formulation). Labels are noisy per frame but average over many observations.
+- **Offline aggregated-map segmentation is the "accumulate-then-segment" approach.** It builds the geometric map first, then runs one heavy segmentation pass over the whole dense, completed cloud — no latency budget, the largest models, test-time augmentation, and CRF refinement.
+
+The two combine well. The per-voxel class histogram that semantic SLAM produces online is a cheap, useful **prior**; the offline pipeline fuses it as an extra unary term and treats agreement between the two passes as a free QA signal — disagreement regions are exactly what to route to human review. Conversely, the offline pipeline's authoritative labels can correct and audit a semantic-SLAM map after the fact. A strong production design runs both: semantic SLAM for the online prior and live map QA, the offline pipeline for the authoritative semantic layer and for back-projected single-scan auto-labels. See `aggregated-map-semantic-segmentation.md` §2.4 (the build-order choice) and §10.3 (fusing the two passes).
 
 ## Datasets/Metrics
 
