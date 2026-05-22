@@ -650,6 +650,40 @@ Step 4: Fine-tune on 500-1000 labeled scans
 
 **ScaLR achieves 67.8% mIoU with NO labels** on nuScenes via linear probing — strong evidence that self-supervised features transfer well.
 
+### 9.4 Auto-Labeling from the Aggregated Map
+
+§9.1-9.3 attack the label-cost problem from the *model* side — pre-training, LoRA adapters, and self-supervision shrink how many labeled scans are needed. They still assume **500-2,000 manually labeled single scans** as the fine-tuning set, and §1.2 puts the production target at 5,000-50,000. Auto-labeling attacks the same problem from the *data* side and is the most scalable source of that volume.
+
+**The idea.** Segment the **aggregated (registered multi-scan) LiDAR map** once, offline, with the heaviest model available — then propagate each map point's label back onto every single scan that contributed to it, using the per-scan SLAM poses. One labeling effort on the map amortizes across the thousands of scans that built it. This is the "accumulate-then-segment, then back-project" flywheel; the map-side pipeline is documented in full in `aggregated-map-semantic-segmentation.md` (see its §2.4 build-order choice, §10.5 output products, §6.3 taxonomy).
+
+**Why the labels are good.** The map model is not Orin-constrained — it runs offline with transformer/superpoint backbones, test-time augmentation, and CRF refinement. It also sees **full multi-viewpoint density and completed geometry**, so thin and small classes (markings, poles, signs) that a single sparse scan barely grazes are well-sampled. A label decided once on the dense map is typically higher quality than one a real-time single-scan model would produce on the raw frame.
+
+**Workflow.**
+
+```
+1. Build the aggregated map from a survey drive (map-construction-pipeline.md)
+2. Segment the map once — end-to-end learned pipeline
+       (aggregated-map-semantic-segmentation.md)
+3. For each contributing single scan:
+       look up its SLAM pose -> transform scan into map frame ->
+       nearest-neighbour each scan point to a labeled map point ->
+       copy the label back
+4. Result: every survey scan is now a labeled single-scan training sample
+5. Use auto-labels as weak/abundant supervision; keep a small
+   human-verified set for fine-tuning and held-out evaluation
+```
+
+**How it combines with §9.1-9.3.** Auto-labels are *plentiful but imperfect* — ideal for pre-training, weak supervision, and rebalancing rare classes; manual labels stay scarce and authoritative, reserved for the final fine-tune and the test set. A practical recipe: SSL pre-train (§9.3) → train on auto-labels → LoRA fine-tune (§9.2) on a few hundred human-verified scans → evaluate on a held-out manually-labeled set.
+
+**Caveats.**
+
+- **Static only.** The aggregated map has dynamic objects removed, so auto-labels cover *stuff* and *static things* well but cannot supervise Moving Object Segmentation (§2.4) — MOS still needs temporal/manual labels.
+- **Taxonomy must align.** Back-projection only works if the map taxonomy is the static subset of the 18-class single-scan taxonomy (§8.1); `aggregated-map-semantic-segmentation.md` §6.3 keeps the two deliberately aligned.
+- **Registration error propagates.** Pose error blurs the scan-to-map nearest-neighbour step; sub-5 cm map accuracy keeps it negligible, above ~10 cm thin-class labels smear.
+- **Confidence-gate the transfer.** Carry the map model's per-point confidence into the auto-label; drop low-confidence points rather than training on guesses.
+
+This is industry-standard practice — leading AV programs run exactly this offboard auto-labeling loop (heavy offline model over accumulated clouds → back-projected single-frame labels). It is the cheapest route to the label volume §1.2 calls for, and to the airside benchmark (§13.3).
+
 ---
 
 ## 10. Integration with reference airside AV stack ROS Stack

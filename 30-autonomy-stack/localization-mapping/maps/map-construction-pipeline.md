@@ -862,6 +862,26 @@ Manual QC focus areas (by priority):
 Estimated manual QC time: 4-8 hours for typical airport
 ```
 
+### 8.5 End-to-End Learned Map Segmentation
+
+§8.1-8.4 describe a **modular, per-class** annotation approach: a heuristic per feature class (ground segmentation, intensity thresholding, height filtering, vertical-pole detection) plus SAM/CLIP 2D-to-3D label projection. This is the right method for **cold-start** — it works immediately, with no training data, when the first airport is being mapped and no labels exist yet.
+
+The modern alternative is an **end-to-end learned 3D segmentation pipeline**: a single trained network assigns a semantic class to every point of the aggregated map directly, replacing the stack of class-specific heuristics. It is documented in full in `../../perception/overview/aggregated-map-semantic-segmentation.md` — datasets, class taxonomies, model families, tiling/stitching, pre-/post-processing, and design trade-offs. That pipeline *is* the producer of this map's **L3 semantic layer** (the 7-layer architecture, §1.3).
+
+**Which to use, when:**
+
+| Situation | Approach |
+|---|---|
+| First airport, no labels | Heuristic + SAM/CLIP (§8.1-8.4) — cold-start, works immediately |
+| Labels exist (any source) | End-to-end learned pipeline — higher accuracy ceiling, one model vs many brittle rules |
+| Mature program | Learned core, with the ground/intensity heuristics retained as QA cross-checks |
+
+The transition is driven by the **auto-label flywheel**: the heuristic + SAM/CLIP pass and the manual QC of §8.4 produce the first labels; those train the learned model; the learned model is then more accurate and cheaper to run on the next airport; its output is QC'd and folds back into the training set. Within a few map iterations the learned pipeline supersedes the heuristics, which survive only as sanity guards.
+
+**Why the learned pipeline also pays off beyond the map.** Because the segmented map can be back-projected onto every contributing survey scan (via the per-scan SLAM poses), one map-segmentation pass auto-labels thousands of single scans — the training data the on-vehicle perception models need. See `../../perception/overview/aggregated-map-semantic-segmentation.md` §10.5 and `../../perception/overview/lidar-semantic-segmentation.md` §9.4. The map-annotation effort and the perception-training-data effort become the same effort.
+
+A note on **build order**: §8.1-8.4 effectively segment each surface and project labels — close to "segment-then-accumulate." The end-to-end pipeline favours "accumulate-then-segment" — build the geometric map first, then segment the dense whole. The two are complementary; `../../perception/overview/aggregated-map-semantic-segmentation.md` §2.4 covers using one as a prior for the other.
+
 ---
 
 ## 9. Lanelet2 Map Generation
