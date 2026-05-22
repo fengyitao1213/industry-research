@@ -884,6 +884,7 @@ The airside aggregated-map benchmark specification, annotation protocol, and cos
 - `30-autonomy-stack/perception/methods/randla-net.md` — RandLA-Net deep-dive (efficient large-scale point-based segmentation)
 - `30-autonomy-stack/perception/methods/cylinder3d.md` — Cylinder3D deep-dive (cylindrical sparse-voxel, single-scan oriented)
 - `30-autonomy-stack/perception/methods/point-transformer-v3.md` — PTv3 backbone deep-dive (serialized-attention 3D transformer)
+- `30-autonomy-stack/perception/methods/octformer.md` — OctFormer deep-dive (octree-based transformer for large clouds)
 - `30-autonomy-stack/perception/methods/superpoint-transformer.md` — Superpoint Transformer deep-dive (large-scale superpoint-graph segmentation)
 - `30-autonomy-stack/perception/overview/self-supervised-pretraining-driving.md` — SSL pre-training for label-efficient fine-tuning
 - `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` — closing the train/inference domain gap

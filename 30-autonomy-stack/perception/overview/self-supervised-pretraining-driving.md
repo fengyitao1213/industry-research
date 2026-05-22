@@ -1358,6 +1358,8 @@ Segmentation benefits most from dense, per-point pre-training:
 
 **Recommendation for airside:** ScaLR (if cameras available) or Sonata/Concerto (if LiDAR-only) for segmentation pre-training. The 18-class airside taxonomy (see `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md`) requires dense per-point features.
 
+**Offline aggregated-map segmentation — a distinct pre-training target.** The segmentation pre-training above is framed for the on-vehicle single-scan model. The offline pipeline that labels the *aggregated (registered multi-scan) LiDAR map* (`30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) is a second, complementary target with two pre-training advantages specific to it: (1) every survey drive produces a large *unlabeled* accumulated cloud — the ideal corpus for continued SSL, free except for compute; (2) continuing SSL on *accumulated* clouds rather than single scans closes the single-scan→accumulated density-distribution gap that a road-pretrained backbone otherwise inherits. Recommended curriculum: a generalist SSL backbone (Sonata-class) → continue SSL on unlabeled airside maps → LoRA fine-tune on a few hundred labeled tiles. Because the offline model has no Orin latency budget, it can also be the *largest* uncompressed backbone, and its labels back-project to single scans as auto-labels (the data flywheel).
+
 ### 8.3 BEV Perception Pre-training
 
 BEV perception benefits from pre-training that operates in BEV space:
@@ -2032,6 +2034,7 @@ What modalities are available?
 - `30-autonomy-stack/world-models/tokenized-and-jepa.md` -- JEPA paradigm, VQ-VAE tokenization, AD-L-JEPA details
 - `50-cloud-fleet/mlops/transfer-learning.md` -- Road→airside domain gap analysis, transfer strategies, UDA methods
 - `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` -- 18-class airside taxonomy, FlatFormer, ALPINE
+- `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` -- Offline aggregated-map segmentation; unlabeled maps as an SSL corpus, the density-gap closure
 - `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` -- TensorRT optimization, INT8 quantization, multi-model orchestration
 - `70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` -- 8-week onboarding, PointLoRA per-airport, scaling economics
 - `20-av-platform/compute/tensorrt-deployment-guide.md` -- Orin deployment pipeline, INT8 calibration
