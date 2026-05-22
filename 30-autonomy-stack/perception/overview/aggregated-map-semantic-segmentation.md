@@ -558,6 +558,8 @@ Approximate mIoU, public leaderboards as of early 2026 — read as *families and
 
 The consistent pattern: transformer/superpoint methods lead, sparse-conv is close behind at lower engineering cost, KPConv/RandLA-Net are the robust baselines, and **pre-training matters more than the last few points of architecture** — a pre-trained backbone fine-tuned on the target domain usually beats a fancier architecture trained from scratch.
 
+The columns are the families with published results on these *survey/aerial* benchmarks. Cylinder3D and WaffleIron are road single-scan architectures benchmarked on SemanticKITTI/nuScenes rather than these datasets, and OctFormer is reported mainly on ScanNet/SemanticKITTI — they are omitted here not as a quality judgement but for lack of comparable survey-benchmark numbers; §7.8 compares all five families on training characteristics instead.
+
 ### 7.5 The Train/Inference Density Gap — and Fixes
 
 A model trained on single-scan data and run on an accumulated map sees an off-distribution input (§2.3). Fixes, cheapest first:
@@ -956,6 +958,8 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **KPConv** — Thomas et al., "KPConv: Flexible and Deformable Convolution for Point Clouds" (ICCV 2019)
 - **RandLA-Net** — Hu et al., "RandLA-Net: Efficient Semantic Segmentation of Large-Scale Point Clouds" (CVPR 2020)
 - **MinkowskiNet** — Choy et al., "4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks" (CVPR 2019)
+- **Cylinder3D** — Zhu et al., "Cylindrical and Asymmetrical 3D Convolution Networks for LiDAR Segmentation" (CVPR 2021)
+- **WaffleIron** — Puy et al., "Using a Waffle Iron for Automotive Point Cloud Semantic Segmentation" (ICCV 2023)
 - **Point Transformer V3** — Wu et al., "PTv3: Simpler, Faster, Stronger" (CVPR 2024) — [arxiv.org/abs/2312.10035](https://arxiv.org/abs/2312.10035)
 - **Superpoint Transformer** — Robert et al., "Efficient 3D Semantic Segmentation with Superpoint Transformer" (ICCV 2023)
 - **SuperCluster** — Robert et al., "Scalable 3D Panoptic Segmentation As Superpoint Graph Clustering" (3DV 2024)
