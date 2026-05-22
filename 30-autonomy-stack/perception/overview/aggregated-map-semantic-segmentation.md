@@ -878,6 +878,18 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 
 The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2.
 
+### 14.4 The Segmented Map as Safety-Case Evidence
+
+For an airside L4 vehicle the HD-map semantic layer is safety-relevant infrastructure, so the segmented map is not just a data product — it is **reviewable artifact evidence** for the safety case (§1.3).
+
+- **Safety-relevant classes need stricter treatment.** Markings, hold-short lines, fencing/barriers, and pavement edges directly bound where the vehicle may drive; their per-class IoU and recall must be reported and gated separately from bulk classes (§13.1), and they get 100% human review in the annotation protocol (§5.4).
+- **The evidence the labeled map provides.** A fully labeled, QA'd site map is an auditable record that the operating environment was characterized — every surface, structure, and hazard-relevant object classified, with per-point confidence and provenance (§8.6, §10.6). That record supports the ODD-definition and environment-characterization arguments of the safety case.
+- **Verification, not just metrics.** mIoU is necessary but not sufficient evidence; the QA gates of §13.2 (geometric plausibility, cross-pass consistency, heuristic cross-check, seam audit, stability across map versions) are the verification activities that turn a mIoU number into a defensible claim.
+- **Failure-mode honesty.** The explicit `unknown` class and confidence-gated abstention (§6.3, §10.6) are themselves safety arguments — the pipeline never silently guesses a safety-relevant label; low-confidence regions are flagged, not hidden.
+- **Traceability.** Map versioning and provenance (§8.6) make every labeled map traceable to its inputs and reproducible — a requirement for living-safety-case maintenance when the map is re-surveyed.
+
+This maps onto the airside safety case in `60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md` (the segmented layer is the "semantic validation" evidence item there) and the map-QA workflow in `../../localization-mapping/maps/map-construction-pipeline.md` §10.
+
 ---
 
 ## 15. Recommended Pipeline and Roadmap

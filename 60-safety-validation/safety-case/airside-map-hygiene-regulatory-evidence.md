@@ -26,6 +26,8 @@ Airside map hygiene is not only a mapping quality topic. For autonomous ground v
 | Human monitor assumptions remain valid. | route map, intervention zones, remote/local control capability, test plan trace |
 | RF or infrastructure impacts are identified. | AGVS equipment manifest and FAA Form 7460-1 dependency if applicable |
 
+The **semantic validation** evidence above is produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) — it assigns and verifies a class for every map point. Its per-class IoU/recall on safety-relevant classes (markings, hold-short lines, fencing, pavement edges), its QA gates, and its explicit `unknown`-class abstention are the concrete artifacts behind the semantic-validation column; see that page's §14.4 for how the labeled map maps onto this safety case.
+
 ## Safety Case Structure
 
 | Argument node | Evidence package |
