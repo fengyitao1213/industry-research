@@ -936,6 +936,7 @@ The airside aggregated-map benchmark specification, annotation protocol, and cos
 - `30-autonomy-stack/perception/methods/point-transformer-v3.md` — PTv3 backbone deep-dive (serialized-attention 3D transformer)
 - `30-autonomy-stack/perception/methods/octformer.md` — OctFormer deep-dive (octree-based transformer for large clouds)
 - `30-autonomy-stack/perception/methods/superpoint-transformer.md` — Superpoint Transformer deep-dive (large-scale superpoint-graph segmentation)
+- `30-autonomy-stack/perception/methods/2dpass.md` — 2DPASS deep-dive (image-assisted training, LiDAR-only inference)
 - `30-autonomy-stack/perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md` — benchmark-usage reference (splits, metrics, servers, formats, licensing)
 - `30-autonomy-stack/perception/overview/self-supervised-pretraining-driving.md` — SSL pre-training for label-efficient fine-tuning
 - `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` — closing the train/inference domain gap
