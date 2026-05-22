@@ -759,7 +759,14 @@ Raw per-point predictions are locally noisy and carry seam discontinuities. A sp
 
 ### 10.2 Instance and Panoptic Extraction
 
-For "things" classes that survive into the static map (staged GSE, individual signs/poles), instances come from class-wise clustering on top of semantic labels — DBSCAN/HDBSCAN/connected components, the training-free ALPINE-style pattern documented in `lidar-semantic-segmentation.md` §6-§7. SuperCluster (§7.3) gives panoptic directly at map scale if a learned panoptic output is preferred.
+Semantic labels answer "what class"; panoptic adds "which object." For an aggregated map the **things** worth instancing are the static-but-countable objects: staged-GSE units, individual signs, and poles/masts. Instances matter here for concrete reasons — counting and locating staged-GSE units, treating each pole/mast as an individual localization landmark, and tracking change per object across map versions (§13.2).
+
+Two routes:
+
+- **Training-free clustering on semantic labels.** Run a spatial clustering — DBSCAN/HDBSCAN, Euclidean clustering, or connected components — class-wise on the segmented points; each cluster is an instance. Cheap, no extra training, decoupled from the semantic model — the training-free ALPINE-style pattern documented in `lidar-semantic-segmentation.md` §6-§7. *Pro:* simple, no labels needed. *Con:* merges touching instances and splits sparse ones, and density non-uniformity (§2.3) makes a single clustering radius fragile.
+- **Learned panoptic.** A model trained to output instances directly — SuperCluster (§7.3) does panoptic as superpoint-graph clustering and scales to whole cities. *Pro:* resolves the touching/sparse cases geometric clustering fails on. *Con:* needs panoptic labels and more tooling.
+
+**Recommendation.** Start training-free — for a mostly-stuff static map, geometric clustering on the well-separated thing classes is usually enough and costs nothing. Move to a learned panoptic head (SuperCluster) only when instance quality on crowded staged-GSE areas becomes limiting, or when per-instance change tracking needs stable instance IDs across surveys.
 
 ### 10.3 Fusing the Segment-Then-Accumulate Prior
 

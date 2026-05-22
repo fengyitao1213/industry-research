@@ -432,6 +432,8 @@ There are **no public airside LiDAR datasets with instance labels**. Annotating 
 2. Apply DBSCAN/HDBSCAN/connected components for instance grouping
 3. No additional instance-specific training required
 
+The same training-free clustering applies to the **offline aggregated map**, where it is in fact easier — dynamics are removed and density is higher, so the static thing classes (staged GSE, poles, signs) cluster cleanly. See `aggregated-map-semantic-segmentation.md` §10.2 for the map-scale instance/panoptic treatment and when to graduate to a learned panoptic head (SuperCluster).
+
 ### 7.2 HDBSCAN for Airside Instance Segmentation
 
 HDBSCAN improves over DBSCAN by automatically adapting clustering density:
