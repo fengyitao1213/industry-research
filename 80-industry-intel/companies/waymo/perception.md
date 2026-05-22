@@ -1032,6 +1032,8 @@ Multi-frame LiDAR --> MVF++ Detector --> Per-frame 3D Boxes
 - Used to annotate the **Waymo Open Motion Dataset** (103,354 segments).
 - **10x more data efficient** than training without augmentation.
 
+3DAL is offboard auto-labeling for *detection*. The same offboard principle — heavy models over accumulated multi-frame point clouds, then back-projection to single frames — applies to *semantic segmentation* via the aggregated-map segmentation pipeline (`../../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`), which segments the registered survey map once and back-projects per-scan labels. 3DAL is the most-cited public example of this accumulate-then-segment + back-projection flywheel.
+
 ### 20.2 Data Augmentation
 
 **Automated Data Augmentation** ([Waymo Blog, Apr 2020](https://waymo.com/blog/2020/04/using-automated-data-augmentation-to/)):
