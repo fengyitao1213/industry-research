@@ -213,6 +213,8 @@ class SemanticChangeDetector:
         return changes
 ```
 
+The `map_semantics` reference layer this detector compares against is not free — it is the **per-point/per-element semantic layer produced by the offline aggregated-map segmentation pipeline** (`../../perception/overview/aggregated-map-semantic-segmentation.md`). Class-aware change detection — distinguishing "a new *fence* appeared" from "a *vehicle* moved" — is possible only because the reference map carries semantic labels; raw point differencing (§2.1) cannot make that distinction. Two complementary patterns follow: (1) compare live perception against the labeled reference map, as above; (2) re-survey, re-segment with the same pipeline, and **difference two semantically-labeled maps** — that pipeline's own QA metric of label churn in unchanged regions (`aggregated-map-semantic-segmentation.md` §13.2) is itself a change-detection signal. Keeping the change-detection class set aligned with the segmentation taxonomy (its §6.3) is what lets the two interoperate.
+
 ### 2.3 Urban 3D Change Detection (2025 SOTA)
 
 Recent work on urban 3D change detection using LiDAR specifically targets HD map maintenance:
