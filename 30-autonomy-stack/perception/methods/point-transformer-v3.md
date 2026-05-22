@@ -96,6 +96,6 @@ method-priority:end -->
 - Pointcept framework (reference implementation): https://github.com/Pointcept/Pointcept
 - Sonata (SSL pre-training for PTv3): https://arxiv.org/abs/2503.16429
 - Point Prompt Training / PPT (multi-dataset training): https://arxiv.org/abs/2308.09718
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares PTv3 head-to-head against the other four model families
 - Related repository page: `../overview/lidar-foundation-models.md` — 3D pre-training and foundation models
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation

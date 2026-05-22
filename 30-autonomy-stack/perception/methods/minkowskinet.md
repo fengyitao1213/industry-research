@@ -96,5 +96,5 @@ method-priority:end -->
 - TorchSparse (optimized sparse-conv library): https://github.com/mit-han-lab/torchsparse
 - SpConv (optimized sparse-conv library): https://github.com/traveller59/spconv
 - SparseConvNet / submanifold sparse convolution: Graham et al., "3D Semantic Segmentation with Submanifold Sparse Convolutional Networks" (CVPR 2018)
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares sparse-voxel conv head-to-head against the other four model families
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation
