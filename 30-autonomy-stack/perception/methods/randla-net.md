@@ -93,5 +93,5 @@ method-priority:end -->
 
 - RandLA-Net paper: https://arxiv.org/abs/1911.11236
 - Reference implementation: https://github.com/QingyongHu/RandLA-Net
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares point-based convolution head-to-head against the other four model families
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation

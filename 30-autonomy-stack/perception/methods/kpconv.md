@@ -96,5 +96,5 @@ method-priority:end -->
 - Original implementation (TensorFlow): https://github.com/HuguesTHOMAS/KPConv
 - PyTorch implementation: https://github.com/HuguesTHOMAS/KPConv-PyTorch
 - KPConvX (CVPR 2024 successor): https://arxiv.org/abs/2405.13194
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares point-based convolution head-to-head against the other four model families
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation

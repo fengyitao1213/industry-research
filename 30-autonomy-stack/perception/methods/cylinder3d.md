@@ -92,4 +92,4 @@ method-priority:end -->
 - Cylinder3D paper: https://arxiv.org/abs/2011.10033
 - Reference implementation: https://github.com/xinge008/Cylinder3D
 - Related repository page: `../overview/lidar-semantic-segmentation.md` — single-scan on-vehicle segmentation
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline (§7.2 on why Cylinder3D is less natural for maps)
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline (§7.2 on why Cylinder3D is less natural for maps; §7.8 for the head-to-head model-family comparison)

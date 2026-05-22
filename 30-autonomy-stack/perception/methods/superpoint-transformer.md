@@ -95,4 +95,4 @@ method-priority:end -->
 - SuperCluster (panoptic extension) paper: https://arxiv.org/abs/2401.06704
 - Reference implementation (SPT + SuperCluster): https://github.com/drprojects/superpoint_transformer
 - Superpoint Graph predecessor: Landrieu and Simonovsky, "Large-scale Point Cloud Semantic Segmentation with Superpoint Graphs" (CVPR 2018)
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares the superpoint family head-to-head against the other four model families

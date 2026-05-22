@@ -94,5 +94,5 @@ method-priority:end -->
 - OctFormer paper: https://arxiv.org/abs/2305.03045
 - Reference implementation: https://github.com/octree-nn/octformer
 - O-CNN / octree library lineage: https://github.com/octree-nn/ocnn-pytorch
-- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline
+- Related repository page: `../overview/aggregated-map-semantic-segmentation.md` — offline aggregated-map segmentation pipeline; §7.8 compares the transformer family head-to-head against the other four model families
 - Related repository page: `point-transformer-v3.md` — the serialization-based transformer covering similar ground
