@@ -468,6 +468,8 @@ For detailed segmentation method comparisons, see `30-autonomy-stack/perception/
 
 The trend is clear: **simpler attention + better spatial grouping wins**. PTv3 abandoned the custom vector attention of PTv1/v2 in favor of standard multi-head attention, gaining FlashAttention compatibility and massive speed improvements.
 
+**Method-library deep-dives and the offline map application.** This section covers the *attention mechanics*. For method-library deep-dives of the individual architectures — training characteristics, strengths/failure modes, domain-fit matrices — see `30-autonomy-stack/perception/methods/point-transformer-v3.md` and, for the closely-related octree-based variant, `30-autonomy-stack/perception/methods/octformer.md` (octree shuffle-key sorting is a space-filling-curve scheme like PTv3 serialization, with fixed-point-count windows that self-adapt to density). Both are the lead transformer choices for the **offline aggregated-map semantic segmentation** pipeline (`30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` §7), where the no-latency budget lets the full uncompressed backbone run.
+
 ---
 
 ## 3. Voxel Transformers

@@ -961,6 +961,7 @@ The airside aggregated-map benchmark specification, annotation protocol, and cos
 ### Related Repository Documents
 - `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` — single-scan / real-time on-vehicle segmentation (the complementary page)
 - `30-autonomy-stack/perception/overview/lidar-foundation-models.md` — PTv3, Sonata, ScaLR, PointLoRA pre-training
+- `10-knowledge-base/machine-learning/sparse-attention-3d-perception.md` — attention-mechanics fundamentals behind the transformer backbones (PTv3, OctFormer)
 - `30-autonomy-stack/perception/methods/minkowskinet.md` — MinkowskiNet deep-dive (sparse-voxel convolution U-Net baseline)
 - `30-autonomy-stack/perception/methods/kpconv.md` — KPConv deep-dive (point-based convolution baseline)
 - `30-autonomy-stack/perception/methods/randla-net.md` — RandLA-Net deep-dive (efficient large-scale point-based segmentation)
