@@ -1,6 +1,6 @@
 # End-to-End Semantic Segmentation Pipeline for Aggregated LiDAR Maps
 
-> The complete pipeline for assigning a semantic class to every point of a **registered, multi-scan LiDAR map** — the dense static point cloud produced by SLAM/mapping — as opposed to a single live sensor frame. Covers the aggregated-vs-single-scan distinction, pipeline architecture (tiling, inference, stitching, QA), input modalities (LiDAR geometry + intensity, colorized clouds, LiDAR+image fusion), the large-scale 3D segmentation dataset landscape, class taxonomies, model families (KPConv, RandLA-Net, sparse-conv, Point Transformer v3, Superpoint Transformer), pre-/post-processing, design trade-offs, industry-proven practice, evaluation, and the airside application.
+> The complete pipeline for assigning a semantic class to every point of a **registered, multi-scan LiDAR map** — the dense static point cloud produced by SLAM/mapping — as opposed to a single live sensor frame. Covers the aggregated-vs-single-scan distinction, pipeline architecture (tiling, inference, stitching, QA), input modalities (LiDAR geometry + intensity, colorized clouds, LiDAR+image fusion), the large-scale 3D segmentation dataset landscape, class taxonomies, model families (KPConv, RandLA-Net, sparse-conv, Point Transformer v3, Superpoint Transformer), self-supervised pre-training and 3D foundation models, pre-/post-processing, design trade-offs, industry-proven practice, evaluation, and the airside application.
 
 **Last updated:** 2026-05-22
 
@@ -492,6 +492,51 @@ A model trained on single-scan data and run on an accumulated map sees an off-di
 3. **Self-supervised pre-training on unlabeled airside maps** — then fine-tune with few labels (see `self-supervised-pretraining-driving.md`, `lidar-foundation-models.md`).
 4. **Test-time adaptation** — adapt batch-norm/entropy on the target map (`test-time-adaptation-airside.md`).
 
+### 7.6 Self-Supervised Pre-Training and 3D Foundation Models
+
+§7.4 ends on the central claim: pre-training outweighs the last few points of architecture. This subsection makes that claim operational, because for an airside pipeline it is the **single highest-leverage model decision** — in-domain labels are scarce (§5.4) while unlabeled airside maps are abundant (every survey drive produces one).
+
+**Why pre-training is decisive here.** A 3D segmentation model trained from random initialization needs thousands of labeled tiles to reach its accuracy ceiling; a realistic airside annotation budget is hundreds. Pre-training shifts the label-efficiency curve: a backbone that has already learned generic 3D structure — planarity, verticality, object compactness, density gradients — from unlabeled or out-of-domain data reaches the same mIoU with roughly 5-20× fewer labels. The corpus stance that SSL pre-training plus active learning cut labeling cost 50-80% is precisely this lever applied to map segmentation.
+
+**Pre-training families:**
+
+| Family | Pretext task | Representative methods | Fit for aggregated-map segmentation |
+|---|---|---|---|
+| **Contrastive** (point/voxel correspondence) | Pull matching points across two views together, push non-matches apart | PointContrast, SegContrast, DepthContrast, TARL | Mature; needs registered multi-view or temporal pairs — an aggregated map *contains* them for free |
+| **Masked point/voxel modeling** | Mask part of the cloud, reconstruct geometry or occupancy | Voxel-MAE, Occupancy-MAE, Point-MAE/-BERT (object-level) | Scales to unlabeled maps; needs no correspondences; the natural choice for an unlabeled airside-map corpus |
+| **Neural-rendering pretext** | Render the cloud to image/depth, supervise photometrically | PonderV2 | Strong representations; heavier; benefits from imagery |
+| **Image-to-LiDAR distillation** | Distill a 2D vision foundation model into the 3D backbone | SLidR, ScaLR, Seal | Brings 2D semantics in *at train time only* — deployment stays LiDAR-only (§4.3) |
+| **Multi-dataset joint training** | One backbone, many datasets, dataset-specific prompts/norms | Point Prompt Training (PPT) | Turns the fragmented public-dataset landscape (§5) into one pre-training corpus |
+| **Generalist SSL backbone** | Large-scale SSL producing a reusable, optionally frozen backbone | Sonata (builds on PTv3) | Current SOTA generalist; strong linear-probe and few-shot; the lead backbone candidate |
+
+**Recommended pre-training path for airside** (consistent with §7.5, §14.3, and `self-supervised-pretraining-driving.md`, `lidar-foundation-models.md`):
+
+1. **Start from a generalist backbone.** Initialize from a Sonata/PTv3-class checkpoint pre-trained at scale rather than random weights — it already encodes transferable 3D structure.
+2. **Continue SSL on unlabeled airside maps.** Masked-voxel modeling over the airside map corpus closes the domain gap (apron geometry, airside density signature, intensity statistics) *before* any label is spent. It is effectively free — it consumes only compute and maps the survey program already produces.
+3. **Fine-tune with parameter-efficient adapters.** LoRA/PointLoRA-class adapters tune a few hundred labeled airside tiles while freezing most of the backbone — fast, low-overfit, and cheap to re-run each time the flywheel (§12) grows the label set.
+4. **(Optional) image distillation at train time.** With calibrated survey imagery, distill a 2D foundation model into the 3D branch so the deployed model gains 2D semantics without an inference-time camera dependency.
+
+**Cross-dataset training — turning §5 into one corpus.** The public landscape (§5) is fragmented across sensors, taxonomies, and label conventions. Point Prompt Training-style joint training treats that fragmentation as an asset: one shared backbone trained across Paris-Lille-3D, Toronto-3D, KITTI-360, SemanticKITTI and more, with per-dataset prompts/normalization absorbing the conventions. The backbone sees far more 3D variety than any single dataset offers, which transfers better to a new domain like airside than single-dataset pre-training.
+
+**Open-vocabulary pre-training.** Methods that align 3D features with CLIP-style text/image embeddings (OpenScene, RegionPLC, and the Mosaic3D work in `mosaic3d.md`) can name classes never present in the training taxonomy. For airside this is a **long-tail safety net** — rare objects (unusual GSE, debris types) can be flagged by description instead of silently collapsing to "unknown." Treat it as a complement to the closed-set model, not a replacement; §6.3 retains an explicit unknown class regardless.
+
+**Caveats.** Pre-training is not free accuracy: (i) a backbone pre-trained on *single-scan* data still inherits the density gap of §7.5 — continue SSL on *accumulated* clouds to fix it; (ii) SSL gains shrink as labeled data grows — past a few thousand labeled tiles the architecture begins to matter again; (iii) frozen-backbone linear probing is a useful fast feasibility check, but a fine-tuned (even LoRA) backbone is materially better for production.
+
+### 7.7 Model Selection Decision Guide
+
+The §7.4 accuracy table compresses to a small set of decision rules. In practice the choice is governed less by leaderboard rank than by **map scale, label budget, team tooling maturity, and inference constraints.**
+
+| If the dominant constraint is… | Pick | Why |
+|---|---|---|
+| Team new to 3D segmentation; reliability first | Sparse-conv U-Net (Minkowski/SpConv), public-pretrained | Best tooling, predictable, TensorRT-friendly; the industry default (§7.2, §12) |
+| Airport/city-scale map; tiling is the pain point | Superpoint Transformer / SuperCluster | Partitioning is intrinsic, whole-scene context, tiny models (§7.3, §8.2) |
+| Maximum accuracy, tiling well-engineered | PTv3 + Sonata pre-training | Accuracy ceiling on public benchmarks (§7.4) |
+| In-domain labels very scarce (the airside reality) | Any of the above + invest in §7.6 | Pre-training outweighs architecture choice (§7.4) |
+| Sparse far-field, off-trajectory map regions | Add SphereFormer-style radial attention or density-randomized augmentation | Handles the intra-map density gap (§2.3, §7.5) |
+| A single-scan model must also ship | Keep map and on-vehicle architectures aligned | Consistent auto-label back-projection across taxonomies (§6.3) |
+
+**The meta-rule.** For airside specifically, the honest guidance is: do not over-invest in architecture search. §7.4's pattern holds — a well-pre-trained sparse-conv or superpoint model beats a poorly-trained transformer. Pick one architecture the team can support, get §7.6 (pre-training) and §9 (conditioning) right, and let the flywheel (§12) drive accuracy. Architecture is a P4 refinement (§15.2), not a P1 decision.
+
 ---
 
 ## 8. Tiling, Chunking, and Stitching
@@ -740,6 +785,16 @@ The airside aggregated map is the survey-drive product of `map-construction-pipe
 - **SuperCluster** — Robert et al., "Scalable 3D Panoptic Segmentation As Superpoint Graph Clustering" (3DV 2024)
 - **OctFormer** — Wang, "OctFormer: Octree-based Transformers for 3D Point Clouds" (SIGGRAPH 2023)
 - **2DPASS** — Yan et al., "2DPASS: 2D Priors Assisted Semantic Segmentation on LiDAR Point Clouds" (ECCV 2022)
+- **SphereFormer** — Lai et al., "Spherical Transformer for LiDAR-based 3D Recognition" (CVPR 2023)
+
+### Pre-Training and 3D Foundation Models
+- **PointContrast** — Xie et al., "PointContrast: Unsupervised Pre-training for 3D Point Cloud Understanding" (ECCV 2020)
+- **Point Prompt Training (PPT)** — Wu et al., "Towards Large-scale 3D Representation Learning with Multi-dataset Point Prompt Training" (CVPR 2024)
+- **Sonata** — Wu et al., "Sonata: Self-Supervised Learning of Reliable Point Representations" (CVPR 2025)
+- **SLidR** — Sautier et al., "Image-to-Lidar Self-Supervised Distillation for Autonomous Driving Data" (CVPR 2022)
+- **ScaLR** — Puy et al., "Three Pillars Improving Vision Foundation Model Distillation for LiDAR" (CVPR 2024)
+- **PonderV2** — Zhu et al., "PonderV2: Pave the Way for 3D Foundation Model with A Universal Pre-training Paradigm" (2023)
+- **Voxel-MAE** — Hess et al., "Masked Autoencoders for Self-Supervised Learning on Automotive Point Clouds" (2022)
 
 ### Datasets and Benchmarks
 - **Semantic3D** — Hackel et al., "Semantic3D.net: A New Large-Scale Point Cloud Classification Benchmark" (ISPRS 2017)
