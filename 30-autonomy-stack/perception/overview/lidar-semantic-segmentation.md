@@ -4,6 +4,8 @@
 
 **Last updated:** 2026-04-11
 
+**Scope note:** This page covers **single-scan, real-time, on-vehicle** segmentation inside the Orin cycle budget. For segmenting the **aggregated (registered multi-scan) LiDAR map** offline — the map-scale counterpart used to build HD-map semantic layers and auto-label training data — see `aggregated-map-semantic-segmentation.md`.
+
 ---
 
 ## Table of Contents
