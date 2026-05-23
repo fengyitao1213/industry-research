@@ -11,7 +11,7 @@ priority:
   reason: "Uni-Mapper is rated for heterogeneous-LiDAR multi-map merging where dynamic residuals, loop closure, and map alignment must be handled together."
 method-priority:end -->
 
-Related docs: [LT-Mapper, Khronos, and Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [KISS-Matcher](kiss-matcher.md) · [Scan Context Family](scan-context-family.md) · [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
+Related docs: [LAMM Multi-Session Point-Cloud Map Merging](lamm-multi-session-point-cloud-map-merging.md) · [LT-Mapper, Khronos, and Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [KISS-Matcher](kiss-matcher.md) · [Scan Context Family](scan-context-family.md) · [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
 
 **Last updated:** 2026-05-23
 
@@ -142,6 +142,7 @@ Uni-Mapper dynamic-aware merge
 
 | System | Main contribution | How Uni-Mapper differs |
 |---|---|---|
+| LAMM | Large-scale multi-session point-cloud map merging with temporal bidirectional dynamic filtering, BTC loop detection, false-positive loop filtering, and graph optimization | Uni-Mapper is more explicitly heterogeneous-LiDAR and dynamic-aware descriptor centric; LAMM is the broader multi-session map-merging architecture reference. |
 | LT-Mapper | Multi-session LiDAR lifelong mapping with LT-SLAM, LT-Removert, and Place-Voxel maps | Uni-Mapper focuses on heterogeneous-LiDAR map merging and dynamic-aware descriptors. |
 | Khronos | Object-aware spatio-temporal metric-semantic SLAM | Uni-Mapper is LiDAR map merging, not object-centric RGB-D temporal scene graphs. |
 | Lifelong 3D Map Version Control | Base map, positive/negative diff store, reconstructable map history | Uni-Mapper is an alignment/merging method; version control is the governance layer around its output. |

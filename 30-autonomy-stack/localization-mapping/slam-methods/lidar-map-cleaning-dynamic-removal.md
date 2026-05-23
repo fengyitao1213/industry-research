@@ -17,7 +17,7 @@ LiDAR map cleaning removes transient, dynamic, ghost, and artifact points from a
 
 Dynamic removal is also a hard **prerequisite** before semantic segmentation of any aggregated map: ghost trails left by moving objects pollute static classes and corrupt the back-projected auto-labels that drive MOS and semantic-segmentation training pipelines. The pipeline order is fixed — **clean → condition → segment** — and cannot safely be reversed without a pre-existing class-specific detector.
 
-Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, [Raymoval](raymoval.md), detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
+Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, [Raymoval](raymoval.md), detector-based potentially dynamic object removal, dynamic-aware and multi-session map merging through [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) and [LAMM](lamm-multi-session-point-cloud-map-merging.md), lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
 
 - **Static persistent map**: surveyed structure used for localization.
 - **Movable-static layer**: aircraft, GSE, cones, barriers, and staged equipment.
@@ -61,7 +61,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Online MOS | LiDAR-MOS, 4DMOS, MambaMOS, HeLiMOS-style | Moving/static point labels over time | Runtime masking and dataset evaluation. |
 | Instance-level and semantic removal | ERASOR2, Potentially Dynamic Object Removal by Ground Projection | 3D detection, ground segmentation, projection, and geometry fallback | Handles parked-but-movable objects when the detector/taxonomy covers them. |
 | Learning / scene flow | DeFlow | GRU-refined scene flow; dynamics from predicted motion | Research/evaluation; degrades under domain shift. |
-| Dynamic-aware map merging | Uni-Mapper / DynaSTD | Free-space hash dynamic removal feeding place descriptors and anchor-node graph optimization | Merging heterogeneous LiDAR maps without trusting dynamic objects as loop-closure evidence. |
+| Dynamic-aware and multi-session map merging | [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) / DynaSTD; [LAMM](lamm-multi-session-point-cloud-map-merging.md) / BTC | Dynamic filtering before place descriptors, false-loop filtering, and graph optimization | Merging heterogeneous or repeated LiDAR sessions without trusting dynamic objects or false loops as map-alignment evidence. |
 | Multi-session consensus and version control | Fleet map lifecycle, Lifelong 3D Map Version Control | Persistence across days / shifts, PD/ND diffs, reconstructable map versions | Production promotion, rejection, rollback, and queryable map-change history. |
 
 ---
@@ -466,7 +466,7 @@ Metrics to report:
 - Compare ERASOR and Removert as complementary baselines before adopting a single default.
 - Use DUFOMap or [BeautyMap](beautymap.md) as the conditioning pass before segmentation where conservative, repeatable cleaning over large multi-pass surveys matters more than per-frame latency.
 - Use MapCleaner/ERASOR++/FreeDOM as evaluation candidates where their assumptions match the data.
-- Use [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) when the site must merge heterogeneous LiDAR sessions or maps. Treat its dynamic-aware descriptors as loop-candidate hygiene and map-alignment support, not as a complete static-but-transient policy for parked movable objects.
+- Use [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) when the site must merge heterogeneous LiDAR sessions or maps. Use [LAMM](lamm-multi-session-point-cloud-map-merging.md) when the dominant gap is large-scale multi-session point-cloud map merging with dynamic filtering, BTC loop discovery, false-loop rejection, and connected-component graph optimization. Treat both as map-alignment support, not as complete static-but-transient policy for parked movable objects.
 - Treat 4dNDF and DeFlow as offline research/QA until runtime, uncertainty, and maintainability are proven.
 - Use HeLiMOS-style labels to evaluate multi-LiDAR rigs separately and after sensor fusion.
 - The movable-static layer definition and the segmentation taxonomy's "staged GSE / permitted-static" class must stay aligned across the map lifecycle. Route detector-based single-survey quarantine through [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) and multi-session PD/ND governance through [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md).
@@ -507,6 +507,8 @@ Metrics to report:
 - Raymoval paper: https://arxiv.org/html/2605.08937v1
 - M-Detector paper: https://www.nature.com/articles/s41467-023-44554-8
 - M-Detector code: https://github.com/hku-mars/M-detector
+- LAMM paper: https://doi.org/10.1109/LRA.2024.3504317
+- LAMM official repository: https://github.com/hku-mars/LAMM
 - LiDAR-MOS / LMNet: https://github.com/PRBonn/LiDAR-MOS
 - MambaMOS: https://arxiv.org/html/2404.12794v2
 - Auto-label with ERASOR (Cortinhal et al. 2022): https://arxiv.org/abs/2201.04501

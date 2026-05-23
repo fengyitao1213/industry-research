@@ -286,7 +286,7 @@ For static-but-wrong objects, K-of-N voting is not enough. A tug or parked aircr
 
 - **Single-survey semantic quarantine:** detector-based movable-class removal/projection such as [Potentially Dynamic Object Removal by Ground Projection](../slam-methods/potentially-dynamic-object-removal-ground-projection.md), with original object points retained as rejected evidence.
 - **Multi-session lifecycle governance:** a base-map/diff/boundary store such as [Lifelong 3D Map Version Control](../slam-methods/lifelong-3d-map-version-control.md), so positive/negative changes can be reviewed, reconstructed, and rolled back instead of silently overwritten.
-- **Heterogeneous LiDAR map merging:** when survey laps, re-surveys, or infrastructure maps come from multiple LiDAR rigs, run [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md) before semantic segmentation and publication so dynamic residuals do not become loop-closure or inter-map alignment evidence.
+- **Large-scale multi-session map merging:** when many sessions, agents, or source maps must be merged, run [LAMM Multi-Session Point-Cloud Map Merging](../slam-methods/lamm-multi-session-point-cloud-map-merging.md) or [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md) before semantic segmentation and publication so dynamic residuals, false loops, or cross-rig artifacts do not become inter-map alignment evidence.
 
 The publishable output should therefore be a static candidate map plus a quarantine/rejected-object layer and a change manifest, not only a filtered point cloud.
 
@@ -476,6 +476,8 @@ X = Loop closure detection points (Scan Context pre-filter → MinkLoc3D verify 
 5. **Add factor**: Insert BetweenFactorPose3 into GTSAM graph
 
 For map construction (offline), we process all loop closures before final optimization — unlike real-time where they're incremental.
+
+For very large multi-session sites, use a dedicated map-merging branch instead of treating every loop as a flat pairwise constraint. [LAMM Multi-Session Point-Cloud Map Merging](../slam-methods/lamm-multi-session-point-cloud-map-merging.md) adds temporal bidirectional moving-object filtering, BTC-based inter-session loop discovery, false-positive loop filtering, and connectivity grouping before graph optimization. Its output should include retained/rejected loop reports and connected-component evidence before geodetic alignment or semantic segmentation consumes the merged map.
 
 ### 4.5 Expected Accuracy Budget
 
@@ -1367,6 +1369,7 @@ jobs:
 | **LIO-SAM** | Alternative SLAM | BSD-3 | Production | Better loop closure support |
 | **KISS-ICP** | Validation SLAM | MIT | Production | No IMU needed — independent check |
 | **GTSAM** | Graph optimization | BSD | Production | Already in reference airside AV stack |
+| **LAMM** | Multi-session LiDAR map merging | License unclear / review required | Research / prototype | Merges multiple LiDAR sessions or agents with dynamic filtering, false-loop filtering, and graph optimization; use as upstream conditioning before segmentation |
 | **OpenLiDARMap** | Map-prior georeferenced point-cloud mapping | Apache-2.0 | Research / prototype | GNSS-free or GCP-sparse branch using public/reference map priors; requires reference-map provenance and residual checks |
 | **FlexCloud** | Direct georeferencing and drift correction | Apache-2.0 | Research / prototype | GNSS/reference-trajectory branch for existing SLAM maps; useful post-hoc correction before annotation |
 | **Open3D** | Point cloud processing | MIT | Production | Python API, GPU-accelerated |
@@ -1532,15 +1535,16 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 12. Xie, Z., et al. (2024). "MapTracker: Tracking with Strided Memory Fusion for Consistent Vector HD Mapping." ECCV.
 13. Xiong, X., et al. (2023). "Neural Map Prior for Autonomous Driving." CVPR.
 14. Wen, L., et al. (2024). "RTMap: Real-Time Recursive Map Maintenance." ICCV.
-15. Kulmer, D., Leitenstern, M., Weinmann, M., & Lienkamp, M. (2025). "OpenLiDARMap: Zero-Drift Point Cloud Mapping Using Map Priors." VEHITS 2025. https://arxiv.org/abs/2501.11111, https://doi.org/10.5220/0013405400003941, https://github.com/TUMFTM/OpenLiDARMap
-16. Leitenstern, M., Alten, M., Bolea-Schaser, C., Kulmer, D., Weinmann, M., & Lienkamp, M. (2025). "FlexCloud: Direct, Modular Georeferencing and Drift-Correction of Point Cloud Maps." VEHITS 2025. https://arxiv.org/abs/2502.00395, https://doi.org/10.5220/0013359600003941, https://github.com/TUMFTM/FlexCloud
+15. Wei, H., et al. (2025). "Large-Scale Multi-Session Point-Cloud Map Merging." IEEE Robotics and Automation Letters. https://doi.org/10.1109/LRA.2024.3504317, https://github.com/hku-mars/LAMM
+16. Kulmer, D., Leitenstern, M., Weinmann, M., & Lienkamp, M. (2025). "OpenLiDARMap: Zero-Drift Point Cloud Mapping Using Map Priors." VEHITS 2025. https://arxiv.org/abs/2501.11111, https://doi.org/10.5220/0013405400003941, https://github.com/TUMFTM/OpenLiDARMap
+17. Leitenstern, M., Alten, M., Bolea-Schaser, C., Kulmer, D., Weinmann, M., & Lienkamp, M. (2025). "FlexCloud: Direct, Modular Georeferencing and Drift-Correction of Point Cloud Maps." VEHITS 2025. https://arxiv.org/abs/2502.00395, https://doi.org/10.5220/0013359600003941, https://github.com/TUMFTM/FlexCloud
 
 ### 17.5 Quality and Validation
 
-17. ISO 19157:2023. "Geographic information — Data quality."
-18. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
-19. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
-20. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+18. ISO 19157:2023. "Geographic information — Data quality."
+19. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
+20. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
+21. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
 21. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
 22. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
 
