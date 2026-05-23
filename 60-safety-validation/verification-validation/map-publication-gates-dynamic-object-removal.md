@@ -77,7 +77,7 @@ Dynamic-object removal changes a map package that vehicles may use for localizat
 - FAA Emerging Entrants Bulletin 25-02: https://www.faa.gov/airports/new_entrants/bulletins/25_02
 - Autoware map component design: https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture/map/
 - Autoware map loader: https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/
-- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - Autoware Lanelet2 map validator: https://github.com/tier4/autoware_lanelet2_map_validator
 - Local context: ../../50-cloud-fleet/map-operations/hd-map-lifecycle-operations.md
 - Local context: map-cleaning-false-deletion-test-protocol.md

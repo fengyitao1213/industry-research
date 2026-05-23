@@ -70,6 +70,6 @@ For the validated LiDAR configuration and airport zones, the map-cleaning pipeli
 - ERASOR paper: https://arxiv.org/abs/2103.04316
 - Removert repository: https://github.com/gisbi-kim/removert
 - MapCleaner article: https://www.mdpi.com/2072-4292/14/18/4496
-- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - Local context: lidar-artifact-removal-validation.md
 - Local context: ../airside-dynamic-map-cleaning-benchmark.md

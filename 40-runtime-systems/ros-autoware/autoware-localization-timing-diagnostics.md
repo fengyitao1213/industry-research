@@ -105,7 +105,7 @@ negative during nominal scenarios.
 
 ## Sources
 
-- Autoware Core, [autoware_ndt_scan_matcher](https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/)
+- Autoware Core, [autoware_ndt_scan_matcher](https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/)
 - Autoware Core, [autoware_ekf_localizer](https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ekf_localizer/)
 - Autoware Universe, [autoware_topic_state_monitor](https://autowarefoundation.github.io/autoware_universe/main/system/autoware_topic_state_monitor/)
 - Autoware Tools, [autoware_localization_evaluation_scripts](https://autowarefoundation.github.io/autoware_tools/main/localization/autoware_localization_evaluation_scripts/)

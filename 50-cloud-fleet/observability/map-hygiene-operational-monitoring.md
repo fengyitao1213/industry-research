@@ -102,8 +102,8 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 - OpenTelemetry telemetry schemas: https://opentelemetry.io/docs/specs/otel/schemas/
 - Autoware diagnostics API: https://autowarefoundation.github.io/autoware-documentation/latest/design/autoware-interfaces/ad-api/features/diagnostics/
 - Autoware diagnostic graph aggregator: https://autowarefoundation.github.io/autoware_universe/main/system/autoware_diagnostic_graph_aggregator/
-- Autoware topic state monitor: https://autowarefoundation.github.io/autoware_universe/pr-10047/system/autoware_topic_state_monitor/
-- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware topic state monitor: https://autowarefoundation.github.io/autoware_universe/main/system/autoware_topic_state_monitor/
+- Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - Local context: ../map-operations/map-publication-gates-airside-hygiene.md
 - Local context: ../map-operations/hd-map-lifecycle-operations.md
 - Local context: ../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md

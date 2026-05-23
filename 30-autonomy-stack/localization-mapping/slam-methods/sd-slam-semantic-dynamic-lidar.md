@@ -207,7 +207,7 @@ Domain adaptation therefore requires fine-tuning RangeNet++ (or substituting a d
 
 **No head-to-head benchmark between SD-SLAM and SuMa++ on the same sequences** has been identified in the public literature as of May 2026. SuMa++ remains the most commonly cited LiDAR semantic SLAM comparison baseline in this space.
 
-**SD-SLAM is not yet included in the KTH DynamicMap Benchmark** (arXiv 2307.07260), which was the standard unified framework for dynamic removal evaluation as of 2024. For comparative PR/RR/F1 numbers across online and offline dynamic removal methods, see [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md).
+**SD-SLAM is not yet included in the KTH DynamicMap Benchmark** (arXiv 2307.07260), which was the standard unified framework for dynamic removal evaluation as of 2024. For metric-lineage-separated comparisons across online and offline dynamic removal methods, see [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md).
 
 ---
 
@@ -348,7 +348,7 @@ SD-SLAM-style online semantic filtering and offline geometric cleaners (ERASOR, 
 | False negative risk | OOD / unknown objects invisible to semantic filter | Detects motion regardless of class; catches OOD objects if they have moved |
 | Map-building benefit | Cleaner per-frame cloud fed to aggregation → reduces ERASOR/FreeDOM workload | Cleans the aggregated map after the fact; catches ghosts SD-SLAM missed |
 | Compute cost | Adds segmentation + DBSCAN + Kalman per frame | ERASOR: offline batch; FreeDOM: two-stage, near-online |
-| Benchmark F1 (seq 07) | Not in KTH benchmark as of 2024 | FreeDOM F1 = 98.33%, ERASOR F1 = 95.18% (KTH benchmark) |
+| Independent dynamic-removal F1 (seq 07) | Not in KTH benchmark as of 2024 | FreeDOM F1 = 98.33% (FreeDOM independent voxel-wise evaluator); ERASOR original F1 = 0.948 (ERASOR voxel-wise evaluator) |
 | Domain coverage | Only known semantic classes | All objects with observed motion, class-agnostic |
 
 **Recommended layered pipeline:**

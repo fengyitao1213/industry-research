@@ -150,7 +150,7 @@ Sources:
 - ROS REP-107 diagnostics: https://www.ros.org/reps/rep-0107.html
 - ROS 2 `diagnostic_updater`: https://docs.ros.org/en/jazzy/p/diagnostic_updater/
 - Autoware diagnostics API: https://autowarefoundation.github.io/autoware-documentation/latest/design/autoware-interfaces/ad-api/features/diagnostics/
-- Autoware NDT scan matcher diagnostics: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware NDT scan matcher diagnostics: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - Autoware localization interface: https://tier4.github.io/autoware-documentation/latest/design/autoware-interfaces/components/localization/
 - Lanelet2 validation: https://docs.ros.org/en/rolling/p/lanelet2_validation/
 - TIER IV Autoware Lanelet2 map validator: https://github.com/tier4/autoware_lanelet2_map_validator

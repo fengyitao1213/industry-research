@@ -49,7 +49,7 @@ Source: [arXiv 2307.07260](https://arxiv.org/abs/2307.07260).
 
 ### 2.1 Preservation Rate (PR) and Rejection Rate (RR) — ERASOR Lineage
 
-Introduced by Kim and Kim (ERASOR, RA-L 2021). Used by ERASOR, ERASOR++, Removert (when benchmarked by KTH), Raymoval, MapCleaner, and FreeDOM in their per-paper evaluations.
+Introduced by Kim and Kim (ERASOR, RA-L 2021). Used by ERASOR, ERASOR++, Removert's original-family comparisons, Raymoval, MapCleaner, and FreeDOM in their own voxel-wise or private-evaluator result tables. KTH/DUFOMap/BeautyMap use the point-level SA/DA/AA or SA/DA/HA lineage instead, even when the same methods appear as baselines.
 
 **Formal definitions (voxel-wise, 0.2 m voxel grid):**
 
@@ -562,7 +562,17 @@ Summary: Raymoval improves PR over ERASOR on all five tested segments, but has l
 
 ### 11.7 MapCleaner
 
-MapCleaner (Remote Sensing 2022, Fu, Xue, Xie) is reported to outperform SOTA on all five SemanticKITTI sequences (00, 01, 02, 05, 07) with near-perfect F1 on some sequences (published claim: F1 approximately 0.9920 on seq 02). The paper is published by MDPI; the full table is behind an HTTP 403 restriction. The ERASOR-lineage numbers in §11.1 remain the authoritative public comparison. MapCleaner's advantage appears primarily on sequences with dense urban dynamics (02). Source: [mdpi.com/2072-4292/14/18/4496](https://www.mdpi.com/2072-4292/14/18/4496) (paywalled table).
+MapCleaner (Remote Sensing 2022, Fu, Xue, Xie) reports PR/RR/score on the same five SemanticKITTI dynamic-map windows used by the ERASOR lineage. These numbers come from MapCleaner's self-evaluation, not the later KTH benchmark.
+
+| Seq | PR [%] | RR [%] | Score |
+|---|---|---|---|
+| 00 | 98.89 | 98.18 | 0.9853 |
+| 01 | 99.74 | 94.98 | 0.9730 |
+| 02 | 99.37 | 99.03 | 0.9920 |
+| 05 | 99.14 | 97.92 | 0.9852 |
+| 07 | 98.98 | 97.25 | 0.9811 |
+
+The MDPI HTML version exposes Table 2, so these values are now directly source-backed. They should still be treated as a 2022 self-evaluation because MapCleaner is not included in the KTH DynamicMap Benchmark method list.
 
 ### 11.8 DR-Remover
 

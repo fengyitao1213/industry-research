@@ -27,7 +27,7 @@ MapCleaner is a training-free, geometry-only offline method for removing dynamic
 - PDF: https://mdpi-res.com/d_attachment/remotesensing/remotesensing-14-04496/article_deploy/remotesensing-14-04496.pdf?version=1662710639
 - ADS abstract: https://ui.adsabs.harvard.edu/abs/2022RemS...14.4496F/abstract
 
-**Author affiliation:** [UNCERTAIN — institutional affiliation was not extractable from public sources during research; HTTP 403 restrictions on the MDPI landing page prevented access. Author names are Fu / Xue / Xie but the lab or university affiliation is unconfirmed.]
+**Author affiliation:** College of Intelligence Science and Technology, National University of Defense Technology, Changsha 410073, China.
 
 **No official code release** from the original authors has been publicly identified as of May 2026. A hypothesis that an official repository existed under `Lab-of-AI-and-Robotics/MapCleaner` was not confirmed; no such repository was found.
 
@@ -169,7 +169,7 @@ else                            ->  retain  (static structure)
 
 The threshold `τ_vote` controls the trade-off between over-removal (low τ: aggressive, removes things absent in most scans) and under-removal (high τ: conservative, only removes things absent in nearly all scans). `τ_vote` is the primary operational parameter.
 
-[UNCERTAIN — the exact mathematical form of the "consistent observation" criterion — whether height-above-terrain must match within a tolerance ε, or whether any return in the XY grid cell counts as a static vote — is not confirmed from the paper's methods section, which was inaccessible due to HTTP 403. The mechanism described above is reconstructed from abstract/introduction excerpts and the unofficial implementation README. The vote accumulation logic is consistently characterised across independent summaries, but the precise inner-loop formula is unverified.]
+[UNCERTAIN — the exact mathematical form of the "consistent observation" criterion — whether height-above-terrain must match within a tolerance ε, or whether any return in the XY grid cell counts as a static vote — is not independently validated against released author code. The mechanism described above is reconstructed from the paper text/figures and the unofficial implementation README. The vote accumulation logic is consistently characterised across accessible sources, but the precise inner-loop formula remains unverified.]
 
 ---
 
@@ -237,15 +237,15 @@ RR = |removed dynamic points| / |all true dynamic points|
 F1 = 2 * PR * RR / (PR + RR)
 ```
 
-| Seq | Description | MapCleaner F1 | ERASOR F1 (orig. paper) | MapCleaner PR | MapCleaner RR |
+| Seq | Description | MapCleaner score | ERASOR F1 (orig. paper) | MapCleaner PR | MapCleaner RR |
 |-----|-------------|---------------|------------------------|---------------|---------------|
-| 00 | Small town (~140 frames) | outperforms ERASOR | 0.955 | [not confirmed] | [not confirmed] |
-| 01 | Highway (~100 frames) | outperforms ERASOR | 0.934 | [not confirmed] | [not confirmed] |
-| 02 | Suburban (~90 frames) | ~**0.9920** | 0.921 | [not confirmed] | [not confirmed] |
-| 05 | Small town (~320 frames) | outperforms ERASOR | 0.933 | [not confirmed] | [not confirmed] |
-| 07 | Rural (~190 frames) | outperforms ERASOR | 0.948 | [not confirmed] | [not confirmed] |
+| 00 | Small town (~140 frames) | **0.9853** | 0.955 | 98.89 | 98.18 |
+| 01 | Highway (~100 frames) | **0.9730** | 0.934 | 99.74 | 94.98 |
+| 02 | Suburban (~90 frames) | **0.9920** | 0.921 | 99.37 | 99.03 |
+| 05 | Small town (~320 frames) | **0.9852** | 0.933 | 99.14 | 97.92 |
+| 07 | Rural (~190 frames) | **0.9811** | 0.948 | 98.98 | 97.25 |
 
-The F1 ≈ 0.9920 on seq 02 appears in a secondary research note (iter-21 §10.7) attributed to the paper. The per-sequence PR and RR breakdown was not extractable from publicly accessible sources; the full paper table was behind HTTP 403 during research. The paper's claim of outperforming state-of-the-art on "all five tested sequences" is consistently reported across all accessible secondary sources and is taken as reliable for the 2022 comparison set.
+MDPI's HTML version exposes the paper's Table 2, including per-sequence PR, RR, and score values. The paper's claim of outperforming the listed baselines on all five tested sequences is therefore directly source-backed for the 2022 comparison set.
 
 **Methods compared in the MapCleaner paper (2022):** ERASOR (RA-L 2021), Removert (IROS 2020), OctoMap (ICRA 2010 / AR 2013), Peopleremover. All are pre-2022 methods.
 
@@ -263,7 +263,7 @@ None of the following post-2022 papers include MapCleaner in their quantitative 
 |-------|------|--------------------|-----------------------|
 | ERASOR++ (arXiv 2403.05019) | 2024 | ERASOR vs ERASOR++ only | No |
 | FreeDOM (arXiv 2504.11073) | 2025 | OctoMap, DUFOMap, Removert, ERASOR, BeautyMap | No |
-| [BeautyMap](beautymap.md) (arXiv 2405.07283) | 2024 | OctoMap, OctoMap+GF, ERASOR, Removert, Dynablox, DeFlow | Yes |
+| [BeautyMap](beautymap.md) (arXiv 2405.07283) | 2024 | OctoMap, OctoMap+GF, ERASOR, Removert, Dynablox, DeFlow | No |
 | DUFOMap (arXiv 2403.01449) | 2024 | OctoMap, ERASOR, Removert, Dynablox | No |
 | HIF (arXiv 2503.06863) | 2025 | Cites MapCleaner [5] in introduction; excludes it from evaluation | No |
 | [Raymoval](raymoval.md) (arXiv 2605.08937) | 2026 | ERASOR, Removert | No |
@@ -476,14 +476,12 @@ MapCleaner's cumulative-voting evidence axis is orthogonal to the per-frame heig
 
 ## Uncertainty Flags
 
-The following items were not confirmed from accessible sources during research (HTTP 403 blocked the MDPI full-text PDF) and are marked [UNCERTAIN] throughout this page. Future readers verifying or extending this page should resolve these items first.
+The following items remain unconfirmed from accessible sources and are marked [UNCERTAIN] where applicable. Future readers verifying or extending this page should resolve these items first.
 
-1. **Author institutional affiliation** — not extractable from accessible sources; the MDPI landing page did not expose author details without authentication.
-2. **Official GitHub repository** — no official repository was found. The `Lab-of-AI-and-Robotics/MapCleaner` hypothesis was not confirmed. Only `kamibukuro5756/MapCleaner_Unofficial` is publicly accessible.
-3. **Per-sequence PR and RR breakdown** — the full paper benchmark table was inaccessible. Only F1 ≈ 0.9920 on seq 02 was recovered from a secondary source. All other per-sequence PR/RR values are unknown.
-4. **Exact inner-loop voting formula** — the "consistent observation" criterion (how a static vote is defined vs. a dynamic vote vs. no-observation for a given scan/point pair) is inferred from abstract/introduction excerpts and the unofficial implementation README, not read from the paper's methods section.
-5. **Total pipeline runtime** — only the terrain stage timings (2.1–17.6 s for seqs 00, 01, 02, 05, 07) are confirmed. The combined terrain + voting stage total is not confirmed.
-6. **Exact threshold values** — the above-terrain height threshold `h_above_threshold`, the variance filter threshold `σ_threshold`, and the BGK kernel bandwidth are not confirmed from accessible sources. Values cited in this page are estimated from the unofficial implementation and are approximate.
+1. **Official GitHub repository** — no official repository was found. The `Lab-of-AI-and-Robotics/MapCleaner` hypothesis was not confirmed. Only `kamibukuro5756/MapCleaner_Unofficial` is publicly accessible.
+2. **Exact inner-loop voting formula** — the "consistent observation" criterion (how a static vote is defined vs. a dynamic vote vs. no-observation for a given scan/point pair) is inferred from paper figures/text and the unofficial implementation README, not independently reproduced from released author code.
+3. **Total pipeline runtime** — only the terrain stage timings (2.1-17.6 s for seqs 00, 01, 02, 05, 07) are confirmed. The combined terrain + voting stage total is not confirmed.
+4. **Exact threshold values** — the above-terrain height threshold `h_above_threshold`, the variance filter threshold `σ_threshold`, and the BGK kernel bandwidth are not confirmed from accessible sources. Values cited in this page are estimated from the unofficial implementation and are approximate.
 
 ---
 

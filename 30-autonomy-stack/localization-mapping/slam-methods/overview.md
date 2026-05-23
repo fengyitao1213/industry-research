@@ -345,5 +345,5 @@ Airside-specific pages may stay airside-first, but generic pages should not make
 - Geneva et al., "OpenVINS: A Research Platform for Visual-Inertial Estimation", ICRA 2020, and official docs: https://docs.openvins.com/
 - Koide et al., "GLIM: 3D Range-Inertial Localization and Mapping with GPU-Accelerated Scan Matching Factors", Robotics and Autonomous Systems 2024, and official repo: https://github.com/koide3/glim
 - GTSAM official docs and repo: https://gtsam.org/docs/ and https://github.com/borglab/gtsam
-- Autoware NDT scan matcher official documentation: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware NDT scan matcher official documentation: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - SplaTAM and Gaussian SLAM references: https://arxiv.org/abs/2312.02126 and https://github.com/google-research/Splat-SLAM

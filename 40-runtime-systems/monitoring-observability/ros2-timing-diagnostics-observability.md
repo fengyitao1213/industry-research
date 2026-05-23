@@ -121,4 +121,4 @@ Use Autoware monitors for operational topic health:
 - ROS 2, [ros2_tracing](https://github.com/ros2/ros2_tracing)
 - ROS 2 Documentation, [Quality of Service settings](https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html)
 - Autoware Universe, [autoware_topic_state_monitor](https://autowarefoundation.github.io/autoware_universe/main/system/autoware_topic_state_monitor/)
-- Autoware Core, [autoware_ndt_scan_matcher diagnostics](https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/)
+- Autoware Core, [autoware_ndt_scan_matcher diagnostics](https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/)

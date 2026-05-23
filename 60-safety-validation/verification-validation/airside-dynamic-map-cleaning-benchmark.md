@@ -56,7 +56,7 @@ FAA material makes the operating context explicit: FOD is a continuing airport s
 ## Sources
 
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
-- FAA AC 150/5210-24, Airport Foreign Object Debris Management: https://www.faa.gov/documentLibrary/media/Advisory_Circular/150_5210_24.pdf
+- FAA AC 150/5210-24A, Airport Foreign Object Debris Management: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
 - FAA automated FOD detection system evaluation: https://www.airporttech.tc.faa.gov/Airport-Safety-OLD/Airport-Safety-and-Surveillance-Sensors/Automated-Foreign-Object-Debris-FOD-Detection-System-Evaluation
 - FOD-A repository: https://github.com/FOD-UNOmaha/FOD-data
 - FOD-A paper: https://arxiv.org/abs/2110.03072
