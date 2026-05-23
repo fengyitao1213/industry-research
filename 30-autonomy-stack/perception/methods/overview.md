@@ -150,6 +150,7 @@ For loss and residual foundations behind perception methods, use [3D Object Dete
 | Open-world and open-vocabulary perception | [OpenAD](openad.md), [OP3Det](op3det.md), [WildDet3D](wilddet3d.md), [DetAny3D](detany3d.md), [OW-OVD](ow-ovd.md), [Clipomaly](clipomaly.md), [S2M](s2m.md), [SAM 3](sam3.md), [3D-AVS](3d-avs.md), [Mosaic3D](mosaic3d.md), [OpenVox](openvox.md), [OVAD/OVODA Open-Vocabulary 3D Attributes](ovad-ovoda-open-vocab-3d-attributes.md), [Open-Vocabulary Panoptic Occupancy](open-vocabulary-panoptic-occupancy.md) |
 | Robust fusion and perception validation | [MoME](mome.md), [GraphBEV](graphbev.md), [SOAC](soac.md), [RC-AutoCalib](rc-autocalib.md), [ASF](availability-aware-sensor-fusion.md), [MSC-Bench](msc-bench.md), [MultiCorrupt](multicorrupt.md), [S2R-Bench](s2r-bench.md), [Occluded nuScenes](occluded-nuscenes.md), [Conformal Boxes](conformal-boxes.md) |
 | Cooperative, online, and data-engine methods | [RCooper](rcooper.md), [HoloVIC](holovic.md), [CoInfra](coinfra.md), [V2X-ReaLO](v2x-realo.md), [CoHFF](cohff.md), [CoSDH](cosdh.md), [CoopTrack](cooptrack.md), [LASP](lasp.md), [Fail2Drive](fail2drive.md), [AIDE](aide.md) |
+| Sparse-query and end-to-end driving | [SparseBEV](sparsebev.md), [Sparse4D](sparse4d.md), [ForeSight](foresight.md), [SparseDrive](sparsedrive.md), [DiffusionDrive](diffusiondrive.md), [SAM4D](sam4d.md), [Open3DTrack](open3dtrack-open-vocab-3d-tracking.md) |
 
 ## File Boundary Rules
 
@@ -200,7 +201,7 @@ The first waves focused on methods already identified as P0/P1 in the [Perceptio
 
 - VEON, EvOcc, ProOOD, SA-Occ, DR-REMOVER, and ExelMap.
 - Drive-OccWorld and DFIT-OccWorld where they need separate world-model or planning-facing treatment beyond the dynamic occupancy page.
-- SparseBEV, DETR4D, DySS, and ForeSight.
+- DETR4D and DySS (SparseBEV, SparseDrive, DiffusionDrive, and ForeSight now have atomic pages).
 - DepthOcc, LinkOcc, missing-view occupancy, Gaussian-rendered occupancy, SAM4D, and related 2026 radar/occupancy follow-ons.
 - SparseCoop, CoDS, JigsawComm, QuantV2X, TruckV2X, and collaborative Gaussian occupancy.
 - DriveBench, Airport-FOD3S data-engine pages, DSERT-RoLL, CMHT, embodied robotics 3D perception, indoor open-vocabulary 3D instance segmentation, and airside-specific dust/de-icing-mist datasets.
