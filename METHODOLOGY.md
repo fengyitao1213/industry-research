@@ -59,7 +59,7 @@ Domain stance: the corpus is a generic AV knowledge base. Airside autonomous veh
 
 ### Phase 10: Method-Level Perception Library
 - **Method:** Five parallel writing agents split the perception coverage audit into atomic, one-method research files across camera BEV/occupancy, LiDAR/radar/event/FMCW perception, open-world/open-vocabulary perception, robust fusion/validation, and cooperative/latency/data-engine methods
-- **Output:** [Perception Method Library](30-autonomy-stack/perception/methods/overview.md), initially with 54 single-technique method files and now expanded to 138 atomic method files that follow a shared structure for core idea, inputs/outputs, architecture, training/evaluation, strengths, failure modes, domain fit, transfer notes for explicitly scoped ODDs, implementation notes, and sources
+- **Output:** [Perception Method Library](30-autonomy-stack/perception/methods/overview.md), initially with 54 single-technique method files and now expanded to 138 method-library files, including 137 atomic method pages plus the overview, that follow a shared structure for core idea, inputs/outputs, architecture, training/evaluation, strengths, failure modes, domain fit, transfer notes for explicitly scoped ODDs, implementation notes, and sources
 
 ### Phase 11: Cross-Architecture Knowledge Gap Audit
 - **Method:** Six parallel research agents audited the post-restructure architecture across foundations, AV platform, autonomy stack, runtime/cloud, safety/validation, and operations/industry. One autonomy agent was split into two narrower replacement agents after exceeding context, preserving coverage without overloading the review.

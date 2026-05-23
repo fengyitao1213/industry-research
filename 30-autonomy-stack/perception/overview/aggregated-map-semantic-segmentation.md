@@ -1,6 +1,6 @@
 # End-to-End Semantic Segmentation Pipeline for Aggregated LiDAR Maps
 
-> The complete pipeline for assigning a semantic class to every point of a **registered, multi-scan LiDAR map** — the dense static point cloud produced by SLAM/mapping — as opposed to a single live sensor frame. Covers the aggregated-vs-single-scan distinction, pipeline architecture (tiling, inference, stitching, QA, operations), input modalities (LiDAR geometry + intensity, colorized clouds, LiDAR+image fusion), the large-scale 3D segmentation dataset landscape including utility-infrastructure proxies such as GridNet-HD, class taxonomies, loss functions, the five model families (point-conv, sparse-voxel, transformer, superpoint, projection-based) with a training-architecture comparison, self-supervised pre-training and 3D foundation models, pre-/post-processing, uncertainty handling, design trade-offs, industry-proven practice, evaluation rigor, the safety-case role, and the airside application.
+> The complete pipeline for assigning a semantic class to every point of a **registered, multi-scan LiDAR map** — the dense static point cloud produced by SLAM/mapping — as opposed to a single live sensor frame. Covers the aggregated-vs-single-scan distinction, pipeline architecture (tiling, inference, stitching, QA, operations), input modalities (LiDAR geometry + intensity, colorized clouds, LiDAR+image fusion), the large-scale 3D segmentation dataset landscape including utility-infrastructure proxies such as GridNet-HD, class taxonomies, loss functions, the core model families (point-conv, sparse-voxel, transformer/PTv3, superpoint, projection-based, and SSM/Mamba as a research-stage efficiency frontier) with a training-architecture comparison, self-supervised pre-training and 3D foundation models, pre-/post-processing, uncertainty handling, design trade-offs, industry-proven practice, evaluation rigor, the safety-case role, and the airside application.
 
 **Last updated:** 2026-05-24
 
@@ -605,7 +605,7 @@ Approximate mIoU, public leaderboards as of early 2026 — read as *families and
 
 The consistent pattern: transformer/superpoint methods lead, sparse-conv is close behind at lower engineering cost, KPConv/RandLA-Net are the robust baselines, and **pre-training matters more than the last few points of architecture** — a pre-trained backbone fine-tuned on the target domain usually beats a fancier architecture trained from scratch.
 
-The columns are the families with published results on these *survey/aerial* benchmarks. Cylinder3D and WaffleIron are road single-scan architectures benchmarked on SemanticKITTI/nuScenes rather than these datasets, and OctFormer is reported mainly on ScanNet/SemanticKITTI — they are omitted here not as a quality judgement but for lack of comparable survey-benchmark numbers; §7.8 compares all five families on training characteristics instead.
+The columns are the families with published results on these *survey/aerial* benchmarks. Cylinder3D and WaffleIron are road single-scan architectures benchmarked on SemanticKITTI/nuScenes rather than these datasets, and OctFormer plus SSM/Mamba families are reported mainly on indoor, road, or general point-cloud benchmarks — they are omitted here not as a quality judgement but for lack of comparable survey-benchmark numbers; §7.8 compares the mature families and research-stage SSM/Mamba efficiency branch on training characteristics instead.
 
 ### 7.5 The Train/Inference Density Gap — and Fixes
 
@@ -670,19 +670,19 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **Head-to-head comparison.**
 
-| Axis | Point-based conv (KPConv, RandLA-Net) | Sparse-voxel conv (MinkowskiNet, SpConv U-Net) | Serialized transformer (PTv3) | Superpoint transformer (SPT, SuperCluster) | Projection-based (WaffleIron) |
-|---|---|---|---|---|---|
-| Input representation | Raw points + local neighborhoods | Voxelized sparse tensor | Serialized point patches (space-filling curve) | Geometric superpoint graph | Points projected to 2D feature planes |
-| Typical parameters | 1-15 M | 5-40 M | 15-100 M+ | 0.2-1 M (≈10²-10³× fewer) | Moderate (~6-15 M) |
-| GPU memory at tile scale | High (neighbor search, kernel points) | Moderate, predictable | High (attention) | Very low | Moderate (dense 2D conv) |
-| Training-data hunger | Moderate | Moderate | High from scratch; low if pre-trained | Low | Moderate |
-| Convergence behavior | Stable, slow; sampling adds variance | Stable, fast, well-behaved | Sensitive — needs warmup, LR schedule, often pre-training to converge well | Fast; partition is a deterministic pre-pass | Stable — standard conv training |
-| Augmentation sensitivity | Moderate | Low — robust to standard augments | High — benefits most from heavy augmentation + TTA | Moderate; partition must be recomputed per augment | Low-moderate |
-| Pre-training ecosystem | Limited public checkpoints | Some (contrastive, MAE) | Strongest — Sonata/PPT checkpoints, the §7.6 lever | Growing but smaller | Limited; ScaLR distills onto it |
-| Tiling interaction | Sphere sampling native | Needs explicit tiling + halo | Tiles cleanly; serialization is tile-friendly | Largely dissolves tiling (§8.2) | Needs explicit tiling |
-| Inference scaling to map | Many overlapping inferences | Tile-parallel, predictable | Tile-parallel, heaviest per tile | Best — whole-scene graph | Tile-parallel, efficient |
-| Tooling / reproducibility | Mature, widely reproduced | Very mature, production-standard | Mature, active, well-maintained | Newer, smaller ecosystem | Excellent — only standard ops, no custom kernels |
-| TensorRT / deployment | Awkward (custom ops) | Best — TensorRT-friendly | Improving; attention kernels heavier | Graph ops less standard | Best — pure standard ops |
+| Axis | Point-based conv (KPConv, RandLA-Net) | Sparse-voxel conv (MinkowskiNet, SpConv U-Net) | Serialized transformer (PTv3) | Superpoint transformer (SPT, SuperCluster) | Projection-based (WaffleIron) | SSM / Mamba point backbones |
+|---|---|---|---|---|---|---|
+| Input representation | Raw points + local neighborhoods | Voxelized sparse tensor | Serialized point patches (space-filling curve) | Geometric superpoint graph | Points projected to 2D feature planes | Serialized point/token sequence with SSM blocks |
+| Typical parameters | 1-15 M | 5-40 M | 15-100 M+ | 0.2-1 M (≈10²-10³× fewer) | Moderate (~6-15 M) | Emerging; varies by local-pooling, convolution, and bidirectional-scan design |
+| GPU memory at tile scale | High (neighbor search, kernel points) | Moderate, predictable | High (attention) | Very low | Moderate (dense 2D conv) | Attractive linear sequence cost, but map-scale memory evidence is still thin |
+| Training-data hunger | Moderate | Moderate | High from scratch; low if pre-trained | Low | Moderate | Unknown-to-moderate; treat as checkpoint/domain-continuation dependent |
+| Convergence behavior | Stable, slow; sampling adds variance | Stable, fast, well-behaved | Sensitive — needs warmup, LR schedule, often pre-training to converge well | Fast; partition is a deterministic pre-pass | Stable — standard conv training | Research-stage; ordering, normalization, and local-context modules can dominate stability |
+| Augmentation sensitivity | Moderate | Low — robust to standard augments | High — benefits most from heavy augmentation + TTA | Moderate; partition must be recomputed per augment | Low-moderate | High audit priority for rotation, density shift, and tile-boundary consistency |
+| Pre-training ecosystem | Limited public checkpoints | Some (contrastive, MAE) | Strongest — Sonata/PPT checkpoints, the §7.6 lever | Growing but smaller | Limited; ScaLR distills onto it | Smaller and fragmented; not yet a release-map default |
+| Tiling interaction | Sphere sampling native | Needs explicit tiling + halo | Tiles cleanly; serialization is tile-friendly | Largely dissolves tiling (§8.2) | Needs explicit tiling | Could permit larger context per tile, but serialization order and overlap policy must be fixed |
+| Inference scaling to map | Many overlapping inferences | Tile-parallel, predictable | Tile-parallel, heaviest per tile | Best — whole-scene graph | Tile-parallel, efficient | Promising token-cost profile; production scaling remains unproven |
+| Tooling / reproducibility | Mature, widely reproduced | Very mature, production-standard | Mature, active, well-maintained | Newer, smaller ecosystem | Excellent — only standard ops, no custom kernels | Immature compared with sparse-conv/PTv3/SPT; implementation choices are not standardized |
+| TensorRT / deployment | Awkward (custom ops) | Best — TensorRT-friendly | Improving; attention kernels heavier | Graph ops less standard | Best — pure standard ops | Experimental; deployment depends on SSM kernels and sequence-layout implementation |
 
 **Per-architecture training characteristics:**
 
@@ -696,7 +696,9 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 - **Projection-based (WaffleIron).** *Advantage:* built only from standard dense 2D convolutions and MLPs — the simplest family to implement, optimize, and deploy, with no custom kernels and strong hardware efficiency. *Disadvantage:* the 2D projection carries a resolution trade-off like voxelization and discards some 3D structure per layer; accuracy is competitive but generally a little below the top transformers. Best when implementation simplicity and a clean dependency footprint outweigh the last point of mIoU; see `../methods/waffleiron.md`.
 
-**The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all five families, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
+- **SSM / Mamba point backbones.** *Advantage:* linear sequence cost is the clearest architectural path to larger tile context without quadratic attention cost, which matters for registered maps where seam count and context radius drive release quality. *Disadvantage:* the family is still research-stage for release-map segmentation — ordering, rotation equivariance, density shift, local geometry recovery, and seam stability need explicit map-specific audits before it can displace sparse-conv, SPT, or PTv3. Best as a P3/P4 efficiency experiment with the same tile manifest and metrics as the mature baselines; see `../methods/point-cloud-mamba-ssm-backbones.md`.
+
+**The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across the mature families, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one. SSM/Mamba backbones are a separate efficiency frontier until their map-scale evidence catches up.
 
 **Backbone × input modality × deployment contract.** The head-to-head table above compares training behavior. The table below is the architectural contract a release engineer needs: what inputs the model can use, whether camera data is needed at inference, how it partitions a registered map, and where each family belongs in a production roadmap.
 
@@ -711,9 +713,11 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **Operational selection.** Start with a LiDAR-only sparse-conv or SPT baseline. Add PTv3/Sonata when a public or internal checkpoint and domain-continuation SSL path exist. Use calibrated imagery for distillation, pseudo-label consolidation, and review, not as a hard runtime dependency unless the map product explicitly includes replay-valid imagery. Keep SSM/Mamba backbones as an efficiency experiment beside the mature baselines.
 
+**Controlled architecture bake-off.** Compare sparse-conv, point-conv, PTv3/Sonata, SPT, projection-based, and SSM/Mamba candidates only under a shared release-map contract: the same conditioned map, taxonomy, tile manifest, halo policy, train/validation/test split, loss mix, augmentation schedule, and optimizer budget. Run separate lanes for LiDAR-only, image-distilled-at-training, and image-at-inference models so camera dependency is not hidden inside a single score. Report class-balanced mIoU, rare/thin-class recall, boundary F1, seam disagreement, ECE/ACE calibration, throughput, cost per km² or per 100M points, and artifact completeness rather than ranking by mean IoU alone.
+
 ### 7.9 4D / Multi-Scan Segmentation Methods
 
-The five families above segment a *static* cloud — one cloud, one label set. The **segment-then-accumulate** route (§2.4) and the SemanticKITTI multi-scan task (§5.2) pose a different problem: segment a *temporal stack* of scans where the same surface appears in many frames, and a class label should be consistent across all of them. A dedicated **4D (space + time) segmentation** family targets exactly this.
+The static-cloud families above segment a *static* cloud — one cloud, one label set. The **segment-then-accumulate** route (§2.4) and the SemanticKITTI multi-scan task (§5.2) pose a different problem: segment a *temporal stack* of scans where the same surface appears in many frames, and a class label should be consistent across all of them. A dedicated **4D (space + time) segmentation** family targets exactly this.
 
 | Method | Mechanism | Strengths | Fit for this pipeline |
 |---|---|---|---|
