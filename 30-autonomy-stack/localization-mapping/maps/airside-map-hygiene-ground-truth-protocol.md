@@ -44,6 +44,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Wet/dry/weather | Surface condition variation | Marking visibility and artifact control |
 | Construction/closure | Work-zone capture with ops record | Temporary restriction and static-change labels |
 | FOD drill or inspection record | Controlled objects or verified inspection outcomes | Hazard handling validation |
+| Do-not-delete adverse holdout | Local chocks, cones, hoses, tools, loose debris, stationary people, staged GSE, and unknown sparse clusters under adverse-airside conditions | Locked validation of retained hazard evidence before publication |
 
 ## Annotation Units
 
@@ -65,6 +66,8 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 6. Compare current captures against the approved prior map and label candidate additions/removals/edits as `static_change`.
 7. Require reviewer decision for every safety-critical deletion and every route/topology change.
 8. Run localization and route regression on the cleaned candidate map before promoting a tile.
+9. Treat do-not-delete hazards as evidence-chain objects, not permanent-map objects. If a cleaner or semantic filter removes the points from the static map, the candidate must still be represented in `hazard`, `movable_static`, `artifact`, or `unknown_review` with source evidence and reviewer state.
+10. Label adverse-airside ambiguity explicitly. Dust, de-icing mist, steam, glycol film, wet-apron multipath, and retroreflector bloom must not be collapsed into `artifact` unless the reviewer can distinguish artifact returns from real object evidence using source frames, cross-sensor evidence, or repeat captures.
 
 ## Reviewer Decision Table
 
@@ -89,6 +92,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Static preservation | Fixed landmarks retained after cleaning |
 | Movable rejection | Aircraft/GSE not present in permanent layer |
 | Hazard handling | FOD/hazard labels preserved as alerts |
+| Local holdout integrity | Do-not-delete/adverse-airside holdout is locked, traceable, and separated from training/tuning |
 | Localization regression | No unacceptable scan-to-map residual or relocalization degradation |
 | Route regression | No route graph change without approval |
 | Audit completeness | Every promoted/deleted element has evidence and reviewer state |
@@ -101,6 +105,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Validation | Held-out stands/routes at same airport | Tune thresholds and reviewer burden |
 | Test | Held-out terminal/airport or real operational changes | Final airside transfer evidence |
 | Safety cases | FOD, work zones, hold points, aircraft-present edges | Report separately from aggregate metrics |
+| Do-not-delete/adverse-airside holdout | Target-airport hazards and adverse slices, including dust, de-icing mist, steam, glycol film, wet-apron multipath, and retroreflector bloom where in ODD | Locked validation-only split; never use for training or threshold tuning |
 
 ## Metrics
 
@@ -119,8 +124,11 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
 - FAA AC 150/5210-24A document page: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
+- FAA AC 150/5220-24, FOD Detection Equipment: https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentNumber/150_5220-24
 - FAA AGVS on Airports: https://www.faa.gov/airports/new_entrants/agvs_on_airports
 - FAA Emerging Entrants Bulletin 25-02: https://www.faa.gov/airports/new_entrants/bulletins/25_02
+- ASAM OpenLABEL: https://www.asam.net/standards/detail/openlabel/
+- NOAA/NWS Aviation Weather Center Data API: https://aviationweather.gov/data/api/
 - AIT Apron Dataset: https://publications.ait.ac.at/de/datasets/apron-dataset/
 - AIT Apron paper: https://openaccess.thecvf.com/content/ACCV2022W/MLCSA/papers/Steininger_Towards_Scene_Understanding_for_Autonomous_Operations_on_Airport_Aprons_ACCVW_2022_paper.pdf
 - Local context: [Movable-Static Layering for Airside Maps](movable-static-layering-airside.md)

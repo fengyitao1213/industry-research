@@ -38,6 +38,7 @@ The claim is intentionally bounded. FOD perception does not prove the airport is
 | Dataset manifest | Object type, material, dimensions, color/reflectivity, placement, background, lighting, weather, range, sensor mounting, and timestamp. |
 | Public benchmark evidence | FOD-A or equivalent small-FOD results, including environmental slices and AP-small/recall. |
 | Target-airport holdout | Site-specific pavement, markings, rubber, lighting, weather, equipment, and debris types not used for tuning. |
+| Adverse-airside local holdout | Target-airport dust, de-icing mist, steam/exhaust plume, glycol film, wet-apron multipath, retroreflector bloom, and do-not-delete hazard clips with raw logs, labels, weather context, and response/disposition trace. |
 | Physical test campaign | Placed FOD articles with known ground-truth positions and dimensions. |
 | Hard-negative campaign | No-FOD scenes with markings, shadows, reflections, cracks, rubber deposits, standing water, cones, chocks, and normal hardware. |
 | Sensor health evidence | Dirty/blocked sensor, defocus, exposure failure, calibration drift, and missing-frame detection. |
@@ -129,3 +130,4 @@ Each production release should include a FOD perception evidence package: datase
 - [LIDAROC Zenodo dataset](https://zenodo.org/records/12800039)
 - [FAA AC 150/5200-30D, Airport Field Condition Assessments and Winter Operations Safety](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5200-30)
 - [FAA AC 150/5300-14D, Design of Aircraft Deicing Facilities](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5300-14)
+- [NOAA/NWS Aviation Weather Center Data API](https://aviationweather.gov/data/api/)

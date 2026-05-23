@@ -86,6 +86,7 @@ Cross-reference: `../../perception/overview/aggregated-map-semantic-segmentation
 4. For camera-guided YOLO removal, log lighting/weather confidence because apron perception degrades at night, in glare, rain, fog, and de-icing conditions.
 5. Never use a potentially dynamic removal model as the sole source of FOD clearance.
 6. Tie all permanent-map promotions to source evidence, persistence, reviewer approval, and localization regression.
+7. Before changing removal or promotion rules for potentially dynamic classes, rerun false-deletion validation on the local do-not-delete/adverse-airside holdout; unknown sparse clusters in route, stand, pedestrian, or FOD-sensitive zones route to review, not deletion.
 
 ## Sources
 

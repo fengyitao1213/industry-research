@@ -1,6 +1,6 @@
 # Map Cleaning False Deletion Test Protocol
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 False deletion is the safety-critical failure mode where a map-cleaning pipeline removes real structure, real hazards, or review-required evidence. This protocol validates that dynamic-object removal does not create an over-cleaned map that looks tidy but is less truthful.
 
@@ -21,6 +21,7 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 | Ground truth | ASAM OpenLABEL or equivalent IDs for static, movable-static, dynamic, FOD/hazard, artifact, unknown |
 | Map context | tile ID, route/stand, ODD slice, semantic map version, coordinate frame, release target |
 | Cleaner record | algorithm, model/config version, thresholds, commit/package hash, operator |
+| Local holdout manifest | target-airport do-not-delete classes, adverse-airside slice, source capture IDs, weather/lighting state, response ticket, and reviewer disposition |
 
 ## Procedure
 
@@ -42,6 +43,7 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 | Busy stand survey | static assets behind aircraft/GSE | aircraft present, aircraft absent, GSE staged, GSE removed |
 | FOD placed-object run | low-height hazards | small metal, rubber, plastic, fabric, reflective object |
 | Movable-static run | cones, chocks, barriers, carts | approved overlay, unapproved temporary, moved between sessions |
+| Adverse-airside do-not-delete holdout | hazards that filters may suppress | chocks, cones, hoses, tools, FOD, stationary people, staged GSE, and unknown sparse clusters under dust/mist/steam/glycol/wet-apron/retroreflector conditions |
 | Sparse LiDAR run | thin poles, curbs, low fixtures | range bins, beam dropout, pose jitter |
 | Hard-negative run | markings, cracks, drains, rubber deposits | no FOD and no temporary asset present |
 | Regression run | previous map incidents and near misses | exact map/version/config reproduction |
@@ -53,6 +55,7 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 | False deletion rate | class, tile, route, range, weather, LiDAR density | zero unresolved for safety-critical classes |
 | Static preservation rate | asset class and localization feature class | above release threshold before publication |
 | FOD evidence retention | object, size, material, corridor | all placed hazardous FOD has retained evidence |
+| Do-not-delete adverse holdout | class, route/stand, weather, lighting, surface condition, reviewer outcome | zero silent deletion in locked local slices |
 | Unknown-to-free error | occluded or unobserved region | zero in planner-consumed layers |
 | Localization degradation | route segment and stand | no release-zone regression beyond threshold |
 | Reviewer agreement | sampled removed objects | disagreement triggers tile quarantine or relabeling |
@@ -68,6 +71,7 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 | Localization replay is mandatory. | preserved points matter because the vehicle must localize |
 | Thresholds are locked before the holdout run. | prevents acceptance-set tuning |
 | Quarantined tiles cannot be silently published. | unresolved uncertainty must not reach production |
+| Public and synthetic proxies cannot close the local holdout. | FAA FOD guidance supports local evidence collection; proxy datasets do not prove a target airport's adverse slices |
 
 ## Release Artifact
 
@@ -75,6 +79,7 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 |---|---|
 | False-deletion report | metric tables, examples, reviewer decisions, unresolved risks |
 | Rejected-layer archive | removed, restored, and unknown points with provenance |
+| Local holdout manifest | do-not-delete object list, adverse-airside slice coverage, weather source, capture IDs, and response/disposition trace |
 | Localization replay report | raw vs cleaned map comparison and failure cases |
 | Semantic diff | vector/point-cloud consistency and topology checks |
 | Publication decision | accept, accept with overlay, quarantine, rerun, or reject |
@@ -86,6 +91,9 @@ False deletion is the safety-critical failure mode where a map-cleaning pipeline
 - MapCleaner article: https://www.mdpi.com/2072-4292/14/18/4496
 - RI-DVP sparse LiDAR map-cleaning article: https://www.mdpi.com/2072-4292/18/5/821
 - ASAM OpenLABEL: https://www.asam.net/standards/detail/openlabel/
+- FAA AC 150/5210-24A, Airport FOD Management: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
+- FAA AC 150/5220-24, FOD Detection Equipment: https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentNumber/150_5220-24
+- NOAA/NWS Aviation Weather Center Data API: https://aviationweather.gov/data/api/
 - Autoware Lanelet2 map validator: https://github.com/tier4/autoware_lanelet2_map_validator
 - Lanelet2 validation package: https://docs.ros.org/en/humble/p/lanelet2_validation/
 - Local context: airside-dynamic-map-cleaning-benchmark.md

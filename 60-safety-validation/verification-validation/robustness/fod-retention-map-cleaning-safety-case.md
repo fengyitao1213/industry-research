@@ -75,6 +75,7 @@ Do-not-delete hazard rule: map cleaning may exclude transient or movable objects
 5. Require human disposition for any FOD-like object removed from the candidate static map.
 6. Attach FOD evidence to the map release or quarantine the affected tile.
 7. Block publication if a cleaner, semantic filter, or post-processing threshold can suppress small/stationary hazards without preserving rejected evidence and reviewer disposition.
+8. Route uncovered do-not-delete hazard classes and adverse-airside conditions to a locked local holdout; quarantine the tile or ODD-exclude the condition until target-airside evidence exists.
 
 ## Sources
 

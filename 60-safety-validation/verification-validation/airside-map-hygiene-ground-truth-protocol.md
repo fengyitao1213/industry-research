@@ -46,6 +46,7 @@ This page is the V&V and benchmark-exchange companion to the canonical [Airside 
 | busy operation | dynamic and movable-static clutter | aircraft present, GSE staged, personnel/vehicles nearby |
 | change pair | distinguish moved assets from permanent structure | object present and absent across sessions |
 | FOD placement | small-hazard retention | controlled articles by size/material/location |
+| adverse-airside holdout | local do-not-delete retention | dust, de-icing mist, steam/exhaust plume, glycol film, wet-apron multipath, retroreflector bloom where in ODD |
 | sparse/degraded | weak-observation evidence | range bins, beam dropout, night/wet if in ODD |
 | hard negative | false alert and false deletion control | markings, cracks, drains, rubber deposits, shadows |
 
@@ -74,6 +75,7 @@ ASAM OpenLABEL is a good exchange format because it supports multi-sensor labels
 | Preserve reviewer disagreement. | disagreement identifies taxonomy or evidence gaps |
 | Include site-specific hard negatives. | public datasets miss local pavement, lighting, and equipment |
 | Version labels with map and cleaner releases. | changing ground truth changes acceptance history |
+| Lock the do-not-delete/adverse-airside holdout. | proxy, synthetic, and public samples can guide test design but cannot enter or replace the local acceptance split |
 
 ## Acceptance Outputs
 
@@ -85,6 +87,7 @@ ASAM OpenLABEL is a good exchange format because it supports multi-sensor labels
 | unknown/quarantine polygons | publication gate |
 | annotation manifest | audit, replay, and regression |
 | benchmark split manifest | repeatable release testing |
+| local holdout coverage report | publication gate, safety case, and ODD restriction decisions |
 
 ## Sources
 
@@ -95,5 +98,8 @@ ASAM OpenLABEL is a good exchange format because it supports multi-sensor labels
 - AIT Apron repository: https://github.com/apronai/apron-dataset
 - KTH Dynamic Map Benchmark: https://kth-rpl.github.io/DynamicMap_Benchmark/
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
+- FAA AC 150/5210-24A, Airport FOD Management: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
+- FAA AC 150/5220-24, FOD Detection Equipment: https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentNumber/150_5220-24
+- NOAA/NWS Aviation Weather Center Data API: https://aviationweather.gov/data/api/
 - Local context: [Airside Dynamic Map Cleaning Benchmark](airside-dynamic-map-cleaning-benchmark.md)
 - Local context: [Map Publication Gates for Airside Hygiene](../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md)

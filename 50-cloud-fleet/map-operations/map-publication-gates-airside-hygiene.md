@@ -40,6 +40,7 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 | dynamic object removal | ghost rate below zone threshold | aircraft/GSE ghosts in localization layer |
 | static preservation | no unresolved deletion of safety-critical assets | eroded stand marking, curb, pole, or boundary |
 | FOD retention | FOD-like candidates retained as hazard/review evidence | small hazard deleted as noise |
+| do-not-delete hazard retention | raw, rejected, semantic, reviewer, quarantine/waiver, and placed-object evidence complete for all hazard-like candidates | hazard candidate deleted, waived, or class-filtered without preserved evidence and signed disposition |
 | movable-static policy | temporary assets published only as overlays | cone/barrier/GSE promoted without approval |
 | sparse LiDAR handling | weak evidence marked unknown or reviewed | unobserved area marked free |
 | localization replay | NDT/ICP health neutral or improved | residual, covariance, or recovery regression |
@@ -51,12 +52,13 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 3. Sign the bundle and record compatible software, sensor, calibration, model, taxonomy, telemetry schema, and map-runtime versions.
 4. Block publication if semantic provenance, taxonomy/class-order, confidence/unknown thresholds, safety-class metrics, QA report, or reviewer disposition is missing.
 5. Block publication if unknown regions intersect route/geofence/FOD-sensitive zones without an approved ODD restriction or quarantine decision.
-6. Confirm Autoware map loaders launch from the signed bundle and that projection, Lanelet2, pointcloud metadata, and PCD cells are mutually consistent; if dynamic map loading is enabled, replay a representative route that requests nearby cells without unhealthy diagnostics.
-7. Confirm rollback bundle availability before canary deployment.
-8. Canary by zone, route, stand, and vehicle cohort, not by percentage alone.
-9. Monitor localization, route failures, map disagreement, semantic unknown-rate drift, FOD tickets, and interventions.
-10. Promote only after the monitoring window covers relevant conditions such as shift handover, night, rain, or busy stand operations.
-11. Retire superseded bundles only after all vehicles report leaving the old version.
+6. Block publication when the active ODD includes adverse-airside conditions but the bundle lacks signed local holdout results for do-not-delete hazards, or an explicit quarantine/ODD restriction.
+7. Confirm Autoware map loaders launch from the signed bundle and that projection, Lanelet2, pointcloud metadata, and PCD cells are mutually consistent; if dynamic map loading is enabled, replay a representative route that requests nearby cells without unhealthy diagnostics.
+8. Confirm rollback bundle availability before canary deployment.
+9. Canary by zone, route, stand, and vehicle cohort, not by percentage alone.
+10. Monitor localization, route failures, map disagreement, semantic unknown-rate drift, FOD tickets, and interventions.
+11. Promote only after the monitoring window covers relevant conditions such as shift handover, night, rain, or busy stand operations.
+12. Retire superseded bundles only after all vehicles report leaving the old version.
 
 ## Operational Overrides
 
@@ -74,6 +76,8 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 - FAA Part 139 CertAlert 24-02: https://www.faa.gov/airports/airport_safety/certalerts/part_139_certalert_24_02
 - FAA Emerging Entrants Bulletin 25-02: https://www.faa.gov/airports/new_entrants/bulletins/25_02
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
+- FAA AC 150/5210-24A, Airport FOD Management: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
+- FAA AC 150/5220-24, FOD Detection Equipment: https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentNumber/150_5220-24
 - Autoware map component design: https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture-v1/components/map/
 - Autoware map loader: https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/
 - Autoware map projection loader: https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
