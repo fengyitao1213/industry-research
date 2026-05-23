@@ -11,7 +11,7 @@ priority:
   reason: "LAMM is rated for large-scale multi-session LiDAR map merging where dynamic filtering, loop validation, and graph optimization condition maps before segmentation."
 method-priority:end -->
 
-Related docs: [Uni-Mapper Dynamic-Aware LiDAR Map Merging](uni-mapper-dynamic-aware-lidar-map-merging.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [Scan Context Family](scan-context-family.md) · [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md) · [Robust PGO / GNC / riSAM](robust-pgo-gnc-risam.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md)
+Related docs: [Uni-Mapper Dynamic-Aware LiDAR Map Merging](uni-mapper-dynamic-aware-lidar-map-merging.md) · [MapEval Point-Cloud Map-Quality Evaluation](mapeval-point-cloud-map-quality-evaluation.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [Scan Context Family](scan-context-family.md) · [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md) · [Robust PGO / GNC / riSAM](robust-pgo-gnc-risam.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md)
 
 **Last updated:** 2026-05-24
 
@@ -123,6 +123,7 @@ For non-road urban districts, this is especially important because the same phys
 | [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) | Dynamic-aware heterogeneous-LiDAR map merging with DynaSTD and anchor-node optimization | Cross-rig map merging where descriptor construction itself must be dynamic-aware | Also research/prototype; parked movable objects still need semantic policy. |
 | [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) | Reconstructable base map plus positive/negative diff history | Production governance, rollback, and map lifecycle audit | Does not solve registration or dynamic filtering by itself. |
 | [KISS-Matcher](kiss-matcher.md) | Robust map-to-map registration | Focused pairwise registration and loop verification | Needs surrounding lifecycle and dynamic-residual policy. |
+| [MapEval](mapeval-point-cloud-map-quality-evaluation.md) | Point-cloud map-quality evaluation with AC/COM/CD/MME/AWD/SCS | Post-merge QA gate for LAMM outputs before semantic segmentation or map publication | Evaluates geometry, not semantic labels or cleaning policy. |
 | LEMON-Mapping | Loop-enhanced point-cloud fusion with spatial bundle adjustment and global consistency propagation | Follow-on candidate for geometric map-quality improvement in overlaps | As of this pass, source-backed by arXiv but not promoted here as a code-mature atomic page. |
 | ERASOR / Removert / BeautyMap / Raymoval / FreeDOM | Dynamic point removal and static preservation | Cleaning one accumulated map or scan sequence | Do not merge multiple sessions or own graph-level false-loop governance. |
 
@@ -155,7 +156,7 @@ For non-road urban districts, this is especially important because the same phys
 2. Preserve source-session provenance: source scan ID, session ID, local pose, optimized pose, sensor metadata, and map component ID.
 3. Export dynamic-rejected points, false-loop candidates, retained loops, residual histograms, and connected-component summaries as first-class artifacts.
 4. Do not let semantic labels silently steer map merging unless the taxonomy, model checkpoint, prompt/candidate source, and prior-input contract are versioned.
-5. Measure map quality separately for same-sensor, cross-sensor, same-site-cross-time, and different-site splits.
+5. Measure map quality separately for same-sensor, cross-sensor, same-site-cross-time, and different-site splits; MapEval-style AWD/SCS and coverage diagnostics are the concrete post-merge gate before semantic segmentation consumes the map.
 6. For airside and other open repetitive domains, combine LAMM loop evidence with RTK, GCPs, surveyed reflectors, fiducials, or map-prior georeferencing.
 7. Before semantic segmentation, run static preservation, dynamic residual, localization regression, and map-hygiene review gates. The output should be a static candidate map plus evidence layers, not just a cleaned `.pcd`.
 8. Record the output in the semantic map manifest as upstream conditioning evidence, not as semantic ground truth.
@@ -181,4 +182,5 @@ The repo card does not show a top-level license for LAMM, while several included
 - Official LAMM repository: https://github.com/hku-mars/LAMM
 - M-Detector repository and moving-object detection lineage: https://github.com/hku-mars/M-detector
 - BTC descriptor repository: https://github.com/hku-mars/btc_descriptor
+- MapEval point-cloud map-quality evaluation: https://doi.org/10.1109/LRA.2025.3548441 and https://github.com/JokerJohn/Cloud_Map_Evaluation
 - LEMON-Mapping follow-on candidate: https://arxiv.org/abs/2505.10018

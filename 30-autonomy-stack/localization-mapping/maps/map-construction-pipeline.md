@@ -2,7 +2,7 @@
 
 > End-to-end offline map building pipeline for airport airside autonomous GSE -- covering survey drive planning and data collection protocols, multi-session SLAM processing and map merging, point cloud post-processing (noise removal, ground segmentation, feature extraction), geodetic alignment and ground control point registration, AMDB overlay and co-registration, automated semantic annotation with foundation models, Lanelet2 map generation (centerlines, boundaries, regulatory elements), quality assurance and validation gates, map packaging and OTA deployment, version control and CI/CD for maps, tools and software ecosystem comparison, cost and time estimates per airport. This document bridges the gap between "we drove around a new airport" and "we have a production-ready HD map on every vehicle."
 >
-> **Relation to existing docs**: `../overview/lidar-slam-algorithms.md` covers SLAM algorithms (KISS-ICP, LIO-SAM, FAST-LIO2). `../slam-methods/lidar-map-cleaning-dynamic-removal.md` covers dynamic/static object removal, ERASOR/Removert/MapCleaner-style filtering, and false-deletion risks. `hd-map-standards-airside.md` covers format standards (AMDB, Lanelet2, OpenDRIVE). `hd-map-change-detection-maintenance.md` covers ongoing map maintenance. `neural-online-mapping-sota.md` covers real-time neural methods. `semantic-mapping-learned-priors.md` covers learned priors. This document integrates all of these into the **complete offline construction workflow** that produces the initial map for a new airport deployment.
+> **Relation to existing docs**: `../overview/lidar-slam-algorithms.md` covers SLAM algorithms (KISS-ICP, LIO-SAM, FAST-LIO2). `../slam-methods/lidar-map-cleaning-dynamic-removal.md` covers dynamic/static object removal, ERASOR/Removert/MapCleaner-style filtering, and false-deletion risks. `../slam-methods/mapeval-point-cloud-map-quality-evaluation.md` covers direct point-cloud map-quality evaluation before semantic segmentation or map publication. `hd-map-standards-airside.md` covers format standards (AMDB, Lanelet2, OpenDRIVE). `hd-map-change-detection-maintenance.md` covers ongoing map maintenance. `neural-online-mapping-sota.md` covers real-time neural methods. `semantic-mapping-learned-priors.md` covers learned priors. This document integrates all of these into the **complete offline construction workflow** that produces the initial map for a new airport deployment.
 >
 > **Key Takeaway**: A new airport's HD map can be constructed in 5-7 working days at $20-40K cost using the pipeline described here: 1 day survey driving (3-5 systematic laps covering all operational areas), 1-2 days SLAM processing and alignment, 1 day automated annotation (SAM + CLIP + AMDB overlay), 1 day manual QC and Lanelet2 generation, 1-2 days validation and packaging. The critical bottleneck is not data collection or processing but **annotation quality assurance** -- automated methods achieve 85-92% accuracy on airside features but miss rare classes (fire hydrants, cable trenches, drainage grates) that require manual verification. Multi-session SLAM with GTSAM factor graph achieves sub-10cm global consistency when anchored by RTK ground control points at 50-100m intervals. The pipeline produces a 7-layer map (AMDB base through dynamic overlay) packaged as versioned Lanelet2 + occupancy grid + metadata, distributed via the fleet OTA system with atomic rollback capability. **No complete open-source airside map construction pipeline exists** -- this is a competitive moat that compounds with each airport deployed.
 
@@ -478,6 +478,8 @@ X = Loop closure detection points (Scan Context pre-filter → MinkLoc3D verify 
 For map construction (offline), we process all loop closures before final optimization — unlike real-time where they're incremental.
 
 For very large multi-session sites, use a dedicated map-merging branch instead of treating every loop as a flat pairwise constraint. [LAMM Multi-Session Point-Cloud Map Merging](../slam-methods/lamm-multi-session-point-cloud-map-merging.md) adds temporal bidirectional moving-object filtering, BTC-based inter-session loop discovery, false-positive loop filtering, and connectivity grouping before graph optimization. Its output should include retained/rejected loop reports and connected-component evidence before geodetic alignment or semantic segmentation consumes the merged map.
+
+After graph optimization, run a direct point-cloud map-quality gate rather than relying only on pose ATE or loop residuals. [MapEval Point-Cloud Map-Quality Evaluation](../slam-methods/mapeval-point-cloud-map-quality-evaluation.md) provides a concrete reference for AC, COM, CD, MME, AWD, and SCS over the merged cloud. Use it to flag double surfaces, overlap blur, poor coverage, and local inconsistency before automated semantic annotation starts.
 
 ### 4.5 Expected Accuracy Budget
 
@@ -1075,6 +1077,7 @@ class MapValidator:
         # Geometric checks
         ("global_accuracy", "GCP residuals < 10cm", "CRITICAL"),
         ("local_consistency", "Submap alignment < 5cm", "CRITICAL"),
+        ("pointcloud_map_quality", "MapEval AWD/SCS and cloud-distance diagnostics within ODD thresholds", "CRITICAL"),
         ("coverage", ">95% of AMDB features covered", "HIGH"),
         ("point_density", ">100 pts/m² in operational areas", "MEDIUM"),
         ("ground_flatness", "Ground height variation < 5cm per cell", "MEDIUM"),
@@ -1125,6 +1128,8 @@ class MapValidator:
             'summary': f"{sum(r['passed'] for r in results)}/{len(results)} checks passed"
         }
 ```
+
+The `pointcloud_map_quality` check is the source-map gate for the semantic pipeline. It records the reference map or control geometry used, the alignment transform, MapEval configuration, per-tile failure regions, and whether any no-reference region was accepted by waiver. A map that fails this gate should not produce release labels, even if a segmenter can assign plausible classes to the distorted geometry.
 
 ### 10.2 Human Review Process
 
@@ -1370,6 +1375,7 @@ jobs:
 | **KISS-ICP** | Validation SLAM | MIT | Production | No IMU needed — independent check |
 | **GTSAM** | Graph optimization | BSD | Production | Already in reference airside AV stack |
 | **LAMM** | Multi-session LiDAR map merging | License unclear / review required | Research / prototype | Merges multiple LiDAR sessions or agents with dynamic filtering, false-loop filtering, and graph optimization; use as upstream conditioning before segmentation |
+| **MapEval** | Point-cloud map-quality evaluation | MIT claimed by README / verify license file before reuse | Research / prototype | AC/COM/CD/MME/AWD/SCS map-quality gate before semantic annotation, localization regression, or map publication |
 | **OpenLiDARMap** | Map-prior georeferenced point-cloud mapping | Apache-2.0 | Research / prototype | GNSS-free or GCP-sparse branch using public/reference map priors; requires reference-map provenance and residual checks |
 | **FlexCloud** | Direct georeferencing and drift correction | Apache-2.0 | Research / prototype | GNSS/reference-trajectory branch for existing SLAM maps; useful post-hoc correction before annotation |
 | **Open3D** | Point cloud processing | MIT | Production | Python API, GPU-accelerated |
@@ -1538,15 +1544,16 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 15. Wei, H., et al. (2025). "Large-Scale Multi-Session Point-Cloud Map Merging." IEEE Robotics and Automation Letters. https://doi.org/10.1109/LRA.2024.3504317, https://github.com/hku-mars/LAMM
 16. Kulmer, D., Leitenstern, M., Weinmann, M., & Lienkamp, M. (2025). "OpenLiDARMap: Zero-Drift Point Cloud Mapping Using Map Priors." VEHITS 2025. https://arxiv.org/abs/2501.11111, https://doi.org/10.5220/0013405400003941, https://github.com/TUMFTM/OpenLiDARMap
 17. Leitenstern, M., Alten, M., Bolea-Schaser, C., Kulmer, D., Weinmann, M., & Lienkamp, M. (2025). "FlexCloud: Direct, Modular Georeferencing and Drift-Correction of Point Cloud Maps." VEHITS 2025. https://arxiv.org/abs/2502.00395, https://doi.org/10.5220/0013359600003941, https://github.com/TUMFTM/FlexCloud
+18. Hu, X., Wu, J., Jia, M., Yang, H., Jiang, Y., Jiang, B., Zhang, W., He, W., & Tan, P. (2025). "MapEval: Towards Unified, Robust and Efficient SLAM Map Evaluation Framework." IEEE Robotics and Automation Letters. https://doi.org/10.1109/LRA.2025.3548441, https://github.com/JokerJohn/Cloud_Map_Evaluation
 
 ### 17.5 Quality and Validation
 
-18. ISO 19157:2023. "Geographic information — Data quality."
-19. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
-20. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
-21. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
-21. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
-22. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
+19. ISO 19157:2023. "Geographic information — Data quality."
+20. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
+21. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
+22. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+23. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
+24. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
 
 ### 17.6 Internal Cross-References
 
@@ -1556,6 +1563,7 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 - `neural-online-mapping-sota.md` — Online neural mapping methods
 - `semantic-mapping-learned-priors.md` — Neural Map Prior, PriorDrive, topology graphs
 - `../overview/lidar-place-recognition-relocalization.md` — Loop closure and place recognition
+- `../slam-methods/mapeval-point-cloud-map-quality-evaluation.md` — direct point-cloud map-quality evaluation before semantic segmentation, localization regression, and map publication
 - `../overview/robust-state-estimation-multi-sensor.md` — ESKF, GTSAM factor graph
 - `cloud-backend-infrastructure.md` — Data storage, DVC, Airflow pipelines
 - `multi-lidar-extrinsic-calibration.md` — Sensor calibration for multi-LiDAR mapping

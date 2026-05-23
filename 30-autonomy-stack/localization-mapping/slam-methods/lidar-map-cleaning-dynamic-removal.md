@@ -17,7 +17,7 @@ LiDAR map cleaning removes transient, dynamic, ghost, and artifact points from a
 
 Dynamic removal is also a hard **prerequisite** before semantic segmentation of any aggregated map: ghost trails left by moving objects pollute static classes and corrupt the back-projected auto-labels that drive MOS and semantic-segmentation training pipelines. The pipeline order is fixed — **clean → condition → segment** — and cannot safely be reversed without a pre-existing class-specific detector.
 
-Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, [Raymoval](raymoval.md), detector-based potentially dynamic object removal, dynamic-aware and multi-session map merging through [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) and [LAMM](lamm-multi-session-point-cloud-map-merging.md), lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
+Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, [Raymoval](raymoval.md), detector-based potentially dynamic object removal, dynamic-aware and multi-session map merging through [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) and [LAMM](lamm-multi-session-point-cloud-map-merging.md), lifecycle governance, and post-cleaning geometry QA through [MapEval](mapeval-point-cloud-map-quality-evaluation.md). MOS-style evaluation such as LiDAR-MOS and HeLiMOS scores moving/static labels; MapEval scores the resulting point-cloud map geometry. The safest map lifecycle separates four layers:
 
 - **Static persistent map**: surveyed structure used for localization.
 - **Movable-static layer**: aircraft, GSE, cones, barriers, and staged equipment.
@@ -62,6 +62,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Instance-level and semantic removal | ERASOR2, Potentially Dynamic Object Removal by Ground Projection | 3D detection, ground segmentation, projection, and geometry fallback | Handles parked-but-movable objects when the detector/taxonomy covers them. |
 | Learning / scene flow | DeFlow | GRU-refined scene flow; dynamics from predicted motion | Research/evaluation; degrades under domain shift. |
 | Dynamic-aware and multi-session map merging | [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) / DynaSTD; [LAMM](lamm-multi-session-point-cloud-map-merging.md) / BTC | Dynamic filtering before place descriptors, false-loop filtering, and graph optimization | Merging heterogeneous or repeated LiDAR sessions without trusting dynamic objects or false loops as map-alignment evidence. |
+| Post-cleaning map-quality evaluation | [MapEval](mapeval-point-cloud-map-quality-evaluation.md) | AC, COM, CD, MME, AWD, SCS over estimated and reference point-cloud maps | Verifying that cleaned or merged maps are geometrically consistent before semantic segmentation, localization regression, or publication. |
 | Multi-session consensus and version control | Fleet map lifecycle, Lifelong 3D Map Version Control | Persistence across days / shifts, PD/ND diffs, reconstructable map versions | Production promotion, rejection, rollback, and queryable map-change history. |
 
 ---

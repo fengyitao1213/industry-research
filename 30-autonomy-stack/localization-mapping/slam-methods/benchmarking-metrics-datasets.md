@@ -21,6 +21,7 @@ SLAM benchmarking is easy to do badly. A single ATE number can hide scale alignm
 | Production localization metrics | [Production LiDAR Map Localization](../overview/production-lidar-map-localization.md) | Adds scan-to-map fitness, degeneracy, covariance, and runtime acceptance gates. |
 | Loop/relocalization metrics | [LiDAR Place Recognition and Re-Localization](../overview/lidar-place-recognition-relocalization.md) | Defines retrieval recall, precision, top-K verification, and kidnapped-robot recovery success. |
 | Survey map QA | [Map Construction Pipeline](../maps/map-construction-pipeline.md) | Connects SLAM trajectory metrics to final HD map QA, GCP alignment, and packaging. |
+| Point-cloud map QA | [MapEval Point-Cloud Map-Quality Evaluation](mapeval-point-cloud-map-quality-evaluation.md) | Adds direct map-geometry metrics such as AC, COM, CD, MME, AWD, and SCS before semantic segmentation or map publication trusts the aggregated cloud. |
 | Estimator consistency | [Robust State Estimation Multi-Sensor](../overview/robust-state-estimation-multi-sensor.md) | Covers NEES/NIS, innovation gating, sensor dropout, and fallback validation. |
 | Factor graph residuals | [GTSAM Factor Graphs](../../../10-knowledge-base/state-estimation/gtsam-factor-graphs.md) | Explains how factors, covariances, robust kernels, and iSAM2 updates should be inspected. |
 | Collaborative backend benchmarks | [COSMO-Bench](cosmo-bench.md) | Adds multi-robot C-SLAM optimization graphs, communication-model variants, and loop-outlier labels. |
@@ -38,7 +39,7 @@ SLAM benchmarking is easy to do badly. A single ATE number can hide scale alignm
 | Segment drift curve | Error versus path length | AV and long-route mapping | Compute RPE over multiple segment lengths | Table/plot at 10, 50, 100, 200, 400, 800m | Reporting only one length and missing long-range drift |
 | Loop-closure precision/recall | Candidate retrieval quality | Place recognition and graph SLAM | Precision after geometric verification; recall at top-K | Precision@K, Recall@K, F1, false positives/km | High recall without verifying false positives that destroy maps |
 | Relocalization success | Recovery from unknown pose | Startup/kidnapped robot | Candidate found, verified, and accepted within pose threshold | Success %, time-to-localize, false accepts | Measuring only descriptor recall, not full pose recovery |
-| Map consistency | Agreement between overlapping submaps or sessions | Survey mapping | Cloud-to-cloud distance, wall thickness, double-surface rate, GCP residual | cm RMSE, P95, max, visual QA flags | Relying on trajectory ATE when final map has double walls |
+| Map consistency | Agreement between overlapping submaps, sessions, or reference maps | Survey mapping | Cloud-to-cloud distance, wall thickness, double-surface rate, GCP residual; MapEval-style AC/COM/CD/MME/AWD/SCS | cm RMSE, P95, max, AWD/SCS, visual QA flags | Relying on trajectory ATE when final map has double walls |
 | GCP/RTK residual | Geodetic map accuracy | Airside/road HD maps | Compare optimized map landmarks/trajectory to surveyed anchors | East/north/up RMSE and P95 | Treating local SLAM frame as geodetically valid without anchors |
 | Scan-matching health | Current registration quality | Runtime localization | Fitness/inlier ratio, residual distribution, Hessian eigenvalues | Time series and thresholds | Using a single scalar fitness that ignores degeneracy direction |
 | Estimator consistency | Whether covariance is honest | Sensor fusion and safety | NEES/NIS compared to chi-square bounds | NEES/NIS time series and violation rate | Publishing small covariance because pose looked smooth |
@@ -97,6 +98,7 @@ SLAM benchmarking is easy to do badly. A single ATE number can hide scale alignm
 | [OpenVINS](openvins.md)/[VINS-Fusion](vins-mono-vins-fusion.md) | EuRoC, TUM VI, UZH-FPV, KITTI | Camera-IMU temporal error, vehicle vibration, low texture | ATE/RPE, NEES, bias, initialization time |
 | Runtime scan-to-map localization | KITTI-derived map split, Boreas localization, custom map | Airport HD map, degraded LiDAR, wrong initial pose, changed stands | Convergence basin, false accept rate, covariance, matching score P99 |
 | Collaborative SLAM backends | COSMO-Bench for pose-graph optimization; S3E for raw multi-robot multimodal data; custom multi-vehicle surveys | Multi-vehicle airport or warehouse survey, intermittent wireless, repeated places | Per-robot ATE/RPE, loop outlier precision/recall, convergence, communication bytes |
+| Aggregated point-cloud map QA | [MapEval](mapeval-point-cloud-map-quality-evaluation.md), FusionPortableV2, Newer College, GEODE, local TLS/GCP reference maps | Airport/campus/yard/port reference scans, held-out GCPs, LAMM/Uni-Mapper merged maps, dynamic-cleaned maps | AC, COM, CD, MME, AWD, SCS, density/coverage maps, failure-region exports |
 | Gaussian/neural SLAM | Replica/TUM RGB-D/ScanNet if supported; Oxford Spires for large-scale LiDAR-visual reconstruction/radiance fields | Airside map QA captures, static/dynamic split, simulation replay | ATE/RPE plus reconstruction/rendering metrics and compute |
 
 ## Airside Private Benchmark Design
@@ -123,7 +125,7 @@ SLAM benchmarking is easy to do badly. A single ATE number can hide scale alignm
 | Tracking loss | Documented and recoverable | Safe fallback or safe stop within safety budget | "No output" can be safer than wrong output. |
 | Deadline misses | Offline acceptable if bounded | P99 under localization cycle budget | Report on target hardware, not workstation only. |
 | Covariance consistency | NEES/NIS within expected bounds on instrumented tests | Same, with fault injection | Overconfidence is a safety bug. |
-| Map artifact rate | No double walls/ghost aircraft in operational layers | N/A | Visual inspection plus automated cloud distance checks. |
+| Map artifact rate | No double walls/ghost aircraft in operational layers | N/A | Visual inspection plus MapEval-style cloud-distance, AWD/SCS, and coverage diagnostics. |
 
 ## Reporting Template for Method Pages
 
@@ -178,3 +180,4 @@ SLAM benchmarking is easy to do badly. A single ATE number can hide scale alignm
 - SMapper/SMapper-light documentation and paper: https://snt-arg.github.io/smapper_docs/, https://snt-arg.github.io/smapper_docs/datasets/smapper-light/, and https://arxiv.org/abs/2509.09509
 - FusionPortableV2 official dashboard and paper: https://fusionportable.github.io/dataset/fusionportable_v2/ and https://arxiv.org/abs/2404.08563
 - S3E official project and RA-L paper: https://pengyu-team.github.io/S3E/ and https://arxiv.org/abs/2210.13723
+- MapEval RA-L 2025 point-cloud map-quality framework, official repository, and arXiv record: https://doi.org/10.1109/LRA.2025.3548441, https://github.com/JokerJohn/Cloud_Map_Evaluation, and https://arxiv.org/abs/2411.17928

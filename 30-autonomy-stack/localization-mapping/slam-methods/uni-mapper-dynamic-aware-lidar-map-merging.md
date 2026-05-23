@@ -11,7 +11,7 @@ priority:
   reason: "Uni-Mapper is rated for heterogeneous-LiDAR multi-map merging where dynamic residuals, loop closure, and map alignment must be handled together."
 method-priority:end -->
 
-Related docs: [LAMM Multi-Session Point-Cloud Map Merging](lamm-multi-session-point-cloud-map-merging.md) · [LT-Mapper, Khronos, and Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [KISS-Matcher](kiss-matcher.md) · [Scan Context Family](scan-context-family.md) · [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
+Related docs: [LAMM Multi-Session Point-Cloud Map Merging](lamm-multi-session-point-cloud-map-merging.md) · [MapEval Point-Cloud Map-Quality Evaluation](mapeval-point-cloud-map-quality-evaluation.md) · [LT-Mapper, Khronos, and Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) · [KISS-Matcher](kiss-matcher.md) · [Scan Context Family](scan-context-family.md) · [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
 
 **Last updated:** 2026-05-23
 
@@ -136,7 +136,7 @@ Uni-Mapper dynamic-aware merge
 4. Keep semantic labels out of the descriptor optimization unless they are versioned. A taxonomy change can invalidate what the descriptor considered stable.
 5. Add a target-domain evaluation split: same LiDAR, cross-LiDAR, same site across time, and different site across time. These isolate modality transfer from actual environment change.
 6. For airside, combine DynaSTD loop candidates with RTK/GCP or surveyed-fiducial constraints. Open aprons and repeated stands are high-risk loop-closure negatives.
-7. Do not publish the merged map directly into the semantic-map pipeline. First run static preservation, dynamic residual, alignment, and localization regression gates.
+7. Do not publish the merged map directly into the semantic-map pipeline. First run static preservation, dynamic residual, MapEval-style point-cloud geometry QA, alignment, and localization regression gates.
 
 ## Comparison With Adjacent Pages
 
@@ -147,6 +147,7 @@ Uni-Mapper dynamic-aware merge
 | Khronos | Object-aware spatio-temporal metric-semantic SLAM | Uni-Mapper is LiDAR map merging, not object-centric RGB-D temporal scene graphs. |
 | Lifelong 3D Map Version Control | Base map, positive/negative diff store, reconstructable map history | Uni-Mapper is an alignment/merging method; version control is the governance layer around its output. |
 | KISS-Matcher | Robust map-to-map registration | Uni-Mapper wraps dynamic-aware loop detection and anchor-node graph optimization around the merging task. |
+| [MapEval](mapeval-point-cloud-map-quality-evaluation.md) | Point-cloud map-quality evaluation | Uni-Mapper produces a merged candidate map; MapEval checks whether the output geometry is consistent enough for semantic segmentation or publication. |
 | ERASOR/FreeDOM/MapCleaner | Dynamic point removal | Uni-Mapper consumes/remixes removal evidence so place recognition and merging are dynamic-aware. |
 | Potentially Dynamic Object Removal | Detector-ground projection for parked movable classes | Uni-Mapper is class-agnostic unless augmented; parked movable objects still need semantic policy. |
 
@@ -165,3 +166,4 @@ The official repository states that the released branch is a generalized OpenLMM
 - Uni-Mapper ICRA Workshop / construction robotics PDF: https://construction-robots.github.io/papers/67.pdf
 - HeLiPR heterogeneous LiDAR dataset used by the paper: https://sites.google.com/view/heliprdataset and https://arxiv.org/abs/2309.14590
 - STD place-recognition lineage: https://arxiv.org/abs/2209.12435 and https://github.com/hku-mars/STD
+- MapEval point-cloud map-quality evaluation: https://doi.org/10.1109/LRA.2025.3548441 and https://github.com/JokerJohn/Cloud_Map_Evaluation

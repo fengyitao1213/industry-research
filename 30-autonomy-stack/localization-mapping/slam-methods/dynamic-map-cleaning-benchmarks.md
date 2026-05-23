@@ -646,6 +646,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
 6. Compare localization on raw, cleaned, and over-cleaned maps. Reject a cleaner if the map looks cleaner but localization residuals, degeneracy, or relocalization failures worsen.
 7. Keep movable-static objects in a separate quarantine layer until cross-session evidence decides whether they are persistent infrastructure, temporary equipment, or dynamic clutter.
 8. For airside deployment: report results on your local multi-session dataset with explicit transient-object annotation. No published benchmark covers this regime (§10).
+9. Add [MapEval](mapeval-point-cloud-map-quality-evaluation.md) or an equivalent cloud-to-reference QA suite after dynamic cleaning when the output feeds semantic segmentation or localization. Dynamic-cleaning PR/RR/F1 says whether moving points were removed; MapEval-style AC/COM/CD/MME/AWD/SCS says whether the cleaned map geometry is still consistent and complete.
 
 ---
 
@@ -673,6 +674,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
 - BeautyMap paper: [arXiv 2405.07283v1](https://arxiv.org/html/2405.07283v1)
 - FreeDOM paper: [arXiv 2504.11073v1](https://arxiv.org/html/2504.11073v1)
 - Raymoval paper: [arXiv 2605.08937v1](https://arxiv.org/html/2605.08937v1)
+- MapEval point-cloud map-quality framework: [doi.org/10.1109/LRA.2025.3548441](https://doi.org/10.1109/LRA.2025.3548441) and [github.com/JokerJohn/Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation)
 - BTSA paper: [arXiv 2510.22313v1](https://arxiv.org/html/2510.22313v1)
 - MapCleaner paper: [mdpi.com/2072-4292/14/18/4496](https://www.mdpi.com/2072-4292/14/18/4496)
 - DR-Remover GitHub: [github.com/zhongbusishaonianyou/DR-REMOVER](https://github.com/zhongbusishaonianyou/DR-REMOVER)
