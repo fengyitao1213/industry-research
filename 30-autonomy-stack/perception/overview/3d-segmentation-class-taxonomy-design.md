@@ -57,6 +57,13 @@ There is no universal answer; class count reflects required fidelity of downstre
 | Toronto-3D | 8 | 8 | Urban MLS roadway |
 | DALES | 8 | 8 | Aerial ALS |
 | GridNet-HD | 12 groups incl. ignored | 11 | UAV LiDAR + image utility infrastructure |
+| ECLAIR | 11 | 11 | Aerial LiDAR urban/utility |
+| YUTO Semantic | 9 | 9 | Aerial LiDAR campus |
+| S.MID | 25 | 14 | Industrial substation LiDAR |
+| OpenTrench3D | 5 | 4-5 | Photogrammetric utility trench |
+| MLDAS | 14 | 14 | Multi-LiDAR campus/street |
+| USCILab3D | 267 reported | release to verify | Long-term campus robot |
+| Industrial3D | 12 | 12 | TLS industrial MEP |
 | S3DIS | 13 | 13 | Indoor |
 | ScanNet / ScanNet200 | 20 / 200 | 20 / 200 | Indoor |
 
@@ -297,6 +304,17 @@ Pylon, Conductor cable, Structural cable, Insulator, High vegetation, Low vegeta
 
 This taxonomy is valuable because it splits utility assets that many AV datasets collapse into generic `pole`, `wire`, `manmade`, or `other` labels. That split is useful for long-thin infrastructure stress testing, but it should not be copied into an AV release taxonomy without evidence: an airside, yard, or campus map should add `cable`, `gantry`, `mast`, or `overhead equipment` IDs only when reviewed examples, point counts, confusion analysis, and an operational need show the parent `pole/mast/light` or `fixed equipment` class is insufficient.
 
+### Non-road proxy taxonomy pressure
+
+The newest non-road datasets are most useful as *taxonomy stress tests*, not as direct release ontologies. Use them to decide where a target map needs a finer split, then promote only with reviewed local evidence.
+
+- **ECLAIR and YUTO Semantic** show what ALS site-survey taxonomies can see reliably: ground/vegetation/building plus vehicles, roads, parking, water, and utility classes where point density and viewpoint support them. They should inform aerial/site-survey layers without forcing their coarse top-down definitions onto MLS map labels.
+- **S.MID** annotates 25 industrial-substation categories and merges them into 14 evaluation classes. That is the right pattern for substations, depots, and industrial yards: preserve raw candidate categories during review, but release a coarser parent taxonomy unless tail-class counts justify separate IDs.
+- **OpenTrench3D** uses a utility-owner-centered scheme (`main utility`, `other utility`, `trench`, `inactive utility`, `misc`). It is photogrammetric rather than LiDAR, so it is ontology evidence for works-zone and underground-utility mapping, not LiDAR sensor-noise evidence.
+- **MLDAS** keeps one 14-class label space across 128-, 64-, and 32-beam LiDAR. Its lesson is operational: every taxonomy config needs explicit label-map tests across sensor packages before labels are back-projected into training data.
+- **USCILab3D** reports 267 foundation-model-assisted categories. Treat those names as open-vocabulary candidate evidence until aliases, parent-class fallbacks, and release IDs are reviewed; do not let prompt-derived categories become map-truth IDs directly.
+- **Industrial3D** has 12 dense TLS MEP classes (`duct`, `pipe`, `pump`, `valve`, `tank`, etc.). It is relevant when a map product must label industrial infrastructure, but its release/licence maturity and facility-count wording should be checked before it becomes a production benchmark dependency.
+
 ### Indoor reference: S3DIS — 13 classes
 
 Ceiling, Floor, Wall, Beam, Column, Window, Door, Table, Chair, Sofa, Bookcase, Board, Clutter. Structured/architectural stuff dominates; things are furniture instances.
@@ -458,6 +476,13 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - Toronto-3D (arXiv 2003.08284): https://arxiv.org/pdf/2003.08284
 - DALES aerial ALS dataset (arXiv 2004.11985): https://arxiv.org/abs/2004.11985
 - GridNet-HD utility LiDAR-image dataset: https://arxiv.org/abs/2601.13052 · https://huggingface.co/datasets/heig-vd-geo/GridNet-HD · [dataset page](../datasets-benchmarks/gridnet-hd-power-line-lidar-image-segmentation.md)
+- ECLAIR aerial LiDAR dataset: https://openaccess.thecvf.com/content/CVPR2024W/USM/html/Melekhov_ECLAIR_A_High-Fidelity_Aerial_LiDAR_Dataset_for_Semantic_Segmentation_CVPRW_2024_paper.html · https://github.com/SharperShape/eclair-dataset
+- YUTO Semantic aerial LiDAR dataset: https://huggingface.co/datasets/ausmlab/yuto-semantic · https://yutosemantic.ausmlab.com/
+- S.MID / SFPNet industrial LiDAR dataset: https://github.com/Cavendish518/SFPNet · https://www.semanticindustry.top/dataset
+- OpenTrench3D utility-trench point-cloud dataset: https://arxiv.org/abs/2404.07711 · https://github.com/SimonBuusJensen/OpenTrench3D
+- MLDAS multi-LiDAR domain-adaptation dataset: https://sychen320.github.io/projects/MLDAS/ · https://www.ijcai.org/proceedings/2024/0072.pdf
+- USCILab3D long-term campus dataset: https://proceedings.neurips.cc/paper_files/paper/2024/hash/628433f240414517fd95164b4275f5cc-Abstract-Datasets_and_Benchmarks_Track.html · https://sites.google.com/usc.edu/uscilab3d/
+- Industrial3D TLS industrial infrastructure dataset: https://arxiv.org/abs/2603.28660 · https://github.com/pointcloudyc/Industrial3D
 - S3DIS MMDetection3D docs: https://mmdetection3d.readthedocs.io/en/v0.18.0/datasets/s3dis_sem_seg.html
 - ScanNet200 project page: https://rozdavid.github.io/scannet200
 - ScanNet200 paper (arXiv 2204.07761): https://arxiv.org/pdf/2204.07761

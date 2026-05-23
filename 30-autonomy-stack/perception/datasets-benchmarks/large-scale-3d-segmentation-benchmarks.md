@@ -35,6 +35,13 @@ The practical point: these datasets shape what every 3D segmentation method repo
 | WHU-Urban3D | MLS + ALS | Semantic; instance; object detection | 18 MLS / 7 ALS semantic classes | mIoU / OA / mAcc + instance metrics | Benchmark page; upload currently unavailable |
 | Turin3D | ALS (airborne) | Semi-supervised segmentation | ~8 | mIoU | Public (val/test only) |
 | CITYLID | ALS (airborne) | Fine street-feature segmentation | 13 | qualitative only | HuggingFace open dataset |
+| ECLAIR | ALS (aerial) | Semantic segmentation | 11 | mIoU | CVPRW paper + GitHub/download form |
+| YUTO Semantic | ALS (aerial campus) | Semantic segmentation | 9 | OA / mIoU | Hugging Face; one mission released |
+| S.MID | Livox Mid-360 hybrid-solid LiDAR | Single-frame semantic segmentation | 14 eval / 25 annotated | mIoU | Official dataset page + SFPNet repo |
+| OpenTrench3D | Photogrammetric RGB point cloud | Semantic segmentation | 5 | mIoU | Public repo / Kaggle; not LiDAR |
+| MLDAS | Multi-LiDAR vehicle platform | Domain-adaptation semantic segmentation | 14 | mIoU | Email-request access; license-limited |
+| USCILab3D | 32-beam LiDAR + 5 cameras | Long-term campus semantic point clouds | 267 | No stable public leaderboard | Raw bags/code available; processed data pending |
+| Industrial3D | TLS industrial MEP | Semantic + cross-paradigm benchmark | 12 | mIoU | Watchlist; full dataset/code pending paper acceptance |
 | SIP (Site in Pieces) | TLS (single-station) | Construction-site segmentation | 23 | mIoU | Public split |
 | Waymo-4DSeg / SAM4D | Camera + LiDAR (pseudo-labeled) | Class-agnostic masklets | class-agnostic | mask metrics | Derived (Waymo Open) |
 
@@ -266,13 +273,18 @@ Architecture papers consistently report on ScanNet v2 and ScanNet200 for head/ta
 - **Airside transfer:** High for dense urban district mapping, service-road corridors, and urban non-road campus environments because it combines ground-level MLS and aerial ALS views. It is also a good stress test for the "same place, different acquisition geometry" problem that airside survey and site-survey products will face.
 - **Known pitfalls:** Licence and redistribution terms are not explicit in the public landing page. Use it for research benchmarking unless terms are confirmed.
 
-### Recent additions: Turin3D, CITYLID, SIP, Waymo-4DSeg, YUTO, Industrial3D
+### Recent additions: non-road, site-survey, utility, campus, and industrial proxies
 
 - **Turin3D** — ALS, ~1.43 km², ~70 M points, central Turin. Training set is unlabeled by design; only validation and test sets are annotated. Purpose-built for semi-supervised and domain-adaptation evaluation, not a fully-supervised leaderboard. Classes not enumerated in public abstract — verify in arXiv:2504.05882.
 - **CITYLID** — Citywide ALS of Berlin (1,060 tiles, ~15 billion points). 13 classes: 3 standard (`ground, buildings, trees`); 5 fine street features (`medians, driveways, bikepaths, walkways, on-street parking`); 5 shadow bins (0–3, 3–5, 5–7, 7–10, 10–12 h). Licence: DL-DE (allows commercial + research use, redistribution). No quantitative DL benchmark — visual/qualitative validation only; the researcher must define their own splits and metrics. Access: HuggingFace `Deepank/CITYLID`.
 - **SIP (Site in Pieces)** — TLS single-station, 40 scenes (27 indoor, 13 outdoor construction sites), ~140–200 M total points, 23 classes covering structural elements, temporary objects, and site context. Single-station viewpoint preserves radial density decay and self-occlusion — the explicit counterpoint to aggregated maps. Licence: publicly available (terms in arXiv:2512.09062).
 - **Waymo-4DSeg / SAM4D** — Pseudo-labeled, cross-modal (camera + LiDAR) masklet dataset (~30 M LiDAR masks). Labels are class-agnostic (instance/masklet identity, not a fixed taxonomy). Pre-training and promptable-segmentation resource, not a closed-taxonomy leaderboard. Released as part of SAM4D (arXiv:2506.21547).
+- **ECLAIR** — Aerial LiDAR over urban/utility corridors, covering about 10 km² with close to 600 M points, 11 semantic classes, colorized points, and 1,246 tiles (ground-truth plus pseudo-label tiles). Strong aerial/site-survey and utility-infrastructure proxy; not ground-level MLS and not direct airside acceptance evidence.
 - **YUTO Semantic** — ALS campus dataset over York University, with approximately 738 M points over 9.46 km² and 9 semantic classes. Use it as a campus-scale aerial/site-survey proxy; do not treat it as ground-vehicle MLS.
+- **S.MID** — Industrial substation LiDAR dataset captured by an industrial robot with Livox Mid-360 hybrid-solid LiDAR: 38,904 frames, 25 annotated categories merged to 14 single-frame evaluation classes, and SemanticKITTI-like `.bin` / `.label` files. Use it as an industrial hybrid-solid LiDAR proxy, not as map-scale aggregated segmentation evidence.
+- **OpenTrench3D** — 310 photogrammetric RGB point clouds of open utility trenches, totaling about 528 M points and 5 utility/trench classes. It is useful for underground-utility, works-zone, and RGB point-cloud taxonomy pressure, but it is not LiDAR and should not be used as LiDAR sensor-noise evidence.
+- **MLDAS** — Multi-LiDAR domain-adaptation dataset with 31,875 synchronized 128/64/32-beam LiDAR scans across campus and urban-street scenarios, annotated into 14 classes. Use it for sensor-transfer and density-robustness experiments; access is email-gated and non-commercial.
+- **USCILab3D** — Long-term USC campus robot dataset with 5 cameras, 32-beam 360° LiDAR, pose-stamped data, foundation-model-assisted 2D-to-3D semantic labels, and reported 267 semantic categories. Treat it as a high-interest campus/label-backprojection watch item because the project site says raw bags and processing code are available while processed data is still coming soon.
 - **Industrial3D** — 2026 TLS industrial-infrastructure benchmark with 612.7 M labeled points at 6 mm resolution, 12 MEP/structure classes, and cross-paradigm baselines. The public repository still marks full dataset/code release as tied to paper acceptance, so keep it as a watchlist/proxy note until the full release is available.
 
 ## Cross-Dataset Taxonomy Mismatch
@@ -389,6 +401,13 @@ A SOTA claim is only meaningful with the **task variant, split, evaluation sourc
 | KITTI-360 | LAS-style binary | (x,y,z,intensity,timestamp) | semantic + instance via devkit |
 | DALES / FRACTAL | LAS / LAZ 1.4 | (x,y,z,intensity,return info,colour) | class attribute |
 | GridNet-HD | LAS + images + masks + poses | LiDAR point cloud with `ground_truth` field plus RGB projection assets | grouped semantic class IDs; test labels hidden for leaderboard |
+| ECLAIR | LAZ point clouds + `labels.json` | aerial LiDAR points with colorized attributes | 11-class semantic labels; ground-truth and pseudo-label tile split |
+| YUTO Semantic | LAS/LAZ-style release via Hugging Face | aerial LiDAR points with intensity, returns, GPS time, scan angle, and class | 9 semantic classes; one mission currently released |
+| S.MID | SemanticKITTI-like `.bin` + `.label` | Livox Mid-360 hybrid-solid LiDAR points | 25 raw categories merged to 14 evaluation labels |
+| OpenTrench3D | PLY-style photogrammetric point clouds | XYZRGB point clouds from smartphone-video photogrammetry | 5 utility/trench classes; `Misc` ignored in training/evaluation |
+| MLDAS | synchronized multi-LiDAR frame packages | OS128 / OS64 / XT32 LiDAR scans | 14 semantic classes; labels propagated from the 128-beam reference LiDAR |
+| USCILab3D | raw ROS bags; processed point clouds pending | 32-beam LiDAR + 5 cameras + poses | 267 projected semantic categories reported; processed semantic release to verify |
+| Industrial3D | TLS point-cloud release pending | dense terrestrial industrial MEP scans | 12 semantic classes; full release and licence still pending |
 | SensatUrban | PLY | per-point | integer class label |
 | CUS3D | Point cloud + mesh + 2D imagery | RGB geometry from UAV reconstruction | 10 semantic classes on 3D points, mesh triangles, and 2D images |
 | SUM / SUM Parts | Textured mesh | mesh faces + texture pixels | 6-class SUM; 21-class SUM Parts with face/pixel label variants |
@@ -399,7 +418,7 @@ A SOTA claim is only meaningful with the **task variant, split, evaluation sourc
 | S3DIS | `.txt` | (x,y,z,R,G,B,label) | per-point integer |
 | ScanNet v2/200 | mesh + voxel grid | per-vertex | 2 cm voxel grid labels |
 
-**Key compatibility point:** SemanticKITTI-compatible format (SynLiDAR, GOOSE, RareBoost3D) enables direct reuse of SemanticKITTI data loaders. LAS/LAZ files (FRACTAL, DALES, SemanticRail3D, Toronto-3D, KITTI-360) require the `laspy` or `pdal` library. Mesh-based formats (ScanNet) require a separate voxelisation or subsampling step before point-wise inference.
+**Key compatibility point:** SemanticKITTI-compatible format (SynLiDAR, GOOSE, RareBoost3D, S.MID) enables direct reuse of SemanticKITTI-style data loaders after label remapping. LAS/LAZ files (FRACTAL, DALES, ECLAIR, YUTO Semantic, SemanticRail3D, Toronto-3D, KITTI-360) require the `laspy` or `pdal` library. Mesh-based formats (ScanNet) require a separate voxelisation or subsampling step before point-wise inference. Release-maturity watch items (USCILab3D processed data, Industrial3D full data/code, and email-gated MLDAS) should be represented in experiments by a dataset manifest that records access date, licence, available modalities, and exact class-map evidence.
 
 Taxonomies do not align across datasets. Cross-dataset training requires an explicit label-mapping layer. See the Cross-Dataset Taxonomy Mismatch section above and `../overview/aggregated-map-semantic-segmentation.md` §5.2 for the selection-guide framing.
 
@@ -416,6 +435,13 @@ Taxonomies do not align across datasets. Cross-dataset training requires an expl
 | KITTI-360 | CC BY-NC-SA | Non-commercial only |
 | DALES | Open (research) | Research use |
 | GridNet-HD | CC-BY-4.0 | Commercial + research with attribution; verify downstream model/data redistribution rules |
+| ECLAIR | CC BY-NC-SA 4.0 for data; code MIT | Dataset is non-commercial; contact owner for commercial cases |
+| YUTO Semantic | CC BY-NC 4.0 | Non-commercial only |
+| S.MID | CC BY-NC-SA 4.0 | Non-commercial research only |
+| OpenTrench3D | CC BY-NC 4.0 | Non-commercial only |
+| MLDAS | Custom email-gated licence | Non-commercial, non-transferable; no commercial model training |
+| USCILab3D | Processed-data licence unclear | Verify before redistribution or model release |
+| Industrial3D | Dataset licence pending; repo GPL-3.0 for code | Treat as watchlist until full release/licence is explicit |
 | SensatUrban | Academic (registration) | Research use; check before commercial |
 | CUS3D | Open-access paper; data terms to verify | Research use until data licence is confirmed |
 | SUM / SUM Parts | Project/code/data released; data terms to verify | Research use until data licence is confirmed |
@@ -458,11 +484,11 @@ No airside aggregated-map benchmark exists — the 2023–2026 additions above c
 
 | Target condition | Best public proxies | Use in the pipeline |
 |---|---|---|
-| Dense urban district, campus, or depot map | WHU-Urban3D, KITTI-360, Paris-Lille-3D, Toronto-3D, SemanticTHAB | Pre-train MLS backbones and validate markings, poles, wires, road/driveway, building, and low-vegetation confusion |
 | Railway, taxiway, or service-road corridor | SemanticRail3D, WHU-Railway3D | Stress linear-infrastructure classes, overhead/edge structures, corridor tiling, and constrained-route geometry |
-| Utility, overhead-line, perimeter, or gantry infrastructure | GridNet-HD, DALES, Toronto-3D, WHU-Railway3D | Stress pylon/cable/insulator/pole/wire classes, LiDAR-image projection, and rare long-thin recall |
-| Construction, quarry, apron works, and large equipment | GOOSE-Ex, SIP, CUS3D, STPLS3D | Cover unstructured terrain, temporary equipment, construction-site clutter, and simulator/synthetic rare-class augmentation |
-| Aerial/site-survey layer | FRACTAL, DALES, ECLAIR, CITYLID, CUS3D | Train or validate nadir/site-survey products that complement the ground survey map |
+| Dense urban district, campus, or depot map | WHU-Urban3D, KITTI-360, Paris-Lille-3D, Toronto-3D, SemanticTHAB, MLDAS, USCILab3D | Pre-train MLS backbones and validate markings, poles, wires, road/driveway, building, and low-vegetation confusion; use MLDAS for sensor-transfer stress and USCILab3D only after release-maturity checks |
+| Utility, trench, overhead-line, perimeter, or gantry infrastructure | GridNet-HD, ECLAIR, OpenTrench3D, DALES, Toronto-3D, WHU-Railway3D | Stress pylon/cable/insulator/pole/wire/trench classes, LiDAR-image projection, and rare long-thin recall; OpenTrench3D is photogrammetric-only |
+| Construction, quarry, apron works, industrial plant, and large equipment | GOOSE-Ex, SIP, S.MID, Industrial3D, CUS3D, STPLS3D | Cover unstructured terrain, temporary equipment, substation/MEP clutter, works-zone geometry, and simulator/synthetic rare-class augmentation |
+| Aerial/site-survey layer | FRACTAL, DALES, ECLAIR, YUTO, CITYLID, CUS3D | Train or validate nadir/site-survey products that complement the ground survey map |
 | Mesh or digital-twin release product | SUM, SUM Parts, CUS3D, H3D | Validate point-to-mesh transfer, textured-map annotation, road-marking/cycle-lane/sidewalk surfaces, and facade/roof class splits |
 
 Three additions are worth singling out for airside work specifically:
@@ -487,6 +513,13 @@ The full selection rationale and the proposed airside benchmark specification ar
 - KITTI-360: Liao et al., PAMI 2022 — https://www.cvlibs.net/datasets/kitti-360 · arXiv:2109.13410
 - DALES: Varney et al., CVPRW 2020 — arXiv:2004.11985
 - GridNet-HD: Carreaud et al., 2026 — https://arxiv.org/abs/2601.13052 · https://huggingface.co/datasets/heig-vd-geo/GridNet-HD · [GridNet-HD page](gridnet-hd-power-line-lidar-image-segmentation.md)
+- ECLAIR: Melekhov et al., CVPRW 2024 — https://openaccess.thecvf.com/content/CVPR2024W/USM/html/Melekhov_ECLAIR_A_High-Fidelity_Aerial_LiDAR_Dataset_for_Semantic_Segmentation_CVPRW_2024_paper.html · https://github.com/SharperShape/eclair-dataset
+- YUTO Semantic: ISPRS GSW 2023 dataset card — https://huggingface.co/datasets/ausmlab/yuto-semantic · https://yutosemantic.ausmlab.com/
+- S.MID / SFPNet: Wang et al., ECCV 2024 — https://github.com/Cavendish518/SFPNet · https://www.semanticindustry.top/dataset
+- OpenTrench3D: Hansen et al., 2024 — https://arxiv.org/abs/2404.07711 · https://github.com/SimonBuusJensen/OpenTrench3D
+- MLDAS: Chen et al., IJCAI 2024 — https://sychen320.github.io/projects/MLDAS/ · https://www.ijcai.org/proceedings/2024/0072.pdf
+- USCILab3D: Lekkala et al., NeurIPS 2024 Datasets and Benchmarks — https://proceedings.neurips.cc/paper_files/paper/2024/hash/628433f240414517fd95164b4275f5cc-Abstract-Datasets_and_Benchmarks_Track.html · https://sites.google.com/usc.edu/uscilab3d/
+- Industrial3D: Yin et al., 2026 — https://arxiv.org/abs/2603.28660 · https://github.com/pointcloudyc/Industrial3D
 - SensatUrban: Hu et al., CVPR 2021 — arXiv:2201.04494 · https://github.com/QingyongHu/SensatUrban · https://point-cloud-analysis.cs.ox.ac.uk/
 - H3D (Hessigheim): arXiv:2102.05346 · ISPRS Open Journal 2021
 - STPLS3D: Chen et al., BMVC 2022 — arXiv:2203.09065
