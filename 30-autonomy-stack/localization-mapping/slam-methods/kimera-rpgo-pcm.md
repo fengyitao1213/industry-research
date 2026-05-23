@@ -41,11 +41,9 @@ Single-edge robust kernels (Huber, Cauchy, Geman-McClure, DCS, Switchable Constr
 
 ### The Adversarial Cluster Problem
 
-Consider a repetitive airport apron with identical taxiway markings every 200 m. A descriptor-based loop closure detector may produce ten false candidates between visually similar but geometrically wrong locations. These ten false candidates may all be geometrically consistent with each other — they map the same-looking region to the same-looking region in a way that is internally coherent. An edge-level robust kernel sees ten residuals that are all small after optimization, misclassifies all ten as inliers, and the trajectory collapses.
+A repetitive airport apron with identical taxiway markings every 200 m may produce ten false loop-closure candidates that are all geometrically consistent with each other. A per-edge robust kernel sees ten small residuals after optimization and misclassifies all ten as inliers — the trajectory collapses. PCM checks each false candidate against the true inlier candidates via the odometry backbone; because false candidates do not compose correctly with the odometry, they fail the chi-squared cycle test. They form a small clique among themselves but smaller than the true inlier clique.
 
-PCM: each false candidate is checked against all true inlier candidates via the odometry backbone. Because false candidates do not compose correctly with the true odometry, they fail the chi-squared cycle test against the true loop closures. They may form a small clique among themselves, but a smaller clique than the true inlier set.
-
-PCM was originally motivated by multi-robot SLAM, where two robots mapping independently must determine which inter-robot loop closures are real overlaps. In this regime there is often no reliable shared odometry connecting the two maps, making single-edge methods even weaker.
+PCM was originally motivated by multi-robot SLAM, where no reliable shared odometry connects two independent maps, making single-edge methods even weaker.
 
 ---
 
@@ -201,25 +199,18 @@ Layer 1 (PCM) removes adversarial clusters before they reach the optimizer. Laye
 
 ### Incremental PCM
 
-Batch PCM (re-solve maximum clique from scratch with every new candidate) is impractical for online operation. Kimera-RPGO implements **incremental PCM**:
+Batch PCM (re-solve maximum clique from scratch every time) is impractical online. Kimera-RPGO implements **incremental PCM**: on a new candidate `v_new`, compute pairwise consistency with all existing candidates, add to `G_C`, and update the max clique only if `v_new` connects to a current clique member. Previous clique size provides a branch-and-bound lower bound, restricting the search to `v_new`'s neighborhood.
 
-1. When a new loop-closure candidate `v_new` arrives, compute its pairwise consistency with all existing candidates.
-2. Update the consistency graph `G_C` by adding node `v_new` and edges to consistent partners.
-3. Key observation: if `v_new` is not connected to any member of the current maximum clique, the previous clique remains optimal. Only if `v_new` is connected to at least one clique member is a re-search needed — and the search is restricted to the neighborhood of `v_new`.
-4. Use knowledge of the previous clique size to prune the branch-and-bound search tree.
+This reduces outlier-rejection runtime to **1–10 ms per new candidate** in practice. (Figure is from the general incremental max-clique literature; no specific Kimera-RPGO profiling number is in public documentation — treat as approximate.)
 
-This reduces outlier-rejection runtime to **1–10 ms per new candidate** in practice. (Note: this figure comes from the general literature on incremental max-clique solvers; no specific Kimera-RPGO profiling number was found in public documentation — treat as an approximate order-of-magnitude estimate.)
-
-### Max-Clique Solver
-
-The maximum clique problem is NP-hard in general, but SLAM consistency graphs are sparse and the clique structure is simple in practice: a large inlier clique plus scattered false edges. Kimera-RPGO uses a **fast maximum clique solver** adapted from Pattabiraman et al. "Fast Algorithms for the Maximum Clique Problem on Massive Graphs" (Internet Mathematics, 2013/2014), developed at Northwestern. It uses graph coloring to compute upper bounds on clique size and prune the branch-and-bound tree efficiently.
+**Max-clique solver:** adapted from Pattabiraman et al. "Fast Algorithms for the Maximum Clique Problem on Massive Graphs" (Internet Mathematics, 2013/2014), using graph coloring for upper-bound pruning.
 
 | Operation | Typical cost |
 |---|---|
-| Pairwise consistency check (one pair) | < 0.1 ms (matrix compose + chi-squared test) |
-| Incremental max-clique update (new candidate, moderate graph) | 1–10 ms (approximate) |
-| Batch max-clique re-solve (N ~100 candidates) | tens of ms to low seconds |
-| GTSAM LM optimization (after PCM, typical graph) | 10–100 ms |
+| Pairwise consistency check (one pair) | < 0.1 ms |
+| Incremental max-clique update | 1–10 ms (approximate) |
+| Batch max-clique re-solve (N ~100) | tens of ms to low seconds |
+| GTSAM LM optimization (after PCM) | 10–100 ms |
 
 ---
 
@@ -266,23 +257,11 @@ DOOR-SLAM (Lajoie, Ramtoula et al., arXiv:1909.12198) demonstrated distributed P
 
 ### Kimera-Multi ICRA 2021 — Incremental Distributed PCM
 
-Kimera-Multi ICRA 2021 (arXiv:2011.04087) extended DOOR-SLAM with an incremental maximum-clique heuristic for lower latency. Protocol:
-
-1. Robot `R_a` detects a putative inter-robot loop closure to `R_b`, requests 3D keypoints via peer-to-peer comms.
-2. `R_b` sends keypoints; `R_a` runs Arun's 3-point RANSAC; if at least 15 inliers, admits as a candidate.
-3. Candidate entered into `R_a`'s PCM graph; incremental max-clique update.
-4. Accepted inter-robot loop closures broadcast to the team.
-5. RBCD solver runs distributed PGO on the combined factor graph.
-
-The incremental heuristic "significantly reduces the outlier rejection runtime while producing cliques of comparable size" to the batch maximum clique. See [Kimera-Multi](./kimera-multi.md) for the full multi-robot architecture.
+Kimera-Multi ICRA 2021 (arXiv:2011.04087) extended DOOR-SLAM with an incremental max-clique heuristic: `R_a` requests 3D keypoints from `R_b` on a BoW match; Arun's 3-point RANSAC (at least 15 inliers) produces a candidate; incremental PCM update; accepted closures broadcast; RBCD runs distributed PGO. The incremental heuristic "significantly reduces the outlier rejection runtime while producing cliques of comparable size." See [Kimera-Multi](./kimera-multi.md).
 
 ### Kimera-Multi T-RO 2022 — Distributed GNC Replaces PCM
 
-The T-RO 2022 paper (arXiv:2106.14386) replaced the PCM-only approach with a two-stage distributed GNC:
-- Stage 1: GNC estimates relative frame transforms between each robot pair (coarse alignment).
-- Stage 2: Distributed GNC built on RBCD for joint PGO with per-edge weights.
-
-The paper notes that pure PCM "has low recall" — it tends to reject some true inter-robot loop closures whose odometry chain is uncertain, making the chi-squared test conservative. Distributed GNC relaxes this by operating in probability space rather than making hard binary decisions. Scale: up to 8 robots, 8 km total trajectories. King-Sun Fu Memorial Best Paper Award, IEEE T-RO 2022. See [Distributed Multi-Robot PGO](./distributed-multi-robot-pgo.md) for the full treatment of the RBCD and DPGO solvers.
+The T-RO 2022 paper (arXiv:2106.14386) replaced PCM with two-stage distributed GNC: stage 1 estimates relative frame transforms per robot pair; stage 2 runs distributed GNC on RBCD for joint PGO with per-edge weights. The paper notes pure PCM "has low recall" — the chi-squared test is conservative when inter-robot odometry is uncertain. Distributed GNC relaxes this by operating in probability space. Scale: 8 robots, 8 km. King-Sun Fu Memorial Best Paper Award, IEEE T-RO 2022. See [Distributed Multi-Robot PGO](./distributed-multi-robot-pgo.md).
 
 ---
 
