@@ -66,6 +66,7 @@ There is no universal answer; class count reflects required fidelity of downstre
 | Industrial3D | 12 | 12 | TLS industrial MEP |
 | Point Cloud City / Open3D-ML PCC | collection-specific | collection-specific | Managed-building / public-safety point clouds |
 | City-Facade | 9 facade categories | 9 | MLS building frontage |
+| ZAHA | 5 LoFG2 / 15 LoFG3 | 5 / 15 | MLS facade hierarchy and generalization |
 | S3DIS | 13 | 13 | Indoor |
 | ScanNet / ScanNet200 | 20 / 200 | 20 / 200 | Indoor |
 
@@ -389,7 +390,7 @@ This is especially important for urban-district and non-road mapping. OpenUrban3
 - **Pavement marking separate** because it is the primary localization anchor in airside HD maps; conflating it with pavement wastes a critical geometric and radiometric cue.
 - **Kerb separate** (not merged into terrain or pavement) because AV path planning treats it as a hard lateral constraint — not a soft semantic category.
 - **Overhead/utility subclasses stay conditional.** GridNet-HD shows when pylons, conductor cables, structural cables, and insulators deserve separate labels in utility corridors, but a generic airside map should keep those under `pole / mast / light` or `fixed equipment` until a target site has enough reviewed points and an operational consumer for the split.
-- **Facade and managed-building subclasses stay product-specific.** City-Facade supports finer facade labels such as wall, window, door, roof, advertisement, air conditioner, rain shed, and balcony; Point Cloud City / Open3D-ML PCC supports public-safety indoor feature harmonization. These are strong references for terminal frontage, terminal interiors, BIM, and digital-twin products, but they should not split the default outdoor airside `building / terminal / hangar facade` class unless a downstream consumer needs the sublabels and enough owned target-site labels exist.
+- **Facade and managed-building subclasses stay product-specific.** City-Facade supports finer facade labels such as wall, window, door, roof, advertisement, air conditioner, rain shed, and balcony; ZAHA adds the LoFG hierarchy for `floor`, `decoration`, `structural`, `opening`, and `other elements` plus 15 fine facade classes; Point Cloud City / Open3D-ML PCC supports public-safety indoor feature harmonization. These are strong references for terminal frontage, terminal interiors, BIM, and digital-twin products, but they should not split the default outdoor airside `building / terminal / hangar facade` class unless a downstream consumer needs the sublabels and enough owned target-site labels exist.
 - **Staged GSE distinct** from fixed infrastructure because it may move between map updates. Map versioning logic needs to flag these as potentially stale objects during change detection.
 - **Parked aircraft** is an obstacle category. At normal AV operation it does not need to be tracked as a counted instance — the AV needs to know the volume is occupied, not which aircraft it is.
 - **Moving GSE, vehicles, persons** are absent from this taxonomy; they belong to the single-scan real-time perception taxonomy only.
@@ -481,6 +482,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - GridNet-HD utility LiDAR-image dataset: https://arxiv.org/abs/2601.13052 · https://huggingface.co/datasets/heig-vd-geo/GridNet-HD · [dataset page](../datasets-benchmarks/gridnet-hd-power-line-lidar-image-segmentation.md)
 - Point Cloud City / Open3D-ML PCC: https://www.nist.gov/services-resources/software/point-cloud-city-open3d-ml-repository · https://www.nist.gov/publications/cross-dataset-semantic-segmentation-performance-analysis-unifying-nist-point-cloud-city
 - City-Facade: https://doi.org/10.1016/j.isprsjprs.2026.01.003 · https://github.com/SYSU-3DSTAILab/City-Facade
+- ZAHA: https://openaccess.thecvf.com/content/WACV2025/html/Wysocki_ZAHA_Introducing_the_Level_of_Facade_Generalization_and_the_Large-Scale_WACV_2025_paper.html · https://github.com/OloOcki/zaha · https://tum2t.win/datasets/pc-mls
 - ECLAIR aerial LiDAR dataset: https://openaccess.thecvf.com/content/CVPR2024W/USM/html/Melekhov_ECLAIR_A_High-Fidelity_Aerial_LiDAR_Dataset_for_Semantic_Segmentation_CVPRW_2024_paper.html · https://github.com/SharperShape/eclair-dataset
 - YUTO Semantic aerial LiDAR dataset: https://huggingface.co/datasets/ausmlab/yuto-semantic · https://yutosemantic.ausmlab.com/
 - S.MID / SFPNet industrial LiDAR dataset: https://github.com/Cavendish518/SFPNet · https://www.semanticindustry.top/dataset
