@@ -8,221 +8,464 @@ priority:
   stage: "modern-core"
   maturity: "fielded-pattern"
   tags: ["slam", "fallback", "gnss-denied", "indoor", "validation"]
-  reason: "Co-SLAM and ESLAM is rated for visual or visual-inertial SLAM coverage, especially fallback and GNSS-denied use."
+  reason: "Co-SLAM and ESLAM are the canonical CVPR 2023 neural-implicit RGB-D SLAM pair; understanding both is prerequisite for evaluating all post-2023 dense SLAM papers."
 method-priority:end -->
 
-## Executive Summary
+Related docs: [NeRF-SLAM family overview](./nerf-slam.md) · [iMAP](./imap.md) · [NICE-SLAM](./nice-slam.md) · [Splat-SLAM](./splat-slam.md) · [GS-SLAM and MonoGS](./gs-slam-monogs.md) · [MASt3R-SLAM](./mast3r-slam.md) · [4DNDF](./4dndf.md) · [KISS-SLAM](./kiss-slam.md) · [GigaSLAM](./gigaslam.md) · [DROID-SLAM](./droid-slam.md) · [Aggregated Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Feed-Forward 3D Reconstruction and Splatting](../../../10-knowledge-base/geometry-3d/feed-forward-3d-reconstruction-and-splatting.md) · [Volume Rendering, Radiance Fields, and Gaussian Splatting](../../../10-knowledge-base/geometry-3d/volume-rendering-radiance-fields-gaussian-splatting.md) · [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md)
 
-Co-SLAM and ESLAM are 2023 neural implicit RGB-D SLAM systems that made the post-[NICE-SLAM](nice-slam.md) generation faster and more detailed. Both replace a slow global neural field with hybrid representations that are easier to optimize online. Co-SLAM uses a joint coordinate and sparse parametric encoding: a multi-resolution hash grid for high-frequency detail plus one-blob encoding for surface coherence and completion. ESLAM uses multi-scale axis-aligned feature planes with shallow decoders that output TSDF and RGB values.
+**Last updated:** 2026-05-24
 
-Indoor value is high for research-grade dense RGB-D reconstruction. Co-SLAM emphasizes real-time tracking, high-fidelity reconstruction, and global bundle adjustment over all keyframes through efficient ray sampling. ESLAM emphasizes efficiency, no pretraining, and fast dense SLAM with a hybrid signed-distance representation. Both are stronger practical neural baselines than [iMAP](imap.md), but neither is a production vehicle localization stack.
+---
 
-For AV and airside applications, treat Co-SLAM and ESLAM as dense indoor mapping and representation research. They can inform digital twin creation, inspection maps, and future map representations, but they lack the weather robustness, multi-sensor fusion, certified uncertainty, and failure monitoring needed for outdoor airside autonomy. For real-time renderable explicit alternatives, compare with Gaussian SLAM and perception methods in [3D Gaussian Splatting for Real-Time AV Perception and Mapping](../../perception/overview/gaussian-splatting-driving.md).
+## What It Is
+
+Co-SLAM and ESLAM are a **paired generation** of dense neural-implicit RGB-D SLAM systems, both published at CVPR 2023. They represent parallel architectural responses to [NICE-SLAM](./nice-slam.md)'s core bottlenecks — slow optimization (~1 Hz overall), dense pre-allocated cubic memory (17.4 M params on Replica), and dependency on pre-trained ConvONet decoders — and together mark the point at which the neural-implicit SLAM family crossed the ~5 Hz usability threshold.
+
+**Co-SLAM** (Wang, Wang, Agapito; UCL; CVPR 2023; arXiv:2304.14377) introduces a **joint coordinate and sparse parametric encoding**: a multi-resolution hash grid (Instant-NGP style) concatenated with a one-blob coordinate encoding feeds two shallow SDF/RGB MLPs. Global bundle adjustment over all keyframes runs at ~10 Hz — the fastest mapping rate in the CVPR 2023 class. The name reflects the **co-use** of coordinate and parametric encodings, not multi-agent collaboration.
+
+**ESLAM** (Johari, Carta, Fleuret; Idiap/EPFL; CVPR 2023 Highlight; arXiv:2211.11704) introduces a **tri-plane 2D feature representation**: three axis-aligned feature planes (XY, XZ, YZ) replace NICE-SLAM's 3D dense grids, cutting memory from O(L³) to O(L²) in scene side-length. Two-scale TSDF and color decoders run at ~5 Hz overall, achieving the best depth reconstruction accuracy in the CVPR 2023 class.
+
+**Honest framing up front:** Neither system implements loop closure. Both are RGB-D only. Both are inappropriate as the primary SLAM pipeline for any outdoor LiDAR-first context. They are valuable as research baselines, as illustrations of distinct representation design philosophies, and as required reading for any literature review covering 2023–2025 dense SLAM.
+
+---
 
 ## Historical Context
 
-NICE-SLAM showed that hierarchical feature grids improved iMAP's scalability, but neural RGB-D SLAM still suffered from slow optimization, local detail limitations, and weak global consistency. Co-SLAM and ESLAM both appeared at CVPR 2023 and addressed these issues from different representation angles.
+The neural-implicit SLAM lineage opened with [iMAP](./imap.md) (Sucar et al., ICCV 2021, arXiv:2103.12352), which proved a single global MLP could serve as the sole map in a SLAM loop — but it suffered catastrophic forgetting and could not represent high-frequency surface detail. [NICE-SLAM](./nice-slam.md) (Zhu et al., CVPR 2022, arXiv:2112.12130) replaced the global MLP with four hierarchical dense 3D feature grids plus ConvONet-pretrained decoders, achieving a 3.8× ATE improvement over iMAP* on ScanNet. However NICE-SLAM's dense grids introduced cubic memory scaling, slow optimization, and pre-training dependency.
 
-Co-SLAM, by Hengyi Wang, Jingwen Wang, and Lourdes Agapito, introduced joint coordinate and sparse parametric encodings for neural real-time SLAM. The project page reports real-time RGB-D SLAM with robust camera tracking, high-fidelity surface reconstruction, and 10 Hz style operation on standard indoor benchmarks. It explicitly compares against iMAP, NICE-SLAM, and ESLAM.
+Co-SLAM and ESLAM both appeared at CVPR 2023 targeting those bottlenecks from complementary directions. Neither builds on the other. Both were superseded on quality metrics at ICCV 2023 by Point-SLAM (neural point cloud, best PSNR) and GO-SLAM (loop closure, best ATE), and on all metrics by Loopy-SLAM (CVPR 2024, arXiv:2402.09944). After CVPR 2024 the field pivoted largely to 3DGS-SLAM. See [Splat-SLAM](./splat-slam.md) (iter 18) and [GS-SLAM and MonoGS](./gs-slam-monogs.md) (iter 26) for the 3DGS continuation.
 
-ESLAM, by Mohammad Mahdi Johari, Camilla Carta, and Francois Fleuret, introduced an efficient dense SLAM system based on a hybrid representation of signed distance fields. Its project page and CVF paper describe multi-scale axis-aligned perpendicular feature planes and shallow decoders, with no pretraining and strong efficiency claims over prior dense neural SLAM methods.
+---
 
-Together, the two methods mark the shift from "can a neural implicit map run online?" to "which hybrid representation makes neural dense SLAM efficient enough to be useful?"
+## Part A — Co-SLAM
 
-## Sensor Assumptions
+### A.1 Citation and Provenance
 
-Both methods assume RGB-D input with known camera intrinsics and accurate depth scale. They are designed for indoor dense visual SLAM, not outdoor long-range vehicle localization.
+Hengyi Wang, Jingwen Wang, Lourdes Agapito. "Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM." CVPR 2023, pp. 13293–13302. arXiv:2304.14377. Affiliation: UCL.
 
-Common assumptions:
+Code: https://github.com/HengyiWang/Co-SLAM (Apache-2.0) · Project: https://hengyiwang.github.io/projects/CoSLAM
 
-- RGB and depth are synchronized and calibrated.
-- Depth is dense enough for metric tracking and reconstruction.
-- Scene geometry is mostly static.
-- Camera motion is smooth enough for pose optimization.
-- Scene bounds, sampling, and map resolution are configured appropriately.
-- A CUDA-capable GPU is available.
-- Dynamic objects are absent, masked, or not dominant.
+---
 
-Co-SLAM and ESLAM do not natively solve IMU preintegration, wheel odometry fusion, GNSS anchoring, lidar factors, or production safety monitoring. They can be extended or wrapped, but those components are outside the core papers.
+### A.2 Mechanism — Joint Encoding
 
-## State/Map Representation
+For a 3D point `x = (x, y, z)`, Co-SLAM concatenates two independent encodings before feeding two shallow MLPs:
 
-Co-SLAM represents the scene with a hybrid encoding:
+```
+f(x) = f_hash(x) || f_blob(x)
 
-```text
-encoding(x) = {
-  multi_resolution_hash_grid(x),
-  one_blob_coordinate_encoding(x)
-}
-
-decoder(encoding(x)) -> {
-  SDF_or_geometry,
-  RGB
-}
+MLP_geo : f(x) --> SDF value s(x)     [geometry decoder]
+MLP_rgb : f(x) --> RGB color c(x)     [appearance decoder]
 ```
 
-The hash grid converges quickly and captures high-frequency local detail. The one-blob encoding provides a coordinate-based smoothness prior that encourages coherent surfaces and completion in unobserved areas. Co-SLAM also keeps keyframe poses and can perform global bundle adjustment over all keyframes using efficient ray sampling.
+**Branch 1 — Multi-resolution hash grid (parametric encoding):** Follows Instant-NGP (Muller et al., ACM ToG 2022). L resolution levels (typically 16) from coarse (~16³) to fine (~512³). At each level, the 8 surrounding voxel corners are hashed to a trainable table (T = 2^19 entries, 2-dim each) and trilinearly interpolated. Provides fast convergence (direct backprop to table entries), high-frequency local detail, and sparse memory fixed at T entries regardless of scene size.
 
-ESLAM represents the scene with multi-scale axis-aligned perpendicular feature planes, typically analogous to XY, YZ, and XZ planes at multiple resolutions:
+**Branch 2 — One-blob encoding (coordinate encoding):** A frequency-based positional encoding using a localized blob kernel — a smoothness prior. Nearby points receive similar features, encouraging surface completion in unobserved regions and global coherence across the scene. This is the key hole-filling mechanism absent from NICE-SLAM's grid-only approach.
 
-```text
-features_at_x = interpolate(feature_planes_xy, yz, xz, x)
-decoder(features_at_x, x) -> {
-  TSDF,
-  RGB
-}
+**SDF and volume rendering:** SDF output `s(x)` (positive outside surface, negative inside) converts to opacity via a logistic sigmoid, following VolSDF/NeuS:
+
+```
+sigma(x) = sigmoid( -s(x) / beta )
+
+D_hat(r) = sum_i  T_i * alpha_i * t_i     [rendered depth]
+C_hat(r) = sum_i  T_i * alpha_i * c_i     [rendered color]
 ```
 
-This factorizes 3D space into feature planes, reducing memory and speeding updates compared with dense 3D grids. Shallow decoders map interpolated features to signed-distance and color predictions. The output TSDF-like field can be meshed for reconstruction.
+For volume rendering foundations see [Volume Rendering, Radiance Fields, and Gaussian Splatting](../../../10-knowledge-base/geometry-3d/volume-rendering-radiance-fields-gaussian-splatting.md).
 
-Both representations are more local and efficient than iMAP's single global MLP.
+---
 
-## Algorithm Pipeline
+### A.3 Tracking and Mapping Pipeline
 
-Co-SLAM pipeline:
+**Tracking (~17 Hz on Replica):** All network weights frozen; pose `T_t in SE(3)` optimized by gradient descent on a render-and-compare loss. Depth-guided ray sampling biases toward depth-supervised pixels:
 
-1. Receive an RGB-D frame.
-2. Track the current camera pose by optimizing rendered RGB-D residuals against the neural map.
-3. Select rays and pixels with an efficient sampling strategy.
-4. Add or update keyframes.
-5. Optimize scene encoding and camera poses with a bundle-adjustment-style objective.
-6. Use the joint hash-grid and one-blob encoding to balance detail and surface coherence.
-7. Extract meshes or render views for evaluation.
-
-ESLAM pipeline:
-
-1. Receive sequential RGB-D frames with unknown poses.
-2. Track camera pose against the current feature-plane implicit map.
-3. Sample rays from live and selected keyframes.
-4. Decode TSDF and RGB values from multi-scale feature planes.
-5. Optimize feature planes, shallow decoders if applicable, and pose variables.
-6. Extract TSDF zero-level surfaces for dense reconstruction.
-7. Continue incremental mapping without requiring offline pretraining.
-
-Both systems retain the neural SLAM pattern: alternating or interleaving tracking and mapping through differentiable rendering.
-
-## Formulation
-
-Both methods minimize rendering losses over sampled rays:
-
-```text
-L = lambda_d * L_depth_or_sdf
-  + lambda_c * L_color
-  + lambda_fs * L_free_space_or_truncation
-  + lambda_reg * L_regularization
+```
+L_track = sum_{r} [  lambda_rgb * | C_hat(r) - C_gt(r) |^2
+                    + lambda_d   * | D_hat(r) - D_gt(r) |^2  ]
 ```
 
-For tracking:
+For SE(3) pose Jacobians see [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md).
 
-```text
-T_t = argmin_T L(render(map, T), RGBD_t)
+**Mapping (~10 Hz on Replica) — Global BA:** Co-SLAM's most distinctive choice. NICE-SLAM and ESLAM both maintain a sliding window of active keyframes. Co-SLAM instead runs global bundle adjustment over **all** keyframes simultaneously, leveraging the fast hash-grid convergence to make this tractable:
+
+```
+L_map = sum_{k in ALL_keyframes} sum_{r} [  lambda_rgb * L_rgb(r)
+                                           + lambda_d   * L_depth(r)
+                                           + lambda_sdf * L_sdf(r)
+                                           + lambda_fs  * L_freespace(r)  ]
 ```
 
-For mapping:
+Hash-grid parameters and all keyframe poses are optimized jointly. This eliminates the windowing-forgetting artifact: when the robot revisits an area, old keyframes remain in the BA and the previously observed region does not drift.
 
-```text
-map_parameters, selected_poses =
-  argmin sum_{keyframes, rays} L(render(map, T_k), RGBD_k)
+**Architecture summary:**
+
+```
+RGB-D input (per frame)
+     |
+     v
+Tracking thread  (~17 Hz Replica / 12.82 Hz ScanNet)
+  |-- Depth-guided ray sampling, current frame
+  |-- Hash grid --> f_hash(x)  |  One-blob --> f_blob(x)
+  |-- MLP_geo --> SDF --> render D_hat(r)
+  |-- MLP_rgb --> c(x) --> render C_hat(r)
+  `-- Gradient descent on pose T_t  [weights frozen]
+     |
+     v
+Keyframe selection (translation/rotation threshold)
+     |
+     v
+Mapping thread  (~10.20 Hz Replica / 4.95 Hz ScanNet)
+  |-- Sample rays from ALL keyframes (depth-guided)
+  `-- Joint optimize: hash-grid params + ALL keyframe poses
+     |
+     v
+Output: SDF mesh (marching cubes) + trajectory
+
+Params: 0.26 M (Replica)  |  0.8 M (ScanNet)
 ```
 
-Co-SLAM's notable formulation point is global bundle adjustment over all keyframes enabled by efficient ray sampling. Instead of only optimizing a small active keyframe set, it can use broader history while keeping runtime manageable.
+---
 
-ESLAM's notable formulation point is its hybrid SDF representation. It decodes TSDF and RGB from feature planes, combining neural rendering with a signed-distance geometry target that is more directly tied to surface reconstruction than pure density.
+### A.4 Strengths and Weaknesses — Co-SLAM
 
-## Failure Modes
+**Strengths:** Fastest mapping rate in the CVPR 2023 neural-implicit SLAM class (~10 Hz Replica). Lowest parameter count (0.26 M Replica — 35× fewer than ESLAM). Global BA eliminates windowing forgetting. One-blob encoding provides hole-filling in sparse or unobserved regions. No pre-training required.
 
-- RGB-D depth artifacts directly supervise wrong geometry.
-- Dynamic objects are reconstructed unless explicitly masked or downweighted.
-- Long featureless areas can still produce weak pose constraints.
-- Repeated geometry can produce wrong revisits or overconfident local alignment.
-- Neural completion can fill unobserved space incorrectly.
-- Hash grids and feature planes depend on scene bounds and resolution choices.
-- Co-SLAM global bundle adjustment can still fail if the underlying correspondences or render losses are wrong.
-- ESLAM's efficient factorization can underrepresent geometry that does not align well with its feature-plane capacity or chosen resolution.
-- Neither method provides mature loop-closure, relocalization, or multi-session map management comparable to RTAB-Map.
-- Both require GPU support and research-code deployment assumptions.
-- Neither provides certified uncertainty or fault isolation for safety-critical pose output.
+**Weaknesses:** Depth L1 on Replica (1.51 cm) is worse than ESLAM (0.94 cm). ATE on ScanNet (9.37 cm) is worse than ESLAM (7.42 cm) — real-scene drift not resolved by global BA without loop closure. PSNR (~27.0 dB) well below point-cloud methods. No loop closure — long-trajectory drift accumulates. RGB-D only. Static world assumption — moving objects corrupt the map. Large scenes: hash collision artifacts grow and global BA becomes expensive as keyframe count scales without bound.
 
-## AV Relevance
+---
 
-Co-SLAM and ESLAM matter to AV research because they show practical ways to maintain dense neural scene maps online. A future AV map layer might use hybrid representations for inspection, simulation, semantic rendering, or change detection. They also provide better baselines for dense indoor reconstruction than early single-MLP neural maps.
+## Part B — ESLAM
 
-They are not direct AV localization solutions. AVs need sensor redundancy, long-range operation, high-speed motion support, dynamic object handling, explicit covariance, map georeferencing, and safe correction behavior. Dense neural reconstruction quality does not imply localization safety.
+### B.1 Citation and Provenance
 
-Transferable ideas:
+Mohammad Mahdi Johari, Camilla Carta, Francois Fleuret. "ESLAM: Efficient Dense SLAM System Based on Hybrid Representation of Signed Distance Fields." CVPR 2023 **Highlight**, pp. 17408–17419. arXiv:2211.11704. Affiliation: Idiap Research Institute, EPFL.
 
-- Hybrid map representations that combine fast local features with coordinate priors.
-- Efficient ray sampling for online bundle-adjustment-like optimization.
-- SDF/TSDF neural outputs for explicit surface extraction.
-- Neural map comparison against classical TSDF, surfel, and point-cloud maps.
-- Separation of map quality metrics from pose accuracy metrics.
+Code: https://github.com/idiap/ESLAM (Apache-2.0) · Project: https://www.idiap.ch/paper/eslam/
 
-## Indoor/Outdoor Relevance
+---
 
-Indoor relevance is high for research. Both methods are evaluated on indoor RGB-D benchmarks such as Replica, ScanNet, TUM RGB-D, and synthetic RGB-D data. They are useful for rooms, apartments, offices, corridors, and controlled service areas.
+### B.2 Mechanism — Tri-Plane Feature Representation
 
-Outdoor relevance is low for direct deployment. RGB-D cameras do not provide reliable long-range sunlit outdoor depth, and the methods do not include lidar-inertial or GNSS integration. The representations could inspire future outdoor neural maps if paired with lidar/camera inputs and robust state estimation, but the published systems are not outdoor AV localizers.
+NICE-SLAM's dense 3D feature grids scale as O(L³) — a 10× larger scene costs 1000× more memory. ESLAM replaces them with **three axis-aligned 2D feature planes** (XY, XZ, YZ), which scale as O(L²): a 10× larger scene costs only 100× more memory.
 
-For airport operations, the natural scope is indoor airside or landside-adjacent mapping: hangars, maintenance rooms, baggage halls, and terminal service corridors. Open apron localization should remain with lidar-inertial/GNSS/map localization.
+**Tri-plane lookup formula:**
 
-## Airside Deployment Notes
+```
+f(x, y, z) = BilinearInterp(P_XY, x, y)
+           + BilinearInterp(P_XZ, x, z)
+           + BilinearInterp(P_YZ, y, z)
+```
 
-Research uses:
+Summation (not concatenation, unlike EG3D's original tri-plane) keeps the feature dimension constant and reduces decoder input size. Each plane stores 32-channel feature vectors per pixel.
 
-- Dense reconstruction benchmarks on hangar and maintenance-bay RGB-D captures.
-- Comparison of classical [RTAB-Map](rtab-map.md), [BundleFusion](bundlefusion.md), NICE-SLAM, Co-SLAM, and ESLAM.
-- Neural map QA for indoor airport digital twins.
-- Evaluating how feature-grid and feature-plane maps handle reflective aircraft surfaces and moved equipment.
+**Multi-scale planes:** Two resolution scales (coarse and fine) for both geometry and appearance give 12 feature planes total (2 scales × 3 planes × 2 modalities). Coarse geometry: 24 cm voxel resolution; fine geometry: 6 cm; fine appearance: 3 cm. Coarse and fine geometry features are concatenated to form a 64-dim geometry feature; same for appearance:
 
-Deployment cautions:
+```
+f_geo(x) = [ f_geo_coarse(x) || f_geo_fine(x) ]   [64-dim]
+f_col(x) = [ f_col_coarse(x) || f_col_fine(x) ]   [64-dim]
+```
 
-- Do not use neural completion as safety geometry around aircraft, engines, wings, or personnel.
-- Mask dynamic equipment before mapping.
-- Keep neural maps versioned and tied to raw measurements for audit.
-- Check whether global updates change previously accepted geometry.
-- Monitor latency, GPU memory, residuals, and tracking failure rates.
-- Use independent pose sources for navigation and treat neural output as a map/inspection layer.
+**TSDF and color decoders:** Two shallow two-layer MLPs (32 hidden units):
 
-If the goal is a live airside vehicle, these methods should sit behind a classical localization and safety stack. If the goal is dense indoor digital-twin generation, they are worth evaluating.
+```
+MLP_geo : f_geo(x) --> TSDF value s(x)
+MLP_col : f_col(x) --> RGB color c(x)
+```
 
-## Datasets/Metrics
+TSDF clamps values to `[-delta, +delta]` (e.g., delta = 0.1 m). Points within the truncation band receive strong SDF supervision; far-field points are excluded — accelerating convergence compared to NICE-SLAM's per-point occupancy loss.
 
-Co-SLAM reports results on ScanNet, TUM RGB-D, Replica, and Synthetic RGB-D benchmarks. ESLAM reports on Replica, ScanNet, and TUM RGB-D. Useful metrics:
+---
 
-- ATE/APE and RPE for camera trajectory.
-- Reconstruction accuracy, completeness, Chamfer distance, F-score, and normal consistency.
-- Rendered RGB PSNR/SSIM/LPIPS when appearance matters.
-- Depth L1 error and SDF/TSDF surface error.
-- Runtime in tracking Hz and mapping Hz.
-- GPU memory and map parameter count.
-- Forgetting or degradation after revisits.
-- Robustness to dynamic objects and frame loss.
-- Mesh extraction time and mesh resolution.
+### B.3 Tracking and Mapping Pipeline
 
-Airside-specific metrics should include moved-object ghosting, repeated-geometry false alignment, reflective-surface error, and map-change auditability between sessions.
+**Tracking (~18 Hz on Replica):** All 12 feature planes frozen; pose optimized on render-and-compare:
 
-## Open-Source Implementations
+```
+L_track = sum_{r} [  lambda_d   * | D_hat(r) - D_gt(r) |
+                    + lambda_rgb * | C_hat(r) - C_gt(r) |  ]
+```
 
-- `HengyiWang/Co-SLAM`: official CVPR 2023 code, Apache-2.0 license, with configs and scripts for common RGB-D datasets.
-- `idiap/ESLAM`: official CVPR 2023 code, Apache-2.0 license, with configs, visualization, ATE evaluation, and reconstruction evaluation scripts.
-- Both repositories are research implementations using Python/PyTorch and CUDA-oriented dependencies.
+**Mapping (~3.62 Hz Replica / 1.49 Hz ScanNet) — Sliding window:** Unlike Co-SLAM, ESLAM maintains a **sliding window** of active keyframes — no global BA, no loop closure. Feature planes and active keyframe poses are jointly optimized:
 
-The code is suitable for benchmarking and experimentation. Production use would require sensor integration, logging, deterministic runtime controls, dynamic-object filtering, health metrics, and license/dependency review.
+```
+L_map = L_depth + lambda_rgb * L_rgb + lambda_free * L_freespace + lambda_sdf * L_sdf
+```
 
-## Practical Recommendation
+The absence of loop closure is an explicit limitation noted by Loopy-SLAM as the core gap motivating its design.
 
-For neural RGB-D SLAM research in 2026, evaluate Co-SLAM and ESLAM after NICE-SLAM. Use Co-SLAM when testing high-fidelity reconstruction and global bundle-adjustment-style optimization. Use ESLAM when testing efficient TSDF-like neural SDF mapping with shallow decoders and no pretraining.
+**Architecture summary:**
 
-For airside autonomy, do not choose either as the pose backbone. Use them to create or inspect indoor dense maps, compare neural representations, and study future map layers. Keep [RTAB-Map](rtab-map.md), lidar-inertial SLAM, and surveyed map localization as the practical navigation baselines.
+```
+RGB-D input (per frame)
+     |
+     v
+Tracking thread  (~18 Hz Replica / 4.54 Hz ScanNet)
+  |-- Project samples onto 12 planes --> bilinear interpolation
+  |-- MLP_geo --> TSDF --> render D_hat(r)
+  |-- MLP_col --> c(x) --> render C_hat(r)
+  `-- Gradient descent on pose T_t  [planes frozen]
+     |
+     v
+Keyframe selection (overlap threshold)
+     |
+     v
+Mapping thread  (~3.62 Hz Replica / 1.49 Hz ScanNet)
+  |-- Sample rays from active WINDOW  [not global BA]
+  `-- Joint optimize: 12 feature planes + keyframe poses (window only)
+     |
+     v
+Output: TSDF mesh (marching cubes) + trajectory
+
+Params: 9.29 M (Replica)  |  10.5 M (ScanNet)
+Memory: O(L^2) in scene side-length L
+```
+
+---
+
+### B.4 Strengths and Weaknesses — ESLAM
+
+**Strengths:** CVPR 2023 Highlight designation. Best depth L1 (0.94 cm) and completion ratio (96.46%) in the CVPR 2023 class. Best ATE on ScanNet (7.42 cm) among CVPR 2023 class — better than NICE-SLAM and Co-SLAM. Memory grows quadratically not cubically — enables room-to-apartment scale. No pre-training required. TSDF accelerates convergence over occupancy.
+
+**Weaknesses (do not soften):** **No loop closure** — sliding-window keyframe management only; drift accumulates over long trajectories. Mapping FPS (3.62 Hz Replica, 1.49 Hz ScanNet) substantially slower than Co-SLAM. Parameters (9.29–10.5 M) are 10–40× larger than Co-SLAM. PSNR (~27.8 dB) far below point-cloud methods (Point-SLAM 35.17 dB). RGB-D only. Static world assumption. Quadratic memory growth still problematic at building or campus scale. Feature planes have spatially uniform density — no adaptive resolution at surfaces.
+
+---
+
+## Head-to-Head Comparison
+
+| Dimension | Co-SLAM | ESLAM |
+|---|---|---|
+| Core innovation | Hash-grid + one-blob joint encoding | Tri-plane 2D feature planes (replace 3D grids) |
+| Memory scaling | O(T) sparse hash table — fixed regardless of scene | O(L²) quadratic in scene side-length |
+| Params (Replica / ScanNet) | **0.26 M / 0.8 M** | 9.29 M / 10.5 M |
+| Depth L1 — Replica (cm) | 1.51 | **0.94** |
+| Completion ratio — Replica | 93.44% | **96.46%** |
+| ATE — Replica avg (cm) | 0.70 | 0.70 |
+| ATE — ScanNet avg (cm) | 9.37 | **7.42** |
+| PSNR — Replica (dB) | 27.0 | **27.8** |
+| Track FPS — Replica | 17.24 Hz | **18.11 Hz** |
+| Map FPS — Replica | **10.20 Hz** | 3.62 Hz |
+| Overall FPS | **~10–12 Hz** | ~5–6 Hz |
+| Keyframe strategy | **Global BA — all keyframes** | Sliding window only |
+| Loop closure | No | **No** |
+| Hole-filling | Strong (one-blob smoothness prior) | Weak |
+| Pre-training | None | None |
+| Status | CVPR 2023 | CVPR 2023 **Highlight** |
+
+**Verdict:** ESLAM wins on reconstruction quality (depth L1, completion ratio) and real-scene ATE (ScanNet). Co-SLAM wins on mapping speed (~3× faster mapping) and parameter efficiency (35× fewer params). For applications where update rate matters, Co-SLAM's ~10 Hz is more practical. For offline high-quality map construction, ESLAM's denser reconstruction is preferred. Both are surpassed on all quality metrics by Point-SLAM (ICCV 2023) and Loopy-SLAM (CVPR 2024).
+
+---
+
+## Benchmark Tables
+
+All numbers from the Neural SLAM Evaluation Benchmark (`JingwenWang95/neural_slam_eval`), cross-checked against SLAIM (arXiv:2404.11419) and EC-SLAM (arXiv:2404.13346). PSNR from the Loopy-SLAM comparison table (arXiv:2402.09944).
+
+**Replica dataset (8 synthetic indoor scenes):**
+
+| Method | Acc (cm) | Compl (cm) | Compl Ratio (%) | Depth L1 (cm) | Track FPS | Map FPS | Params |
+|---|---|---|---|---|---|---|---|
+| iMAP* | 3.62 | 4.93 | 80.51 | 4.64 | 9.92 | 2.23 | 0.26 M |
+| NICE-SLAM | 2.37 | 2.64 | 91.13 | 1.90 | 13.70 | 0.20 | 17.4 M |
+| Vox-Fusion | 1.88 | 2.56 | 90.93 | 2.91 | 2.11 | 2.17 | 0.87 M |
+| ESLAM | 2.18 | **1.75** | **96.46** | **0.94** | **18.11** | 3.62 | 9.29 M |
+| Co-SLAM | **2.10** | 2.08 | 93.44 | 1.51 | 17.24 | **10.20** | **0.26 M** |
+
+ATE RMSE Replica average: Co-SLAM ~0.70 cm; ESLAM ~0.70 cm — essentially tied. PSNR: Co-SLAM ~27.0 dB; ESLAM ~27.8 dB. Both well below Point-SLAM (35.17 dB) and Loopy-SLAM (35.47 dB).
+
+**ScanNet dataset (6 real indoor scenes):**
+
+| Method | Avg ATE (cm) | Track FPS | Map FPS | Params |
+|---|---|---|---|---|
+| iMAP* | 36.67 | 0.66 | 0.07 | 0.2 M |
+| NICE-SLAM | 9.63 | 1.63 | 0.13 | 10.3 M |
+| Vox-Fusion | 8.22 | 1.13 | 0.78 | 1.1 M |
+| ESLAM | **7.42** | 4.54 | 1.49 | 10.5 M |
+| Co-SLAM | 9.37 | **12.82** | **4.95** | **0.8 M** |
+
+**TUM RGB-D (ATE RMSE, cm):**
+
+| Method | fr1/desk | fr2/xyz | fr3/office |
+|---|---|---|---|
+| NICE-SLAM | 2.7 | 1.8 | 3.0 |
+| Co-SLAM | 2.4 | 1.7 | 2.4 |
+| ESLAM | 2.5 | **1.1** | 2.4 |
+
+---
+
+## Operator Mechanics — Side-by-Side
+
+**Co-SLAM encoding (hash-grid + one-blob):**
+
+```
+f(x) = f_hash(x) || f_blob(x)
+     = [multi-res hash lookup + trilinear interp]
+    || [one-blob coordinate encoding — smoothness prior]
+
+--> MLP_geo --> SDF s(x) --> sigma(x) = sigmoid(-s(x)/beta)
+--> MLP_rgb --> color c(x)
+```
+
+**ESLAM tri-plane lookup:**
+
+```
+f(x, y, z) = BilinearInterp(P_XY, x, y)    [floor-plan projection]
+           + BilinearInterp(P_XZ, x, z)    [front-elevation projection]
+           + BilinearInterp(P_YZ, y, z)    [side-elevation projection]
+
+f_geo = [f_geo_coarse || f_geo_fine]  --> MLP_geo --> TSDF s(x)
+f_col = [f_col_coarse || f_col_fine]  --> MLP_col --> color c(x)
+```
+
+**Shared tracking loss (pose `T_t in SE(3)`, map frozen):**
+
+```
+L_track = sum_r [ lambda_d * loss_depth(D_hat, D_gt) + lambda_rgb * loss_color(C_hat, C_gt) ]
+```
+
+**Shared mapping loss (map params + keyframe poses, current pose fixed):**
+
+```
+L_map = L_depth + lambda_rgb * L_rgb + lambda_sdf * L_sdf + lambda_fs * L_freespace
+```
+
+Both minimize tracking loss over `T_t in SE(3)` with map parameters frozen, then mapping loss over map parameters with pose fixed — the standard alternating-optimization SLAM pattern. SE(3) pose Jacobians: [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md). Volume rendering integral: [Volume Rendering, Radiance Fields, and Gaussian Splatting](../../../10-knowledge-base/geometry-3d/volume-rendering-radiance-fields-gaussian-splatting.md).
+
+---
+
+## Lineage — Neural Implicit SLAM Family
+
+```
+iMAP  (ICCV 2021, arXiv:2103.12352)
+  Single global MLP. Catastrophic forgetting. Tiny scenes only.
+
+NICE-SLAM  (CVPR 2022, arXiv:2112.12130)        [see nice-slam.md]
+  Hierarchical dense 3D feature grids + pretrained decoders.
+  ~1 Hz overall; 17.4 M params; memory O(L^3).
+
+Vox-Fusion  (ISMAR 2022, arXiv:2210.15858)
+  Sparse octree + dynamic voxel allocation; SDF.
+
+ESLAM  (CVPR 2023 Highlight, arXiv:2211.11704)  <-- Part B this page
+  Tri-plane 2D feature planes; memory O(L^2); no pretrain.
+  Best depth L1 and ScanNet ATE in CVPR 2023 class. No loop closure.
+
+Co-SLAM  (CVPR 2023, arXiv:2304.14377)          <-- Part A this page
+  Hash grid + one-blob joint encoding; global BA; ~10 Hz.
+  Fastest mapper in CVPR 2023 class. No loop closure.
+
+Point-SLAM  (ICCV 2023, arXiv:2304.04278)
+  Neural point cloud; adaptive density; best PSNR (35.17 dB).
+
+GO-SLAM  (ICCV 2023, arXiv:2309.02436)
+  DROID-SLAM tracking + Instant-NGP + loop closure; best ATE (0.35 cm).
+
+Loopy-SLAM  (CVPR 2024, arXiv:2402.09944)
+  Point-SLAM representation + sub-map loop closure. Apex of NeRF-SLAM.
+  ATE 0.29 cm, depth L1 0.35 cm, PSNR 35.47 dB.
+
+  --> FIELD PIVOTS TO 3DGS-SLAM (CVPR 2024) <--
+
+SplaTAM / GS-SLAM / MonoGS  (CVPR 2024)         [see splat-slam.md, gs-slam-monogs.md]
+  3D Gaussian Splatting. 100+ FPS rendering; SLAM loop 0.3-0.5 FPS.
+```
+
+---
+
+## Shared Failure Modes
+
+Both systems share all failure modes inherent to the neural-implicit RGB-D SLAM paradigm:
+
+1. **RGB-D required.** No LiDAR consumption. Consumer depth sensors (RealSense, Azure Kinect) have limited range (~6–8 m), high noise, fail in direct sunlight and on reflective surfaces.
+2. **Static world assumption.** Moving objects (vehicles, people, airport GSE) corrupt the map — ghost surfaces appear, tracking can diverge. No native moving-object segmentation.
+3. **Small-scale indoor only in practice.** Benchmarks are single rooms (Replica ~50 m²) or small buildings (ScanNet ~200 m²). Large outdoor environments untested.
+4. **No loop closure in either system.** Long-trajectory drift accumulates without correction. Revisiting areas does not correct drift.
+5. **GPU-intensive.** RTX 2080 or better required for real-time operation. Not deployable on edge compute without significant quantization or pruning.
+6. **Textureless surfaces.** The photometric loss `L_rgb` provides no gradient on uniform walls, ceilings, or concrete floors. Tracking becomes unreliable; shape is lost in these regions.
+7. **Fast motion or motion blur.** Render-and-compare tracking assumes accurate rendering from the previous pose. Large frame-to-frame motion breaks this.
+8. **Outdoor and unlit scenes.** IR-based depth sensors fail in outdoor sunlight. Neither has been demonstrated outdoors.
+9. **Rendering quality ceiling.** Both achieve ~27–28 dB PSNR on Replica — well below Point-SLAM and Loopy-SLAM at ~35 dB.
+
+---
+
+## Domain Fit
+
+| Domain | Fit | Key Notes |
+|---|---|---|
+| Indoor rooms / labs | Good (research) | Standard benchmark setting — Replica, TUM, ScanNet |
+| Building-scale indoor | Conditional | No loop closure limits long trajectories; use GO-SLAM or Loopy-SLAM |
+| Airside hangar / terminal (offline appearance) | Conditional | Offline appearance digital twin only; needs LiDAR primary pose source; reflective aircraft surfaces degrade performance |
+| Airside apron (primary SLAM) | Not suitable | Outdoor, dynamic GSE, no LiDAR, range limits, no loop closure |
+| Road AV (offline appearance layer) | Research | Superseded by offline 3DGS reconstruction (higher PSNR, simpler pipeline) |
+| Road AV (online primary localization) | Not suitable | Not real-time enough; no LiDAR; not safety-critical ready |
+| Warehouse / port (short-range indoor, static) | Conditional | Viable in textured static areas; dynamic equipment requires masking |
+| Agriculture / construction | Not suitable | Outdoor scale, weather, dynamic machinery, vegetation |
+| Simulation asset generation (indoor) | Good (research) | View synthesis and digital twin from controlled RGB-D captures |
+
+---
+
+## Aggregated-Map Suitability — Honest Assessment
+
+**Neither Co-SLAM nor ESLAM is a LiDAR-primary SLAM system.** They are RGB-D SLAM systems. In an airside AV context — tarmac, taxiway, apron, stand — where LiDAR is the primary sensing modality, scenes are outdoor and large-scale (hundreds of meters), moving objects are ubiquitous, and lighting spans full sunlight to night, both systems are **inappropriate as the primary SLAM pipeline**. Their failure modes map directly onto airside operating conditions.
+
+**Potential role — offline appearance layer only.** After LiDAR SLAM produces a registered point cloud, cameras provide RGB texture for visual lane markings, stand signage, and gate labels. This is better served by offline NeRF (nerfstudio, Instant-NGP) or 3DGS reconstruction — no real-time constraint, higher quality.
+
+**LiDAR-native counterparts (use these for airside primary SLAM):**
+
+- **PIN-SLAM** (TRO 2024, arXiv:2401.09101, PRBonn/PIN\_SLAM) — LiDAR neural implicit SLAM, point-based SDF, loop closure, outdoor-capable.
+- **4DNDF** ([4dndf.md](./4dndf.md), iter 32) — neural distance field for LiDAR mapping.
+- **KISS-SLAM** ([kiss-slam.md](./kiss-slam.md), iter 32) — classical LiDAR SLAM, production-ready.
+
+**3DGS-SLAM has superseded the NeRF-SLAM family for appearance work.** SplaTAM, GS-SLAM, and MonoGS (all CVPR 2024) offer faster rendering and 7–8 dB higher PSNR. If a visual dense-map layer is needed alongside LiDAR, offline 3DGS reconstruction is now preferred over Co-SLAM or ESLAM. See [Feed-Forward 3D Reconstruction and Splatting](../../../10-knowledge-base/geometry-3d/feed-forward-3d-reconstruction-and-splatting.md) (iter 16).
+
+**Retain knowledge of both because:** (1) they appear in comparison tables in all downstream papers (GO-SLAM, Loopy-SLAM, SplaTAM, EC-SLAM, LRSLAM); (2) they represent distinct valid design philosophies that recur in later systems — hash-grid plus coordinate encoding (Co-SLAM), tri-plane factorization (ESLAM); (3) the tri-plane concept from ESLAM is directly relevant to 3DGS scene representation research; (4) Co-SLAM's global BA strategy is referenced and extended in EC-SLAM (arXiv:2404.13346).
+
+For downstream use of any dense appearance map in the AV pipeline see [Aggregated Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md).
+
+---
+
+## Implementation Notes
+
+**Co-SLAM (`HengyiWang/Co-SLAM`, Apache-2.0):** Includes configs and scripts for Replica, ScanNet, TUM RGB-D. Hash table allocates on demand — no scene bounding box required in advance (unlike NICE-SLAM). Global BA keyframe count grows without bound; monitor memory and optimization time on long sequences. Neural SLAM Evaluation Benchmark (`JingwenWang95/neural_slam_eval`) provides standardized comparison against iMAP*, NICE-SLAM, Vox-Fusion, ESLAM, and Co-SLAM.
+
+**ESLAM (`idiap/ESLAM`, Apache-2.0):** Includes configs, visualization, ATE evaluation, and reconstruction scripts. Higher VRAM requirement than Co-SLAM (12 feature planes at 9.29 M params). LRSLAM (arXiv:2506.10567) demonstrates 87–90% parameter reduction via low-rank decomposition — consider applying for constrained deployments. No loop closure built in; for long-trajectory mapping use GO-SLAM or Loopy-SLAM instead.
+
+**Shared recommendations for both:** Mask dynamic objects before mapping — no native motion segmentation. Use independent pose sources for navigation; treat Co-SLAM or ESLAM output as map or inspection layer only, not a safety-critical pose backbone. Validate neural map geometry against raw depth or LiDAR before any operational claim. RTX 2080 or better required for real-time performance.
+
+---
 
 ## Sources
 
-- Wang, Wang, and Agapito, "Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM," CVPR 2023. https://arxiv.org/abs/2304.14377
-- Co-SLAM project page. https://hengyiwang.github.io/projects/CoSLAM
-- Co-SLAM repository. https://github.com/HengyiWang/Co-SLAM
-- Johari, Carta, and Fleuret, "ESLAM: Efficient Dense SLAM System Based on Hybrid Representation of Signed Distance Fields," CVPR 2023. https://openaccess.thecvf.com/content/CVPR2023/html/Johari_ESLAM_Efficient_Dense_SLAM_System_Based_on_Hybrid_Representation_of_CVPR_2023_paper.html
-- ESLAM project page. https://www.idiap.ch/paper/eslam/
-- ESLAM repository. https://github.com/idiap/ESLAM
-- Local context: [iMAP](imap.md)
-- Local context: [NICE-SLAM](nice-slam.md)
-- Local context: [3D Gaussian Splatting for Real-Time AV Perception and Mapping](../../perception/overview/gaussian-splatting-driving.md)
+| Resource | URL |
+|---|---|
+| Co-SLAM arXiv | https://arxiv.org/abs/2304.14377 |
+| Co-SLAM CVPR open access | https://openaccess.thecvf.com/content/CVPR2023/html/Wang_Co-SLAM_Joint_Coordinate_and_Sparse_Parametric_Encodings_for_Neural_Real-Time_CVPR_2023_paper.html |
+| Co-SLAM GitHub | https://github.com/HengyiWang/Co-SLAM |
+| Co-SLAM project page | https://hengyiwang.github.io/projects/CoSLAM |
+| ESLAM arXiv | https://arxiv.org/abs/2211.11704 |
+| ESLAM CVPR open access | https://openaccess.thecvf.com/content/CVPR2023/html/Johari_ESLAM_Efficient_Dense_SLAM_System_Based_on_Hybrid_Representation_of_CVPR_2023_paper.html |
+| ESLAM project page | https://www.idiap.ch/paper/eslam/ |
+| ESLAM GitHub | https://github.com/idiap/ESLAM |
+| Neural SLAM Eval Benchmark | https://github.com/JingwenWang95/neural_slam_eval |
+| SLAIM (comparison) | https://arxiv.org/abs/2404.11419 |
+| EC-SLAM (Co-SLAM extension) | https://arxiv.org/abs/2404.13346 |
+| LRSLAM (ESLAM compression successor) | https://arxiv.org/html/2506.10567 |
+| Loopy-SLAM (apex + comparison) | https://arxiv.org/abs/2402.09944 |
+| Loopy-SLAM GitHub | https://github.com/eriksandstroem/Loopy-SLAM |
+| NeRFs and 3DGS in SLAM survey | https://arxiv.org/abs/2402.13255 |
+| PIN-SLAM (LiDAR-primary) | https://arxiv.org/abs/2401.09101 |
+| Instant-NGP (hash grid basis) | https://nvlabs.github.io/instant-ngp/ |
+| EG3D (tri-plane inspiration) | https://nvlabs.github.io/eg3d/ |
+
+- Local context: [NeRF-SLAM family overview](./nerf-slam.md) — iter 27; full neural-implicit-SLAM lineage with per-method summaries
+- Local context: [iMAP](./imap.md) — single-MLP predecessor
+- Local context: [NICE-SLAM](./nice-slam.md) — iter 33; hierarchical feature-grid predecessor; the direct target of both methods
+- Local context: [Splat-SLAM](./splat-slam.md) — iter 18; 3DGS-SLAM with loop closure; largely supersedes this family for appearance-layer use
+- Local context: [GS-SLAM and MonoGS](./gs-slam-monogs.md) — iter 26; first-wave 3DGS-SLAM at CVPR 2024
+- Local context: [MASt3R-SLAM](./mast3r-slam.md) — iter 24; feed-forward SLAM successor direction
+- Local context: [4DNDF](./4dndf.md) — iter 32; 4D neural distance field for LiDAR-primary neural mapping
+- Local context: [KISS-SLAM](./kiss-slam.md) — iter 32; LiDAR-primary production odometry counterpart
+- Local context: [GigaSLAM](./gigaslam.md) — iter 29; large-scale neural implicit SLAM successor direction
+- Local context: [DROID-SLAM](./droid-slam.md) — iter 25; learned optical-flow SLAM that feeds GO-SLAM's tracking front-end
+- Local context: [Aggregated Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) — downstream use of appearance map layers
+- Local context: [Feed-Forward 3D Reconstruction and Splatting](../../../10-knowledge-base/geometry-3d/feed-forward-3d-reconstruction-and-splatting.md) — iter 16; 3DGS first principles and offline reconstruction
+- Local context: [Volume Rendering, Radiance Fields, and Gaussian Splatting](../../../10-knowledge-base/geometry-3d/volume-rendering-radiance-fields-gaussian-splatting.md) — NeRF and volume rendering background
+- Local context: [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md) — iter 14; SE(3) pose Jacobian math underlying the tracking optimization
