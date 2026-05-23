@@ -16,7 +16,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 4. Use FiftyOne or equivalent dataset tooling to inspect embeddings, near-duplicates, hard examples, label mistakes, and model predictions before creating annotation tasks.
 5. Use Label Studio or equivalent annotation tooling for pre-annotations, ML backend predictions, interactive labeling, and human review. Predictions are not ground truth until reviewed and submitted.
 6. Promote labels by state: `candidate`, `pre_labeled`, `human_labeled`, `qa_passed`, `approved_for_training`, `approved_for_safety_evidence`, `rejected`.
-7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
+7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, VESPA, UniLiPs, LOSC, SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
 
 ## Evidence Artifacts
 
@@ -27,7 +27,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 | Upload selection manifest | Vehicle, local model version, storage constraint, selected sample IDs | Fleet data |
 | Annotation batch | Task IDs, label schema, instructions, source data snapshots, pre-label model | Label operations |
 | Pre-annotation record | Model version, prediction score, Label Studio prediction payload, review status | MLOps |
-| Semantic-map candidate batch | Candidate concept, prompt set, source map or sequence hash, projection/calibration hash, offboard model/checkpoint, proposal score, unknown policy | Label operations |
+| Semantic-map candidate batch | Candidate label batch ID, candidate concept, prompt set, source map or sequence hash, projection/calibration hash, offboard model/checkpoint, proposal score, consolidation/voting policy, unknown policy | Label operations |
 | Taxonomy promotion record | Candidate name, alias/parent/new-class decision, reviewed examples, class-frequency evidence, boundary-rule update, taxonomy-change request ID | Data steward |
 | QA-passed semantic patch | Accepted tile/segment IDs, reviewer decisions, taxonomy ID/hash, QA report, semantic-map manifest ID, back-projection export ID | Map operations |
 | QA report | Inter-annotator checks, reviewer decisions, defect taxonomy, rework rate | Label QA |
@@ -76,5 +76,9 @@ This page covers budgeted labeling operations for perception, prediction, planni
 - Label Studio, "Import pre-annotated data into Label Studio." https://labelstud.io/guide/predictions
 - ASAM OpenLABEL. https://www.asam.net/standards/detail/openlabel/
 - ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
+- VESPA, "Towards un(Human)supervised Open-World Pointcloud Labeling for Autonomous Driving." https://arxiv.org/abs/2507.20397
+- UniLiPs, "Unified LiDAR Pseudo-Labeling with Geometry-Grounded Dynamic Scene Decomposition." https://arxiv.org/abs/2601.05105
+- LOSC, "LiDAR Open-voc Segmentation Consolidator." https://arxiv.org/abs/2507.07605
 - SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
+- SAM4D, "Segment Anything in Camera and LiDAR Streams." https://openaccess.thecvf.com/content/ICCV2025/html/Xu_SAM4D_Segment_Anything_in_Camera_and_LiDAR_Streams_ICCV_2025_paper.html
 - OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842

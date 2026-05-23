@@ -202,6 +202,10 @@ This reduces annotation from:
   = 4-6x speedup
 ```
 
+### 4.4 Map-Scale Semantic Candidate Review
+
+For aggregated LiDAR maps, do not route open-vocabulary outputs through the same confidence tiers as closed-set 3D boxes. VESPA, ZOPP, SALT/SAM4D, OpenUrban3D, UniLiPs, and LOSC can pre-fill tiles, superpoints, object proposals, or back-projected scan labels, but annotation tasks should show them as read-only pre-annotations with `candidate_concept`, prompt, model, calibration, consolidation, and tile provenance. Reviewers map candidates to the controlled taxonomy, request a taxonomy change, retain `unknown`, or reject. Export only `qa_passed` semantic patches and approved back-projected labels; prompt strings must not become class IDs directly.
+
 ---
 
 ## 5. Annotation Format Standards
@@ -343,3 +347,12 @@ Phase 4: Continuous (Ongoing)
 - Scale AI documentation
 - nuScenes annotation format specification
 - KITTI benchmark format specification
+- Label Studio pre-annotations: https://labelstud.io/guide/predictions
+- ASAM OpenLABEL: https://www.asam.net/standards/detail/openlabel/
+- VESPA open-world point-cloud labeling: https://arxiv.org/abs/2507.20397
+- ZOPP zero-shot offboard panoptic perception: https://proceedings.neurips.cc/paper_files/paper/2024/hash/fdb0c77c157d066942f060ae193395c1-Abstract-Conference.html
+- SALT semi-automatic LiDAR labeling: https://arxiv.org/abs/2503.23980
+- SAM4D camera and LiDAR stream segmentation: https://openaccess.thecvf.com/content/ICCV2025/html/Xu_SAM4D_Segment_Anything_in_Camera_and_LiDAR_Streams_ICCV_2025_paper.html
+- OpenUrban3D open-vocabulary urban point-cloud segmentation: https://arxiv.org/abs/2509.10842
+- UniLiPs geometry-grounded LiDAR pseudo-labeling: https://arxiv.org/abs/2601.05105
+- LOSC LiDAR open-voc segmentation consolidator: https://arxiv.org/abs/2507.07605

@@ -365,6 +365,8 @@ class FoundationModelLabeler:
         return labels
 ```
 
+The output of this stage is a `candidate_label`, not training truth. For open-vocabulary or semantic-map labels, the quality gate cannot auto-accept directly into training, replay, safety evidence, or a signed map bundle. It can only route candidates to review. Promotion requires controlled-taxonomy mapping, QA evidence, dataset/catalog manifest IDs, and semantic-map manifest or back-projection export IDs.
+
 ### 3.5 Quality Gate and Human Review
 
 ```python
@@ -835,7 +837,7 @@ Production monitoring generates signals that feed back into the flywheel:
 | Signal | Detection Method | Flywheel Action |
 |--------|-----------------|-----------------|
 | Class mAP drop | Rolling 7-day eval vs baseline | Trigger retraining with class-weighted sampling |
-| Novel object type | Confidence <0.3 on detected object | Upload clip, route to labeling, add to training |
+| Novel object type | Confidence <0.3 on detected object | Upload clip, route to labeling and taxonomy review; add to training only after `approved_for_training` promotion |
 | Domain shift | Feature distribution drift (KL divergence) | Alert, collect more data from affected conditions |
 | Seasonal performance | mAP vs weather/time-of-day correlation | Trigger seasonal retraining with recent data |
 | Airport-specific gap | Per-airport metrics diverge | Collect airport-specific data, LoRA adapter |
@@ -1306,6 +1308,14 @@ Assumes:
 10. Hu et al., "LoRA: Low-Rank Adaptation of Large Language Models," ICLR 2022
 11. Bengio et al., "Curriculum Learning," ICML 2009
 12. NVIDIA, "Auto-Labeling for Autonomous Driving," Drive Sim Documentation, 2025
+13. ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving," NeurIPS 2024, https://proceedings.neurips.cc/paper_files/paper/2024/hash/fdb0c77c157d066942f060ae193395c1-Abstract-Conference.html
+14. VESPA, "Towards un(Human)supervised Open-World Pointcloud Labeling for Autonomous Driving," https://arxiv.org/abs/2507.20397
+15. UniLiPs, "Unified LiDAR Pseudo-Labeling with Geometry-Grounded Dynamic Scene Decomposition," https://arxiv.org/abs/2601.05105
+16. LOSC, "LiDAR Open-voc Segmentation Consolidator," https://arxiv.org/abs/2507.07605
+17. SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency," https://arxiv.org/abs/2503.23980
+18. SAM4D, "Segment Anything in Camera and LiDAR Streams," ICCV 2025, https://openaccess.thecvf.com/content/ICCV2025/html/Xu_SAM4D_Segment_Anything_in_Camera_and_LiDAR_Streams_ICCV_2025_paper.html
+19. OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds," https://arxiv.org/abs/2509.10842
+20. Label Studio, "Import pre-annotated data into Label Studio," https://labelstud.io/guide/predictions
 
 ---
 

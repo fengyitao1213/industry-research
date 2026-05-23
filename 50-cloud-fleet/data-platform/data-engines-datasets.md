@@ -364,7 +364,9 @@ The dominant auto-labeling paradigm in 2024-2025 chains open-vocabulary detectio
 
 **Grounded SAM 2:** Includes a cascaded auto-label pipeline with caption and phrase grounding capabilities, enabling fully automated annotation workflows at scale.
 
-**Key insight:** Foundation model auto-labeling has shifted the bottleneck from "can we label this data?" to "can we verify the labels are correct?" — quality assurance, not label generation, is now the constraint.
+**Map-scale candidate-label bridge:** Treat Grounding DINO/SAM, ZOPP, VESPA, UniLiPs, LOSC, OpenUrban3D, SALT/SAM4D, and similar outputs as `candidate_label` or `pseudo_labeled` regions, not ground truth. Store the prompt set, labeler checkpoint, source map or sequence hash, projection/calibration hash, confidence policy, and consolidation method. Promote only after reviewer decision, taxonomy action, QA report, and semantic-map manifest/back-projection export IDs are recorded. VESPA is useful for open-world 3D object pseudolabels without HD maps, UniLiPs for SLAM/map-to-scan pseudo-label back-projection, and LOSC for consolidating noisy image-VLM labels with spatio-temporal and augmentation voting before LiDAR-model training.
+
+**Key insight:** Foundation model auto-labeling has shifted the bottleneck from "can we label this data?" to "can we verify, govern, and release the labels correctly?" - quality assurance, taxonomy promotion, manifest-backed provenance, and release governance are now the constraints.
 
 ### 3.3 Active Learning for Driving
 
@@ -689,7 +691,7 @@ Airport ramp data presents heightened privacy concerns beyond typical road drivi
 - Privacy/security requirements demand onboard anonymization and federated learning approaches
 
 ### Data engine essentials
-- Foundation model auto-labeling (Grounding DINO + SAM) has shifted the bottleneck from label generation to label verification
+- Foundation model auto-labeling (Grounding DINO + SAM) has shifted the bottleneck from label generation to verification, taxonomy promotion, and manifest-backed release
 - Active learning can achieve full performance with 30% of data (ActiveAD)
 - Scenario mining with embedding-based retrieval (Applied Intuition's approach) enables natural-language data discovery at scale
 - The data balancing challenge requires combining real mining + synthetic generation + importance sampling
@@ -740,6 +742,13 @@ Airport ramp data presents heightened privacy concerns beyond typical road drivi
 - [Applied Intuition Data Mining](https://www.appliedintuition.com/blog/ai-for-mining-massive-autonomy-datasets)
 - [Grounding DINO](https://github.com/IDEA-Research/GroundingDINO)
 - [ZOPP (NeurIPS 2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/fdb0c77c157d066942f060ae193395c1-Paper-Conference.pdf)
+- [VESPA open-world point-cloud labeling](https://arxiv.org/abs/2507.20397)
+- [UniLiPs geometry-grounded LiDAR pseudo-labeling](https://arxiv.org/abs/2601.05105)
+- [LOSC LiDAR open-voc segmentation consolidator](https://arxiv.org/abs/2507.07605)
+- [LOSC official repository](https://github.com/valeoai/LOSC)
+- [SALT semi-automatic LiDAR labeling](https://arxiv.org/abs/2503.23980)
+- [SAM4D ICCV 2025 paper page](https://openaccess.thecvf.com/content/ICCV2025/html/Xu_SAM4D_Segment_Anything_in_Camera_and_LiDAR_Streams_ICCV_2025_paper.html)
+- [OpenUrban3D open-vocabulary urban point-cloud segmentation](https://arxiv.org/abs/2509.10842)
 
 ### Airside and Domain Adaptation
 - [Synth_Airport_Taxii](https://github.com/Robcib-GIT/Synth_Airport_Taxii)

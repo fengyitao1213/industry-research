@@ -863,7 +863,7 @@ Raw per-point predictions are locally noisy and carry seam discontinuities. A sp
 
 Three further refinement operators sit *beyond* plain k-NN/voxel-majority smoothing and CRF, and are worth the offline budget:
 
-- **Label consolidation (LOSC-style).** Where labels are *back-projected* from another representation — accumulated single-scan predictions, or 2D-segmenter pseudo-labels — the resulting per-point labels are noisy in a structured way that simple smoothing does not fix. LOSC consolidates them with **spatio-temporal voxel-majority voting** (aggregate labels of all points falling in a voxel across all contributing scans) plus an **augmentation-stability vote** (keep labels that survive geometric perturbation). This is a distinct *consolidation* stage rather than a *smoothing* stage, and it is exactly the same idea as fusing the segment-then-accumulate prior (§10.3) — a principled way to turn many noisy per-scan votes into one map label. ("LOSC: LiDAR Open-voxel Segmentation Consolidation" — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605); 3DV 2026.)
+- **Label consolidation (LOSC-style).** Where labels are *back-projected* from another representation — accumulated single-scan predictions, or 2D-segmenter pseudo-labels — the resulting per-point labels are noisy in a structured way that simple smoothing does not fix. LOSC consolidates them with **spatio-temporal voxel-majority voting** (aggregate labels of all points falling in a voxel across all contributing scans) plus an **augmentation-stability vote** (keep labels that survive geometric perturbation). This is a distinct *consolidation* stage rather than a *smoothing* stage, and it is exactly the same idea as fusing the segment-then-accumulate prior (§10.3) — a principled way to turn many noisy per-scan votes into one map label. ("LOSC: LiDAR Open-voc Segmentation Consolidator" — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605); 3DV 2026.)
 - **Learned refinement (P2Net).** Instead of a hand-tuned k-NN or voxel-majority rule, a small network can *learn* the refinement: P2Net refines per-point class scores using nearest-neighbour relations and **consecutive-frame consistency**, correcting predictions a fixed local rule would leave noisy. On an accumulated map the consecutive-frame term maps onto cross-pass consistency, making this a learned alternative to the hand-set smoothing radius. ("Refine and Recycle: Point-Wise Score Refinement" / P2Net — [arxiv.org/abs/2212.00567](https://arxiv.org/abs/2212.00567).)
 - **Test-time augmentation (TTA), concretized.** §10 notes the offline budget affords TTA; in practice that means averaging logits over **rotation / azimuth-mix augmentations** (LaserMix- and PolarMix-style mixing of the cloud before inference) and over **point-upsampling TTA** (inferring on a densified copy, then projecting back). The gains are largest on sparse data and on far-from-trajectory regions of the map — exactly where the intra-map density gradient (§2.3) hurts most.
 - **4D-NMS for redundant segments.** When segments are produced over accumulated scans, the same physical object yields many overlapping segment proposals. SALT's **4D non-maximum-suppression** operator merges these redundant segments across the accumulated 4D (space + scan-index) volume into one consistent instance — a cleanup step for the accumulate-then-segment instance output. ("SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds" — [arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980); the SALT reference is already in §16.)
@@ -960,12 +960,12 @@ The systems cite: ZOPP — "ZOPP: A Framework of Zero-shot Offboard Panoptic Per
 
 Open-vocabulary and offboard systems are most valuable as **candidate-label generators**, not as direct writers of the authoritative map. A production semantic-map lane should keep four states separate:
 
-1. `candidate_label`: ZOPP, OpenUrban3D, SALT/SAM2, SAM4D, DITR/D-DITR, or similar tools propose masks, names, prompts, and confidence over a tile or sequence.
+1. `candidate_label`: ZOPP, VESPA, UniLiPs, LOSC, OpenUrban3D, SALT/SAM2, SAM4D, DITR/D-DITR, or similar tools propose masks, names, prompts, confidence, or back-projected pseudo-labels over a tile or sequence.
 2. `reviewed_label`: a human or QA policy accepts, edits, rejects, or remaps the candidate to the controlled map taxonomy.
 3. `taxonomy_action`: the candidate is mapped to an existing class, folded into an alias or parent class, retained as `unknown`, or escalated as a taxonomy-change request.
 4. `release_label`: only QA-passed labels with taxonomy, confidence, source-map, reviewer, and evidence IDs enter the signed `semantic_map_manifest.json`.
 
-The minimum handoff record for this lane is: `candidate_label_batch_id`, `prompt_set_id`, model/checkpoint ID, source map or sequence hash, projection/calibration hash, confidence or proposal score, unknown/abstention policy, reviewer decision, taxonomy action, QA report ID, and back-projection export ID. This makes the offboard bridge useful for rare airside/non-road objects and urban-district transfer without letting an unconstrained text label silently become a runtime semantic class.
+The minimum handoff record for this lane is: `candidate_label_batch_id`, `prompt_set_id`, model/checkpoint ID, source map or sequence hash, projection/calibration hash, consolidation or voting policy, confidence or proposal score, unknown/abstention policy, reviewer decision, taxonomy action, QA report ID, and back-projection export ID. This makes the offboard bridge useful for rare airside/non-road objects and urban-district transfer without letting an unconstrained text label silently become a runtime semantic class.
 
 #### Commercial survey/GIS point-cloud classification software
 
@@ -1176,7 +1176,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **DFPS** — "Dynamic Farthest Point Sampling for large-scale point clouds" (MDPI *Sensors*, 2025)
 
 ### Post-Processing and Label Refinement
-- **LOSC** — "LOSC: LiDAR Open-voxel Segmentation Consolidation" (3DV 2026) — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605)
+- **LOSC** — "LOSC: LiDAR Open-voc Segmentation Consolidator" (3DV 2026) — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605)
 - **P2Net** — "Refine and Recycle: Point-Wise Score Refinement" (P2Net) — [arxiv.org/abs/2212.00567](https://arxiv.org/abs/2212.00567)
 
 ### LiDAR-Image Fusion
@@ -1187,6 +1187,8 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 
 ### Production Systems and Labeling Tools
 - **ZOPP** — "ZOPP: A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving" — [arxiv.org/abs/2411.05311](https://arxiv.org/abs/2411.05311)
+- **VESPA** — "Towards un(Human)supervised Open-World Pointcloud Labeling for Autonomous Driving" — [arxiv.org/abs/2507.20397](https://arxiv.org/abs/2507.20397)
+- **UniLiPs** — "Unified LiDAR Pseudo-Labeling with Geometry-Grounded Dynamic Scene Decomposition" — [arxiv.org/abs/2601.05105](https://arxiv.org/abs/2601.05105)
 - **LDMapNet-U** — "LDMapNet-U: An End-to-End System for City-Scale Lane-Level Map Updating" (SIGKDD 2025) — [arxiv.org/abs/2501.02763](https://arxiv.org/abs/2501.02763)
 - **OpenUrban3D** — "OpenUrban3D: Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds" — [arxiv.org/abs/2509.10842](https://arxiv.org/abs/2509.10842)
 - **SALT** — "SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" — [arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980)

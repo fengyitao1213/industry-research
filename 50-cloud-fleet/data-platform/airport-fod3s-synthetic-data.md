@@ -119,6 +119,7 @@ Airport-FOD3S addresses a specific data bottleneck: it creates synthetic FOD com
 5. Make hard-negative mining part of the same data engine. Empty runway and apron images are as important as synthetic positives.
 6. Use active learning triggers from the fleet to decide which synthetic slices to expand: low-confidence FOD, near-miss clearance events, missed small objects, or high false-alarm zones.
 7. If public sources do not cover de-icing mist, glycol film, wet-apron multipath, steam, or jet-blast dust, record the gap and route it to local collection instead of inventing synthetic evidence.
+8. Open-vocabulary FOD-like map candidates may trigger synthetic slice expansion, but they are not map truth or safety evidence. Keep synthetic FOD frames and `fod_candidate_layer` outputs training-only until real examples pass taxonomy review, QA, and target-airport holdout validation.
 
 ---
 
@@ -145,3 +146,6 @@ Airport-FOD3S addresses a specific data bottleneck: it creates synthetic FOD com
 - [LIDAROC 20m Zenodo dataset](https://zenodo.org/doi/10.5281/zenodo.12800632)
 - [RADIATE project page](https://pro.hw.ac.uk/radiate/)
 - [CMHT Autonomous Dataset article](https://www.sciencedirect.com/science/article/pii/S2352340925002847)
+- [SALT semi-automatic LiDAR labeling](https://arxiv.org/abs/2503.23980)
+- [SAM4D ICCV 2025 paper page](https://openaccess.thecvf.com/content/ICCV2025/html/Xu_SAM4D_Segment_Anything_in_Camera_and_LiDAR_Streams_ICCV_2025_paper.html)
+- [OpenUrban3D open-vocabulary urban point-cloud segmentation](https://arxiv.org/abs/2509.10842)
