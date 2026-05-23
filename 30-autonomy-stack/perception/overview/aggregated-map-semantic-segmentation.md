@@ -1011,6 +1011,7 @@ The cleanest concrete instance of foundation-model-assisted offline labeling for
 - **Seam audit** — boundary-IoU sampled along tile borders; a spike means tiling/stitching needs tuning.
 - **Artifact contract gate** — `semantic_map_manifest.json` schema-validates; DVC lock and manifest digests match materialized outputs; taxonomy, confidence thresholds, source-map hash, tile manifest, QA report, and runtime-export evidence IDs are present.
 - **Open-vocabulary candidate gate** — labels from ZOPP, OpenUrban3D, SALT, SAM4D, or similar tools remain read-only candidates until the manifest records prompt set, model/checkpoint, source-map hash, projection/calibration hash, confidence policy, reviewer decision, taxonomy action, QA report, and evidence IDs.
+- **Map-hygiene ground-truth gate** — static, movable-static, dynamic, FOD/hazard, artifact, and unknown/review labels must align with the canonical [Airside Map Hygiene Ground Truth Protocol](../../localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) and its [V&V companion](../../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md); a semantic layer cannot publish if it erases FOD evidence, promotes staged GSE into `static_keep`, or lacks reviewer disposition for safety-critical deletions.
 - **Human spot-review** — route the lowest-confidence and highest-disagreement tiles (not random tiles) to annotators; this is the active-learning loop.
 - **Stability across map versions** — when the map is re-surveyed, label churn in unchanged regions should be near zero.
 
@@ -1084,7 +1085,7 @@ For an airside L4 vehicle the HD-map semantic layer is safety-relevant infrastru
 - **Failure-mode honesty.** The explicit `unknown` class and confidence-gated abstention (§6.3, §10.6) are themselves safety arguments — the pipeline never silently guesses a safety-relevant label; low-confidence regions are flagged, not hidden.
 - **Traceability.** Map versioning and provenance (§8.6) make every labeled map traceable to its inputs and reproducible — a requirement for living-safety-case maintenance when the map is re-surveyed.
 
-This maps onto the airside safety case in `60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md` (the segmented layer is the "semantic validation" evidence item there) and the map-QA workflow in `../../localization-mapping/maps/map-construction-pipeline.md` §10.
+This maps onto the airside safety case in `60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md` (the segmented layer is the "semantic validation" evidence item there), the canonical map-hygiene ground-truth protocol in `../../localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md`, the V&V companion in `../../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md`, and the map-QA workflow in `../../localization-mapping/maps/map-construction-pipeline.md` §10.
 
 ---
 
@@ -1277,6 +1278,8 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `50-cloud-fleet/data-platform/perception-slam-fleet-data-contract.md` — fleet schema and evidence contract for perception-SLAM/map releases
 - `50-cloud-fleet/mlops/model-governance-release-evidence.md` — model release evidence registry for the segmenter that produced the semantic layer
 - `30-autonomy-stack/localization-mapping/maps/map-construction-pipeline.md` — the offline HD-map construction pipeline that produces the aggregated map and consumes the semantic layer
+- `30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md` — canonical static/movable/dynamic/FOD/artifact/unknown ground-truth protocol for map hygiene QA
+- `60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md` — V&V companion for map-hygiene benchmark fields, split rules, and acceptance outputs
 - `30-autonomy-stack/localization-mapping/maps/semantic-mapping-learned-priors.md` — semantic map layers and learned priors
 - `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic-object removal (required pre-processing)
 - `30-autonomy-stack/localization-mapping/slam-methods/semantic-slam.md` — segment-then-accumulate / online semantic mapping

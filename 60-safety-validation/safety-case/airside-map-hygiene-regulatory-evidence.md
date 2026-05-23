@@ -1,6 +1,6 @@
 # Airside Map Hygiene Regulatory Evidence
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Airside map hygiene is not only a mapping quality topic. For autonomous ground vehicle systems (AGVS), a map release can affect the airport sponsor's controlled test envelope, vehicle routes, FOD handling, human monitor assumptions, and evidence that the system does not compromise airport safety.
 
@@ -27,6 +27,8 @@ Airside map hygiene is not only a mapping quality topic. For autonomous ground v
 | RF or infrastructure impacts are identified. | AGVS equipment manifest and FAA Form 7460-1 dependency if applicable |
 
 The **semantic validation** evidence above is produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`) — it assigns and verifies a class for every map point. Its per-class IoU/recall on safety-relevant classes (markings, hold-short lines, fencing, pavement edges), its QA gates, and its explicit `unknown`-class abstention are the concrete artifacts behind the semantic-validation column; see that page's §14.4 for how the labeled map maps onto this safety case.
+
+The ground-truth and reviewer-disposition vocabulary comes from the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md), while the [V&V companion](../verification-validation/airside-map-hygiene-ground-truth-protocol.md) defines the benchmark fields and acceptance outputs used by safety evidence. The [map publication gates](../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md) and [map hygiene monitoring](../../50-cloud-fleet/observability/map-hygiene-operational-monitoring.md) then prove that the same labels, manifests, quarantine states, and runtime alerts were preserved through release and canary operation.
 
 ## Safety Case Structure
 
@@ -76,3 +78,6 @@ FAA AGVS material is guidance and awareness material, not a technical map-cleani
 - FAA AC 150/5210-24A, Airport FOD Management: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24
 - FAA AC 150/5220-24, FOD Detection Equipment: https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentNumber/150_5220-24
 - Local context: ../verification-validation/map-publication-gates-dynamic-object-removal.md
+- Local context: ../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md
+- Local context: ../verification-validation/airside-map-hygiene-ground-truth-protocol.md
+- Local context: ../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md

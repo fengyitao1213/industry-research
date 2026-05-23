@@ -1,6 +1,6 @@
 # Map Hygiene Operational Monitoring
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Map hygiene needs runtime monitoring after publication. A map that passed offline validation can still fail in operation because the site changed, a temporary overlay expired, a vehicle received the wrong bundle, or perception disagrees with static assumptions.
 
@@ -14,6 +14,8 @@ Map hygiene needs runtime monitoring after publication. A map that passed offlin
 | control temporary overlays | expiry, owner acknowledgement, active vehicle count |
 | support incident review | active map ID, prior map ID, rejected layer, raw evidence links |
 | guide data collection | zones with repeated uncertainty, sparse features, or reviewer burden |
+
+The dashboard interprets those signals against the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md), the [V&V companion](../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md), and the [map publication gates](../map-operations/map-publication-gates-airside-hygiene.md). Runtime alerts should therefore carry enough map, semantic-layer, reviewer-disposition, and rejected-layer IDs to reconstruct whether a disagreement is a stale map, a cleaning error, a legitimate temporary overlay, or an unresolved unknown/quarantine region.
 
 ## Telemetry Fields
 
@@ -104,3 +106,5 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 - Autoware NDT scan matcher: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
 - Local context: ../map-operations/map-publication-gates-airside-hygiene.md
 - Local context: ../map-operations/hd-map-lifecycle-operations.md
+- Local context: ../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md
+- Local context: ../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md

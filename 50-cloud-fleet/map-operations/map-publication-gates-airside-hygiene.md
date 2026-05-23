@@ -1,6 +1,6 @@
 # Map Publication Gates for Airside Hygiene
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Airside map publication must combine map quality, operational approval, safety evidence, and rollout control. The goal is to prevent stale maps, over-cleaned maps, hidden FOD, and temporary assets from reaching vehicles as if they were permanent ground truth.
 
@@ -30,6 +30,8 @@ Airside map publication must combine map quality, operational approval, safety e
 | post-release review | monitoring window, interventions, map disagreements, FOD tickets | release manager |
 
 The **semantic-integrity** gate is evaluated against the semantic layer produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`). That pipeline's own QA gates — held-out mIoU, per-class IoU on safety-relevant classes, cross-pass consistency, seam audit, version-to-version label churn (its §13.2-13.3) — are the upstream evidence this gate consumes; per-point confidence and provenance (its §8.6, §10.6) make the layer auditable for the safety-case-delta gate.
+
+The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) as its label and reviewer-disposition source, with the [V&V companion](../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md) defining benchmark exchange fields and acceptance outputs. Publication is blocked when the candidate map lacks a signed static/dynamic/FOD/artifact/unknown report, rejected-object layer, reviewer decision state, or quarantine disposition for safety-critical deletions.
 
 ## Map Hygiene Checks
 
@@ -79,3 +81,6 @@ The **semantic-integrity** gate is evaluated against the semantic layer produced
 - SLSA build provenance v1.2: https://slsa.dev/spec/v1.2/build-provenance
 - Local context: hd-map-lifecycle-operations.md
 - Local context: movable-static-asset-lifecycle-policy.md
+- Local context: ../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md
+- Local context: ../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md
+- Local context: ../observability/map-hygiene-operational-monitoring.md

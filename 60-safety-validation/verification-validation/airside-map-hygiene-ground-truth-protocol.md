@@ -1,8 +1,20 @@
 # Airside Map Hygiene Ground Truth Protocol
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Map hygiene validation needs ground truth that separates permanent static structure, movable-static assets, current dynamic actors, FOD/hazards, artifacts, and unknown space. Without that separation, a benchmark can reward a cleaner for deleting the very evidence needed for safety review.
+
+## Protocol Role
+
+This page is the V&V and benchmark-exchange companion to the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md). The map-operations page owns the layer vocabulary and reviewer-disposition workflow; this page translates that workflow into validation goals, label fields, ASAM OpenLABEL-style exchange requirements, split rules, and acceptance outputs. Any new label state should be added to the canonical map protocol first, then reflected here only when it changes benchmark evidence or safety acceptance.
+
+| Workflow owner | V&V handoff |
+|---|---|
+| [Canonical map protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) | layer labels, capture slices, reviewer dispositions, QA gates, benchmark splits |
+| [Aggregated-map semantic segmentation](../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md) | semantic labels and confidence/unknown evidence that must be scored against these labels |
+| [Map publication gates](../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md) | release blockers, quarantine outputs, FOD retention, and unknown-region acceptance |
+| [Map hygiene monitoring](../../50-cloud-fleet/observability/map-hygiene-operational-monitoring.md) | runtime drift, disagreement, FOD conflict, and semantic QA alerts tied back to ground truth |
+| [Regulatory evidence](../safety-case/airside-map-hygiene-regulatory-evidence.md) | safety-case traceability for static preservation, FOD handling, and controlled AGVS test evidence |
 
 ## Ground Truth Goals
 
@@ -83,4 +95,5 @@ ASAM OpenLABEL is a good exchange format because it supports multi-sensor labels
 - AIT Apron repository: https://github.com/apronai/apron-dataset
 - KTH Dynamic Map Benchmark: https://kth-rpl.github.io/DynamicMap_Benchmark/
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
-- Local context: airside-dynamic-map-cleaning-benchmark.md
+- Local context: [Airside Dynamic Map Cleaning Benchmark](airside-dynamic-map-cleaning-benchmark.md)
+- Local context: [Map Publication Gates for Airside Hygiene](../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md)

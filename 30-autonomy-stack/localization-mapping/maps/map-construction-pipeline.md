@@ -290,6 +290,8 @@ For static-but-wrong objects, K-of-N voting is not enough. A tug or parked aircr
 
 The publishable output should therefore be a static candidate map plus a quarantine/rejected-object layer and a change manifest, not only a filtered point cloud.
 
+Use the canonical [Airside Map Hygiene Ground Truth Protocol](airside-map-hygiene-ground-truth-protocol.md) to label the static candidate, rejected-object layer, FOD/hazard layer, and unknown/quarantine polygons before semantic annotation or publication. The [safety-validation companion](../../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md) then turns those labels into benchmark fields and acceptance outputs for the map-cleaning evidence package.
+
 ```python
 def remove_dynamic_objects(session_maps, voxel_size=0.2, min_sessions=2):
     """Remove dynamic objects by multi-session consistency voting.
@@ -1523,3 +1525,4 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 - `cloud-backend-infrastructure.md` — Data storage, DVC, Airflow pipelines
 - `multi-lidar-extrinsic-calibration.md` — Sensor calibration for multi-LiDAR mapping
 - `realtime-occupancy-grid-mapping.md` — Occupancy grid generation
+- `airside-map-hygiene-ground-truth-protocol.md` — canonical static/movable/dynamic/FOD/artifact/unknown labels and reviewer dispositions before map publication

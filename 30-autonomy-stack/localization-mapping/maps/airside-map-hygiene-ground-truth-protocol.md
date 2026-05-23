@@ -1,12 +1,24 @@
 # Airside Map Hygiene Ground Truth Protocol
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 ## Why It Matters
 
 Map hygiene ground truth defines what belongs in the permanent map, what belongs only in the live operational layer, and what should trigger review or inspection. Without this protocol, dynamic removal and map-change benchmarks can score well while erasing FOD, preserving parked GSE as infrastructure, or deleting safety-critical markings under occlusion.
 
 The protocol below is designed for airport AGVS and fleet map maintenance. It turns raw captures into auditable labels, map-patch decisions, and safety-case evidence.
+
+## Canonical Owner And Workflow Links
+
+This map-operations page is the canonical owner for the ground-truth vocabulary, capture slices, reviewer dispositions, QA gates, and benchmark splits used to decide what belongs in the permanent airside map. The [safety-validation companion](../../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md) consumes the same protocol for benchmark exchange fields, ASAM OpenLABEL-style annotation packaging, and acceptance outputs. Do not change layer names, reviewer dispositions, or acceptance semantics in only one copy; update this page first, then mirror any V&V-specific evidence fields in the companion.
+
+| Downstream consumer | What it consumes from this protocol |
+|---|---|
+| [Aggregated-map semantic segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) | `static_keep`, `movable_static`, `hazard`, `artifact`, and `unknown_review` labels for QA gates and semantic-map release evidence |
+| [Map construction pipeline](map-construction-pipeline.md) | capture plan, rejected-object layer, change manifest, and pre-publication map-cleaning labels |
+| [Map publication gates](../../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md) | hygiene-validation gate inputs: dynamic rejection, static preservation, FOD retention, unknown/quarantine report, and reviewer state |
+| [Map hygiene operational monitoring](../../../50-cloud-fleet/observability/map-hygiene-operational-monitoring.md) | runtime telemetry fields and alerts for ghost rate, static preservation, FOD candidates, unknown area, and semantic QA drift |
+| [Airside map-hygiene regulatory evidence](../../../60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md) | safety-case traceability for static preservation, FOD handling, map changes, retained rejected evidence, canary monitoring, and rollback |
 
 ## Ground Truth Layers
 
@@ -113,4 +125,7 @@ The protocol below is designed for airport AGVS and fleet map maintenance. It tu
 - AIT Apron paper: https://openaccess.thecvf.com/content/ACCV2022W/MLCSA/papers/Steininger_Towards_Scene_Understanding_for_Autonomous_Operations_on_Airport_Aprons_ACCVW_2022_paper.pdf
 - Local context: [Movable-Static Layering for Airside Maps](movable-static-layering-airside.md)
 - Local context: [Potentially Dynamic Object Map Policy](potentially-dynamic-object-map-policy.md)
+- Local context: [Map Publication Gates for Airside Hygiene](../../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md)
+- Local context: [Map Hygiene Operational Monitoring](../../../50-cloud-fleet/observability/map-hygiene-operational-monitoring.md)
+- Local context: [Airside Map Hygiene Regulatory Evidence](../../../60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md)
 - Local context: [Airside Dynamic Map Cleaning Benchmark](../../../60-safety-validation/verification-validation/airside-dynamic-map-cleaning-benchmark.md)

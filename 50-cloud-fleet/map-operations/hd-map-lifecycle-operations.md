@@ -1,6 +1,6 @@
 # HD Map Lifecycle Operations
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 HD maps are runtime safety artifacts. They encode lane topology, drivable boundaries, localization priors, geofences, speed zones, stand/gate rules, loading zones, and temporary restrictions. Treating them as static engineering inputs creates a deployment risk: the real site changes faster than the autonomy stack's assumptions.
 
@@ -111,6 +111,10 @@ Fleet operations should maintain a live map health dashboard:
 ## Related Repository Docs
 
 - `30-autonomy-stack/localization-mapping/overview/`
+- `../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md`
+- `map-publication-gates-airside-hygiene.md`
+- `../observability/map-hygiene-operational-monitoring.md`
+- `../../60-safety-validation/safety-case/airside-map-hygiene-regulatory-evidence.md`
 - `50-cloud-fleet/observability/fleet-anomaly-root-cause-attribution.md`
 - `50-cloud-fleet/ota/ota-fleet-management.md`
 - `50-cloud-fleet/data-platform/fleet-data-pipeline.md`
