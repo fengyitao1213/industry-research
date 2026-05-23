@@ -16,7 +16,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 4. Use FiftyOne or equivalent dataset tooling to inspect embeddings, near-duplicates, hard examples, label mistakes, and model predictions before creating annotation tasks.
 5. Use Label Studio or equivalent annotation tooling for pre-annotations, ML backend predictions, interactive labeling, and human review. Predictions are not ground truth until reviewed and submitted.
 6. Promote labels by state: `candidate`, `pre_labeled`, `human_labeled`, `qa_passed`, `approved_for_training`, `approved_for_safety_evidence`, `rejected`.
-7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, VESPA, UniLiPs, LOSC, SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
+7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, VESPA, UniLiPs, [LOSC](../../30-autonomy-stack/perception/methods/losc.md), SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
 
 ## Evidence Artifacts
 

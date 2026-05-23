@@ -902,9 +902,9 @@ The key deployment payoff of stage 4 distillation: the camera, the calibration d
 
 The SAL family's consolidation strategy is **distillation-based**: noise is absorbed by training a 3D model to fit the aggregate of many lifted 2D masks, with the network's inductive bias smoothing per-frame inconsistency. It does not add an explicit voting stage -- which is precisely the gap the next method closes.
 
-### 8.3 Explicit Label Consolidation -- LOSC
+### 8.3 Explicit Label Consolidation -- [LOSC](../methods/losc.md)
 
-**LOSC ("LiDAR Open-voc Segmentation Consolidator", arXiv 2507.07605, 3DV 2026 oral)** targets the noise problem head-on. It is annotation-free, generating pseudo-labels from a 2D VLM, but inserts an explicit **consolidation stage**: noisy per-frame 2D-VLM labels are reconciled by **temporal voting** (aggregating predictions for the same physical point seen across multiple scans) and **augmentation voting** (aggregating predictions under different input augmentations), yielding a cleaner pseudo-label set before the LiDAR model is trained. Reported 3DV 2026 paper/code results are strongest among the compared public-road open-vocabulary baselines: **nuScenes 49.3 mIoU / SemanticKITTI 35.2 mIoU** for semantic segmentation, and **panoptic PQ 48.4 (nuScenes) / 32.4 (SemanticKITTI)**. arXiv: <https://arxiv.org/abs/2507.07605>; official code: <https://github.com/valeoai/LOSC>. Treat these as nuScenes/SemanticKITTI evidence, not airside or non-road map-segmentation validation. LOSC is the cleanest illustration of the §8.1 pattern: same lift-and-distill skeleton as SAL, but with the consolidation step made explicit and shown to be where the accuracy gain comes from.
+**[LOSC](../methods/losc.md) ("LiDAR Open-voc Segmentation Consolidator", arXiv 2507.07605, 3DV 2026 oral)** targets the noise problem head-on. It is annotation-free, generating pseudo-labels from image-based VLM/VFM outputs, but inserts an explicit **consolidation stage** before the LiDAR model is trained. Reported 3DV 2026 paper/code results are strongest among the compared public-road open-vocabulary baselines: **nuScenes 49.3 mIoU / SemanticKITTI 35.2 mIoU** for semantic segmentation, and **panoptic PQ 48.4 (nuScenes) / 32.4 (SemanticKITTI)**. Treat these as nuScenes/SemanticKITTI evidence, not airside or non-road map-segmentation validation. LOSC is the cleanest illustration of the §8.1 pattern: same lift-and-distill skeleton as SAL, but with the consolidation step made explicit and reviewable. The atomic method page holds the implementation and map-governance details.
 
 ### 8.4 Cross-Domain and Native-3D Promptable Segmentation
 
@@ -939,7 +939,7 @@ These distillation methods are mainly *pre-training / representation-learning* t
 | Capability | Recommended method | Role on airside |
 |---|---|---|
 | Text-promptable per-point LiDAR labels, no manual 3D labels | SAL / SAL-4D | Long-tail / novel structure the closed-set segmenter misses; SAL-4D adds tracking |
-| Reported strongest annotation-free public-road open-vocabulary segmentation among compared baselines | LOSC | Strong pseudo-label consolidation where calibrated cameras exist; still public-road evidence |
+| Reported strongest annotation-free public-road open-vocabulary segmentation among compared baselines | [LOSC](../methods/losc.md) | Strong pseudo-label consolidation where calibrated cameras exist; still public-road evidence |
 | LiDAR-only open-world discovery + naming | OYSTER + ViLGOD | Fallback when camera coverage/calibration is unavailable or degraded |
 | Interactive 3D annotation accelerator | Point-SAM (native 3D), SNAP (multi-domain) | Cut cost of building the labeled 3D dataset for the production closed-set model |
 | 3D backbone pre-training | Seal, LiMA | Stage-4 representation underlying the above; see `self-supervised-pretraining-driving.md` |

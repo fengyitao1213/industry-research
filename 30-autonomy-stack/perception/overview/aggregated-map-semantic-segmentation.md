@@ -863,7 +863,7 @@ Raw per-point predictions are locally noisy and carry seam discontinuities. A sp
 
 Three further refinement operators sit *beyond* plain k-NN/voxel-majority smoothing and CRF, and are worth the offline budget:
 
-- **Label consolidation (LOSC-style).** Where labels are *back-projected* from another representation — accumulated single-scan predictions, or 2D-segmenter pseudo-labels — the resulting per-point labels are noisy in a structured way that simple smoothing does not fix. LOSC consolidates them with **spatio-temporal voxel-majority voting** (aggregate labels of all points falling in a voxel across all contributing scans) plus an **augmentation-stability vote** (keep labels that survive geometric perturbation). This is a distinct *consolidation* stage rather than a *smoothing* stage, and it is exactly the same idea as fusing the segment-then-accumulate prior (§10.3) — a principled way to turn many noisy per-scan votes into one map label. ("LOSC: LiDAR Open-voc Segmentation Consolidator" — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605); 3DV 2026.)
+- **Label consolidation ([LOSC](../methods/losc.md)-style).** Where labels are *back-projected* from another representation - accumulated single-scan predictions, or 2D-segmenter pseudo-labels - the resulting per-point labels are noisy in a structured way that simple smoothing does not fix. LOSC consolidates them with time-based and augmentation-based voting before LiDAR-model training. This is a distinct *consolidation* stage rather than a *smoothing* stage, and it is exactly the same idea as fusing the segment-then-accumulate prior (§10.3): a principled way to turn many noisy per-scan votes into one candidate map label.
 - **Learned refinement (P2Net).** Instead of a hand-tuned k-NN or voxel-majority rule, a small network can *learn* the refinement: P2Net refines per-point class scores using nearest-neighbour relations and **consecutive-frame consistency**, correcting predictions a fixed local rule would leave noisy. On an accumulated map the consecutive-frame term maps onto cross-pass consistency, making this a learned alternative to the hand-set smoothing radius. ("Refine and Recycle: Point-Wise Score Refinement" / P2Net — [arxiv.org/abs/2212.00567](https://arxiv.org/abs/2212.00567).)
 - **Test-time augmentation (TTA), concretized.** §10 notes the offline budget affords TTA; in practice that means averaging logits over **rotation / azimuth-mix augmentations** (LaserMix- and PolarMix-style mixing of the cloud before inference) and over **point-upsampling TTA** (inferring on a densified copy, then projecting back). The gains are largest on sparse data and on far-from-trajectory regions of the map — exactly where the intra-map density gradient (§2.3) hurts most.
 - **4D-NMS for redundant segments.** When segments are produced over accumulated scans, the same physical object yields many overlapping segment proposals. SALT's **4D non-maximum-suppression** operator merges these redundant segments across the accumulated 4D (space + scan-index) volume into one consistent instance — a cleanup step for the accumulate-then-segment instance output. ("SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" — [arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980); the SALT reference is already in §16.)
@@ -891,7 +891,7 @@ Three 2024-2026 methods are worth tracking as upgrade paths once a learned panop
 
 If single-scan labels were accumulated per voxel (§2.4), each voxel carries a label histogram. Fuse it with the accumulate-then-segment pass: use the prior as an extra unary term in the CRF (§10.1), or as a tie-breaker where the map model is low-confidence. Agreement between the two passes is also a free QA signal (§13) — disagreement regions are exactly what to route to human review.
 
-The per-voxel label histogram *is* a consolidation problem, and the LOSC-style operator of §10.1 — spatio-temporal voxel-majority voting plus an augmentation-stability vote — is the principled way to collapse it into a single map label, rather than a plain argmax over the histogram. Read §10.1's label-consolidation bullet and this section together: the segment-then-accumulate prior and a back-projected pseudo-label set are the same kind of input, and the same consolidation stage serves both.
+The per-voxel label histogram *is* a consolidation problem, and the [LOSC](../methods/losc.md)-style operator of §10.1 is the principled way to collapse it into a single candidate map label, rather than a plain argmax over the histogram. Read §10.1's label-consolidation bullet and this section together: the segment-then-accumulate prior and a back-projected pseudo-label set are the same kind of input, and the same consolidation stage serves both.
 
 ### 10.4 Geometric and Map-Prior Constraints
 
@@ -960,7 +960,7 @@ The systems cite: ZOPP — "ZOPP: A Framework of Zero-shot Offboard Panoptic Per
 
 Open-vocabulary and offboard systems are most valuable as **candidate-label generators**, not as direct writers of the authoritative map. A production semantic-map lane should keep four states separate:
 
-1. `candidate_label`: ZOPP, VESPA, UniLiPs, LOSC, OpenUrban3D, SALT/SAM2, SAM4D, DITR/D-DITR, or similar tools propose masks, names, prompts, confidence, or back-projected pseudo-labels over a tile or sequence.
+1. `candidate_label`: ZOPP, VESPA, UniLiPs, [LOSC](../methods/losc.md), OpenUrban3D, SALT/SAM2, SAM4D, DITR/D-DITR, or similar tools propose masks, names, prompts, confidence, or back-projected pseudo-labels over a tile or sequence.
 2. `reviewed_label`: a human or QA policy accepts, edits, rejects, or remaps the candidate to the controlled map taxonomy.
 3. `taxonomy_action`: the candidate is mapped to an existing class, folded into an alias or parent class, retained as `unknown`, or escalated as a taxonomy-change request.
 4. `release_label`: only QA-passed labels with taxonomy, confidence, source-map, reviewer, and evidence IDs enter the signed `semantic_map_manifest.json`.
@@ -1176,7 +1176,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **DFPS** — "Dynamic Farthest Point Sampling for large-scale point clouds" (MDPI *Sensors*, 2025)
 
 ### Post-Processing and Label Refinement
-- **LOSC** — "LOSC: LiDAR Open-voc Segmentation Consolidator" (3DV 2026) — [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605)
+- **LOSC** — "LOSC: LiDAR Open-voc Segmentation Consolidator" (3DV 2026) — [method page](../methods/losc.md), [arxiv.org/abs/2507.07605](https://arxiv.org/abs/2507.07605)
 - **P2Net** — "Refine and Recycle: Point-Wise Score Refinement" (P2Net) — [arxiv.org/abs/2212.00567](https://arxiv.org/abs/2212.00567)
 
 ### LiDAR-Image Fusion
@@ -1240,6 +1240,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md` — post-processing & refinement deep dive (§10 companion)
 - `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md` — tiling, stitching, and throughput-engineering deep dive (§8 companion)
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md` — training-paradigm comparison across all 11 paradigms (§7.6 companion)
+- `30-autonomy-stack/perception/methods/losc.md` — open-vocabulary LiDAR pseudo-label consolidation for candidate-label and data-engine lanes
 - `30-autonomy-stack/perception/overview/lidar-artifact-removal-techniques.md` — pre-processing / conditioning deep dive (§9 companion)
 - `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic object removal as a segmentation prerequisite (§9.1)
 - `30-autonomy-stack/localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md` — dynamic-aware heterogeneous-LiDAR map merging before registered-map segmentation
