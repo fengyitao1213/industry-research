@@ -287,12 +287,15 @@ Aggregated-map segmentation has a *richer* public dataset landscape than single-
 | **Hessigheim 3D (H3D)** | UAV LiDAR + mesh | ~1.3×10⁷+ | 11 | Village + farmland | RGB (mesh) | Very high density; LiDAR + textured-mesh tracks |
 | **STPLS3D** | Aerial photogrammetry + synthetic | large | up to 18 | Real + synthetic terrain | RGB | Synthetic augmentation reduces labeling cost |
 | **SemanticKITTI (multi-scan task)** | MLS, accumulated | per-sequence | 28 (moving variants) | Urban driving | No | The accumulated-input task: label static vs moving over a window |
+| **SemanticTHAB** | MLS (Ouster OS2-128) | 4,750 clouds | 20 | Urban driving | No | Modern high-resolution LiDAR sensor proxy; not map-scale |
 | **KITTI-360** | MLS, accumulated | ~10⁹ | 19 | Suburban driving | RGB | Dense accumulated clouds + 2D/3D consistent labels |
 | **nuScenes-lidarseg / Waymo** | MLS, per-scan | per-scan | 16 / 23 | Urban driving | RGB (cameras) | Single-scan, but poses allow accumulation into maps |
 | **Swiss3DCities** | UAV photogrammetry | large | 5 | Swiss cities | RGB | Coarse classes; useful for pre-training |
 | **WHU-Railway3D** | MLS + ALS | large | 11 | Railway corridors | varies | Corridor geometry akin to taxiways/service roads |
+| **WHU-Urban3D** | MLS + ALS | >3×10⁸ | 18 MLS / 7 ALS benchmark classes | Road + urban districts | varies | Semantic + instance + detection benchmark; useful urban/non-road district proxy |
 | **ECLAIR / LASDU / ISPRS Vaihingen-3D / DublinCity** | ALS | varies | 4-11 | Aerial urban | varies | Established ALS benchmarks; ground/veg/building/structure |
-| **SUM** | Textured urban mesh | large | 6 | Urban (Helsinki) | RGB | Mesh-based; relevant if the map is meshed |
+| **CUS3D** | UAV photogrammetry point cloud + mesh + 2D imagery | 1.52×10⁸ points + mesh | 10 | Urban/rural district | RGB | Cross-modal point/mesh/image benchmark for RGB and meshed-map pipelines |
+| **SUM / SUM Parts** | Textured urban mesh | 2.5 km² (SUM Parts) | 6 / 21 | Urban mesh | RGB | Mesh-based; SUM Parts adds part-level road/marking/facade/roof classes |
 | **WildScenes / RELLIS-3D** | MLS, off-road | varies | varies | Natural / off-road | RGB | Closest public proxy for unstructured airside-adjacent terrain |
 
 ### 5.2 Per-Dataset Profiles
@@ -387,10 +390,13 @@ The table above is a selection map; the profiles below give the detail a pipelin
 #### Supporting and specialized datasets
 
 - **nuScenes-lidarseg (16 classes) / Waymo Open (23 classes)** — large single-scan MLS datasets; with per-frame poses they are accumulated into local maps on demand. Best used to train the *single-scan* models that the map pipeline later auto-labels.
+- **SemanticTHAB** — 4,750 urban OS2-128 LiDAR clouds, 20 semantic classes, released on Zenodo v3 in 2025. Use it as a modern high-resolution LiDAR density and beam-pattern proxy, not as a full aggregated-map benchmark.
+- **WHU-Urban3D** — mixed MLS+ALS urban dataset with semantic, instance and 3D detection tasks over >300 M points and 3.6×10^6 m². Use it for dense urban-district, campus/depot, and service-road proxy work where both ground survey and aerial/site-survey views matter.
 - **WHU-Railway3D** — large MLS+ALS railway-corridor dataset (~11 classes incl. masts and overhead lines); corridor geometry is a useful analog for taxiways and service roads.
 - **Swiss3DCities** — UAV-photogrammetry, three Swiss cities, ~5 coarse classes; useful for self-supervised pre-training at scale.
 - **ISPRS Vaihingen-3D, LASDU, DublinCity, ECLAIR** — established ALS urban benchmarks; supplementary label diversity for ground/vegetation/building/structure.
-- **SUM** — semantic *textured-mesh* benchmark (Helsinki, 6 classes); relevant if the pipeline meshes the map before labeling.
+- **CUS3D** — UAV photogrammetry benchmark with labelled 3D points, mesh triangles, and 2D imagery over 2.85 km². Use it to test LiDAR+image/colorized-map assumptions and point-vs-mesh label consistency; do not treat it as a LiDAR-statistics source.
+- **SUM / SUM Parts** — semantic *textured-mesh* benchmarks; SUM Parts adds 21 part-level classes across 2.5 km², including road marking, cycle lane, sidewalk, facade, roof, windows, doors and roof installations. Relevant if the segmented map is exported as a meshed digital-twin layer.
 - **WildScenes / RELLIS-3D** — off-road MLS datasets; the closest public proxy for unstructured airside-adjacent terrain (grass margins, gravel, vegetation edges).
 
 #### Licensing and commercial-use note
@@ -404,6 +410,16 @@ Almost every dataset above is released for **research / non-commercial use** (co
 - **Photogrammetric ≠ LiDAR.** SensatUrban/STPLS3D/Swiss3DCities are excellent for RGB-point pipelines and for scale/tiling engineering, but their noise and density statistics differ from LiDAR — use for pre-training and tiling R&D, validate on LiDAR sources.
 - **The multi-scan SemanticKITTI task is the most honest proxy** for "segment an accumulated cloud" in the AV domain — it explicitly accumulates frames and forces static/moving reasoning.
 - **Density spread is the transfer risk.** Semantic3D (TLS, dense, uniform) and DALES (ALS, sparse, top-down) bracket the extremes; an MLS airside map sits between and is internally non-uniform. A model picked on one density will need adaptation.
+
+**Urban-district and non-road proxy matrix:**
+
+| Target condition | Best proxies | Design use |
+|---|---|---|
+| Dense urban district, depot, campus, or service road | WHU-Urban3D, KITTI-360, Paris-Lille-3D, Toronto-3D, SemanticTHAB | MLS backbone pre-training; markings/poles/wires/driveways; high-resolution OS2-128 density stress |
+| Taxiway-like or linear corridor | SemanticRail3D, WHU-Railway3D | Corridor tiling, overhead/edge infrastructure, long thin structures |
+| Construction, works zone, large equipment, unstructured surface | GOOSE-Ex, SIP, STPLS3D, CUS3D | Temporary objects, earth/grass/gravel, construction clutter, synthetic rare-class augmentation |
+| Aerial/site-survey semantic layer | FRACTAL, DALES, ECLAIR, CITYLID, CUS3D | Nadir map context, site-scale priors, ALS/photogrammetry cross-checks |
+| Meshed digital-twin release | SUM, SUM Parts, CUS3D, H3D | Point-to-mesh transfer, part-level road/marking/facade/roof classes, texture-assisted review |
 
 ### 5.4 The Airside Benchmark Gap
 
@@ -1162,6 +1178,10 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **KITTI-360** — Liao et al., "KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D" (TPAMI 2022)
 - **Robo3D** — Kong et al., "Robo3D: Towards Robust and Reliable 3D Perception against Corruptions" (ICCV 2023) — [arxiv.org/abs/2303.17597](https://arxiv.org/abs/2303.17597)
 - **FRACTAL** — "FRACTAL: An Ultra-Large-Scale Aerial Lidar Dataset for 3D Semantic Segmentation of Diverse Landscapes" (PostGIS-cataloged stratified sampling + spatially-disjoint splits) — [arxiv.org/abs/2405.04634](https://arxiv.org/abs/2405.04634)
+- **SemanticTHAB** — Reichert et al., "SemanticTHAB: A High Resolution LiDAR Dataset" (Zenodo v3, 2025) — [zenodo.org/records/14906179](https://zenodo.org/records/14906179)
+- **WHU-Urban3D** — MLS+ALS semantic/instance/detection benchmark — [whu3d.com/dataset](https://whu3d.com/dataset/) · [whu3d.com/benchmark.html](https://whu3d.com/benchmark.html)
+- **CUS3D** — Gao et al., "CUS3D: A New Comprehensive Urban-Scale Semantic-Segmentation 3D Benchmark Dataset" (*Remote Sensing* 2024) — [mdpi.com/2072-4292/16/6/1079](https://www.mdpi.com/2072-4292/16/6/1079)
+- **SUM Parts** — Gao, Nan, and Ledoux, "SUM Parts: Benchmarking Part-Level Semantic Segmentation of Urban Meshes" (CVPR 2025) — [arxiv.org/abs/2503.15300](https://arxiv.org/abs/2503.15300) · [tudelft3d.github.io/SUMParts](https://tudelft3d.github.io/SUMParts/)
 
 ### Airside LiDAR Segmentation (Prior Work)
 - **TU Dresden synthetic-LiDAR apron line** — "3D Modeling of the Airport Environment for Fast and Accurate LiDAR Semantic Segmentation of Apron Operations" (IEEE); and "Towards Automated Apron Operations — Training of Neural Networks for Semantic Segmentation Using Synthetic LiDAR Sensors" (IEEE) — CAD/BIM airport models as a synthetic-data substrate
