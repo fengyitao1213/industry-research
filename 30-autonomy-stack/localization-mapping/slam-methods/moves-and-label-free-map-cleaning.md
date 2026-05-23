@@ -8,7 +8,7 @@ priority:
   stage: "deployment-pattern"
   maturity: "pilot-proven"
   tags: ["slam", "mapping", "validation", "runtime-localization", "outdoor"]
-  reason: "MOVES and the label-free map-cleaning family provide dynamic-object filtering and map-cleaning without requiring human-labeled training data — strategically important for airside and industrial domains."
+  reason: "MOVES and adjacent label-free map-cleaning methods remove dynamic residuals without human-labeled points, making them useful for airside and industrial maps."
 method-priority:end -->
 
 Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal LIO](do-removal-lio.md), [Dynamic-Aware LIO / BTSA](dynamic-aware-lio-btsa.md), [SD-SLAM Semantic Dynamic LiDAR](sd-slam-semantic-dynamic-lidar.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [LT-Mapper / Khronos Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md).

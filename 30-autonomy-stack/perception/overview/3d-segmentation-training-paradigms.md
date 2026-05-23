@@ -267,6 +267,18 @@ Pipeline: (1) **Map construction** — SLAM or pose-graph optimization accumulat
 | Active learning | 5–20 % of full budget | = supervised (given budget) | Full unlabeled pool + iterative labeler | Moderate + pool scoring | Targets rare / uncertain classes first | Cold-start; needs iterative annotation pipeline |
 | Auto-label from map | Map verification only (~10–20× cheaper/point) | Near supervised for static classes | SLAM map + map-level segmentation model | Moderate SLAM + map seg (one-time) | Turns site mapping into free labels | SLAM drift; dynamic object contamination |
 
+### Aggregated-Map Shortcut Selector
+
+The operational shortcut for end-to-end semantic segmentation of registered LiDAR maps now lives in [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) §11. Use that selector to choose the proxy dataset pool, input modality, and training route together; use this page when you need the deeper trade-offs behind each training paradigm.
+
+| Operating condition | Default regime | Why | Main caveat |
+|---|---|---|---|
+| Label-scarce but large unlabeled survey archive | SSL/generalist checkpoint -> domain-continuation SSL -> supervised or PEFT fine-tune | Survey maps are the free corpus; Sonata/PTv3/PPT/ScaLR-style initialization reduces the cold-start penalty | Public checkpoints are not proof of airside or non-road performance; validate with linear probing before committing |
+| Calibrated camera+LiDAR is available, but release should be LiDAR-only | SLidR/ScaLR/2DPASS-style image-to-LiDAR distillation | Uses 2D semantics during training while keeping the deployed artifact LiDAR-only | Calibration, exposure, and viewpoint errors become training-data quality risks |
+| Existing SLAM map and small review budget | Auto-label from map -> reviewer correction -> pseudo-label consolidation -> semi-supervised scan refinement | Map-level verification is cheaper than per-scan annotation and produces back-projected training labels | SLAM drift, dynamic ghosts, and static-but-wrong objects can scale into label errors |
+| Multi-site rollout with one strong backbone | PEFT adapters after the site-specific fine-tune | Per-site adapter files are cheap to train and version | Rank selection and adapter/backbone compatibility must be release-gated |
+| Rare safety classes dominate risk | Active learning on top of the current best model | Annotation budget goes to uncertain, rare, and high-impact regions first | Cold-start uncertainty is weak; seed with class-stratified random labels before relying on acquisition scores |
+
 ---
 
 ## Recommended Layered Recipe for Airside
