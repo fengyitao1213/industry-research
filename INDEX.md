@@ -59,7 +59,7 @@
 | DINOv2 for driving | `30-autonomy-stack/perception/overview/dinov2-foundation-models-driving.md` | LoRA, adapter integration |
 | CenterPoint/OpenPCDet | `30-autonomy-stack/perception/overview/openpcdet-centerpoint.md` | `20-av-platform/compute/tensorrt-deployment-guide.md` |
 | Production systems | `30-autonomy-stack/perception/overview/production-perception-systems.md` | Waymo/Tesla/comma sensor suites |
-| Perception method library | `30-autonomy-stack/perception/methods/overview.md` | 136 atomic method files across camera BEV, sparse-query detection, end-to-end driving, occupancy/free-space, Gaussian occupancy and label curation including VOGS-CP collaborative Gaussian occupancy, LiDAR-camera/radar-camera fusion, dynamic Gaussian/3DGS/4DGS, 3D segmentation backbones, LiDAR MOS, scene flow, LiDAR denoising/removal, radar/4D radar, event/FMCW, open-world/OOD, open-vocabulary attributes including SpaCeFormer-style open-vocabulary 3D instance segmentation, robust fusion, V2X compression and sparse-query cooperation including QuantV2X and SparseCoop, latency, and data-engine evaluation |
+| Perception method library | `30-autonomy-stack/perception/methods/overview.md` | 137 atomic method files across camera BEV, sparse-query detection, end-to-end driving, occupancy/free-space, Gaussian occupancy and label curation including VOGS-CP collaborative Gaussian occupancy, LiDAR-camera/radar-camera fusion, dynamic Gaussian/3DGS/4DGS, 3D segmentation backbones including point-cloud Mamba/SSM backbones, LiDAR MOS, scene flow, LiDAR denoising/removal, radar/4D radar, event/FMCW, open-world/OOD, open-vocabulary attributes including SpaCeFormer-style open-vocabulary 3D instance segmentation, robust fusion, V2X compression and sparse-query cooperation including QuantV2X and SparseCoop, latency, and data-engine evaluation |
 | LiDAR artifact removal | `30-autonomy-stack/perception/overview/lidar-artifact-removal-techniques.md` | LIORNet, LiSnowNet, SLiDE, TripleMixer, classical filters, weather artifacts, ghost/multipath behavior, dynamic-map cleaning, and validation |
 | Weather robustness datasets | `30-autonomy-stack/perception/datasets-benchmarks/weather-robustness-datasets.md` | WADS, CADC/CADC+, SemanticSTF, REHEARSE-3D, RainSense, SemanticSpray, RADIATE, DSERT-RoLL, CMHT, and Seeing Through Fog/DENSE |
 | Moving/static separation datasets | `30-autonomy-stack/perception/datasets-benchmarks/moving-static-separation-mos-datasets.md` | SemanticKITTI-MOS, HeLiMOS, 4DMOS-style labels, moving/static taxonomy, and map-cleaning evaluation fit |
@@ -72,8 +72,8 @@
 | Infrastructure cooperative perception | `30-autonomy-stack/perception/overview/infrastructure-cooperative-perception.md` | V2I fusion, fixed sensors, DAIR-V2X, QuantV2X/SparseCoop/VOGS-CP communication primitives, TruckV2X, airport existing systems |
 | LiDAR foundation models | `30-autonomy-stack/perception/overview/lidar-foundation-models.md` | PTv3, Sonata, ScaLR, PointLoRA, 50-80% data savings |
 | LiDAR semantic segmentation | `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` | Cylinder3D, FlatFormer, PTv3, ALPINE panoptic, airside 18-class taxonomy |
-| Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, urban/non-road proxy datasets, KPConv/RandLA/SPT, LiDAR±image, mesh/digital-twin transfer, auto-label flywheel |
-| Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md`, `30-autonomy-stack/localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md`, `30-autonomy-stack/localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, stationary-transient object removal, detector-based movable-object quarantine, and dynamic-aware heterogeneous-LiDAR map merging for registered LiDAR/RGB map products |
+| Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, urban/non-road proxy datasets, KPConv/RandLA/SPT, point-cloud Mamba/SSM efficiency frontiers, LiDAR±image, mesh/digital-twin transfer, auto-label flywheel |
+| Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md`, `30-autonomy-stack/perception/methods/point-cloud-mamba-ssm-backbones.md`, `30-autonomy-stack/localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md`, `30-autonomy-stack/localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, stationary-transient object removal, point-cloud SSM/Mamba backbone candidates, detector-based movable-object quarantine, and dynamic-aware heterogeneous-LiDAR map merging for registered LiDAR/RGB map products |
 | Model compression & edge | `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` | PTQ/QAT, distillation, pruning, TensorRT, ModelOpt, Orin recipes |
 | Multi-object tracking | `30-autonomy-stack/perception/overview/multi-object-tracking.md` | CenterPoint tracker, SimpleTrack, MCTrack, HOTA, airside Re-ID |
 | Camera fallback perception | `30-autonomy-stack/perception/overview/camera-fallback-perception.md` | Degraded mode when LiDAR fails: DepthAnything v2, stereo depth, BEVFormer-Tiny, confidence calibration, speed reduction |
@@ -394,7 +394,7 @@
 | `30-autonomy-stack/simulation/sim-to-real-transfer-airside.md` | Sim-to-real for airside: LiDAR simulation fidelity, domain randomization, UniSim/LidarDM, curriculum learning, reality gap measurement, CARLA/Isaac airport env, $50-75K first airport |
 | `30-autonomy-stack/perception/overview/test-time-adaptation-airside.md` | TTA/domain adaptation for multi-airport: TENT, CoTTA, SAR, SFDA (SHOT/NRC), OOD triggers, active learning, LiDAR-specific adaptation, fleet-scale strategy, per-airport cost |
 | `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` | LiDAR segmentation SOTA: Cylinder3D, FlatFormer, PTv3, SalsaNext; ALPINE training-free panoptic; 18-class airside taxonomy; Orin real-time (18-35ms); PointLoRA fine-tuning path |
-| `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end semantic segmentation of registered multi-scan LiDAR maps: aggregated-vs-single-scan, pipeline architecture, tiling/stitching, input modalities (LiDAR/RGB/fusion), large-scale datasets (Semantic3D, Paris-Lille-3D, Toronto-3D, DALES, SensatUrban), KPConv/RandLA-Net/sparse-conv/PTv3/Superpoint Transformer, industry auto-label flywheel, airside L3 semantic layer |
+| `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end semantic segmentation of registered multi-scan LiDAR maps: aggregated-vs-single-scan, pipeline architecture, tiling/stitching, input modalities (LiDAR/RGB/fusion), large-scale datasets (Semantic3D, Paris-Lille-3D, Toronto-3D, DALES, SensatUrban), KPConv/RandLA-Net/sparse-conv/PTv3/Superpoint Transformer/point-cloud SSM backbones, industry auto-label flywheel, airside L3 semantic layer |
 | `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` | Unified compression guide: PTQ/QAT quantization, knowledge distillation (TinyBEV), structured pruning, ModelOpt, per-model Orin recipes, 5-15x speedup at 1-3% accuracy loss |
 | `30-autonomy-stack/perception/overview/multi-object-tracking.md` | 3D MOT for airside: CenterPoint tracker, SimpleTrack, MCTrack, HOTA metrics, airside Re-ID (tail numbers, fleet IDs), ROS integration, 10Hz on Orin |
 | `30-autonomy-stack/world-models/occupancy-deployment-orin.md` | Occupancy on Orin: FlashOcc TensorRT (197 FPS), SparseOcc, LiDAR voxelization, nvblox ROS bridge, multi-resolution strategy, INT8 calibration |
@@ -440,13 +440,13 @@
 
 | Metric | Value |
 |--------|-------|
-| Reader Markdown pages | 849 |
-| Core research documents | 845 |
+| Reader Markdown pages | 850 |
+| Core research documents | 846 |
 | Reader/research lines | 390k+ |
 | `00-start-here/` documents | 4 |
 | `10-knowledge-base/` documents | 137 |
 | `20-av-platform/` documents | 41 |
-| `30-autonomy-stack/` documents | 451 |
+| `30-autonomy-stack/` documents | 452 |
 | `40-runtime-systems/` documents | 23 |
 | `50-cloud-fleet/` documents | 32 |
 | `60-safety-validation/` documents | 56 |
@@ -456,12 +456,12 @@
 | Companies covered | 25 |
 | Technology domains | 9 |
 | Method-level SLAM library | 154 SLAM-method documents including overview/audit |
-| Method-level perception files | 136 |
+| Method-level perception files | 137 |
 | Safety and validation documents | 56 |
 | AV platform documents | 41 |
 | Knowledge base documents | 137 |
 | Synthesis documents | 12 |
-| Perception documents | 209 |
+| Perception documents | 210 |
 | Localization/mapping | 180 |
 | Planning documents | 16 |
 | Multi-agent and V2X | 7 |

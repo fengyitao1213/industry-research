@@ -325,6 +325,17 @@ Published observations indicate that scaling from a single optimised GPU to a 10
 
 **Critical caveat for 3D sparse models:** TensorRT does not natively support sparse convolution. Most production pipelines use TorchSparse++ or SpConv as the inference backend rather than TensorRT for 3D volumetric models. Range-image and BEV-projection models (SalsaNext, RangeDet) are TensorRT-exportable and benefit from INT8 quantisation; sparse-conv models currently are not.
 
+### SSM Backbones Do Not Remove the Tiling Contract
+
+[Point-Cloud Mamba / SSM Backbones](../methods/point-cloud-mamba-ssm-backbones.md) reduce the per-token modeling cost inside a tile by replacing attention-heavy blocks with serialized state-space sequence modeling. That can make larger tiles or halos feasible, especially for long facades, service corridors, vegetation boundaries, and non-road urban districts where context matters. It does **not** remove the map-scale engineering contract:
+
+- source clouds still need partition manifests, deterministic coordinate frames, and tile provenance;
+- LAZ/LAS/COPC I/O, preprocessing, and cache layout can dominate wall-clock time even if the model is cheaper;
+- overlap, no-clipping-point policy, seam metrics, and logit merging remain necessary because serialized sequence models still see truncated context at tile borders;
+- serialization order becomes a new reproducibility field: store curve/order id, quantization, local origin, random seed, and model config with each run.
+
+Treat SSMs as a throughput experiment alongside sparse-conv, PTv3, and SPT baselines, not as a reason to bypass tile QA or release manifests.
+
 ### Checkpointing for Long Batches
 
 A 4-hour batch processing 1,000 tiles must be resumable without restarting from zero:
@@ -586,6 +597,7 @@ An ordered recipe for a new large-scale airside segmentation run:
 - [Point-Cloud Representations and Voxelization — First Principles](../../../10-knowledge-base/geometry-3d/point-cloud-representations-voxelization-first-principles.md) — voxelisation math and sparse-tensor representation
 - [Superpoint Transformer](../methods/superpoint-transformer.md) — SPT and EZ-SP intrinsic partition method detail
 - [FlatFormer](../methods/flatformer.md) — equal-size grouping and padding-free batching
+- [Point-Cloud Mamba / SSM Backbones](../methods/point-cloud-mamba-ssm-backbones.md) — SSM serialization and long-context backbone candidates
 
 **Primary papers:**
 - ECLAIR aerial LiDAR pipeline (arXiv 2404.10699): https://arxiv.org/html/2404.10699v1
@@ -598,6 +610,8 @@ An ordered recipe for a new large-scale airside segmentation run:
 - FlatFormer equal-size grouping (arXiv 2301.08739): https://arxiv.org/abs/2301.08739
 - TorchSparse++ MICRO 2023 (arXiv 2311.12862): https://arxiv.org/abs/2311.12862
 - PTv3 space-filling curve serialisation (arXiv 2312.10035): https://arxiv.org/html/2312.10035v2
+- Pamba point-cloud SSM segmentation (AAAI 2025): https://ojs.aaai.org/index.php/AAAI/article/view/32540
+- PointMamba point-cloud SSM baseline (arXiv 2402.10739): https://arxiv.org/abs/2402.10739
 - PTv3-Extreme Waymo 2024 (arXiv 2407.15282): https://arxiv.org/html/2407.15282v1
 - MixSeg3D TTA Waymo 2024 (arXiv 2501.05472): https://arxiv.org/html/2501.05472v1
 - Waymo offboard 3D auto-labeling CVPR 2021 (arXiv 2103.05073): https://arxiv.org/pdf/2103.05073

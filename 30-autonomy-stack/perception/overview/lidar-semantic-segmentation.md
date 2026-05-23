@@ -125,9 +125,12 @@ Process raw points directly using PointNet-style shared MLPs or transformer atte
 | PointNet++ (2017) | Hierarchical set abstraction, FPS + ball query | Theoretically elegant | Slow FPS, O(N log N) |
 | [RandLA-Net](../methods/randla-net.md) (2020) | Random sampling + local feature aggregation | Fast sampling | Lower accuracy |
 | [PTv3](../methods/point-transformer-v3.md) (2024) | Serialize + patch attention via space-filling curves | **Current SOTA accuracy** | Moderate latency |
+| [Point-Cloud Mamba / SSM Backbones](../methods/point-cloud-mamba-ssm-backbones.md) (2024-2025) | Serialize + Mamba/SSM sequence modeling | Linear sequence cost, long-range context | Research maturity; weaker Orin/TensorRT evidence |
 | [WaffleIron](../methods/waffleiron.md) (2023) | 2D backbone on projected point features | Good accuracy | 4.8 FPS on Orin (too slow) |
 
 **Key insight**: PTv3 replaces expensive k-NN neighbor search with a **serialize-and-patch** paradigm — points are sorted along a space-filling curve, then grouped into fixed-size patches for self-attention. This achieves 3x faster inference and 10x less memory than PTv2.
+
+**SSM/Mamba note:** point-cloud SSM backbones pursue the same serialization theme with linear-complexity sequence modeling rather than patch attention. They are useful frontier candidates for offline map-scale experiments and long-context single-scan research, but their production maturity is weaker than sparse-conv, range-image, and PTv3-style baselines: TensorRT export paths, Orin latency, calibration behavior, and safety-case evidence are not yet as well documented.
 
 ### 3.2 Voxel-Based Methods
 
@@ -1022,6 +1025,7 @@ Using SALT (Semi-Automatic Labeling Tool, 2025) with cross-scene adaptability co
 
 ### Core Methods
 - **PTv3**: Wu et al., "Point Transformer V3: Simpler, Faster, Stronger" (CVPR 2024) — [arxiv.org/abs/2312.10035](https://arxiv.org/abs/2312.10035)
+- **Point-Cloud Mamba / SSM Backbones**: PointMamba, Point Mamba, PCM, Pamba, Serialized Point Mamba, and related 2024-2025 point-cloud SSM variants — [method page](../methods/point-cloud-mamba-ssm-backbones.md)
 - **Cylinder3D**: Zhu et al., "Cylindrical and Asymmetrical 3D Convolution Networks for LiDAR Segmentation" (CVPR 2021 Oral)
 - **FlatFormer**: Liu et al., "FlatFormer: Flattened Window Attention for Efficient Point Cloud Transformer" (CVPR 2023) — [github.com/mit-han-lab/flatformer](https://github.com/mit-han-lab/flatformer)
 - **SalsaNext**: Cortinhal et al., "SalsaNext: Fast, Uncertainty-Aware Semantic Segmentation of LiDAR Point Clouds" (ISVC 2020)

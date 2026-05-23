@@ -701,10 +701,17 @@ These methods are not competitors to the §7.1-7.3 backbones used for the *autho
 
 §8 frames tiling as the answer to map scale; an orthogonal line of work attacks the same bottleneck *inside* the model — the token count and memory cost that make a map-scale cloud expensive regardless of how it is tiled.
 
-- **State-space (Mamba/SSM) backbones.** **Pamba** applies a Mamba/SSM backbone to point-cloud segmentation, replacing quadratic attention with linear-complexity sequence modeling. For map-scale clouds — where token count is the cost driver — linear scaling is structurally attractive: it lets a tile carry more context for the same memory, easing the context-vs-memory trade-off of §8.3.
-- **Token-merging efficiency.** **gitmerge3D** applies graph-based token merging to 3D transformers, reporting roughly **85% memory reduction on outdoor data while retaining PTv3-class accuracy**. This directly relaxes the constraint that forces aggressive tiling — a model that needs far less memory per token can process larger tiles, reducing seam count and stitching error (§8.4).
+**State-space (Mamba/SSM) backbones.** [Point-Cloud Mamba / SSM Backbones](../methods/point-cloud-mamba-ssm-backbones.md) covers PointMamba, Point Mamba, Point Cloud Mamba, Mamba3D, Pamba, Serialized Point Mamba, PoinTramba, Spectral Informed Mamba, and urban-scale PointMamba. The family replaces quadratic attention or expensive neighbor interactions with serialized point sequences and linear-complexity state-space blocks, then adds local pooling, convolution, bidirectional scans, or spectral/space-filling traversal to recover 3D geometry. For map-scale clouds — where token count is the cost driver — linear sequence cost is structurally attractive because it can let a tile carry more context for the same memory, easing the context-vs-memory trade-off of §8.3.
 
-Both are emerging rather than production-proven, but they point the same direction as §8's engineering: the token-count/memory wall of map-scale clouds has two complementary answers — partition the cloud (tiling, §8) and shrink the per-token cost (SSM backbones, token merging). For an airside pipeline they are a P4-class efficiency refinement (§15.2), worth tracking but not a P1 dependency. They cite: Pamba — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" ([arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442)); gitmerge3D — "Graph-Based Token Merging for 3D Point Cloud Transformers" ([arxiv.org/abs/2511.05449](https://arxiv.org/abs/2511.05449)).
+| SSM line | Strength | Caveat for aggregated maps |
+|---|---|---|
+| PointMamba / Point Mamba / PCM | Clean baselines for serialization, octree ordering, and multi-order traversal. | Mostly indoor/object or single-scene benchmark evidence; ordering sensitivity must be audited under map tiling, rotation, and density shift. |
+| Pamba / Serialized Point Mamba | Most directly semantic-segmentation oriented; Pamba includes nuScenes, ScanNet, ScanNet200, and S3DIS evidence. | Still research-stage; no public production evidence for AV semantic map release, airside maps, or broad non-road district maps. |
+| PoinTramba / Spectral Informed Mamba | Shows that hybrid attention-local modules and traversal-aware pre-training can stabilize Mamba-style point processing. | Better treated as design signals than deployable map backbones until reproducible map-scale segmentation evidence exists. |
+
+**Token-merging efficiency.** **gitmerge3D** applies graph-based token merging to 3D transformers, reporting roughly **85% memory reduction on outdoor data while retaining PTv3-class accuracy**. This directly relaxes the constraint that forces aggressive tiling — a model that needs far less memory per token can process larger tiles, reducing seam count and stitching error (§8.4).
+
+Both SSMs and token merging are emerging rather than production-proven. They point the same direction as §8's engineering: the token-count/memory wall of map-scale clouds has two complementary answers — partition the cloud (tiling, §8) and shrink the per-token cost (SSM backbones, token merging). For a production airside, logistics-yard, port, campus, or urban-district pipeline, keep them as a P3/P4 experimental branch beside sparse-conv, SPT, KPConv/RandLA-Net, and PTv3 baselines; do not make them the P1 dependency until map QA, static/transient preservation, and release-artifact evidence match the mature families.
 
 ---
 
@@ -1117,7 +1124,10 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **SphereFormer** — Lai et al., "Spherical Transformer for LiDAR-based 3D Recognition" (CVPR 2023)
 - **4D-CS** — "4D-CS: Exploiting Cluster Prior for 4D Spatio-Temporal Semantic Segmentation" — [arxiv.org/abs/2501.02937](https://arxiv.org/abs/2501.02937)
 - **SegNet4D** — "SegNet4D: Effective and Efficient 4D LiDAR Semantic Segmentation in Autonomous Driving Environments" — [arxiv.org/abs/2406.16279](https://arxiv.org/abs/2406.16279)
-- **Pamba** — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" — [arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442)
+- **Point-Cloud Mamba / SSM Backbones** — method-family page covering PointMamba, Point Mamba, PCM, Mamba3D, Pamba, Serialized Point Mamba, PoinTramba, Spectral Informed Mamba, and urban-scale PointMamba — [../methods/point-cloud-mamba-ssm-backbones.md](../methods/point-cloud-mamba-ssm-backbones.md)
+- **Pamba** — "Pamba: Enhancing Global Interaction in Point Clouds via State Space Model" — [arxiv.org/abs/2406.17442](https://arxiv.org/abs/2406.17442), [AAAI proceedings](https://ojs.aaai.org/index.php/AAAI/article/view/32540)
+- **PointMamba** — "PointMamba: A Simple State Space Model for Point Cloud Analysis" — [arxiv.org/abs/2402.10739](https://arxiv.org/abs/2402.10739), [official repository](https://github.com/LMD0311/PointMamba)
+- **Point Mamba / Point Cloud Mamba / Serialized Point Mamba** — SSM point-cloud serialization variants — [arxiv.org/abs/2403.06467](https://arxiv.org/abs/2403.06467), [arxiv.org/abs/2403.00762](https://arxiv.org/abs/2403.00762), [arxiv.org/abs/2407.12319](https://arxiv.org/abs/2407.12319)
 - **gitmerge3D** — "Graph-Based Token Merging for 3D Point Cloud Transformers" — [arxiv.org/abs/2511.05449](https://arxiv.org/abs/2511.05449)
 - **PTv3-Extreme** — "Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation" — [arxiv.org/abs/2407.15282](https://arxiv.org/abs/2407.15282)
 
