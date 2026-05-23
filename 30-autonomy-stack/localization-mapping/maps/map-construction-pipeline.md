@@ -282,6 +282,13 @@ Airport aprons are never truly empty. Aircraft, GSE, and personnel will be prese
 
 **Dynamic object removal strategy**: Run each SLAM session independently. Points observed in fewer than K of N sessions (e.g., 2 of 5) at a given voxel are classified as dynamic and removed from the final merged map.
 
+For static-but-wrong objects, K-of-N voting is not enough. A tug or parked aircraft can be present in every survey lap and still be invalid as permanent map structure. Add two explicit branches before publication:
+
+- **Single-survey semantic quarantine:** detector-based movable-class removal/projection such as [Potentially Dynamic Object Removal by Ground Projection](../slam-methods/potentially-dynamic-object-removal-ground-projection.md), with original object points retained as rejected evidence.
+- **Multi-session lifecycle governance:** a base-map/diff/boundary store such as [Lifelong 3D Map Version Control](../slam-methods/lifelong-3d-map-version-control.md), so positive/negative changes can be reviewed, reconstructed, and rolled back instead of silently overwritten.
+
+The publishable output should therefore be a static candidate map plus a quarantine/rejected-object layer and a change manifest, not only a filtered point cloud.
+
 ```python
 def remove_dynamic_objects(session_maps, voxel_size=0.2, min_sessions=2):
     """Remove dynamic objects by multi-session consistency voting.

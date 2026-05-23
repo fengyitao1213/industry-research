@@ -73,7 +73,7 @@
 | LiDAR foundation models | `30-autonomy-stack/perception/overview/lidar-foundation-models.md` | PTv3, Sonata, ScaLR, PointLoRA, 50-80% data savings |
 | LiDAR semantic segmentation | `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` | Cylinder3D, FlatFormer, PTv3, ALPINE panoptic, airside 18-class taxonomy |
 | Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, urban/non-road proxy datasets, KPConv/RandLA/SPT, LiDAR±image, mesh/digital-twin transfer, auto-label flywheel |
-| Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, and stationary-transient object removal for registered LiDAR/RGB map products |
+| Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md`, `30-autonomy-stack/localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, stationary-transient object removal, and detector-based movable-object quarantine for registered LiDAR/RGB map products |
 | Model compression & edge | `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` | PTQ/QAT, distillation, pruning, TensorRT, ModelOpt, Orin recipes |
 | Multi-object tracking | `30-autonomy-stack/perception/overview/multi-object-tracking.md` | CenterPoint tracker, SimpleTrack, MCTrack, HOTA, airside Re-ID |
 | Camera fallback perception | `30-autonomy-stack/perception/overview/camera-fallback-perception.md` | Degraded mode when LiDAR fails: DepthAnything v2, stereo depth, BEVFormer-Tiny, confidence calibration, speed reduction |
@@ -98,7 +98,7 @@
 #### Method-level SLAM
 | Topic | Primary | Supporting |
 |-------|---------|-----------|
-| SLAM method library | `30-autonomy-stack/localization-mapping/slam-methods/overview.md` | 151 SLAM-method documents including overview/audit pages covering classical, LiDAR including RKO-LIO sensor-agnostic LIO, LIVO, visual, RGB-D, neural, Gaussian, radar, learned 4D radar odometry, radar RIO correspondence/uncertainty, Doppler radar-LiDAR bridge SLAM, raw GNSS factor fusion, wheel/vehicle-motion factors, radar-GNSS/visual mapping, fusion SLAM, robust backends, collaborative SLAM, alternative sensors, lifelong localization, map cleaning, SLAM Toolbox, NDT variants, current benchmark pages, and neural/Gaussian SLAM taxonomy |
+| SLAM method library | `30-autonomy-stack/localization-mapping/slam-methods/overview.md` | 153 SLAM-method documents including overview/audit pages covering classical, LiDAR including RKO-LIO sensor-agnostic LIO, LIVO, visual, RGB-D, neural, Gaussian, radar, learned 4D radar odometry, radar RIO correspondence/uncertainty, Doppler radar-LiDAR bridge SLAM, raw GNSS factor fusion, wheel/vehicle-motion factors, radar-GNSS/visual mapping, fusion SLAM, robust backends, collaborative SLAM, alternative sensors, lifelong localization, static-map lifecycle/removal, map cleaning, SLAM Toolbox, NDT variants, current benchmark pages, and neural/Gaussian SLAM taxonomy |
 | GLIM/GTSAM pipeline hub | `30-autonomy-stack/localization-mapping/slam-methods/glim-gtsam-pipeline-hub.md` | Cross-section route linking GLIM stages to GTSAM factor graph objects, Bayes trees, Hessians, sparse elimination, marginalization, robust losses, and diagnostic KB pages |
 | SLAM coverage audit | `30-autonomy-stack/localization-mapping/slam-methods/coverage-audit-2026.md` | Source-backed backlog plus May 2026 discovery sweeps: LVI-SAM, FAST-LIVO/R3LIVE, KISS-SLAM, MOLA, robust/certifiable PGO, C-SLAM systems, degeneracy-robust LIO, event/thermal/UWB VIO and localization, raw GNSS factor fusion, wheel/vehicle-motion factors, radar-to-LiDAR map matching, 4D radar, Gaussian/foundation SLAM, and current benchmarks |
 | AV / indoor / outdoor selection | `30-autonomy-stack/localization-mapping/slam-methods/av-indoor-outdoor-decision-matrix.md` | Method fit by GNSS availability, dynamics, map dependence, compute budget, and safety criticality |
@@ -113,8 +113,8 @@
 | Indoor and dense SLAM | `30-autonomy-stack/localization-mapping/slam-methods/rtab-map.md` | `kinectfusion.md`, `elasticfusion.md`, `bundlefusion.md`, `imap.md`, `nice-slam.md`, `co-slam-eslam.md`, `nerf-slam.md` |
 | Learned, semantic, and Gaussian SLAM | `30-autonomy-stack/localization-mapping/slam-methods/splatam.md` | `lo-net-learned-lidar-odometry.md`, `regformer-learned-registration.md`, `semantic-slam.md`, `dynamic-object-aware-slam.md`, `object-level-slam.md`, `gs-slam-monogs.md`, `photo-slam.md`, `neural-gaussian-slam-surveys.md` |
 | Outdoor Gaussian, radar, and degraded-sensor SLAM | `30-autonomy-stack/localization-mapping/slam-methods/splat-loam.md` | `gigaslam.md`, `wildgs-slam.md`, `splat-slam.md`, `s3po-gs.md`, `hi-slam2.md`, `segs-slam.md`, `gaussian-lic.md`, `rmgs-slam.md`, `gs-livm.md`, `vigs-slam.md`, `dynamic-4d-gaussian-slam.md`, `radarsplat-rio.md`, `4d-imaging-radar-rio-slam.md`, `radar-rio-correspondence-uncertainty.md`, `doppler-radar-lidar-slam.md`, `gvins-glio-gnss-raw-factor-fusion.md`, `wheel-odometry-vehicle-motion-factors.md`, `radar-to-lidar-map-localization.md`, `radar-odometry-radar-slam.md`, `radar-place-recognition-4dral-sherloc.md`, `radar-inertial-odometry.md`, `radar-lidar-inertial-fusion.md`, `uwb-radio-ranging-slam.md`, `mm-lins.md` |
-| Dynamic map cleaning | `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` | `erasor.md`, `removert.md`, `mapcleaner.md`, `erasor-plus-plus.md`, `4dndf.md`, `freedom-dynamic-object-removal.md`, `static-lio-dynamic-points-removal.md`, `moves-and-label-free-map-cleaning.md`, benchmark coverage, static-map preservation, and dynamic-object removal risks |
-| Lifelong and alternative localization | `30-autonomy-stack/localization-mapping/slam-methods/lt-mapper-khronos-lifelong-mapping.md`, `30-autonomy-stack/localization-mapping/slam-methods/rtmap-dufomap-recursive-maintenance.md`, `30-autonomy-stack/localization-mapping/slam-methods/gpr-localization-ground-encoding.md`, `30-autonomy-stack/localization-mapping/slam-methods/radar-teach-repeat-localization.md` | Long-term metric-semantic mapping, recursive map maintenance, ground-penetrating radar localization, and radar teach-and-repeat fallbacks for adverse weather or changed scenes |
+| Dynamic map cleaning | `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` | `erasor.md`, `removert.md`, `mapcleaner.md`, `erasor-plus-plus.md`, `4dndf.md`, `freedom-dynamic-object-removal.md`, `static-lio-dynamic-points-removal.md`, `moves-and-label-free-map-cleaning.md`, `potentially-dynamic-object-removal-ground-projection.md`, benchmark coverage, static-map preservation, and dynamic-object removal risks |
+| Lifelong and alternative localization | `30-autonomy-stack/localization-mapping/slam-methods/lt-mapper-khronos-lifelong-mapping.md`, `30-autonomy-stack/localization-mapping/slam-methods/lifelong-3d-map-version-control.md`, `30-autonomy-stack/localization-mapping/slam-methods/rtmap-dufomap-recursive-maintenance.md`, `30-autonomy-stack/localization-mapping/slam-methods/gpr-localization-ground-encoding.md`, `30-autonomy-stack/localization-mapping/slam-methods/radar-teach-repeat-localization.md` | Long-term metric-semantic mapping, reconstructable map version control, recursive map maintenance, ground-penetrating radar localization, and radar teach-and-repeat fallbacks for adverse weather or changed scenes |
 
 #### Localization & mapping
 | Topic | Primary | Supporting |
@@ -439,13 +439,13 @@
 
 | Metric | Value |
 |--------|-------|
-| Reader Markdown pages | 846 |
-| Core research documents | 842 |
+| Reader Markdown pages | 848 |
+| Core research documents | 844 |
 | Reader/research lines | 390k+ |
 | `00-start-here/` documents | 4 |
 | `10-knowledge-base/` documents | 137 |
 | `20-av-platform/` documents | 41 |
-| `30-autonomy-stack/` documents | 448 |
+| `30-autonomy-stack/` documents | 450 |
 | `40-runtime-systems/` documents | 23 |
 | `50-cloud-fleet/` documents | 32 |
 | `60-safety-validation/` documents | 56 |
@@ -454,14 +454,14 @@
 | `90-synthesis/` documents | 12 |
 | Companies covered | 25 |
 | Technology domains | 9 |
-| Method-level SLAM library | 151 SLAM-method documents including overview/audit |
+| Method-level SLAM library | 153 SLAM-method documents including overview/audit |
 | Method-level perception files | 136 |
 | Safety and validation documents | 56 |
 | AV platform documents | 41 |
 | Knowledge base documents | 137 |
 | Synthesis documents | 12 |
 | Perception documents | 209 |
-| Localization/mapping | 177 |
+| Localization/mapping | 179 |
 | Planning documents | 16 |
 | Multi-agent and V2X | 7 |
 | Robustness validation files | 9 |

@@ -1,6 +1,6 @@
 # Potentially Dynamic Object Map Policy
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 ## Why It Matters
 
@@ -12,7 +12,7 @@ The policy goal is not simply "remove dynamic objects." It is to prevent movable
 
 | Source | Technical lesson | Policy lesson |
 |---|---|---|
-| No More Potentially Dynamic Objects | Use 3D object detection, ground segmentation, and projection to build static point-cloud maps without parked vehicles | Object classes that can move should not become static anchors |
+| [No More Potentially Dynamic Objects](../slam-methods/potentially-dynamic-object-removal-ground-projection.md) | Use 3D object detection, ground segmentation, and projection to build static point-cloud maps without parked vehicles | Object classes that can move should not become static anchors |
 | YOLO-based potential dynamic removal | Camera detection plus LiDAR/NDT mapping can improve localization in traffic-heavy scenes | Multi-modal semantic filtering can outperform raw LiDAR segmentation alone |
 | Dynamic map cleaning benchmark | Cleaning must preserve static infrastructure and FOD/hazard awareness | Map cleaning is a safety-validation problem |
 | FAA FOD guidance | FOD is safety-critical when in an inappropriate location | Do not erase small hazards as "noise" |
@@ -90,6 +90,7 @@ Cross-reference: `../../perception/overview/aggregated-map-semantic-segmentation
 ## Sources
 
 - No More Potentially Dynamic Objects arXiv: https://arxiv.org/abs/2407.01073
+- Local method page: [Potentially Dynamic Object Removal by Ground Projection](../slam-methods/potentially-dynamic-object-removal-ground-projection.md)
 - Enhancing LiDAR Mapping with YOLO-Based Potential Dynamic Object Removal: https://www.mdpi.com/1424-8220/24/23/7578
 - FAA Foreign Object Debris Program: https://www.faa.gov/airports/airport_safety/fod
 - FAA AC 150/5210-24A document page: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24

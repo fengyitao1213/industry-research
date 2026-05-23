@@ -794,7 +794,7 @@ Segmentation quality is capped by input quality. Conditioning runs *before* tili
 
 ### 9.1 Dynamic Object Removal (Prerequisite)
 
-Moving objects captured during the survey leave ghost trails that no static class explains. Remove them *before* segmentation using multi-session/temporal-consistency methods — ERASOR, Removert, MapCleaner and successors — covered in depth in `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`. The multi-session voting approach in `map-construction-pipeline.md` §3.5 (keep voxels seen in ≥K of N sessions) is the simplest robust option. Caveat: aggressive removal also deletes legitimately static thin structures — tune toward conservative removal and let the "staged GSE" class (§6.3) catch the rest.
+Moving objects captured during the survey leave ghost trails that no static class explains. Remove them *before* segmentation using multi-session/temporal-consistency methods — ERASOR, Removert, MapCleaner and successors — covered in depth in `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`. For parked or staged objects that never move during the survey, add a semantic branch such as `../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md` before map publication, then manage cross-pass positive/negative changes through `../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md`. The multi-session voting approach in `map-construction-pipeline.md` §3.5 (keep voxels seen in ≥K of N sessions) is the simplest robust option. Caveat: aggressive removal also deletes legitimately static thin structures — tune toward conservative removal and let the "staged GSE" class (§6.3) catch the rest.
 
 ### 9.2 Deskew, Outlier Removal, Normal Estimation
 
@@ -1037,7 +1037,7 @@ There is almost no published airside LiDAR semantic-segmentation work, and what 
 
 - **Scale extremes.** Aircraft (30-65 m) and FOD-scale objects (1-10 cm) span 3-4 orders of magnitude — tiles must be large enough for aircraft context yet resolution fine enough for markings (argues for multi-resolution, §11).
 - **High-vis and specular returns.** Crew vests and wet concrete saturate or absorb intensity — intensity calibration (§9.4) must be robust to it.
-- **Staged GSE quarantine.** The "staged GSE" class (§6.3, ID 9) prevents transient equipment being baked into the permanent map — coordinate with `../../localization-mapping/maps/potentially-dynamic-object-map-policy.md`.
+- **Staged GSE quarantine.** The "staged GSE" class (§6.3, ID 9) prevents transient equipment being baked into the permanent map — coordinate with `../../localization-mapping/maps/potentially-dynamic-object-map-policy.md`, and use `../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md` only as a map-conditioning branch with rejected-object evidence, not as runtime clearance.
 - **Transfer path.** Pre-train on Paris-Lille-3D / Toronto-3D / KITTI-360 (MLS, ground-level), self-supervised pre-train on unlabeled airside maps, then fine-tune with a few hundred labeled airside tiles via PointLoRA-class adapters (`lidar-foundation-models.md`, `self-supervised-pretraining-driving.md`).
 
 The airside aggregated-map benchmark specification, annotation protocol, and cost model are detailed in §5.4; the phased per-airport rollout is the roadmap in §15.2, and it slots into the new-airport onboarding playbook in `../../../70-operations-domains/deployment-playbooks/multi-airport-adaptation.md` §2.
