@@ -1,6 +1,6 @@
 # Map Publication Gates for Airside Hygiene
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 Airside map publication must combine map quality, operational approval, safety evidence, and rollout control. The goal is to prevent stale maps, over-cleaned maps, hidden FOD, and temporary assets from reaching vehicles as if they were permanent ground truth.
 
@@ -21,8 +21,8 @@ Airside map publication must combine map quality, operational approval, safety e
 | Gate | Evidence | Required approver |
 |---|---|---|
 | source provenance | raw logs, survey dates, calibration, control points, coordinate frame | map owner |
-| hygiene validation | dynamic rejection, static preservation, FOD retention, unknown/quarantine report | V&V lead |
-| semantic integrity | semantic-map manifest, taxonomy/class-order hash, safety-class metrics, unknown/confidence policy, Lanelet2/vector validation, route reachability, geofence, speed/no-go overlays | autonomy lead |
+| hygiene validation | dynamic rejection, static preservation, source-map geometry QA report, FOD retention, unknown/quarantine report | V&V lead |
+| semantic integrity | semantic-map manifest, taxonomy/class-order hash, source-map `qa_report_id`, safety-class metrics, unknown/confidence policy, Lanelet2/vector validation, route reachability, geofence, speed/no-go overlays | autonomy lead |
 | runtime map-load contract | Autoware projection, Lanelet2, pointcloud metadata, PCD cell split, and loader smoke-test evidence | autonomy lead |
 | operational fit | stand/route availability, closure/work-zone status, sponsor constraints | airport ops |
 | safety case delta | hazard impact, residual risk, FAA AGVS/test-plan trace if applicable | safety lead |
@@ -30,6 +30,8 @@ Airside map publication must combine map quality, operational approval, safety e
 | post-release review | monitoring window, interventions, map disagreements, FOD tickets | release manager |
 
 The **semantic-integrity** gate is evaluated against the semantic layer produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`). That pipeline's own QA gates — held-out mIoU, per-class IoU on safety-relevant classes, cross-pass consistency, seam audit, version-to-version label churn (its §13.2-13.3) — are the upstream evidence this gate consumes; per-point confidence and provenance (its §8.6, §10.6) make the layer auditable for the safety-case-delta gate.
+
+The semantic manifest's `metrics_evidence.qa_report_id` must dereference to a QA bundle that includes source-map geometry quality before this gate can pass. For MapEval-style checks, require a `source_map_quality` block with method, metric set, config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and pass/warn/fail/waived status. If the QA report is missing or cannot be dereferenced, treat semantic metrics as provisional even when mIoU and class recall look acceptable.
 
 The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) as its label and reviewer-disposition source, with the [V&V companion](../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md) defining benchmark exchange fields and acceptance outputs. Publication is blocked when the candidate map lacks a signed static/dynamic/FOD/artifact/unknown report, rejected-object layer, reviewer decision state, or quarantine disposition for safety-critical deletions.
 
@@ -81,6 +83,8 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 - Autoware map component design: https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture-v1/components/map/
 - Autoware map loader: https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/
 - Autoware map projection loader: https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+- Autoware pointcloud divider: https://autowarefoundation.github.io/autoware_tools/latest/map/autoware_pointcloud_divider/
+- MapEval point-cloud map-quality evaluation: https://doi.org/10.1109/LRA.2025.3548441 and https://github.com/JokerJohn/Cloud_Map_Evaluation
 - Uptane Standard 2.1.0: https://uptane.org/docs/2.1.0/standard/uptane-standard
 - SLSA build provenance v1.2: https://slsa.dev/spec/v1.2/build-provenance
 - Local context: hd-map-lifecycle-operations.md

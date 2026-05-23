@@ -20,7 +20,7 @@
   "pointcloud_loader": {
     "pcd_fields": ["x", "y", "z", "intensity"],
     "pcd_resolution_m": 0.1,
-    "pcd_split_size_m": 100.0,
+    "pcd_split_size_m": 20.0,
     "pointcloud_map_metadata_hash": "sha256:dededededededededededededededededededededededededededededededede",
     "axis_aligned": true,
     "non_overlapping": true,
@@ -29,13 +29,13 @@
       {
         "cell_id": "SIN-A42-runtime-cell-0001",
         "pcd_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
-        "point_count": 1840242,
+        "point_count": 184024,
         "bounds": {
           "min_x": 1200.0,
           "min_y": 840.0,
           "min_z": -1.5,
-          "max_x": 1300.0,
-          "max_y": 940.0,
+          "max_x": 1220.0,
+          "max_y": 860.0,
           "max_z": 8.0
         }
       }

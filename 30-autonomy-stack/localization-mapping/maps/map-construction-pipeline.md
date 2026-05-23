@@ -1131,6 +1131,8 @@ class MapValidator:
 
 The `pointcloud_map_quality` check is the source-map gate for the semantic pipeline. It records the reference map or control geometry used, the alignment transform, MapEval configuration, per-tile failure regions, and whether any no-reference region was accepted by waiver. A map that fails this gate should not produce release labels, even if a segmenter can assign plausible classes to the distorted geometry.
 
+Store the release-facing summary behind the semantic manifest's `metrics_evidence.qa_report_id`, with a `source_map_quality` payload that names the method (`mapeval` or equivalent), metric set (`AC`, `COM`, `CD`, `MME`, `AWD`, `SCS` where available), config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and pass/warn/fail/waived status. Keep thresholds in a referenced policy rather than in the manifest itself, because acceptable residuals differ by ODD, map resolution, survey instrument, and whether the region is an apron, road corridor, campus frontage, or dense non-road urban district.
+
 ### 10.2 Human Review Process
 
 Automated checks catch structural issues. Human review catches semantic issues:
@@ -1215,7 +1217,7 @@ airport-LHR-T5-v2.3.1/
 └── CHANGELOG.md              — Version history
 ```
 
-The `semantics/` directory is the authoritative L3 semantic layer produced by `../../perception/overview/aggregated-map-semantic-segmentation.md`. The `autoware_runtime/` directory is an adapter view for the target stack: it records `map_path`, `lanelet2_map_path`, `pointcloud_map_path`, `pointcloud_map_metadata_path`, `map_projector_info_path`, projector type/datum/grid or origin, `pcd_fields`, `pcd_resolution_m`, `pcd_split_size_m`, axis-aligned/non-overlap guarantees, target Autoware container digest, and loader smoke-test evidence IDs. Do not rely on semantic labels embedded in the localization PCD unless the exact runtime loader and downstream consumers have been validated for those extra fields.
+The `semantics/` directory is the authoritative L3 semantic layer produced by `../../perception/overview/aggregated-map-semantic-segmentation.md`. The `autoware_runtime/` directory is an adapter view for the target stack: it records `map_path`, `lanelet2_map_path`, `pointcloud_map_path`, `pointcloud_map_metadata_path`, `map_projector_info_path`, projector type/datum/grid or origin, `pcd_fields`, `pcd_resolution_m`, `pcd_split_size_m`, axis-aligned/non-overlap guarantees, target Autoware container digest, and loader smoke-test evidence IDs. Autoware's pointcloud divider convention uses about 20 m by 20 m divided point-cloud maps for dynamic loading; treat larger cells, especially near or above 100 m, as a runtime-loader risk that needs explicit smoke-test evidence rather than a default. Do not rely on semantic labels embedded in the localization PCD unless the exact runtime loader and downstream consumers have been validated for those extra fields.
 
 ### 11.2 Map Versioning
 
@@ -1551,7 +1553,7 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 19. ISO 19157:2023. "Geographic information — Data quality."
 20. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
 21. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
-22. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+22. Autoware Foundation. "autoware_map_loader package", "autoware_map_projection_loader", and "autoware_pointcloud_divider" runtime map file contracts and divided-point-cloud convention. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/ and https://autowarefoundation.github.io/autoware_tools/latest/map/autoware_pointcloud_divider/
 23. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
 24. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
 

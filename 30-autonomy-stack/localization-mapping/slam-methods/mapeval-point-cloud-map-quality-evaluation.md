@@ -134,6 +134,7 @@ For non-road urban districts, explicitly track plazas, sidewalks, courtyards, tr
 6. For LAMM and Uni-Mapper outputs, attach retained/rejected loop evidence and connected-component IDs so MapEval failures can be traced back to the merge step.
 7. For dynamic-object removal outputs, pair map-quality metrics with static-preservation and false-deletion evidence; a cleaner map is not automatically a safer map.
 8. For LiDAR+image maps, require a separate projection/calibration QA record before using colorized points or image-derived pseudo-labels.
+9. In semantic-map manifests, keep the schema stable by storing the report identifier in `metrics_evidence.qa_report_id`; the dereferenced QA report should expose a `source_map_quality` block with method, metric set, config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and gate status. Promote that block into the manifest schema only if release automation must make pass/fail decisions without dereferencing the QA report.
 
 ## Deployment Readiness
 
@@ -147,6 +148,7 @@ Before embedding it in a production map-release pipeline, verify:
 - reference-map acquisition and alignment procedure,
 - behavior on no-reference regions,
 - integration of failure regions into the semantic-map manifest and publication gates.
+- release tooling behavior when `metrics_evidence.qa_report_id` cannot dereference the expected `source_map_quality` payload.
 
 ## Sources
 
