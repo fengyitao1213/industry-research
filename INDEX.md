@@ -73,6 +73,7 @@
 | LiDAR foundation models | `30-autonomy-stack/perception/overview/lidar-foundation-models.md` | PTv3, Sonata, ScaLR, PointLoRA, 50-80% data savings |
 | LiDAR semantic segmentation | `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` | Cylinder3D, FlatFormer, PTv3, ALPINE panoptic, airside 18-class taxonomy |
 | Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, datasets, KPConv/RandLA/SPT, LiDAR±image, auto-label flywheel |
+| Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, and stationary-transient object removal for registered LiDAR/RGB map products |
 | Model compression & edge | `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` | PTQ/QAT, distillation, pruning, TensorRT, ModelOpt, Orin recipes |
 | Multi-object tracking | `30-autonomy-stack/perception/overview/multi-object-tracking.md` | CenterPoint tracker, SimpleTrack, MCTrack, HOTA, airside Re-ID |
 | Camera fallback perception | `30-autonomy-stack/perception/overview/camera-fallback-perception.md` | Degraded mode when LiDAR fails: DepthAnything v2, stereo depth, BEVFormer-Tiny, confidence calibration, speed reduction |
@@ -358,6 +359,7 @@
 | Recurring fleet calibration operations refresh | Sensor Calibration Fleet Operations was refreshed with package lifecycle states, artifact manifest fields, versioned telemetry schemas, drift remediation workflow, anti-patterns, rollback/quarantine gates, and current source links |
 | Recurring infrastructure-aided localization batch | Infrastructure-Aided Localization was promoted as a localization overview covering UWB, fiducials, RFID/BLE, Wi-Fi RTT, magnetic maps, reflectors, 5G NR/mmWave positioning, measurement contracts, lifecycle controls, and estimator handoff patterns |
 | Recurring fiducial/corner localization batch | Fiducial and Corner Localization was promoted as a geometry foundation page covering AprilTag, ArUco, ChArUco, checkerboard and AprilGrid targets, planar PnP/IPPE pose evidence, marker-map survey contracts, estimator handoff, and managed-site failure modes |
+| Recurring semantic-map navigation cleanup | Post-merge corpus counts, perception audit counts, and README/INDEX routes were synchronized for the aggregated-map semantic segmentation hub and companion pages covering taxonomy, training, tiling, post-processing, and static-transient removal |
 | Perception/SLAM/sensor deep-dive wave | 33 source-backed files covering SplatAD and Gaussian/4DGS perception, latest sparse/radar-camera perception, production LIVO/SLAM, Gaussian/radar SLAM, and sensor measurement/noise fundamentals |
 | `10-knowledge-base/`, `20-av-platform/`, `30-autonomy-stack/`, `40-runtime-systems/`, `50-cloud-fleet/`, `60-safety-validation/`, `70-operations-domains/` P0 gap wave | 35 source-backed P0 gap files covering foundations, platform power/diagnostics/ruggedization, planning/control/V2X, E2E/VLA/world models, runtime/cloud operations, safety evidence, and non-airside operations domains |
 | `90-synthesis/readiness-risk/knowledge-gap-backlog.md` | Cross-architecture gap backlog from parallel research agents: P0/P1/P2 missing files across foundations, platform, autonomy, runtime/cloud, safety, operations, and industry intelligence |
@@ -437,13 +439,13 @@
 
 | Metric | Value |
 |--------|-------|
-| Reader Markdown pages | 817 |
-| Core research documents | 813 |
-| Reader/research lines | 276k+ |
+| Reader Markdown pages | 846 |
+| Core research documents | 842 |
+| Reader/research lines | 390k+ |
 | `00-start-here/` documents | 4 |
-| `10-knowledge-base/` documents | 136 |
+| `10-knowledge-base/` documents | 137 |
 | `20-av-platform/` documents | 41 |
-| `30-autonomy-stack/` documents | 421 |
+| `30-autonomy-stack/` documents | 448 |
 | `40-runtime-systems/` documents | 23 |
 | `50-cloud-fleet/` documents | 32 |
 | `60-safety-validation/` documents | 56 |
@@ -453,13 +455,13 @@
 | Companies covered | 25 |
 | Technology domains | 9 |
 | Method-level SLAM library | 151 SLAM-method documents including overview/audit |
-| Method-level perception files | 115 |
+| Method-level perception files | 136 |
 | Safety and validation documents | 56 |
 | AV platform documents | 41 |
-| Knowledge base documents | 136 |
+| Knowledge base documents | 137 |
 | Synthesis documents | 12 |
-| Perception documents | 182 |
-| Localization/mapping | 175 |
+| Perception documents | 209 |
+| Localization/mapping | 177 |
 | Planning documents | 16 |
 | Multi-agent and V2X | 7 |
 | Robustness validation files | 9 |

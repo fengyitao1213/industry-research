@@ -10,17 +10,17 @@ The repository remains Markdown-first, but the VitePress reader is the intended 
 
 | Scope | Count |
 |-------|-------|
-| Reader pages | 817 |
-| Core research documents | 813 |
-| Corpus size | 276k+ lines |
+| Reader pages | 846 |
+| Core research documents | 842 |
+| Corpus size | 390k+ lines |
 | Companies covered | 25 |
 | Technology domains | 9 |
 | Method-level SLAM library | 151 SLAM-method documents including overview/audit |
-| Method-level perception files | 115 |
+| Method-level perception files | 136 |
 | Safety and validation docs | 56 |
 | AV platform docs | 41 |
 | Synthesis docs | 12 |
-| Knowledge base docs | 136 |
+| Knowledge base docs | 137 |
 | Papers referenced | 700+ |
 | Open-source repos evaluated | 90+ |
 | Airport deployments documented | 15+ |
@@ -63,6 +63,7 @@ Airside is used as a detailed reference ODD where the corpus has the deepest dep
 | Edge hardware choices | [NVIDIA Orin Technical](20-av-platform/compute/nvidia-orin-technical.md) | Grounds model choices in compute, power, TensorRT, DLA, and sensor constraints. |
 | Perception stack | [Production Perception Systems](30-autonomy-stack/perception/overview/production-perception-systems.md) | Compares production AV approaches and the perception patterns that transfer across road, airside, and managed-site autonomy. |
 | Method-level perception | [Perception Method Library](30-autonomy-stack/perception/methods/overview.md) | Splits BEV, sparse-query detection, occupancy, GaussianFlowOcc/GaussTR/GS-Occ3D/VOGS-CP-style Gaussian occupancy and label curation, LiDAR-camera/radar-camera fusion, dynamic Gaussian/3DGS/4DGS, LiDAR MOS, scene flow, 4D radar, FMCW LiDAR, open-world occupancy/attributes including SpaCeFormer-style open-vocabulary 3D instance segmentation, robust fusion, QuantV2X/SparseCoop-style V2X compression and sparse-query cooperation, latency, and data-engine methods into single-technique research pages. |
+| Aggregated-map semantic segmentation | [Aggregated-Map Semantic Segmentation](30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md) | Routes the full registered-map labeling pipeline: LiDAR/image inputs, large-scale datasets, class-taxonomy design, model-family tradeoffs, training architectures, tiling/stitching, post-processing, map cleaning handoff, and non-road urban-district transfer. |
 | LiDAR artifact removal | [LiDAR Artifact Removal Techniques](30-autonomy-stack/perception/overview/lidar-artifact-removal-techniques.md) | Connects LIORNet, learned denoisers, classical outlier filters, weather artifacts, ghost/multipath behavior, map cleaning, datasets, and safety validation. |
 | Dynamic and static object removal | [LiDAR Map Cleaning and Dynamic Removal](30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) | Connects ERASOR, Removert, MapCleaner, ERASOR++, 4dNDF, FreeDOM, STATIC-LIO, MOVES, RTMap/DUFOMap, LT-mapper/Khronos, MOS/scene-flow methods, moved-object datasets, and false-deletion validation. |
 | Perception coverage gaps | [Perception Coverage Audit](30-autonomy-stack/perception/overview/coverage-audit-2026.md) | Tracks missing first-class perception pages across BEV, occupancy, Gaussian/3DGS, LiDAR/radar/thermal, open-world/OOD, V2X, robustness, and benchmarks. |
@@ -84,9 +85,9 @@ Airside is used as a detailed reference ODD where the corpus has the deepest dep
 | Section | Docs | Start At | What It Holds |
 |---------|------|----------|---------------|
 | `00-start-here/` | 4 | [Reading Guide](00-start-here/reading-guide.md) | Reader entry points and orientation material. |
-| `10-knowledge-base/` | 136 | [Probability and Statistics Foundations](10-knowledge-base/probability-statistics/overview.md) | First-principles technical notes: probability/statistics, optimization, constrained KKT/QP/SQP solver mechanics, numerical linear algebra, geometry, mapping, state estimation, sensor likelihoods, thermal IR radiometry, ultrasonic proximity sensing, signal processing, controls, robotics, ML including AV data-evaluation contracts, calibration, timing, continuous-time trajectories, robust covariance consistency, fiducial/corner localization, two-view epipolar/homography verification, optical/scene-flow motion fields, and detection/tracking evidence. |
+| `10-knowledge-base/` | 137 | [Probability and Statistics Foundations](10-knowledge-base/probability-statistics/overview.md) | First-principles technical notes: probability/statistics, optimization, constrained KKT/QP/SQP solver mechanics, numerical linear algebra, geometry, mapping, state estimation, sensor likelihoods, thermal IR radiometry, ultrasonic proximity sensing, signal processing, controls, robotics, ML including AV data-evaluation contracts, calibration, timing, continuous-time trajectories, robust covariance consistency, fiducial/corner localization, two-view epipolar/homography verification, optical/scene-flow motion fields, and detection/tracking evidence. |
 | `20-av-platform/` | 41 | [NVIDIA Orin Technical](20-av-platform/compute/nvidia-orin-technical.md) | Compute, sensors, sensor-to-algorithm readiness, connectivity, drive-by-wire, power, diagnostics, ruggedization, and edge-cloud architecture. |
-| `30-autonomy-stack/` | 421 | [World Models Overview](30-autonomy-stack/world-models/overview.md) | World models, perception, method-level perception, planning, localization, infrastructure-aided localization, SLAM, simulation, VLA/VLM, E2E driving, and multi-agent systems. |
+| `30-autonomy-stack/` | 448 | [World Models Overview](30-autonomy-stack/world-models/overview.md) | World models, perception, method-level perception, planning, localization, infrastructure-aided localization, SLAM, simulation, VLA/VLM, E2E driving, and multi-agent systems. |
 | `40-runtime-systems/` | 23 | [Production ML Deployment](40-runtime-systems/ml-deployment/production-ml-deployment.md) | ML deployment, ROS/Autoware, observability, teleoperation, software operations, and vehicle-side data logging. |
 | `50-cloud-fleet/` | 32 | [Cloud Backend Infrastructure](50-cloud-fleet/data-platform/cloud-backend-infrastructure.md) | Data engines, fleet data loops, MLOps, OTA/SUMS, observability, map operations, data governance, perception/SLAM reliability telemetry, and fleet management. |
 | `60-safety-validation/` | 56 | [Certification Guide](60-safety-validation/standards-certification/certification-guide.md) | Safety case, standards, runtime assurance, verification, validation, robustness, cybersecurity, incident reporting, reliability evidence, and evidence traceability. |
@@ -99,8 +100,8 @@ Airside is used as a detailed reference ODD where the corpus has the deepest dep
 | Technology | Docs |
 |------------|------|
 | World models | 18 |
-| Perception | 182 |
-| Method-level perception library | 115 |
+| Perception | 209 |
+| Method-level perception library | 136 |
 | Planning | 16 |
 | Localization and mapping | 177 |
 | Method-level SLAM library | 151 SLAM-method documents including overview/audit |

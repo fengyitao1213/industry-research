@@ -6,9 +6,9 @@
 
 ## Overview
 
-This research corpus began as a 24-hour intensive research session on **2026-03-21/22** using Claude Opus 4.6 with a 1M context window, augmented by parallel web-searching research agents. It has since been expanded and reorganized into an 813-document research corpus, surfaced as 817 VitePress reader pages.
+This research corpus began as a 24-hour intensive research session on **2026-03-21/22** using Claude Opus 4.6 with a 1M context window, augmented by parallel web-searching research agents. It has since been expanded and reorganized into an 842-document research corpus, surfaced as 846 VitePress reader pages.
 
-The current reading surface is the static VitePress portal at https://kvynlim.github.io/industry-research/. The Markdown files remain the source of truth; the site adds search, generated navigation, clean URLs, last-updated metadata, and browser-friendly reading across 276k+ reader Markdown lines.
+The current reading surface is the static VitePress portal at https://kvynlim.github.io/industry-research/. The Markdown files remain the source of truth; the site adds search, generated navigation, clean URLs, last-updated metadata, and browser-friendly reading across 390k+ reader Markdown lines.
 
 Domain stance: the corpus is a generic AV knowledge base. Airside autonomous vehicles are the most developed reference ODD because the current research base is deepest there, but method ratings and generic stack pages should not treat airside as the default deployment context.
 
@@ -59,7 +59,7 @@ Domain stance: the corpus is a generic AV knowledge base. Airside autonomous veh
 
 ### Phase 10: Method-Level Perception Library
 - **Method:** Five parallel writing agents split the perception coverage audit into atomic, one-method research files across camera BEV/occupancy, LiDAR/radar/event/FMCW perception, open-world/open-vocabulary perception, robust fusion/validation, and cooperative/latency/data-engine methods
-- **Output:** [Perception Method Library](30-autonomy-stack/perception/methods/overview.md), initially with 54 single-technique method files and now expanded to 115 atomic method files that follow a shared structure for core idea, inputs/outputs, architecture, training/evaluation, strengths, failure modes, domain fit, transfer notes for explicitly scoped ODDs, implementation notes, and sources
+- **Output:** [Perception Method Library](30-autonomy-stack/perception/methods/overview.md), initially with 54 single-technique method files and now expanded to 136 atomic method files that follow a shared structure for core idea, inputs/outputs, architecture, training/evaluation, strengths, failure modes, domain fit, transfer notes for explicitly scoped ODDs, implementation notes, and sources
 
 ### Phase 11: Cross-Architecture Knowledge Gap Audit
 - **Method:** Six parallel research agents audited the post-restructure architecture across foundations, AV platform, autonomy stack, runtime/cloud, safety/validation, and operations/industry. One autonomy agent was split into two narrower replacement agents after exceeding context, preserving coverage without overloading the review.
@@ -127,13 +127,13 @@ Domain stance: the corpus is a generic AV knowledge base. Airside autonomous veh
 
 | Metric | Value |
 |--------|-------|
-| Core research documents | 813 |
-| Reader pages | 817 |
-| Total lines | 276k+ |
+| Core research documents | 842 |
+| Reader pages | 846 |
+| Total lines | 390k+ |
 | Research agents spawned | 300+ |
 | Companies researched | 25 |
 | Method-level SLAM library | 151 SLAM-method documents including overview/audit |
-| Method-level perception files | 115 |
+| Method-level perception files | 136 |
 | Papers referenced | 700+ |
 | GitHub repos evaluated | 90+ |
 | API endpoints documented | 15+ |
