@@ -235,7 +235,7 @@ The aggregated multi-scan map is a much richer annotation surface than individua
 
 Pipeline: (1) **Map construction** — SLAM or pose-graph optimization accumulates thousands of scans into a colorized, high-density point map. (2) **Map segmentation** — a large, accurate model (PTv3 ensemble or human-corrected segmentation) labels the aggregated map; human verification of the map is 10–20× cheaper per point than per-scan annotation because aggregation makes ambiguous points unambiguous. (3) **Back-projection** — each scan's labeled voxels are looked up in the map via nearest-neighbor voxel matching with overlap consistency checks. (4) **Dynamic object filtering** — moving objects (vehicles, aircraft in motion, ground crew) are removed from the static map before back-projection (see the [LiDAR Semantic Segmentation](lidar-semantic-segmentation.md) single-scan page for dynamic removal methods). (5) **Quality filtering** — per-point confidence scores based on view-count and multi-scan agreement; low-confidence pseudo-labels are discarded or downweighted.
 
-**LESS (ECCV 2022)** performs multi-scan distillation — an aggregated scan model provides denser labels to boost the single-scan model. **UniLiPs (2025/2026)** implements the full pipeline: SLAM → dynamic point removal → 2D VFM pseudo-label projection → 3D accumulation → back-projection of semantic labels and 3D bounding boxes to individual scans, with no manual annotation.
+**LESS (ECCV 2022)** performs multi-scan distillation — an aggregated scan model provides denser labels to boost the single-scan model. **UniLiPs (3DV 2026)** implements the full pipeline: SLAM → dynamic point removal → 2D VFM pseudo-label projection → 3D accumulation → back-projection of semantic labels and 3D bounding boxes to individual scans, with no manual annotation.
 
 | Attribute | Value |
 |---|---|
@@ -272,6 +272,8 @@ Pipeline: (1) **Map construction** — SLAM or pose-graph optimization accumulat
 ## Recommended Layered Recipe for Airside
 
 The following staged pipeline maximizes segmentation accuracy while minimizing manual annotation cost for a greenfield airport apron deployment. Each stage builds on the previous; the ordering reflects both technical dependencies and practical scheduling constraints. See [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) §14.4 airside path for the production-readiness context.
+
+Cost, schedule, and output quantities in this staged airside recipe are internal planning estimates for a rollout scenario, not reported UniLiPs, SALT, or LaserMix benchmark results.
 
 **Stage 0 — Foundation pre-training (before site deployment)**
 Start from a publicly available PPT checkpoint (pre-trained on SemanticKITTI, nuScenes, Waymo, S3DIS). Optionally continue SSL pre-training via Sonata-style self-distillation on any available unlabeled LiDAR logs from road or logistics domains to strengthen geometric representations. Cost: zero new labels; compute is a one-time investment. Output: a strong backbone that understands geometric structures, surfaces, and common outdoor classes before any airside data is collected.
@@ -312,7 +314,7 @@ This layered approach front-loads the most expensive work (map construction, whi
 |---|---|---|---|---|
 | 0 | Supervised multi-dataset pre-train (PPT) + optional SSL continuation | Zero new labels (public data) | One-time, high | Strong general backbone |
 | 1 | Sim-to-real synthetic pre-training (RareBoost3D) | Near zero (synthetic GT) | Moderate render | Airside-vocab model |
-| 2 | Auto-label from aggregated SLAM map (UniLiPs) | ~1 human-day/zone (map review) | One-time SLAM + map seg | 50k–200k pseudo-labeled scans |
+| 2 | Auto-label from aggregated SLAM map (UniLiPs) | Internal planning estimate: ~1 human-day/zone (map review) | One-time SLAM + map seg | Internal planning target: 50k–200k pseudo-labeled scans |
 | 3 | LaserMix semi-supervised | 500–2,000 fully labeled scans | 1.5–2× supervised | 90–95 % of supervised ceiling |
 | 4 | Active learning (LiDAL / SELECT) | ~100/week ongoing budget | Moderate + pool scoring | Continuous rare-class coverage |
 | 5 | PointLoRA PEFT per airport | 200–500 labeled scans/site | Very low (RTX 4090 class) | Per-site adapter, no full retrain |
@@ -434,7 +436,7 @@ The stages above are not the only valid combination. The following table summari
 - RareBoost3D (2025): https://arxiv.org/abs/2510.10876
 - SynLiDAR: https://arxiv.org/abs/2107.05399
 - SynthmanticLiDAR (2025): https://arxiv.org/abs/2501.19035
-- UniLiPs (2025/2026): https://arxiv.org/abs/2601.05105
+- UniLiPs (3DV 2026): https://arxiv.org/abs/2601.05105
 - LiDAL (2022): https://arxiv.org/abs/2211.05997
 - Annotator (NeurIPS 2023): https://arxiv.org/abs/2310.20293
 - DiscwiseAL / DiAL (2023): https://arxiv.org/abs/2309.13276

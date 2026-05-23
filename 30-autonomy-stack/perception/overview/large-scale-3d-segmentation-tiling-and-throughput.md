@@ -509,7 +509,7 @@ The per-km² estimates above assume a single-pass without TTA and without pseudo
 
 **DetZero (ICCV 2023, 1st on Waymo leaderboard):** extends offboard detection to long-term (> 20 frame) sequence aggregation with an offline tracker + multi-frame detector + attention-based refiner; 85.15 mAPH(L2). Demonstrates that production pipelines increasingly aggregate entire trajectories, not single scenes.
 
-**UniLiPs (2025):** demonstrates zero-annotation pseudo-label generation for semantic segmentation at scale using geometry-grounded scene decomposition — indicating that the production frontier is moving toward fully automated label generation.
+**UniLiPs (3DV 2026):** demonstrates zero-annotation pseudo-label generation for semantic segmentation at scale using geometry-grounded scene decomposition — indicating that the offline pseudo-labeling research frontier is moving toward fully automated label generation.
 
 ### What Is Not Published
 
@@ -618,5 +618,5 @@ An ordered recipe for a new large-scale airside segmentation run:
 - DetZero offboard ICCV 2023 (arXiv 2306.06023): https://arxiv.org/pdf/2306.06023
 - SparsePipe multi-GPU NeurIPS 2020 (arXiv 2012.13846): https://arxiv.org/abs/2012.13846
 - SensatUrban CVPR 2021: https://openaccess.thecvf.com/content/CVPR2021/papers/Hu_Towards_Semantic_Segmentation_of_Urban-Scale_3D_Point_Clouds_A_Dataset_CVPR_2021_paper.pdf
-- UniLiPs auto-label 2025 (arXiv 2601.05105): https://arxiv.org/html/2601.05105
+- UniLiPs auto-label (3DV 2026; arXiv 2601.05105): https://arxiv.org/html/2601.05105
 - LAS file format (Wikipedia): https://en.wikipedia.org/wiki/LAS_file_format

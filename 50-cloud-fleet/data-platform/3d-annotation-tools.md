@@ -204,7 +204,7 @@ This reduces annotation from:
 
 ### 4.4 Map-Scale Semantic Candidate Review
 
-For aggregated LiDAR maps, do not route open-vocabulary outputs through the same confidence tiers as closed-set 3D boxes. VESPA, ZOPP, SALT/SAM4D, OpenUrban3D, UniLiPs, and LOSC can pre-fill tiles, superpoints, object proposals, or back-projected scan labels, but annotation tasks should show them as read-only pre-annotations with `candidate_concept`, prompt, model, calibration, consolidation, and tile provenance. Reviewers map candidates to the controlled taxonomy, request a taxonomy change, retain `unknown`, or reject. Export only `qa_passed` semantic patches and approved back-projected labels; prompt strings must not become class IDs directly.
+For aggregated LiDAR maps, do not route open-vocabulary outputs through the same confidence tiers as closed-set 3D boxes. VESPA, ZOPP, SALT, SAM4D, OpenUrban3D, UniLiPs, and LOSC can pre-fill tiles, superpoints, object proposals, or back-projected scan labels, but annotation tasks should show them as read-only pre-annotations with `candidate_concept`, prompt, model, calibration, consolidation, and tile provenance. Reviewers map candidates to the controlled taxonomy, request a taxonomy change, retain `unknown`, or reject. Export only `qa_passed` semantic patches and approved back-projected labels; prompt strings must not become class IDs directly.
 
 ---
 

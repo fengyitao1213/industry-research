@@ -128,7 +128,7 @@ Mosaic3D occupies the **open-vocabulary 3D segmentation** niche, which is distin
 | OpenMask3D (CVPR 2023) | Open (CLIP) | RGB-D | Small datasets | CLIP feature distillation per 3D instance |
 | OpenScene (CVPR 2023) | Open (CLIP) | RGB-D | Moderate | CLIP feature lifting to 3D via multi-view rendering |
 | **Mosaic3D (CVPR 2025)** | **Open (VLM-rich)** | **RGB-D → 3D** | **5.6 M pairs** | Automated VLM captioning + mask lifting at scale |
-| SAM4D (ICCV 2025) | Class-agnostic + prompt | Camera + LiDAR (4D) | Waymo-4DSeg (45 M masks) | Cross-modal 4D foundation model with temporal memory |
+| SAM4D (ICCV 2025) | Class-agnostic + prompt | Camera + LiDAR (4D) | Waymo-4DSeg (15 M image masks + 30 M LiDAR masks + 300 k cross-modal masklets) | Cross-modal 4D foundation model with temporal memory |
 
 The key distinction from SAM4D is modality: Mosaic3D produces language-aligned 3D features from RGB-D (indoor-focused); SAM4D targets cross-modal camera+LiDAR segmentation in autonomous driving (outdoor, temporal). For airside AV use, SAM4D is more relevant for online multi-modal segmentation, while Mosaic3D's data pipeline is more relevant for offline map labelling.
 

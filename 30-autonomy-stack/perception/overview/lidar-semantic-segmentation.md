@@ -958,7 +958,7 @@ Phase 4 (Full Panoptic): Instance-level scene understanding
 - Panoptic labels: ~45 min/scan × 100 scans = 75 hours × $30/hr = **$2,250**
 - Total: **~$10,000** for foundational benchmark
 
-Using SALT (Semi-Automatic Labeling Tool, 2025) with cross-scene adaptability could reduce this by 60-70%.
+SALT (Semi-Automatic Labeling Tool, 2025) is a source-backed presegmentation accelerator for this task: it reports 4D-consistent LiDAR presegmentation and nearly 40-50% of human annotator performance on its low-resolution and heterogeneous-LiDAR evaluations, but it does not report a universal 60-70% annotation-cost reduction for this benchmark design.
 
 ---
 
@@ -1048,7 +1048,7 @@ Using SALT (Semi-Automatic Labeling Tool, 2025) with cross-scene adaptability co
 ### Real-Time & Edge Deployment
 - "Are We Ready for Real-Time LiDAR Semantic Segmentation in Autonomous Driving?" (2024) — [arxiv.org/abs/2410.08365](https://arxiv.org/abs/2410.08365)
 - "An Experimental Study of SOTA LiDAR Segmentation Models" (2025) — [arxiv.org/abs/2502.12860](https://arxiv.org/abs/2502.12860)
-- **SALT**: "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds" (2025)
+- **SALT**: "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" (2025)
 
 ### Benchmarks
 - **SemanticKITTI**: Behley et al., "SemanticKITTI: A Dataset for Semantic Scene Understanding of LiDAR Sequences" (ICCV 2019)
