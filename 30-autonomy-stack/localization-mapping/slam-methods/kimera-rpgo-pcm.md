@@ -189,7 +189,7 @@ The two methods are complementary and can be stacked:
 | 1 — Global pre-filter | PCM (max clique) | Globally inconsistent loop closures | Before optimization |
 | 2 — Local per-edge | GNC (graduated weights) | Residual outliers with large per-edge cost | During optimization |
 
-Layer 1 (PCM) dramatically reduces the number of outliers passed to the optimizer. Layer 2 (GNC) handles residual false positives that survived PCM — closures that are consistent with the odometry chain but still slightly wrong — and provides smooth convergence. In Kimera-Multi T-RO 2022, the distributed back-end uses GNC-on-top-of-PCM: PCM filters inter-robot loop closures, then distributed GNC (built on the RBCD solver) handles final optimization with per-edge weights.
+Layer 1 (PCM) removes adversarial clusters before they reach the optimizer. Layer 2 (GNC) handles residual false positives and provides smooth convergence. In Kimera-Multi T-RO 2022, the distributed backend uses GNC-on-top-of-PCM: PCM filters inter-robot loop closures, then distributed GNC (RBCD solver) handles final optimization with per-edge weights.
 
 ### Other Kernels Supported
 
@@ -355,9 +355,9 @@ Note: No confirmed benchmark of Kimera-RPGO specifically on KITTI with LiDAR was
 
 **Dynamic scene geometry.** Moving aircraft, vehicles, and temporary equipment can make wrong closures appear geometrically plausible and pass the consistency test if they contaminate the odometry-estimated cycle.
 
-**ROS 2 / LiDAR-only wrapper status unconfirmed.** No native ROS 2 wrapper is included in Kimera-RPGO. The MIT-SPARK ecosystem provides ROS 1 integration via Kimera-VIO-ROS and Kimera-Distributed, but the wrapper status for standalone LiDAR-only deployments should be independently verified.
+**ROS 2 / LiDAR-only wrapper status unconfirmed.** ROS 1 integration exists via Kimera-VIO-ROS and Kimera-Distributed; no confirmed native ROS 2 or standalone LiDAR-only wrapper found in available documentation.
 
-**PCM + GNC combined configuration undocumented.** Both modes are exposed in the `RobustSolverParams` interface and can be composed, but the Kimera-RPGO README does not explicitly document a two-layer PCM+GNC configuration. Confirm with source code inspection or direct testing.
+**PCM + GNC combined configuration undocumented.** Both modes are composable via `RobustSolverParams` but the README does not explicitly document the two-layer configuration. Verify with source code or direct testing.
 
 ---
 
@@ -431,7 +431,7 @@ For ICP refinement math underpinning the covariance estimates fed to PCM see [Po
 | 2024 | Kimera2 (arXiv:2401.06323) — GNC becomes default in single-robot Kimera-RPGO; PCM still available |
 | 2024 | Group-k consistent measurement maximization (IJRR 2024, Forsgren, Kaess, Mangelson) — extends PCM from pairwise to k-wise consistency via hypergraph max clique |
 
-**Current recommendation:** Use GNC as the primary robust kernel for single-robot production deployment. Use PCM or PCM + GNC when operating in environments with high adversarial-cluster risk (repetitive structures, perceptual aliasing) or when hard binary loop-closure accept/reject decisions are required for map quality control. In multi-robot fleet scenarios, distributed GNC (Kimera-Multi T-RO 2022) is preferred for better recall.
+**Current recommendation:** GNC is the default for single-robot production. Use PCM or PCM + GNC in adversarial-cluster environments (repetitive structures) or when hard binary accept/reject is required. In multi-robot fleet scenarios, distributed GNC (Kimera-Multi T-RO 2022) is preferred for better recall.
 
 ---
 
