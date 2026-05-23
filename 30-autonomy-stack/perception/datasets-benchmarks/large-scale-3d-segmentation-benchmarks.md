@@ -28,6 +28,7 @@ The practical point: these datasets shape what every 3D segmentation method repo
 | SUM / SUM Parts | Textured urban mesh | Mesh semantic; part-level segmentation | 6 / 21 | mIoU | CVPR 2025 project/code/data |
 | S3DIS | RGB-D (indoor) | Semantic segmentation | 13 | mIoU / OA | Area-5 or 6-fold (no server) |
 | ScanNet v2 / ScanNet200 | RGB-D mesh (indoor) | Semantic; instance | 20 / 200 | mIoU / mAP | Hidden test server |
+| Point Cloud City / Open3D-ML PCC | Indoor public-safety point clouds | Semantic segmentation; label unification | collection-specific | IoU / mIoU | NIST program + Open3D-ML repo; access varies |
 | FRACTAL | ALS (airborne) | Segmentation | 7 | mIoU / OA | Public split (HuggingFace) |
 | GOOSE / GOOSE-Ex | LiDAR + RGB + NIR (off-road) | Segmentation (64 fine / 8 super) | 64 | mIoU | Public split; ICRA 2025 challenge |
 | SemanticRail3D | MLS (railway corridor) | Semantic; instance | ~11–12 | mIoU | Public split |
@@ -42,6 +43,7 @@ The practical point: these datasets shape what every 3D segmentation method repo
 | MLDAS | Multi-LiDAR vehicle platform | Domain-adaptation semantic segmentation | 14 | mIoU | Email-request access; license-limited |
 | USCILab3D | 32-beam LiDAR + 5 cameras | Long-term campus semantic point clouds | 267 | No stable public leaderboard | Raw bags/code available; processed data pending |
 | Industrial3D | TLS industrial MEP | Semantic + cross-paradigm benchmark | 12 | mIoU | Watchlist; full dataset/code pending paper acceptance |
+| City-Facade | MLS building-facade point clouds | Semantic + instance segmentation | 9 facade classes | OA / mIoU | ISPRS JPRS 2026 + official repo; full access to verify |
 | SIP (Site in Pieces) | TLS (single-station) | Construction-site segmentation | 23 | mIoU | Public split |
 | Waymo-4DSeg / SAM4D | Camera + LiDAR (pseudo-labeled) | Class-agnostic masklets | class-agnostic | mask metrics | Derived (Waymo Open) |
 
@@ -286,6 +288,8 @@ Architecture papers consistently report on ScanNet v2 and ScanNet200 for head/ta
 - **MLDAS** — Multi-LiDAR domain-adaptation dataset with 31,875 synchronized 128/64/32-beam LiDAR scans across campus and urban-street scenarios, annotated into 14 classes. Use it for sensor-transfer and density-robustness experiments; access is email-gated and non-commercial.
 - **USCILab3D** — Long-term USC campus robot dataset with 5 cameras, 32-beam 360° LiDAR, pose-stamped data, foundation-model-assisted 2D-to-3D semantic labels, and reported 267 semantic categories. Treat it as a high-interest campus/label-backprojection watch item because the project site says raw bags and processing code are available while processed data is still coming soon.
 - **Industrial3D** — 2026 TLS industrial-infrastructure benchmark with 612.7 M labeled points at 6 mm resolution, 12 MEP/structure classes, and cross-paradigm baselines. The public repository still marks full dataset/code release as tied to paper acceptance, so keep it as a watchlist/proxy note until the full release is available.
+- **Point Cloud City / Open3D-ML PCC** — NIST public-safety indoor point-cloud collections from Enfield, Memphis Map901, and Hancock County, routed through an Open3D-ML integration with dataset processing, SemanticKITTI-style conversion, KPConv/RandLA-Net configuration examples, and TensorFlow/PyTorch semantic-segmentation pipelines. The 2026 NIST WF-PST publication analyzes Enfield/Memphis label unification and KPConv-compatible IoU evaluation, and explicitly warns that class imbalance and small safety-critical features remain hard. Use it as a managed-building, terminal-interior, and label-harmonization proxy; do not treat it as outdoor AV, airside, or leaderboard-grade evidence. The GitHub repository is no longer maintained by NIST, and collection access varies by awardee.
+- **City-Facade** — 2026 ISPRS JPRS MLS building-facade dataset from Xiamen, China, with approximately 200 M labeled points over more than 60 km of roads for semantic and instance segmentation of facade elements. The official repository describes labeled facade clouds with 9 classes plus unlabeled street-landscape clouds, and the paper lists wall, window, door, roof, advertisement, air conditioner, rain shed, balcony, and other/unclassified labels. Use it as a vertical-structure, terminal-frontage, BIM/digital-twin, and facade-sublabel proxy; do not treat it as a full map benchmark for roads, markings, poles, vegetation, vehicles, or dynamic-object removal. Verify full train/test access and license terms before benchmark-grade or production claims.
 
 ## Cross-Dataset Taxonomy Mismatch
 
@@ -408,6 +412,8 @@ A SOTA claim is only meaningful with the **task variant, split, evaluation sourc
 | MLDAS | synchronized multi-LiDAR frame packages | OS128 / OS64 / XT32 LiDAR scans | 14 semantic classes; labels propagated from the 128-beam reference LiDAR |
 | USCILab3D | raw ROS bags; processed point clouds pending | 32-beam LiDAR + 5 cameras + poses | 267 projected semantic categories reported; processed semantic release to verify |
 | Industrial3D | TLS point-cloud release pending | dense terrestrial industrial MEP scans | 12 semantic classes; full release and licence still pending |
+| Point Cloud City / Open3D-ML PCC | collection packages plus Open3D-ML conversion scripts | indoor point clouds and associated project imagery where available | collection-specific labels; Open3D-ML PCC tools support SemanticKITTI-style conversion and unified-label experiments |
+| City-Facade | `.txt` facade point-cloud segments | x, y, z, LiDAR intensity, instance label, semantic label | integer facade semantic labels plus instance IDs; full train/test package access to verify |
 | SensatUrban | PLY | per-point | integer class label |
 | CUS3D | Point cloud + mesh + 2D imagery | RGB geometry from UAV reconstruction | 10 semantic classes on 3D points, mesh triangles, and 2D images |
 | SUM / SUM Parts | Textured mesh | mesh faces + texture pixels | 6-class SUM; 21-class SUM Parts with face/pixel label variants |
@@ -442,6 +448,8 @@ Taxonomies do not align across datasets. Cross-dataset training requires an expl
 | MLDAS | Custom email-gated licence | Non-commercial, non-transferable; no commercial model training |
 | USCILab3D | Processed-data licence unclear | Verify before redistribution or model release |
 | Industrial3D | Dataset licence pending; repo GPL-3.0 for code | Treat as watchlist until full release/licence is explicit |
+| Point Cloud City / Open3D-ML PCC | Collection-specific public-safety data access; repo licence visible on GitHub | Verify each collection's access terms; Open3D-ML PCC code is no longer NIST-maintained |
+| City-Facade | Open-access paper; dataset/full-release terms to verify | Treat as research proxy until full train/test access and license terms are explicit |
 | SensatUrban | Academic (registration) | Research use; check before commercial |
 | CUS3D | Open-access paper; data terms to verify | Research use until data licence is confirmed |
 | SUM / SUM Parts | Project/code/data released; data terms to verify | Research use until data licence is confirmed |
@@ -473,6 +481,8 @@ No airside aggregated-map benchmark exists — the 2023–2026 additions above c
 | SemanticRail3D / WHU-Railway3D | MLS accumulated, constrained corridor | High — corridor geometry, trackside infrastructure analog |
 | SemanticTHAB | High-resolution MLS single-cloud | Moderate-high — modern OS2-128 density proxy; not map-scale |
 | GOOSE-Ex | Aggregated clouds, large-vehicle platform | Moderate-high — relevant for GSE/construction-zone ODD |
+| City-Facade | MLS facade-level point clouds | Moderate — strong for terminal/building-frontage vertical structures, weak for ground, markings, movers, and open areas |
+| Point Cloud City / Open3D-ML PCC | Indoor managed-building point clouds | Moderate — useful for terminal-interior, public-safety, small-object, and label-unification lessons; wrong outdoor geometry |
 | SemanticKITTI (multi-scan) | MLS per-scan sequences + motion | Moderate — per-scan, but 4D labelling available |
 | FRACTAL | ALS nadir, large-area | Moderate for site surveys; wrong viewpoint for ground-vehicle |
 | DALES | ALS nadir | Low for ground-vehicle; nadir density profile |
@@ -486,6 +496,8 @@ No airside aggregated-map benchmark exists — the 2023–2026 additions above c
 |---|---|---|
 | Railway, taxiway, or service-road corridor | SemanticRail3D, WHU-Railway3D | Stress linear-infrastructure classes, overhead/edge structures, corridor tiling, and constrained-route geometry |
 | Dense urban district, campus, or depot map | WHU-Urban3D, KITTI-360, Paris-Lille-3D, Toronto-3D, SemanticTHAB, MLDAS, USCILab3D | Pre-train MLS backbones and validate markings, poles, wires, road/driveway, building, and low-vegetation confusion; use MLDAS for sensor-transfer stress and USCILab3D only after release-maturity checks |
+| Managed-building, terminal-interior, or public-safety facility map | Point Cloud City / Open3D-ML PCC, S3DIS, ScanNet200, USCILab3D | Stress indoor/managed-site label harmonization, emergency-response safety features, small minority classes, and point-cloud-to-map annotation workflows; do not transfer outdoor dynamics from these sources |
+| Building frontage, facade, or vertical-structure-heavy district | City-Facade, SUM Parts, CUS3D, WHU-Urban3D, Toronto-3D | Validate wall/window/door/roof/balcony/HVAC-like sublabels, facade continuity, vertical tiling, BIM/digital-twin handoff, and terminal-frontage QA |
 | Utility, trench, overhead-line, perimeter, or gantry infrastructure | GridNet-HD, ECLAIR, OpenTrench3D, DALES, Toronto-3D, WHU-Railway3D | Stress pylon/cable/insulator/pole/wire/trench classes, LiDAR-image projection, and rare long-thin recall; OpenTrench3D is photogrammetric-only |
 | Construction, quarry, apron works, industrial plant, and large equipment | GOOSE-Ex, SIP, S.MID, Industrial3D, CUS3D, STPLS3D | Cover unstructured terrain, temporary equipment, substation/MEP clutter, works-zone geometry, and simulator/synthetic rare-class augmentation |
 | Aerial/site-survey layer | FRACTAL, DALES, ECLAIR, YUTO, CITYLID, CUS3D | Train or validate nadir/site-survey products that complement the ground survey map |
@@ -497,6 +509,8 @@ Three additions are worth singling out for airside work specifically:
 - **SemanticRail3D** adds a large MLS corridor reference; railway-domain classes (catenary poles, rails, trackbed, masts, overhead lines) directly parallel airside ground-lighting arrays, taxiway edge structures, and jet-bridge infrastructure.
 - **GridNet-HD** adds the strongest current LiDAR-image utility-infrastructure proxy. It does not match airside geometry, but its pylon/cable/insulator split is a useful stress test for whether a taxonomy and model can preserve long, thin, safety-relevant static infrastructure instead of merging it into generic pole or vegetation classes.
 - **FRACTAL** is the strongest ALS pre-training source — a 250 km², statistically balanced, geometry-only corpus useful for nadir-scanned site-survey models, though its airborne viewpoint still differs from a ground survey-drive.
+- **Point Cloud City / Open3D-ML PCC** adds the managed-building/public-safety proxy that was missing from this page. Its value is not outdoor transfer; it is label-unification, minority safety-feature behavior, and reproducible Open3D-ML training/format-conversion evidence for terminal interiors or facility maps.
+- **City-Facade** adds an MLS facade proxy where the existing facade evidence was mostly mesh or photogrammetry. It is useful when the release map needs finer building-frontage semantics or digital-twin handoff, but it is not a substitute for full-site road/yard/apron validation.
 
 The full selection rationale and the proposed airside benchmark specification are in `../overview/aggregated-map-semantic-segmentation.md` §5.3–§5.4.
 
@@ -535,6 +549,8 @@ The full selection rationale and the proposed airside benchmark specification ar
 - WHU-Railway3D: IEEE TITS 2024 — https://dl.acm.org/doi/10.1109/TITS.2024.3469546 · https://github.com/WHU-USI3DV/WHU-Railway3D
 - WHU-Urban3D: https://whu3d.com/dataset/ · https://whu3d.com/benchmark.html
 - SemanticTHAB: https://zenodo.org/records/14906179 · https://github.com/kav-institute/SemanticLiDAR
+- Point Cloud City / Open3D-ML PCC: https://www.nist.gov/services-resources/software/point-cloud-city-open3d-ml-repository · https://www.nist.gov/publications/cross-dataset-semantic-segmentation-performance-analysis-unifying-nist-point-cloud-city · https://github.com/alexdimopoulos/PointCloudCity-Open3D-ML
+- City-Facade: Chen et al., ISPRS JPRS 2026 — https://doi.org/10.1016/j.isprsjprs.2026.01.003 · https://github.com/SYSU-3DSTAILab/City-Facade
 - Turin3D: CVPR Workshops 2025 — arXiv:2504.05882
 - CITYLID: Environment and Planning B (SAGE), 2025 — https://journals.sagepub.com/doi/full/10.1177/23998083241312273 · HuggingFace `Deepank/CITYLID`
 - SIP: arXiv:2512.09062
