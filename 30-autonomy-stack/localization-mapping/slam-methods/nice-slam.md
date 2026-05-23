@@ -511,7 +511,7 @@ NICE-SLAM is an **RGB-D visual SLAM system**. It does not consume LiDAR data. It
 - As a research baseline: all 3DGS-SLAM papers benchmark against NICE-SLAM. Reading those papers requires understanding NICE-SLAM.
 
 **What NICE-SLAM cannot do in the airside or outdoor AV context:**
-- Does not process LiDAR point clouds. The LiDAR-native counterparts are [PIN-SLAM](./pin-slam.md) (arXiv:2401.09101, TRO 2024) and [4DNDF](./4dndf.md) (iter-32) for neural implicit approaches, or [KISS-SLAM](./kiss-slam.md) and FAST-LIO2 for classical-production LiDAR methods.
+- Does not process LiDAR point clouds. The LiDAR-native counterparts are [PIN-SLAM](./pin-slam-neural-lidar-mapping.md) (arXiv:2401.09101, TRO 2024) and [4DNDF](./4dndf.md) (iter-32) for neural implicit approaches, or [KISS-SLAM](./kiss-slam.md) and FAST-LIO2 for classical-production LiDAR methods.
 - Airside depth perception at range (>50 m) is impractical with commodity RGB-D sensors.
 - No loop closure — will drift over long trajectories typical of ramp survey drives.
 - Fails in adverse weather (fog, rain, direct sunlight) where the photometric loss provides unreliable signal.
