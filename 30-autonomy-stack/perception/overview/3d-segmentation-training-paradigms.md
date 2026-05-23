@@ -253,6 +253,8 @@ Pipeline: (1) **Map construction** — SLAM or pose-graph optimization accumulat
 
 ## Comparison Table
 
+This table compares **training regimes**, not backbone families. Use [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) §7.8 for the architecture choice among sparse-conv, KPConv/RandLA, SPT, PTv3/Sonata, projection, and SSM/Mamba backbones; use this page to decide how much supervision, pre-training, pseudo-labeling, adaptation, and active learning each backbone should receive.
+
 | Paradigm | Label cost | Accuracy ceiling | Data requirements | Compute | Key advantage | Key disadvantage |
 |---|---|---|---|---|---|---|
 | Fully-supervised scratch | Full labels — 100 % of corpus | Highest in-domain | Large labeled corpus (≥5k scans) | Moderate | Simple; full taxonomy control | Data-hungry; no transfer |
@@ -284,6 +286,8 @@ The operational shortcut for end-to-end semantic segmentation of registered LiDA
 ## Recommended Layered Recipe for Airside
 
 The following staged pipeline maximizes segmentation accuracy while minimizing manual annotation cost for a greenfield airport apron deployment. Each stage builds on the previous; the ordering reflects both technical dependencies and practical scheduling constraints. See [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) §14.4 airside path for the production-readiness context.
+
+Backbone selection is deliberately left to the aggregated-map hub (§7.8 and §11). This recipe assumes the project has already chosen a conservative LiDAR-only sparse-conv or SPT baseline, then optionally swaps in PTv3/Sonata after pre-training evidence exists. The stages below are the supervision and adaptation ladder around that backbone.
 
 Cost, schedule, and output quantities in this staged airside recipe are internal planning estimates for a rollout scenario, not reported UniLiPs, SALT, or LaserMix benchmark results.
 

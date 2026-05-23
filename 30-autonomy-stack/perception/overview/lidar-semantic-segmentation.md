@@ -659,7 +659,7 @@ Step 4: Fine-tune on 500-1000 labeled scans
 
 §9.1-9.3 attack the label-cost problem from the *model* side — pre-training, LoRA adapters, and self-supervision shrink how many labeled scans are needed. They still assume **500-2,000 manually labeled single scans** as the fine-tuning set, and §1.2 puts the production target at 5,000-50,000. Auto-labeling attacks the same problem from the *data* side and is the most scalable source of that volume.
 
-**The idea.** Segment the **aggregated (registered multi-scan) LiDAR map** once, offline, with the heaviest model available — then propagate each map point's label back onto every single scan that contributed to it, using the per-scan SLAM poses. One labeling effort on the map amortizes across the thousands of scans that built it. This is the "accumulate-then-segment, then back-project" flywheel; the map-side pipeline is documented in full in `aggregated-map-semantic-segmentation.md` (see its §2.4 build-order choice, §10.5 output products, §6.3 taxonomy).
+**The idea.** Segment the **aggregated (registered multi-scan) LiDAR map** once, offline, with the map-side backbone selected in `aggregated-map-semantic-segmentation.md` §7.8 and §11 — then propagate each map point's label back onto every single scan that contributed to it, using the per-scan SLAM poses. One labeling effort on the map amortizes across the thousands of scans that built it. This is the "accumulate-then-segment, then back-project" flywheel; the map-side pipeline is documented in full in `aggregated-map-semantic-segmentation.md` (see its §2.4 build-order choice, §10.5 output products, §6.3 taxonomy).
 
 **Why the labels are good.** The map model is not Orin-constrained — it runs offline with transformer/superpoint backbones, test-time augmentation, and CRF refinement. It also sees **full multi-viewpoint density and completed geometry**, so thin and small classes (markings, poles, signs) that a single sparse scan barely grazes are well-sampled. A label decided once on the dense map is typically higher quality than one a real-time single-scan model would produce on the raw frame.
 
@@ -963,6 +963,8 @@ SALT (Semi-Automatic Labeling Tool, 2025) is a source-backed presegmentation acc
 ---
 
 ## 14. Recommended Architecture
+
+This section is the **single-scan / on-vehicle Orin** recommendation. It consumes back-projected labels from the aggregated-map pipeline, but it does not choose the offline map backbone; that architecture comparison lives in `aggregated-map-semantic-segmentation.md` §7.8.
 
 ### 14.1 Recommended Stack for reference airside AV stack
 

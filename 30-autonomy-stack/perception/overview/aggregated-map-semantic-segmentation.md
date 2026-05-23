@@ -235,6 +235,15 @@ Instead of baking colour into points, keep the image stream as a parallel modali
 
 **Recommendation:** train with image distillation (gain the 2D supervision), deploy LiDAR-only (keep robustness). This matches the corpus stance that the LiDAR-primary stack should not acquire a hard camera dependency.
 
+**Four fusion lanes for map release.** Keep the modality choice explicit in the training manifest because it decides what has to be present at release and replay time:
+
+| Lane | Runtime dependency | What enters the model | Best use | Release caveat |
+|---|---|---|---|---|
+| Colorized point cloud | LiDAR map plus pre-baked RGB attributes | `(x,y,z,intensity,r,g,b)` points or voxels | Daytime survey maps with stable exposure and calibrated cameras | RGB is an input attribute; the manifest must record projection/calibration and color-conflict policy. |
+| Train-time image distillation | LiDAR only | LiDAR branch trained with 2D teacher/features | Default way to use cameras without creating a camera-at-inference dependency | Store teacher model, camera coverage, calibration residuals, and rejected projections as training-data quality fields. |
+| Image-dependent fusion | LiDAR plus images at inference/replay | Point-pixel attention, painted scores, or lifted image features | Controlled survey reprocessing where imagery is guaranteed | Highest accuracy ceiling, but not robust as a runtime map artifact unless cameras, exposure, and calibration are replay-valid. |
+| Candidate-label / pseudo-label lane | None for release labels; evidence only | LOSC/SALT/ZOPP/OpenUrban3D/SAM4D-style proposals, prompts, votes, and confidence | Bootstrap rare/non-road labels and active-review queues | Never a backbone or ground truth by itself; candidates require taxonomy action, reviewer state, QA report, and manifest evidence before release. |
+
 ### 4.4 Derived Representations for the Network
 
 Independently of modality, the network consumes the cloud in one of: **raw points** (KPConv, RandLA-Net, Point Transformer), **sparse voxels** (MinkowskiNet, SpConv backbones), **superpoints** (Superpoint Transformer), or **2D rasterization** (top-down BEV / elevation images for ALS). §7 maps these to model families; §8 maps them to tiling strategies.
@@ -689,6 +698,19 @@ The §7.4 accuracy table compresses to a small set of decision rules. In practic
 
 **The training-lens verdict.** For a first airside map segmenter, **sparse-voxel convolution** is the lowest-risk training choice — predictable, fast, well-tooled. **Superpoint transformer** is the strongest *fit* for map scale and scarce labels. **PTv3** is worth its training fragility *only* once §7.6 pre-training is in place. Point-based convolution remains a solid, geometry-faithful baseline but rarely the throughput-optimal choice for map-sized clouds. Across all five families, §7.4's rule dominates: a pre-trained backbone of any family beats a from-scratch model of a fancier one.
 
+**Backbone × input modality × deployment contract.** The head-to-head table above compares training behavior. The table below is the architectural contract a release engineer needs: what inputs the model can use, whether camera data is needed at inference, how it partitions a registered map, and where each family belongs in a production roadmap.
+
+| Backbone family | LiDAR-only input | LiDAR+image training | Image-at-inference risk | Map-scale partition behavior | Recommended role |
+|---|---|---|---|---|---|
+| Sparse-conv U-Net (MinkowskiNet, SpConv) | Native fit for voxelized geometry, intensity, reflectivity, normals, density, and optional pre-baked RGB. | Works well with 2DPASS/D-DITR-style distillation or colorized attributes; image features should be train-time only by default. | Low if deployed LiDAR-only; medium if painted/image features become required runtime inputs. | Predictable tile + halo execution; sparse-conv kernel maps are the throughput bottleneck but mature accelerators exist (§8.5). | P1 production baseline and benchmark anchor. |
+| Point-based conv (KPConv, RandLA-Net) | Preserves raw geometry and thin structures without voxel loss. | Can consume colorized points or train-time 2D priors, but paired sampling/projection must preserve rare classes. | Low for LiDAR-only; medium if RGB becomes a mandatory channel. | Sphere/neighbor sampling is natural but memory-heavy; rare-class sampling is mandatory for wires, markings, poles, and signs. | Geometry-faithful reference baseline, especially for thin-class audits. |
+| Superpoint Transformer / SuperCluster | Strong fit once a stable geometric superpoint partition exists. | Images can help review/feature distillation, but the partition remains geometry-first. | Low when image supervision is distilled; no camera should be required to partition a released LiDAR map. | Best map-scale behavior: partition reuse, large context, low memory, fewer stitching seams. | P1/P2 preferred map-scale architecture when tooling is acceptable. |
+| PTv3 / Sonata-class transformers | Works LiDAR-only, especially with large-scale pre-training and domain-continuation SSL. | Good target for DITR/D-DITR or SLidR/ScaLR-style image-feature distillation. | Low for D-DITR/distilled paths; high for direct point-pixel fusion paths. | Tile-friendly serialization, but largest per-tile memory and strongest sensitivity to tile/halo choices. | P2 accuracy-ceiling branch after sparse-conv/SPT baseline and tiling are stable. |
+| Projection-based / WaffleIron-style | Efficient LiDAR-only option when projection loss is acceptable. | Colorized or image-derived channels are easy to inject as extra planes/features. | Low if images are pre-baked or distilled; medium if live image planes are required. | Explicit grid/slab tiling; standard dense ops make deployment simple, but projection resolution sets a hard detail limit. | P2/P3 lightweight deployment and dependency-minimization branch. |
+| SSM / Mamba point backbones | Research-stage LiDAR-only sequence models with attractive linear token cost. | Possible, but current evidence is weaker than PTv3/SPT for map release. | Low if LiDAR-only; unknown under camera-dependent fusion. | Could allow larger context per tile, but ordering, rotation, density shift, and seam stability need map-specific audits. | P3/P4 experiment only until release-map evidence catches up. |
+
+**Operational selection.** Start with a LiDAR-only sparse-conv or SPT baseline. Add PTv3/Sonata when a public or internal checkpoint and domain-continuation SSL path exist. Use calibrated imagery for distillation, pseudo-label consolidation, and review, not as a hard runtime dependency unless the map product explicitly includes replay-valid imagery. Keep SSM/Mamba backbones as an efficiency experiment beside the mature baselines.
+
 ### 7.9 4D / Multi-Scan Segmentation Methods
 
 The five families above segment a *static* cloud — one cloud, one label set. The **segment-then-accumulate** route (§2.4) and the SemanticKITTI multi-scan task (§5.2) pose a different problem: segment a *temporal stack* of scans where the same surface appears in many frames, and a class label should be consistent across all of them. A dedicated **4D (space + time) segmentation** family targets exactly this.
@@ -944,7 +966,7 @@ The decisions that most shape an aggregated-map segmentation pipeline:
 | Taxiway-like corridor or long linear infrastructure | SemanticRail3D, WHU-Railway3D, KITTI-360, Paris-Lille-3D | LiDAR geometry with overlap/halo tiling; imagery useful for markings/signage when continuous | Superpoint/SPT or sparse-conv with long-thin-class sampling; segment-then-accumulate prior plus overlap stitching | Non-overlapping tiles fail on long structures; monitor seam IoU and overhead/edge-infrastructure recall |
 | Mesh or digital-twin semantic release | SUM, SUM Parts, CUS3D, H3D, local textured mesh | Point labels remain authoritative; RGB/texture supports review and point-to-mesh transfer | Train point model first, transfer labels to mesh, then run mesh/texture-assisted review | Keep candidate, reviewer-approved, release, and runtime-export label states separate in the manifest |
 
-**General principles.** Conditioning quality caps everything — never skip dynamic removal or intensity calibration. Make the pipeline *resumable and observable*: offline batches are long, and a silent failure at tile 9,000 is expensive. Keep the map taxonomy aligned with the single-scan taxonomy so auto-labels are consistent. Report per-class IoU, not accuracy. And treat the pipeline as iterative — first pass auto-labels, humans correct the worst regions, retrain, repeat: the flywheel.
+**General principles.** Conditioning quality caps everything — never skip dynamic removal or intensity calibration. Make the pipeline *resumable and observable*: offline batches are long, and a silent failure at tile 9,000 is expensive. Keep the map taxonomy aligned with the single-scan taxonomy so auto-labels are consistent. Report per-class IoU, not accuracy. For architecture, keep the first pass conservative: LiDAR-only sparse-conv or SPT, optional PTv3/Sonata after pre-training is proven, calibrated imagery as distillation/review evidence, and SSM/Mamba only as an experiment until map-release evidence exists. Treat the pipeline as iterative — first pass auto-labels, humans correct the worst regions, retrain, repeat: the flywheel.
 
 ---
 
@@ -1118,11 +1140,12 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 │  Conditioning: dynamic removal → SOR → normals → intensity     │
 │               calibration → uniform voxel downsample           │
 │                              ↓                                 │
-│  Partition:   superpoint partition (SPT-class) — or            │
-│               overlapping sphere sampling as the fallback      │
+│  Partition:   superpoint partition (SPT-class) or overlapping  │
+│               tile/sphere sampling with measured halo tax      │
 │                              ↓                                 │
-│  Core model:  superpoint transformer OR sparse-conv U-Net,     │
-│               SSL-pretrained, fine-tuned with LoRA adapters    │
+│  Core model:  LiDAR-only sparse-conv U-Net or SPT baseline;    │
+│               PTv3/Sonata if pre-trained; image distillation   │
+│               only when calibrated imagery is available        │
 │                              ↓                                 │
 │  Stitch:      per-class logit averaging, center-weighted       │
 │                              ↓                                 │

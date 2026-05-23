@@ -120,18 +120,19 @@ Cylinder3D uses approximately 480 × 360 × 32 voxels for a 50 m range per singl
 
 ```
 max_tile_voxels = (GPU_mem_budget_bytes * utilisation_fraction) /
-                  (bytes_per_voxel * channel_width * activation_multiplier)
+                  (per_active_voxel_bytes * activation_multiplier)
 ```
 
-Typical values for sparse-conv UNet: `bytes_per_voxel` ≈ 4–8 B sparse index plus 4 × C feature bytes; `activation_multiplier` ≈ 4–6× for a UNet with skip connections; `utilisation_fraction` ≈ 0.70 (leave headroom for framework overhead).
+Typical values for sparse-conv UNet: `per_active_voxel_bytes` ≈ sparse coordinate/index bytes plus feature bytes at the first stage; `activation_multiplier` ≈ 4–6× for a UNet with skip connections; `utilisation_fraction` ≈ 0.70 (leave headroom for framework overhead). Treat the result as **active sparse voxels**, not dense bounding-box voxels: the footprint you can process depends on measured occupied-voxel density after ground/slab filtering.
 
 Example for a 24 GB GPU, FP16, 32-channel UNet, activation multiplier 5:
 
 ```
-max_tile_voxels ≈ (24e9 * 0.70) / ((8 + 8*32) * 0.5) ≈ ~600k active voxels
+per_active_voxel_bytes ≈ 8 B sparse index + 2 B * 32 features = 72 B
+max_tile_voxels ≈ (24e9 * 0.70) / (72 * 5) ≈ 46M active voxels
 ```
 
-At 0.10 m voxel resolution, 600k voxels correspond to roughly 6,000 m³ volume. For a 3 m height slab (ground ± 1.5 m) that yields approximately a 45 × 45 m XY footprint — somewhat smaller than ECLAIR's 100 × 100 m tiles because ECLAIR uses finer 0.05 m voxels on hardware with four GPUs sharing the load.
+This is an upper-bound sizing number. In practice, kernel-map buffers, deeper-channel stages, batch size, augmentation, and halo overlap can cut the safe tile size substantially; measure active voxels per candidate tile on the conditioned cloud before finalizing the ZoR.
 
 **Worked sizing example for an airside apron:**
 
@@ -139,18 +140,19 @@ At 0.10 m voxel resolution, 600k voxels correspond to roughly 6,000 m³ volume. 
 Target: A10G 24 GB GPU, Minkowski ResUNet14C (similar to ECLAIR)
 Architecture: 4-level sparse UNet, ~64 channels at first level
 activation_multiplier = 5 (UNet with skip connections)
-bytes_per_voxel = 8 B index + 4*64 feature bytes = 264 B/voxel
+per_active_voxel_bytes = 8 B index + 4*64 feature bytes = 264 B/voxel
 utilisation_fraction = 0.70
 
 max_tile_voxels = (24e9 * 0.70) / (264 * 5) = ~12.7M
 
-At 0.05 m voxel: 12.7M voxels at 0.05m each = volume of 1,587 m^3
-  For 5 m height extent: XY footprint ≈ 317 m^2 ≈ 18 x 18 m  -- too small
-  Reduce to 0.10m: footprint ≈ 127 m^2 ≈ 56 x 56 m  -- viable
+At 0.05 m voxel: 12.7M dense voxels occupy 1,587 m^3
+  For a 5 m height extent: dense XY footprint ≈ 318 m^2 ≈ 18 x 18 m
+At 0.10 m voxel: 12.7M dense voxels occupy 12,700 m^3
+  For a 5 m height extent: dense XY footprint ≈ 2,540 m^2 ≈ 50 x 50 m
   Add 10 m halo on each side: input tile = 76 x 76 m, ZoR = 56 x 56 m
 ```
 
-This sizing exercise explains why ECLAIR's 100 × 100 m tiles require 4 GPUs at batch size 2 — scaling the ZoR to 100 m at 0.05 m voxels demands distributing the activation memory across the batch dimension and GPU count.
+This sizing exercise explains the trade-off rather than prescribing a universal tile: a 0.05 m dense interpretation becomes small quickly, while a sparse surface map can cover a much larger XY area if the active-voxel density is low. ECLAIR-style 100 × 100 m tiles therefore need to be interpreted together with actual active density, architecture, batch size, and multi-GPU execution, not copied blindly into an MLS map pipeline.
 
 ### Halo Width: Half the Receptive Field
 
