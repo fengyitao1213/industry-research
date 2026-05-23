@@ -54,6 +54,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Occupancy / voxel-ray | OctoMap, DUFOMap, Dynablox | Bayesian voxel or void-region free-space detection | Online or offline; DUFOMap preferred for tuning-free operation. |
 | Conservative free-space | FreeDOM | Raycast enhancement + DynamicLevel hierarchy | Online + offline; best published F1 as of early 2025. |
 | Timestamp / observation-timing | OTD | First/last observation time difference per voxel | Low-latency online removal on tight compute budgets. |
+| Spatiotemporal timestamp distribution | DynPurge (watchlist) | Distribution differences in global-map point timestamps | Promising for global-scale map cleanup, but not atomic-page ready without public code or metric tables. |
 | Terrain and voting cleaning | MapCleaner | Terrain model, object-part separation, local observation voting | Learning-free map cleaning with ground-aware processing. |
 | Binary voxel matrix | [BeautyMap](beautymap.md) | Bitwise column comparison | Fast offline cleaning with high static preservation. |
 | Neural implicit 4D mapping | 4dNDF | Time-dependent TSDF, sparse feature grids, learned static extraction | Research-grade dynamic scene reconstruction and map extraction. |
@@ -179,6 +180,8 @@ See also: [`dr-remover.md`](dr-remover.md), [`moves-and-label-free-map-cleaning.
 - Results: F1 0.975–0.988 on SemanticKITTI at 23.8 ms/frame; 60%+ faster than compared alternatives. Online, no prior map needed.
 - Bridges the online/offline gap: current-frame scope limits long-horizon evidence for slow or briefly stationary actors, but its speed makes it the best candidate for a runtime dynamic-mask role on tight compute budgets.
 
+**DynPurge** (IEEE RA-L 2025, DOI `10.1109/LRA.2025.3623005`) — watchlist-only global-map cleaner. Accessible publisher, DBLP, and supplementary GitHub evidence describe a spatiotemporal distribution-range method that uses timestamp-distribution differences in accumulated global LiDAR maps to separate dynamic from static points. The public repository contains pseudocode and qualitative result images for SemanticKITTI, MCD, and Argoverse 2, but no runnable implementation, license, releases, or machine-readable metric tables. Treat it as a source-mature candidate to monitor, not as a production-ready page: do not compare its "classification accuracy" claims against PR/RR/F1 or SA/DA/HA tables until the full paper or artifacts expose metric definitions, splits, baselines, and evaluation granularity. Its likely failure modes are timestamp/provenance loss, stationary objects that persist for the survey window, slow parked movable objects, and false deletion of structures seen in narrow time windows.
+
 See also: [`do-removal-lio.md`](do-removal-lio.md) for related dynamic-removal-integrated LIO work.
 
 ---
@@ -213,6 +216,7 @@ For robot deployments requiring immediate clean maps (warehouse AGVs, port AGVs)
 | Dynablox | TSDF ever-free | Online | SA 96.3% | DA 68% | HA 79.7% | 17 FPS | Sparse LiDAR weak DA |
 | DUFOMap | Void-region detection | Online | AA 98.3% | AA 98.3% | — | 0.062 s | Semi-indoor limits |
 | OTD | Observation timestamp | Online | — | — | 0.975–0.988 | 23.8 ms | Ground contact required |
+| DynPurge (watchlist) | Timestamp-distribution cleaner | Offline | — | — | — | — | No public code or comparable metric tables |
 | FreeDOM | Conservative free-space | Online + Offline | — | — | 97.1–99.6% | >10 Hz | 2025; newest |
 | [Raymoval](raymoval.md) | Az-el raycasting + cluster | Offline | ~93.2% | ~92.6% | ~0.927 | 0.094 s | RiTA 2025 / arXiv 2026; paper-only |
 | ERASOR2 | Instance segmentation | Offline | — | — | 0.974–0.984 | — | Requires detector |

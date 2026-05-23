@@ -11,7 +11,7 @@ priority:
   reason: "Dynamic Map Cleaning Benchmarks is rated as a SLAM benchmark or reference page for comparing methods and deployments."
 method-priority:end -->
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal-LIO](do-removal-lio.md), [MOVES and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Large-Scale 3D Segmentation Benchmarks](../../perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md), [HeLiMOS Heterogeneous LiDAR MOS](../../perception/datasets-benchmarks/helimos-heterogeneous-lidar-mos.md), [Point Cloud Segmentation Losses and Metrics](../../../10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md).
 
@@ -576,6 +576,12 @@ BTSA (arXiv 2510.22313, accepted Oct 2025) is a **dynamic-aware LIO framework** 
 
 **FreeDOM was not evaluated under the KTH DynamicMap Benchmark framework.** The FreeDOM paper (RA-L 2025) uses its own voxel-wise evaluation scripts and does not cite or invoke the KTH benchmark pipeline. Its KITTI sequence 02 and 07 results (F1 99.59% and 98.33%) were obtained with an independent evaluation setup. These must not be presented as "KTH-benchmarked" numbers. As of 2026-05, FreeDOM does not appear in the KTH GitHub methods list or benchmark results table.
 
+### 11.11 DynPurge — Metadata-Verified Watchlist Only
+
+DynPurge ("Dynamic Point Removal via Spatiotemporal Distribution Range in Global-Scale LiDAR Maps") has a verified IEEE RA-L 2025 bibliographic record, DBLP record, and a public supplementary GitHub repository. The accessible sources describe evaluation on SemanticKITTI, MCD, and Argoverse 2 and frame the method around timestamp-distribution differences between static and dynamic map points. The public repository contains only README text, pseudocode imagery, and qualitative result images; it does not provide runnable code, releases, a license, numeric tables, metric definitions, or benchmark scripts.
+
+Do not insert DynPurge into the quantitative comparison tables yet. Its abstract-level "classification accuracy" and efficiency claims are not enough to determine whether the reported values are voxel-wise PR/RR/F1, point-level SA/DA/AA/HA, MOS IoU, or a private classification metric. It becomes table-eligible only after full paper access or public artifacts expose dataset windows, label derivation, evaluation granularity, baselines, and metric formulas.
+
 ---
 
 ## 12. For Aggregated-LiDAR-Map Segmentation
@@ -595,6 +601,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
   - `dr-remover.md` — DR-Remover (T-IV 2024), see §11.8
   - `freedom-dynamic-object-removal.md` — FreeDOM (RA-L 2025), numbers in §11.5; **not KTH-benchmarked**
   - `raymoval.md` — Raymoval (RiTA 2025 / arXiv 2026), numbers in §11.6
+  - DynPurge — watchlist-only; see §11.11 before adding any metric row
   - BTSA (if created) — see §11.9
 
 **Key metric-definition cross-links:**

@@ -104,7 +104,7 @@ Airside is used as a detailed reference ODD where the corpus has the deepest dep
 | Method-level perception library | 138 |
 | Planning | 16 |
 | Localization and mapping | 181 |
-| Method-level SLAM library | 155 SLAM-method documents including overview/audit |
+| Method-level SLAM library | 156 SLAM-method documents including overview/audit |
 | Simulation | 8 |
 | VLA / VLM | 7 |
 | Multi-agent and V2X | 7 |

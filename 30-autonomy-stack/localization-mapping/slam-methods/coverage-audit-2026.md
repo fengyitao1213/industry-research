@@ -57,6 +57,15 @@ Five read-only scouts checked the remaining dynamic-removal queue. This bounded 
 |---|---|
 | Raycasting dynamic-residual removal | [Raymoval](raymoval.md) |
 
+## Recurring DynPurge / PRN Triage Refresh (2026-05-24)
+
+Five read-only scouts checked whether the post-Raymoval queue justified another atomic map-cleaning page. The batch deliberately stayed at audit/backlog level. DynPurge has a verified IEEE RA-L 2025 / DBLP record and a public pseudocode/result-image repository, but no runnable implementation, license, release, machine-readable metric tables, or accessible full-paper details. PRN / Point Restoration Network is relevant to temporarily static object removal and occluded-region restoration, but current public evidence is paper-level and CARLA-oriented, so it remains a learned-restoration caveat rather than a map-publication method page.
+
+| Cluster | Routing decision |
+|---|---|
+| DynPurge timestamp-distribution cleaning | Watchlist-only in the dynamic-cleaning hub and benchmark caveat page; promote only if full text, code, metric tables, or benchmark artifacts make the method non-duplicative. |
+| PRN learned point restoration | Mention-only in static-but-transient cleanup; do not treat as a safety-critical permanent-map publication gate. |
+
 ## Robust Backend and Lifelong Localization Promotion Wave (2026-05-09)
 
 The latest web-gap loop promoted backend and long-term localization topics that were previously only backlog rows or hidden inside mapping documents.

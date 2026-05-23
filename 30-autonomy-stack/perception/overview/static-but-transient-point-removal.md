@@ -1,6 +1,6 @@
 # Static-But-Transient Point Removal from Aggregated LiDAR Maps
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 Classical dynamic-object removal methods — ERASOR, Removert, Dynablox, FreeDOM, [BeautyMap](../../localization-mapping/slam-methods/beautymap.md), and [Raymoval](../../localization-mapping/slam-methods/raymoval.md) — operate on intra-scan visibility or scan-to-map consistency evidence: a point is flagged dynamic when later evidence contradicts the voxel, column, or region that previously contained it. The static-but-transient problem is orthogonal: it targets points that did **not** move during a survey pass and therefore survive every classical filter, yet should never be baked into the permanent map because they are temporary over a longer timescale. Stationary maintenance crew, parked belt loaders, staged ground-support equipment (GSE), snow accumulation, construction barriers, and dropped foreign-object debris (FOD) all fall into this category. Solving it requires multi-pass temporal evidence or semantic class-aware filtering — signals that do not exist inside a single scan window. This makes static-but-transient removal a map-level problem, not a scan-level problem, and it sits at the intersection of lifelong SLAM, HD-map maintenance, and operational safety.
 
@@ -173,9 +173,9 @@ The cross-pass free-space check is the most geometrically reliable transient-det
 
 The free-space check is implemented as a ray-marching pass over the new survey's scan lines. For each beam endpoint, the voxels traversed between the sensor origin and the endpoint are marked as observed-free in the new pass. Any voxel in the permanent layer that falls on a traversed-free ray in pass N+1 increments its absence counter. This is computationally similar to the map-update step in an OctoMap, and GPU-accelerated implementations (OHM) can process a full survey at batch speed. The primary parameter is the ray-diameter tolerance: too narrow misses borderline absence evidence from alignment-shifted beams; too wide generates false absence signals on wide permanent structures observed at oblique angles.
 
-### Learned Multi-Pass Models
+### Learned Multi-Pass and Restoration Models
 
-No dedicated learned architecture for static-but-transient removal in LiDAR maps appears in the literature as of May 2026. The closest analogues are:
+No source-mature learned architecture for static-but-transient removal in LiDAR maps is ready to replace lifecycle, quarantine, and reviewer evidence as of May 2026. The closest analogues are:
 
 **ELite's learned εg update**: supervised on multi-epoch LiDAR datasets; the objectness factor γ is computed from local geometry rather than learned end-to-end.
 
@@ -187,7 +187,9 @@ No dedicated learned architecture for static-but-transient removal in LiDAR maps
 
 > See [ArgoTweak — Self-Updating HD Map Priors](../../localization-mapping/maps/argotweak-self-updating-hd-map-priors.md).
 
-A dedicated learned model taking a (prior_map, new_survey) pair and predicting transient voxels directly does not yet exist in published form. This is a concrete research gap.
+**Point Restoration Network (PRN, Engineering Applications of Artificial Intelligence 2025)**: transformer-based point restoration for filtering temporarily static objects and restoring occluded regions, with a CARLA-generated dataset pipeline. This is relevant as a research signal because it targets exactly the "object was static during mapping but should not stay in the map" failure mode. It is not yet a publication-gate-safe map-cleaning method in this corpus: public evidence is paper-level, road/simulation-oriented, and does not provide the operational audit trail needed for airside or managed-site map release. Treat PRN output as a candidate restoration proposal that must stay behind reviewer, K-of-N, raw/rejected-evidence, and do-not-delete hazard gates. ([ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0952197625022924); [DOI 10.1016/j.engappai.2025.112284](https://doi.org/10.1016/j.engappai.2025.112284))
+
+A dedicated source-mature learned model taking a (prior_map, new_survey) pair and predicting release-ready transient voxels directly does not yet exist in public, reproducible form. This is a concrete research gap.
 
 The closest cross-domain analogue at conceptual level is learned change detection in satellite and aerial imagery (e.g., ChangeFormer, BIT for remote sensing), where paired before-and-after images are processed jointly to produce a change mask. The adaptation challenge for LiDAR is that the representation is 3D and sparse rather than 2D and dense, inter-session pose differences are a confounding factor, and the change categories of interest (parked vehicle, GSE, person) are at very different spatial scales from satellite change detection use cases (buildings, construction, land use). Transferring this class of architectures to LiDAR lifelong mapping is an open problem.
 
