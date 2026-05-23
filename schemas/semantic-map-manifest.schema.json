@@ -200,6 +200,11 @@
           "calibration_hash",
           "rasterization_policy",
           "confidence_calibration_id",
+          "prior_representation",
+          "temporal_scope",
+          "alignment_policy",
+          "uncertainty_summary",
+          "downstream_use",
           "validation_evidence_ids"
         ],
         "properties": {

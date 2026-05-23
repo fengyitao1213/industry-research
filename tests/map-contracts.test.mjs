@@ -32,10 +32,20 @@ test('map contract examples validate', () => {
 
 test('semantic map manifest requires prior input provenance fields', () => {
   const schema = readJson('schemas/semantic-map-manifest.schema.json')
-  const example = readJson('examples/map-contracts/semantic-map-manifest.example.json')
-  delete example.prior_inputs[0].pose_graph_digest
 
-  assert.match(validateDocument(example, schema).join('\n'), /pose_graph_digest is required/)
+  for (const field of [
+    'pose_graph_digest',
+    'prior_representation',
+    'temporal_scope',
+    'alignment_policy',
+    'uncertainty_summary',
+    'downstream_use'
+  ]) {
+    const example = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+    delete example.prior_inputs[0][field]
+
+    assert.match(validateDocument(example, schema).join('\n'), new RegExp(`${field} is required`))
+  }
 })
 
 test('runtime map contract rejects missing loader evidence', () => {
