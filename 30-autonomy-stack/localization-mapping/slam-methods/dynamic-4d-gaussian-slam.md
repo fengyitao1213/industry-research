@@ -149,6 +149,12 @@ For AV/airside work, add false-static insertions, false-dynamic removal of real 
 - Treat per-Gaussian motion probability as a QA signal, not a safety-certified occupancy probability.
 - For airside, use operations metadata when available to distinguish parked aircraft from infrastructure.
 
+## Export To Aggregated-Map Segmentation
+
+Dynamic Gaussian SLAM outputs can help the offline aggregated-map segmenter find residual dynamic clutter, but they must be exported as prior evidence. Put DAGS-style per-Gaussian motion probabilities, Dy3DGS-style dynamic masks, WildGS-style uncertainty weights, or D4DGS-style reliability states into `semantic_map_manifest.json` `prior_inputs` with the source-map hash, pose-graph digest, calibration hash, rasterization policy, temporal scope, alignment policy, uncertainty summary, and downstream use.
+
+The safe default is `qa_disagreement` or `dynamic_masking`: use the rasterized prior to flag tiles where the semantic segmenter, map-cleaning output, and Gaussian motion evidence disagree. Do not let a renderable Gaussian scene promote or delete persistent map points without the map-hygiene protocol, false-static / false-dynamic holdouts, and physical-sensor disagreement checks.
+
 ## Practical Recommendation
 
 Use dynamic 4D Gaussian SLAM for research, replay, simulation, and map-cleaning studies. For production AV localization, keep dynamic objects in the perception/tracking stack and keep static map localization tied to validated metric maps. Dynamic Gaussian maps are promising supporting evidence, not operational authority.
@@ -164,5 +170,6 @@ Use dynamic 4D Gaussian SLAM for research, replay, simulation, and map-cleaning 
 - Sun, Lo, and Hu, "Embracing Dynamics: Dynamics-aware 4D Gaussian Splatting SLAM." https://arxiv.org/abs/2504.04844
 - Li, Zhou, Zhou, Hu, Roemer, Wang, and Osman, "Dy3DGS-SLAM: Monocular 3D Gaussian Splatting SLAM for Dynamic Environments." https://arxiv.org/abs/2506.05965
 - Zhang, Liu, Jiang, Huang, Li, and Zhang, "DAGS-SLAM: Dynamic-Aware 3DGS SLAM via Spatiotemporal Motion Probability and Uncertainty-Aware Scheduling." https://arxiv.org/abs/2602.21644
+- Zhang, Zhang, Yin, Yin, Wang, and Li, "WildGS-SLAM: Monocular Gaussian Splatting SLAM in Dynamic Environments." https://arxiv.org/abs/2504.03886
 - Local context: [WildGS-SLAM](wildgs-slam.md)
 - Local context: [Dynamic-Object-Aware SLAM](dynamic-object-aware-slam.md)

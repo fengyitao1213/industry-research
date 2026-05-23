@@ -72,7 +72,42 @@
       "calibration_hash": "sha256:abababababababababababababababababababababababababababababababab",
       "rasterization_policy": "voxel-histogram-0.10m-min-3-views",
       "confidence_calibration_id": "semantic-prior-calibration-20260524-001",
+      "prior_representation": "top-k voxel class histogram, k=8, 0.10m voxels",
+      "temporal_scope": "multi-session semantic fusion over SIN-A42 survey sessions 20260520-20260523",
+      "alignment_policy": "project through final pose graph; reject voxels with reprojection residual above 0.08m",
+      "uncertainty_summary": "per-voxel entropy, observation count, and rare-class ACE report exported",
+      "downstream_use": "crf_unary",
       "validation_evidence_ids": ["semantic-prior-qa-20260524-001"]
+    },
+    {
+      "prior_id": "gaussian-motion-probability-prior-001",
+      "producer_type": "gaussian_slam",
+      "source_sequence_or_map_hash": "sha256:2323232323232323232323232323232323232323232323232323232323232323",
+      "pose_graph_digest": "sha256:4545454545454545454545454545454545454545454545454545454545454545",
+      "calibration_hash": "sha256:6767676767676767676767676767676767676767676767676767676767676767",
+      "rasterization_policy": "gaussian-motion-probability-to-0.20m-voxel-max",
+      "confidence_calibration_id": "gaussian-motion-prior-calibration-20260524-001",
+      "prior_representation": "per-Gaussian motion probability raster and static reliability score",
+      "temporal_scope": "route replay window 20260521T0200Z-20260521T0500Z",
+      "alignment_policy": "align Gaussian centroids to the release pose graph before voxel rasterization",
+      "uncertainty_summary": "motion-probability histogram, static-reliability quantiles, and physical-sensor disagreement report exported",
+      "downstream_use": "qa_disagreement",
+      "validation_evidence_ids": ["gaussian-prior-qa-20260524-001"]
+    },
+    {
+      "prior_id": "static-dynamic-mask-prior-001",
+      "producer_type": "static_dynamic_mask",
+      "source_sequence_or_map_hash": "sha256:8989898989898989898989898989898989898989898989898989898989898989",
+      "pose_graph_digest": "sha256:abababababababababababababababababababababababababababababababab",
+      "calibration_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "rasterization_policy": "static-dynamic-mask-0.10m-conservative-keep-static",
+      "confidence_calibration_id": "static-dynamic-mask-calibration-20260524-001",
+      "prior_representation": "voxel mask with static_keep, movable_review, dynamic_remove, and unknown states",
+      "temporal_scope": "three-survey consensus over unchanged map tiles",
+      "alignment_policy": "mask generated after dynamic-aware map merge and reprojected to release tiles",
+      "uncertainty_summary": "false-static and false-dynamic holdout slices attached to QA evidence",
+      "downstream_use": "static_dynamic_masking",
+      "validation_evidence_ids": ["static-dynamic-mask-qa-20260524-001"]
     }
   ],
   "metrics_evidence": {

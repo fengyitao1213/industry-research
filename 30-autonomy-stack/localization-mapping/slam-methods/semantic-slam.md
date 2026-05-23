@@ -214,6 +214,12 @@ Semantic SLAM and offline **aggregated-map semantic segmentation** (`../../perce
 
 The two combine well. The per-voxel class histogram that semantic SLAM produces online is a cheap, useful **prior**; the offline pipeline fuses it as an extra unary term and treats agreement between the two passes as a free QA signal — disagreement regions are exactly what to route to human review. Conversely, the offline pipeline's authoritative labels can correct and audit a semantic-SLAM map after the fact. A strong production design runs both: semantic SLAM for the online prior and live map QA, the offline pipeline for the authoritative semantic layer and for back-projected single-scan auto-labels. See `aggregated-map-semantic-segmentation.md` §2.4 (the build-order choice) and §10.3 (fusing the two passes).
 
+### Exportable Priors For The Offline Segmenter
+
+Semantic SLAM outputs are useful to the aggregated-map segmenter only when they are treated as versioned priors, not as release labels. Export them through `semantic_map_manifest.json` `prior_inputs` with the source sequence or map hash, pose-graph digest, calibration hash, rasterization policy, confidence-calibration ID, temporal scope, uncertainty summary, and validation evidence.
+
+The preferred prior is a compressed per-voxel class histogram: SemanticFusion-style Bayesian fusion shows why multi-view labels become stronger than a single frame, while recent many-class semantic mapping work shows how top-k histograms or encoded fusion can bound memory when class counts grow. Dynamic/static masks and neural/Gaussian map priors can be exported the same way, but they should feed CRF unaries, disagreement maps, and human-review routing. They should not bypass the offline model, map-hygiene protocol, or false-static / false-dynamic validation gates.
+
 ## Datasets/Metrics
 
 Relevant datasets:
@@ -269,6 +275,7 @@ Semantic SLAM is production-useful as an aid for filtering, QA, and map maintena
 - DS-SLAM official repository. https://github.com/ivipsourcecode/DS-SLAM
 - Rosinol, Antoni, Marcus Abate, Yun Chang, and Luca Carlone. "Kimera: an Open-Source Library for Real-Time Metric-Semantic Localization and Mapping." https://arxiv.org/abs/1910.02490
 - MIT-SPARK Kimera repository. https://github.com/MIT-SPARK/Kimera
+- Nadgir, Marques, and Hauser, "Memory-Efficient Real Time Many-Class 3D Metric-Semantic Mapping." IROS 2025. https://motion.cs.illinois.edu/papers/IROS2025-Nadgir-CompressedSemanticMapping.pdf
 - Runz, Martin, Maud Buffier, and Lourdes Agapito. "MaskFusion: Real-Time Recognition, Tracking and Reconstruction of Multiple Moving Objects." https://arxiv.org/abs/1804.09194
 - Local context: [Semantic Mapping and Learned Priors](../maps/semantic-mapping-learned-priors.md)
 - Local context: [Gaussian Splatting for Driving](../../perception/overview/gaussian-splatting-driving.md)

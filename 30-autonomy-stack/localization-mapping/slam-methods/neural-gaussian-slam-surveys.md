@@ -92,6 +92,7 @@ For autonomy, add physical-sensor disagreement and route-level safety gates. Goo
 5. If the method relies on RGB-only input, separate rendering quality from localization integrity.
 6. If the method uses LiDAR/camera/IMU, inspect calibration, timing, and failure monitoring before raising deployment relevance.
 7. If a method is dynamic or collaborative, require outlier, communication, and map-consistency tests before treating it as more than research.
+8. If a neural, Gaussian, or semantic-SLAM map is exported to [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), declare it as manifest `prior_inputs`: pose provenance, calibration hash, dynamic-mask policy, rasterization policy, uncertainty summary, and downstream use are required before the prior can affect CRF unaries, QA disagreement maps, or human-review routing.
 
 ## Open Follow-Ups
 
@@ -108,6 +109,7 @@ Use neural/Gaussian SLAM as a map-representation and reconstruction research lay
 
 - Tosi, Zhang, Gong, Sandstrom, Mattoccia, Oswald, and Poggi, "How NeRFs and 3D Gaussian Splatting are Reshaping SLAM: a Survey." https://arxiv.org/abs/2402.13255
 - Wang et al., "Towards Next-Generation SLAM: A Survey on 3DGS-SLAM Focusing on Performance, Robustness, and Future Directions." https://arxiv.org/abs/2602.04251
+- Lu, Jiang, Pei, Li, and Chen, "Outdoor Monocular SLAM with Global Scale-Consistent 3D Gaussian Pointmaps." https://arxiv.org/abs/2507.03737
 - Nguyen Xuan, Nguyen Canh, Nguyen, Chong, and HoangVan, "A Survey on Collaborative SLAM with 3D Gaussian Splatting." https://arxiv.org/abs/2510.23988
 - Local context: [HI-SLAM2](hi-slam2.md)
 - Local context: [SEGS-SLAM](segs-slam.md)
