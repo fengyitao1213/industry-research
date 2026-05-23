@@ -695,6 +695,33 @@ After alignment, validate with held-out GCPs (not used in alignment):
 | Building corner alignment | <20cm | Visual check against aerial imagery |
 | Consistency between sessions | <5cm | Re-run SLAM with additional loop closures |
 
+### 6.5 Map-Prior Georeferencing for GCP-Sparse Sites
+
+RTK, PPP, and surveyed GCPs remain the production-default anchors for airport maps, but not every target site offers dense control coverage. Urban districts, campuses, logistics yards, temporary construction sites, and some airside service areas may have weak GNSS, incomplete survey-marker access, or long corridors with few reliable GCPs. In that case, the map-construction pipeline should treat public or facility map priors as an **alignment input** before semantic annotation, not as a semantic label source.
+
+**OpenLiDARMap** is the current source-backed reference for the GNSS-free branch. The VEHITS 2025 paper and official TUMFTM implementation frame it as georeferenced LiDAR point-cloud map construction using public reference maps, especially building footprints and surface models, combined with scan-to-scan ICP, scan-to-map ICP, and pose-graph optimization. Its role in this pipeline is to produce or condition the source point-cloud map when GNSS/GCP coverage is thin:
+
+```
+LiDAR scans + initial pose guess
+        + public/facility reference map
+        + projection/datum definition
+        -> map-prior-constrained pose graph
+        -> georeferenced dense point-cloud map
+        -> semantic segmentation / Lanelet2 / QA
+```
+
+Use this branch for **GCP-sparse georeferencing**, **prior-map alignment QA**, or **urban-district transfer tests**. Do not use it to replace final survey control on safety-critical airport maps where RTK/GCP evidence is available. A production map package should record:
+
+- Prior-map source, license, timestamp, and version, such as OSM building footprints, facility CAD/GIS exports, surface models, or AMDB-derived geometry.
+- CRS/EPSG, datum, local ENU origin, vertical datum, and any projection chain used to convert the prior into the map frame.
+- Pose-graph digest, initial-pose source, scan-to-map residuals, scan-to-scan residuals, robust-loss configuration, and held-out control residuals where any GCP/AMDB/field-check geometry exists.
+- Rejected or stale prior regions, such as demolished buildings, new construction, temporary structures, unmapped tunnels, large indoor zones, vegetation growth, parked aircraft, or staged equipment.
+- The source-map manifest hash consumed by the semantic segmentation stage, so downstream `semantic_map_manifest.json` can distinguish geometry/provenance confidence from label confidence.
+
+**FlexCloud** is the complementary TUM branch when GNSS or a reference trajectory exists but the SLAM map is still locally distorted or not globally referenced. It uses the generated point-cloud map and odometry plus corresponding GNSS/reference positions to georeference and rubber-sheet drift-correct the map. Route it as a post-hoc georeferencing and distortion-correction tool; route OpenLiDARMap as the GNSS-free, map-prior branch. Both are upstream map-conditioning tools. Neither should silently write semantic classes, release labels, or runtime map-layer policy.
+
+**Deployment guardrails.** Keep the primary airport acceptance evidence tied to surveyed GCPs, AMDB/ortho overlays, hold-out control points, and drive-through localization residuals. Map-prior alignment is valuable when control is sparse, but stale priors can pull geometry into the wrong place. Treat a prior-map disagreement as a QA flag or quarantine region until field evidence resolves it.
+
 ---
 
 ## 7. AMDB Overlay and Co-Registration
@@ -1340,6 +1367,8 @@ jobs:
 | **LIO-SAM** | Alternative SLAM | BSD-3 | Production | Better loop closure support |
 | **KISS-ICP** | Validation SLAM | MIT | Production | No IMU needed — independent check |
 | **GTSAM** | Graph optimization | BSD | Production | Already in reference airside AV stack |
+| **OpenLiDARMap** | Map-prior georeferenced point-cloud mapping | Apache-2.0 | Research / prototype | GNSS-free or GCP-sparse branch using public/reference map priors; requires reference-map provenance and residual checks |
+| **FlexCloud** | Direct georeferencing and drift correction | Apache-2.0 | Research / prototype | GNSS/reference-trajectory branch for existing SLAM maps; useful post-hoc correction before annotation |
 | **Open3D** | Point cloud processing | MIT | Production | Python API, GPU-accelerated |
 | **PCL** | Point cloud processing | BSD | Production | C++ native, ROS integration |
 | **CloudCompare** | Visualization + manual edit | GPL-2.0 | Production | Essential for QC |
@@ -1503,15 +1532,17 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 12. Xie, Z., et al. (2024). "MapTracker: Tracking with Strided Memory Fusion for Consistent Vector HD Mapping." ECCV.
 13. Xiong, X., et al. (2023). "Neural Map Prior for Autonomous Driving." CVPR.
 14. Wen, L., et al. (2024). "RTMap: Real-Time Recursive Map Maintenance." ICCV.
+15. Kulmer, D., Leitenstern, M., Weinmann, M., & Lienkamp, M. (2025). "OpenLiDARMap: Zero-Drift Point Cloud Mapping Using Map Priors." VEHITS 2025. https://arxiv.org/abs/2501.11111, https://doi.org/10.5220/0013405400003941, https://github.com/TUMFTM/OpenLiDARMap
+16. Leitenstern, M., Alten, M., Bolea-Schaser, C., Kulmer, D., Weinmann, M., & Lienkamp, M. (2025). "FlexCloud: Direct, Modular Georeferencing and Drift-Correction of Point Cloud Maps." VEHITS 2025. https://arxiv.org/abs/2502.00395, https://doi.org/10.5220/0013359600003941, https://github.com/TUMFTM/FlexCloud
 
 ### 17.5 Quality and Validation
 
-15. ISO 19157:2023. "Geographic information — Data quality."
-16. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
-17. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
-18. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
-19. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
-20. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
+17. ISO 19157:2023. "Geographic information — Data quality."
+18. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
+19. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
+20. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+21. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
+22. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
 
 ### 17.6 Internal Cross-References
 
