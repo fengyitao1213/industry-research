@@ -11,7 +11,7 @@ priority:
   reason: "MapCleaner is rated for dynamic-object filtering and map-cleaning workflows that protect localization maps."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [DR-Remover](dr-remover.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [Raymoval](raymoval.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [DR-Remover](dr-remover.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
 
 **Last updated:** 2026-05-23
 
@@ -266,7 +266,7 @@ None of the following post-2022 papers include MapCleaner in their quantitative 
 | [BeautyMap](beautymap.md) (arXiv 2405.07283) | 2024 | OctoMap, OctoMap+GF, ERASOR, Removert, Dynablox, DeFlow | Yes |
 | DUFOMap (arXiv 2403.01449) | 2024 | OctoMap, ERASOR, Removert, Dynablox | No |
 | HIF (arXiv 2503.06863) | 2025 | Cites MapCleaner [5] in introduction; excludes it from evaluation | No |
-| Raymoval (arXiv 2605.08937) | 2026 | ERASOR, Removert | No |
+| [Raymoval](raymoval.md) (arXiv 2605.08937) | 2026 | ERASOR, Removert | No |
 
 **Practical implication:** MapCleaner's SOTA claim as of 2022 has not been tested against the 2023–2025 generation of methods under any shared evaluation protocol. BeautyMap, DUFOMap, FreeDOM, and ERASOR++ all report higher F1 than ERASOR on the same SemanticKITTI sequences, strongly suggesting MapCleaner may have been superseded — but a like-for-like comparison does not exist in the public literature. **SOTA status versus the 2023–2025 generation is unresolved.**
 

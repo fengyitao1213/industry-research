@@ -11,7 +11,7 @@ For airside autonomous vehicles, the broad removal layer should include:
 - Classical filters: SOR, ROR, DROR, DSOR, LIOR, DDIOR, D-LIOR, IDSOR, DVIOR, SDOR, LIDSOR.
 - Learned weather removal where supported: LIORNet and related denoisers, validated against classical baselines.
 - Sensor artifact handling: ghost, multipath, retroreflector blooming, sun/receiver saturation, blockage, and dust.
-- Dynamic map cleaning: ERASOR, Removert, MapCleaner, ERASOR++, 4dNDF, BeautyMap, and MOS-style evaluation.
+- Dynamic map cleaning: ERASOR, Removert, MapCleaner, ERASOR++, 4dNDF, BeautyMap, Raymoval, and MOS-style evaluation.
 - Safety validation: raw-vs-filtered evidence, target-domain labels, SOTIF argumentation, and ODD degradation rules.
 
 ## Repo Cross-Links
@@ -32,6 +32,7 @@ For airside autonomous vehicles, the broad removal layer should include:
 | ERASOR | [ERASOR](../../localization-mapping/slam-methods/erasor.md) | Pseudo-occupancy dynamic object removal. |
 | Removert | [Removert](../../localization-mapping/slam-methods/removert.md) | Remove-then-revert static map cleaning. |
 | BeautyMap | [BeautyMap](../../localization-mapping/slam-methods/beautymap.md) | Binary-encoded ground-matrix dynamic point removal. |
+| Raymoval | [Raymoval](../../localization-mapping/slam-methods/raymoval.md) | Azimuth-elevation raycasting dynamic residual removal. |
 | Map segmentation conditioning | [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) | Artifact removal is a map-conditioning prerequisite (§9) before segmenting the aggregated cloud. |
 | Segmentation pipeline | [LiDAR Semantic Segmentation](lidar-semantic-segmentation.md) | The downstream task this conditioning serves. |
 | Point-cloud representations | [Point-Cloud Representations and Voxelization](../../../10-knowledge-base/geometry-3d/point-cloud-representations-voxelization-first-principles.md) | Voxel grids, sparse tensors, range images — data structures underpinning conditioning stages. |
@@ -453,7 +454,7 @@ Close-range areas receive more scan coverage and thus higher point density in th
 
 ### 11.5 Dynamic Object Removal from Maps
 
-Dynamic objects (aircraft, GSE, personnel) must be stripped from the static map before it is used for semantic segmentation or localisation. The map otherwise contains trails of dynamic actors as spurious static structure. Methods: ERASOR (pseudo-occupancy), Removert (remove-then-revert), MapCleaner, [BeautyMap](../../localization-mapping/slam-methods/beautymap.md), 4dNDF. For airside maps built from busy operational shifts, multi-session consensus (keeping only points observed in >=K sessions) is the most reliable approach to avoid promoting temporary parked equipment into the long-term map. See [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) for full coverage.
+Dynamic objects (aircraft, GSE, personnel) must be stripped from the static map before it is used for semantic segmentation or localisation. The map otherwise contains trails of dynamic actors as spurious static structure. Methods: ERASOR (pseudo-occupancy), Removert (remove-then-revert), MapCleaner, [BeautyMap](../../localization-mapping/slam-methods/beautymap.md), [Raymoval](../../localization-mapping/slam-methods/raymoval.md), 4dNDF. For airside maps built from busy operational shifts, multi-session consensus (keeping only points observed in >=K sessions) is the most reliable approach to avoid promoting temporary parked equipment into the long-term map. See [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) for full coverage.
 
 ---
 
@@ -468,7 +469,7 @@ Dynamic objects (aircraft, GSE, personnel) must be stripped from the static map 
 | Ghost handling | Reflective plane detection, Ghost-FWL, GRASS, PCL ShadowPoints | Ghost mask | Prevents false objects and false map structure. |
 | Motion correction | IMU deskew, DLIO, AC-LIO RTS smoothing | Temporally consistent scan | Required before registration and map accumulation. |
 | Dynamic masks | LiDAR-MOS, 4DMOS, HeLiMOS-style MOS | Moving/static labels | Protects localization and maps from moving actors. |
-| Static map cleaning | ERASOR, Removert, MapCleaner, ERASOR++, BeautyMap, 4dNDF | Static map plus rejected dynamic layer | Creates long-term localization maps. |
+| Static map cleaning | ERASOR, Removert, MapCleaner, ERASOR++, BeautyMap, Raymoval, 4dNDF | Static map plus rejected dynamic layer | Creates long-term localization maps. |
 
 ---
 

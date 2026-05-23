@@ -10,12 +10,12 @@ The repository remains Markdown-first, but the VitePress reader is the intended 
 
 | Scope | Count |
 |-------|-------|
-| Reader pages | 852 |
-| Core research documents | 848 |
+| Reader pages | 853 |
+| Core research documents | 849 |
 | Corpus size | 390k+ lines |
 | Companies covered | 25 |
 | Technology domains | 9 |
-| Method-level SLAM library | 155 SLAM-method documents including overview/audit |
+| Method-level SLAM library | 156 SLAM-method documents including overview/audit |
 | Method-level perception files | 138 |
 | Safety and validation docs | 56 |
 | AV platform docs | 41 |
@@ -65,7 +65,7 @@ Airside is used as a detailed reference ODD where the corpus has the deepest dep
 | Method-level perception | [Perception Method Library](30-autonomy-stack/perception/methods/overview.md) | Splits BEV, sparse-query detection, occupancy, GaussianFlowOcc/GaussTR/GS-Occ3D/VOGS-CP-style Gaussian occupancy and label curation, LiDAR-camera/radar-camera fusion, dynamic Gaussian/3DGS/4DGS, point-cloud Mamba/SSM backbones, LOSC-style LiDAR pseudo-label consolidation, LiDAR MOS, scene flow, 4D radar, FMCW LiDAR, open-world occupancy/attributes including SpaCeFormer-style open-vocabulary 3D instance segmentation, robust fusion, QuantV2X/SparseCoop-style V2X compression and sparse-query cooperation, latency, and data-engine methods into single-technique research pages. |
 | Aggregated-map semantic segmentation | [Aggregated-Map Semantic Segmentation](30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md) | Routes the full registered-map labeling pipeline: LiDAR/image inputs, large-scale datasets, class-taxonomy design, model-family tradeoffs, compact proxy/input/training selector, point-cloud SSM efficiency frontiers, LOSC-style pseudo-label consolidation, training architectures, tiling/stitching, post-processing, map cleaning handoff, map-hygiene ground-truth workflow, and non-road urban-district transfer. |
 | LiDAR artifact removal | [LiDAR Artifact Removal Techniques](30-autonomy-stack/perception/overview/lidar-artifact-removal-techniques.md) | Connects LIORNet, learned denoisers, classical outlier filters, weather artifacts, ghost/multipath behavior, map cleaning, datasets, and safety validation. |
-| Dynamic and static object removal | [LiDAR Map Cleaning and Dynamic Removal](30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) | Connects ERASOR, Removert, MapCleaner, ERASOR++, 4dNDF, FreeDOM, BeautyMap, STATIC-LIO, MOVES, detector-based potentially dynamic object removal, Uni-Mapper dynamic-aware heterogeneous-LiDAR map merging, RTMap/DUFOMap, LT-mapper/Khronos, lifelong map version control, MOS/scene-flow methods, moved-object datasets, and false-deletion validation. |
+| Dynamic and static object removal | [LiDAR Map Cleaning and Dynamic Removal](30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) | Connects ERASOR, Removert, MapCleaner, ERASOR++, 4dNDF, FreeDOM, BeautyMap, Raymoval, STATIC-LIO, MOVES, detector-based potentially dynamic object removal, Uni-Mapper dynamic-aware heterogeneous-LiDAR map merging, RTMap/DUFOMap, LT-mapper/Khronos, lifelong map version control, MOS/scene-flow methods, moved-object datasets, and false-deletion validation. |
 | Perception coverage gaps | [Perception Coverage Audit](30-autonomy-stack/perception/overview/coverage-audit-2026.md) | Tracks missing first-class perception pages across BEV, occupancy, Gaussian/3DGS, LiDAR/radar/thermal, open-world/OOD, V2X, robustness, and benchmarks. |
 | Localization and mapping | [Mapping and Localization](30-autonomy-stack/localization-mapping/overview/mapping-and-localization.md) | Covers HD maps, LiDAR SLAM, map-free driving, map maintenance, infrastructure-aided localization, and occupancy grids. |
 | Photoreal city-scale 4D reconstruction | [Photoreal city-scale 4D reconstruction](30-autonomy-stack/localization-mapping/overview/photoreal-city-scale-4d-reconstruction.md) | Links Gaussian SLAM, VGGT/feed-forward reconstruction, dynamic 4D Gaussian/NeRF methods, and digital-twin simulation coverage. |

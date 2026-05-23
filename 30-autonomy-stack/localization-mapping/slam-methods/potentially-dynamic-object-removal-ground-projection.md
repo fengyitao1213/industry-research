@@ -11,7 +11,7 @@ priority:
   reason: "Potentially Dynamic Object Removal by Ground Projection is rated for static-map construction workflows that remove parked or movable-class objects before map publication."
 method-priority:end -->
 
-Related docs: [Potentially Dynamic Object Map Policy](../maps/potentially-dynamic-object-map-policy.md) · [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [ERASOR](erasor.md) · [Removert](removert.md) · [FreeDOM](freedom-dynamic-object-removal.md) · [MapCleaner](mapcleaner.md) · [BeautyMap](beautymap.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
+Related docs: [Potentially Dynamic Object Map Policy](../maps/potentially-dynamic-object-map-policy.md) · [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [ERASOR](erasor.md) · [Removert](removert.md) · [Raymoval](raymoval.md) · [FreeDOM](freedom-dynamic-object-removal.md) · [MapCleaner](mapcleaner.md) · [BeautyMap](beautymap.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
 
 **Last updated:** 2026-05-23
 
@@ -50,7 +50,7 @@ Those implementation choices are not the only possible stack. In an AV or non-ro
 | Method family | Evidence type | Handles moving residuals? | Handles parked-but-movable objects? |
 |---|---|---:|---:|
 | ERASOR / ERASOR++ | Pseudo-occupancy drop and ground restoration | Yes | No, unless the object later leaves during the observation window. |
-| Removert / Raymoval | Range-image ray contradiction | Yes | No, unless free-space contradiction appears. |
+| [Removert](removert.md) / [Raymoval](raymoval.md) | Range-image ray contradiction | Yes | No, unless free-space contradiction appears. |
 | FreeDOM / DUFOMap | Conservative free-space or void evidence | Yes | No, if the object is never observed absent. |
 | MapCleaner / [BeautyMap](beautymap.md) | Terrain, observation voting, or binary matrix comparison | Yes | Limited; stationary movable objects can vote as static. |
 | Detector + ground projection | Semantic object class plus local ground model | Yes, if detector sees the class | Yes, for classes covered by detector/taxonomy. |

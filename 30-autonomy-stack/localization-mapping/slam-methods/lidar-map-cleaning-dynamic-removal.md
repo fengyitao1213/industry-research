@@ -17,7 +17,7 @@ LiDAR map cleaning removes transient, dynamic, ghost, and artifact points from a
 
 Dynamic removal is also a hard **prerequisite** before semantic segmentation of any aggregated map: ghost trails left by moving objects pollute static classes and corrupt the back-projected auto-labels that drive MOS and semantic-segmentation training pipelines. The pipeline order is fixed — **clean → condition → segment** — and cannot safely be reversed without a pre-existing class-specific detector.
 
-Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, Raymoval, detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
+Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, [Raymoval](raymoval.md), detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
 
 - **Static persistent map**: surveyed structure used for localization.
 - **Movable-static layer**: aircraft, GSE, cones, barriers, and staged equipment.
@@ -48,7 +48,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 
 | Family | Methods | Main evidence | Best use |
 |---|---|---|---|
-| Visibility / range-image cleaning | Removert, Raymoval | Query-to-map range inconsistency and multiresolution revert | Offline map cleaning with pose uncertainty. |
+| Visibility / range-image cleaning | Removert, [Raymoval](raymoval.md) | Query-to-map range inconsistency and multiresolution revert | Offline map cleaning with pose uncertainty. |
 | Pseudo-occupancy cleaning | ERASOR | Egocentric pseudo-occupancy ratio and ground refinement | Removing object traces from accumulated maps. |
 | Enhanced height coding | ERASOR++ | Height coding descriptor and dynamic-bin tests | More precise occupancy-based dynamic bin identification. |
 | Occupancy / voxel-ray | OctoMap, DUFOMap, Dynablox | Bayesian voxel or void-region free-space detection | Online or offline; DUFOMap preferred for tuning-free operation. |
@@ -79,9 +79,9 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 - Benchmark (SemanticKITTI): PR ~50.7%, RR ~82.3%, avg F1 ~0.836 (Raymoval 2025 comparison).
 - See also: [`removert.md`](removert.md) for full method notes.
 
-**Raymoval** (RiTA 2025 / arXiv 2026) — extends Removert with azimuth-elevation projection plus spatial consistency validation.
+[**Raymoval**](raymoval.md) (RiTA 2025 / arXiv 2026) — extends Removert with azimuth-elevation projection plus spatial consistency validation.
 - Mechanism: az-el grid projection → range-adaptive threshold comparison vs map first-hit raycasting → cluster-level reclassification (size, diameter, coverage overlap filters) that recovers boundary points and suppresses fragments.
-- Results on SemanticKITTI: avg F1 ~0.927, PR ~93.2%, RR ~92.6%. Consistently outperforms Removert; slightly below ERASOR on averaged F1 but achieves higher PR on individual sequences. Handles partial-FoV (solid-state) sensors well.
+- Results on SemanticKITTI: avg F1 ~0.927, PR ~93.2%, RR ~92.6%. Consistently outperforms Removert; slightly below ERASOR on averaged F1 but achieves higher PR on individual sequences. The paper qualitatively demonstrates partial-FoV construction-site robustness, but public numeric benchmark evidence remains SemanticKITTI.
 
 ### Occupancy / Voxel-Ray Based
 
@@ -214,7 +214,7 @@ For robot deployments requiring immediate clean maps (warehouse AGVs, port AGVs)
 | DUFOMap | Void-region detection | Online | AA 98.3% | AA 98.3% | — | 0.062 s | Semi-indoor limits |
 | OTD | Observation timestamp | Online | — | — | 0.975–0.988 | 23.8 ms | Ground contact required |
 | FreeDOM | Conservative free-space | Online + Offline | — | — | 97.1–99.6% | >10 Hz | 2025; newest |
-| Raymoval | Az-el raycasting + cluster | Offline | ~93.2% | ~92.6% | ~0.927 | 0.094 s | RiTA 2025 / arXiv 2026; paper-only |
+| [Raymoval](raymoval.md) | Az-el raycasting + cluster | Offline | ~93.2% | ~92.6% | ~0.927 | 0.094 s | RiTA 2025 / arXiv 2026; paper-only |
 | ERASOR2 | Instance segmentation | Offline | — | — | 0.974–0.984 | — | Requires detector |
 | DeFlow | Scene flow (learned) | Offline | — | — | — | — | Data-dependent; domain shift |
 
@@ -370,7 +370,7 @@ Moving Object Segmentation on SemanticKITTI-MOS is a recognized benchmark task. 
 2. Produce a high-quality trajectory using LIO/SLAM plus loop closure and control points.
 3. Build an initial raw map and preserve raw scan provenance.
 4. Apply runtime dynamic masks if available, but do not trust them as final map truth.
-5. Run offline cleaning with ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, [BeautyMap](beautymap.md), or DUFOMap — compare at least two methods and inspect disagreement.
+5. Run offline cleaning with ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, [BeautyMap](beautymap.md), [Raymoval](raymoval.md), or DUFOMap — compare at least two methods and inspect disagreement.
 6. Assign map points to static, movable-static, dynamic, artifact, or unknown layers.
 7. Validate localization on the cleaned map and on the raw-map baseline.
 8. Segment the cleaned map; use segmentation confidence as a downstream cleaning QA signal.

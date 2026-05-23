@@ -11,7 +11,7 @@ priority:
   reason: "FreeDOM Dynamic Object Removal is rated for dynamic-object filtering and map-cleaning workflows that protect localization maps."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal LIO](do-removal-lio.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md).
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [Raymoval](raymoval.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal LIO](do-removal-lio.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md).
 
 **Last updated:** 2026-05-23
 
@@ -341,7 +341,7 @@ The stated "+9.7% average F1 improvement" in the FreeDOM paper is computed again
 | ERASOR++ | arXiv 2024 | Offline pseudo-occupancy | 93.1–98.6% (KITTI) |
 | [BeautyMap](beautymap.md) | RA-L 2024 | Offline binary matrix | up to 95.98% HA (KITTI) |
 | DUFOMap | RA-L 2024 | Online void-region | 98.23% (KITTI seq 02) |
-| Raymoval | RiTA 2025 / arXiv 2026 | Offline az-el raycast | avg 0.927 F1 (SemanticKITTI) |
+| [Raymoval](raymoval.md) | RiTA 2025 / arXiv 2026 | Offline az-el raycast | avg 0.927 F1 (SemanticKITTI) |
 
 FreeDOM leads on the specific sequences tested in its paper. Direct head-to-head against OTD and ERASOR++ on the same evaluation split has not been published as of May 2026.
 
@@ -487,7 +487,7 @@ This two-layer staging prevents parked-GSE geometry from being auto-labeled as p
 | BeautyMap (RA-L 2024) | https://arxiv.org/abs/2405.07283 |
 | Removert (IROS 2020) | https://github.com/gisbi-kim/removert |
 | OTD (ICRA 2024) | https://arxiv.org/abs/2406.15774 |
-| Raymoval (arXiv 2025) | https://arxiv.org/abs/2605.08937 |
+| Raymoval (RiTA 2025 / arXiv 2026) | https://arxiv.org/abs/2605.08937 |
 | RH-Map (RA-L 2023) | https://github.com/YZH-bot/RH-Map |
 | DR-Remover | https://github.com/zhongbusishaonianyou/DR-REMOVER |
 | HeLiMOS (IROS 2024) | https://arxiv.org/abs/2408.06328 |

@@ -11,7 +11,7 @@ priority:
   reason: "DR-REMOVER is rated for dynamic-object filtering and map-cleaning workflows that protect localization maps."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [Raymoval](raymoval.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
 
 **Last updated:** 2026-05-23
 
@@ -281,7 +281,7 @@ BeautyMap (2024, binary-encoded vertical occupancy top-down) [parallel branch]
 FreeDOM (2025, conservative free-space, sensor-agnostic)
 DUFOMap (2024, void-region single-observation)
 OTD (2024, observation-timestamp online)
-Raymoval (2025, az-el raycasting + cluster validation)
+[Raymoval](raymoval.md) (RiTA 2025 / arXiv 2026, azimuth-elevation raycasting + cluster validation)
 ```
 
 ---
@@ -444,7 +444,7 @@ The repository explicitly uses ERASOR's map-building code as its upstream step, 
 | BeautyMap page | `beautymap.md` |
 | BeautyMap (arXiv 2024) | https://arxiv.org/html/2405.07283v1 |
 | MapCleaner (MDPI 2022) | https://www.mdpi.com/2072-4292/14/18/4496 |
-| Raymoval (arXiv 2025; omits DR-REMOVER from comparison) | https://arxiv.org/html/2605.08937v1 |
+| Raymoval (RiTA 2025 / arXiv 2026; omits DR-REMOVER from comparison) | https://arxiv.org/html/2605.08937v1 |
 | HIF (arXiv 2025; omits DR-REMOVER from comparison) | https://arxiv.org/html/2503.06863v1 |
 | Related method — ERASOR deep dive | `./erasor.md` |
 | Related method — ERASOR++ deep dive | `./erasor-plus-plus.md` |

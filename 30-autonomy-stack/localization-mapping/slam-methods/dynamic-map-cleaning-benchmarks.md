@@ -141,7 +141,7 @@ This is the most important practical warning on this page.
 | Evaluation script | ERASOR's own eval or per-paper scripts | KTH's `evaluate_all.py` (Python) + `export_eval_pcd` (C++) |
 | Dynamic label source | SemanticKITTI moving-class IDs 252–259 | Same IDs for KITTI datasets; human labels for campus/indoor |
 | Density bias | Downsampled — less bias | Raw point level — density-biased |
-| Comparable to | ERASOR, ERASOR++, Removert (original), Raymoval, MapCleaner, FreeDOM | DUFOMap, BeautyMap, OctoMap w/ GF, Dynablox (KTH runs), DeFlow |
+| Comparable to | ERASOR, ERASOR++, Removert (original), Raymoval, MapCleaner; FreeDOM only as an independent-evaluator reference | DUFOMap, BeautyMap, OctoMap w/ GF, Dynablox (KTH runs), DeFlow |
 
 The effect is substantial and empirically visible. Compare ERASOR on KITTI seq 00 under each:
 
@@ -154,7 +154,7 @@ These are the same method, same dataset, different metric lineages. The divergen
 
 **The practical implication:** do not claim "method A beats method B" by comparing a voxel-wise F1 from one paper against a point-level HA from another, even if both report results on KITTI seq 00.
 
-**FreeDOM as a third independent case.** FreeDOM (RA-L 2025) uses its own voxel-wise evaluation scripts distinct from both ERASOR's original harness and the KTH benchmark pipeline. FreeDOM's numbers (KITTI seq 02 F1 = 99.59%, seq 07 F1 = 98.33%) were obtained with an independent setup. See §5.5 and the correction in §10.10 for details.
+**FreeDOM as a third independent case.** FreeDOM (RA-L 2025) uses its own voxel-wise evaluation scripts distinct from both ERASOR's original harness and the KTH benchmark pipeline. FreeDOM's numbers (KITTI seq 02 F1 = 99.59%, seq 07 F1 = 98.33%) were obtained with an independent setup. See §11.5 and the correction in §11.10 for details.
 
 ---
 
@@ -539,7 +539,7 @@ Cross-sensor results (Table II):
 
 FreeDOM's VLP-16 F1 of 90.66% is substantially better than MOS models on HeLiMOS VLP-16 (IoU_MOS ~5%) — because FreeDOM is a geometric free-space method rather than a range-image learned model, it degrades more gracefully across sensor densities.
 
-### 11.6 Raymoval — PR / RR / F1 (SemanticKITTI)
+### 11.6 [Raymoval](raymoval.md) — PR / RR / F1 (SemanticKITTI)
 
 From Raymoval (RiTA 2025 / arXiv 2605.08937, submitted 2026), Table 2. Source: [arXiv 2605.08937v1](https://arxiv.org/html/2605.08937v1).
 
@@ -557,6 +557,8 @@ From Raymoval (RiTA 2025 / arXiv 2605.08937, submitted 2026), Table 2. Source: [
 | 07 | Raymoval | 91.645 | 91.534 | 0.916 |
 | Avg (5 seqs) | ERASOR | 90.510 | 97.401 | 0.938 |
 | Avg (5 seqs) | Raymoval | 93.217 | 92.566 | 0.927 |
+
+Summary: Raymoval improves PR over ERASOR on all five tested segments, but has lower average RR and lower average F1; it wins F1 on seq 02 and 05 only. Table 3 reports 93.83 ms/scan on one Intel Core i9-13900 CPU thread, with raycasting cache about 92.9% of runtime.
 
 ### 11.7 MapCleaner
 
@@ -592,7 +594,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
   - `mapcleaner.md` — MapCleaner (Remote Sensing 2022), see §11.7
   - `dr-remover.md` — DR-Remover (T-IV 2024), see §11.8
   - `freedom-dynamic-object-removal.md` — FreeDOM (RA-L 2025), numbers in §11.5; **not KTH-benchmarked**
-  - Raymoval — numbers in §11.6
+  - `raymoval.md` — Raymoval (RiTA 2025 / arXiv 2026), numbers in §11.6
   - BTSA (if created) — see §11.9
 
 **Key metric-definition cross-links:**

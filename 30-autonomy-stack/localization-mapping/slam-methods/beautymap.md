@@ -11,7 +11,7 @@ priority:
   reason: "BeautyMap is rated as a fast, training-free dynamic-point removal method for conditioning static LiDAR maps before localization, map QA, and semantic segmentation."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [Removert](removert.md), [MapCleaner](mapcleaner.md), [FreeDOM](freedom-dynamic-object-removal.md), [DR-Remover](dr-remover.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
+Related docs: [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Raymoval](raymoval.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [Removert](removert.md), [MapCleaner](mapcleaner.md), [FreeDOM](freedom-dynamic-object-removal.md), [DR-Remover](dr-remover.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
 
 **Last updated:** 2026-05-23
 
@@ -47,7 +47,7 @@ The method adds two safeguards around this fast comparison:
 1. **Adaptable ground matrix:** the base height of each vertical column is adjusted from neighboring low points, so slopes and uneven terrain do not get treated as floating dynamic objects.
 2. **Static restoration:** visibility masks and reverse virtual ray casting protect static points that the current scan simply could not see. This is the over-removal guard.
 
-The result is a differential map cleaner with a global coordinate representation. It is adjacent to ERASOR/ERASOR++ because it reasons about vertical occupancy, but it is more matrix-oriented and less egocentric. It is adjacent to Removert/Raymoval because it uses visibility restoration, but it does not make raycasting the main detection mechanism.
+The result is a differential map cleaner with a global coordinate representation. It is adjacent to ERASOR/ERASOR++ because it reasons about vertical occupancy, but it is more matrix-oriented and less egocentric. It is adjacent to Removert/[Raymoval](raymoval.md) because it uses visibility restoration, but it does not make raycasting the main detection mechanism.
 
 ---
 
@@ -139,7 +139,7 @@ Benchmark caveat:
 | FreeDOM | Conservative free-space with online and back-end stages | More sensor-agnostic and stronger on non-flat/stair-like settings in its own paper | Not in KTH benchmark; heavier ray/free-space state machinery. |
 | MapCleaner | Terrain-first cumulative voting | Strong multi-scan evidence idea | No official implementation and no KTH inclusion as of this refresh. |
 | DR-Remover | Dual-resolution occupancy grids | Adjacent coarse/fine count-grid branch | Less public benchmark visibility and runtime detail than BeautyMap. |
-| Raymoval | Az-el raycasting and spatial validation | Current 2026 paper; handles partial-FoV concerns qualitatively | Paper-only; uses different PR/RR/F1 harness, so do not rank directly against BeautyMap. |
+| [Raymoval](raymoval.md) | Az-el raycasting and spatial validation | Current 2026 paper; handles partial-FoV concerns qualitatively | Paper-only; uses different PR/RR/F1 harness, so do not rank directly against BeautyMap. |
 
 ---
 
