@@ -124,6 +124,10 @@ Use [perception-SLAM statistical validity protocol](perception-slam-statistical-
 | Ground-truth package | Survey files, RTK/INS logs, label files, uncertainty model |
 | Metric report | Tables, plots, confidence intervals, public and internal benchmark results |
 | Map QA report | Tile status, semantic-layer checks, reviewer decisions |
+| Semantic contract manifest | `semantic_map_manifest.json`, schema result, manifest ID, compatibility hash, source-map/tile hashes, taxonomy/model/config/calibration digests |
+| Semantic tile QA packet | Per-tile pass/quarantine state, safety-class IoU/recall, unknown-rate threshold result, seam audit, label-churn report, reviewer disposition |
+| Confidence and auto-label report | Calibration/ECE/ACE, risk-coverage curve, confidence threshold file, back-projected single-scan label score |
+| Runtime map-load report | Autoware projection/Lanelet2/pointcloud loader smoke test, split-cell metadata check, representative route dynamic-load replay if enabled |
 | Failure packet | Reproducible log slice, seed/config, expected vs actual, defect ID |
 | Runtime report | Latency, memory, CPU/GPU, dropped frames, watchdog events |
 | Release recommendation | Pass, pass with ODD restriction, inconclusive, or block |

@@ -212,6 +212,7 @@ tiles/
 │   ├── pointcloud.pcd.zst      -- Localization point cloud (zstd compressed)
 │   ├── lanelet2.osm            -- Lanelet2 fragment (clipped to tile + boundary overlap)
 │   ├── semantics.pb            -- Semantic annotations (protobuf)
+│   ├── semantic_manifest.json   -- Semantic schema/taxonomy/model/QA contract for this tile
 │   ├── occupancy.pgm.zst       -- 2D traversability grid
 │   ├── elevation.tif.zst       -- Ground elevation
 │   ├── sdf.npy.zst             -- Signed distance field
@@ -249,6 +250,15 @@ class TileLayerInfo:
     point_count: Optional[int] = None       # For point cloud layers
     voxel_size_m: Optional[float] = None    # For voxelized layers
     resolution_m: Optional[float] = None    # For grid layers
+    semantic_schema_version: Optional[str] = None
+    taxonomy_id: Optional[str] = None
+    taxonomy_digest: Optional[str] = None
+    segmentation_run_id: Optional[str] = None
+    confidence_policy_id: Optional[str] = None
+    qa_state: Optional[str] = None           # "passed", "review", "quarantined"
+    evidence_ids: List[str] = field(default_factory=list)
+    unknown_rate: Optional[float] = None
+    safety_class_gate_passed: Optional[bool] = None
 
 @dataclass
 class TileDependency:
@@ -311,6 +321,15 @@ class TileMetadata:
                     'size_bytes': l.size_bytes,
                     'sha256': l.sha256,
                     'format_version': l.format_version,
+                    'semantic_schema_version': l.semantic_schema_version,
+                    'taxonomy_id': l.taxonomy_id,
+                    'taxonomy_digest': l.taxonomy_digest,
+                    'segmentation_run_id': l.segmentation_run_id,
+                    'confidence_policy_id': l.confidence_policy_id,
+                    'qa_state': l.qa_state,
+                    'evidence_ids': l.evidence_ids,
+                    'unknown_rate': l.unknown_rate,
+                    'safety_class_gate_passed': l.safety_class_gate_passed,
                 }
                 for l in self.layers
             ],
@@ -434,10 +453,12 @@ MINOR increment:
   - Geometry refinement (point cloud updated from fleet SLAM)
   - Annotation improvement (better semantic labels)
   - Occupancy grid refinement
+  - Semantic confidence/QA threshold policy change with unchanged taxonomy order
   - Transparent to planning, improves localization accuracy
   
 PATCH increment:
   - Metadata correction (stand ID typo, speed limit value)
+  - Label-only correction that leaves topology, free-space, route/geofence, and class-order contracts unchanged
   - Format migration (no content change)
   - Compression improvement (same content, smaller file)
   - No operational impact
@@ -448,6 +469,8 @@ Examples:
   T+0003_-0002 v1.1.1 -- Fixed stand B14 ID label
   T+0003_-0002 v2.0.0 -- New service road added (topology change)
 ```
+
+Semantic layer compatibility is stricter than ordinary metadata. Changing taxonomy order, class IDs, unknown semantics, safety-critical class membership, or planner/free-space interpretation is a `MAJOR` tile change because downstream consumers can silently misread labels. Changing confidence thresholds, calibration files, QA policy, or reviewer/quarantine state is at least `MINOR`. A label-only fix is `PATCH` only when topology, free-space, geofence, route, and runtime consumer contracts are unchanged and the semantic manifest carries the same compatible taxonomy digest.
 
 ### 3.2 Content-Addressable Storage
 
@@ -658,6 +681,13 @@ class AirportMapManifest:
     # Compatibility
     min_client_version: str                # Minimum map client software version
     compatible_with: List[str]             # List of previous manifest hashes for mixed-version
+    semantic_schema_version: str           # Semantic layer schema expected by clients
+    semantic_taxonomy_id: str              # Ordered class ontology for semantics layers
+    semantic_taxonomy_digest: str          # Hash of taxonomy/class order/unknown policy
+    semantic_artifact_id: str              # Airport-wide semantic layer bundle ID
+    semantic_qa_policy_id: str             # Confidence/unknown/reviewer gate policy
+    semantic_evidence_ids: List[str]       # QA, seam, churn, calibration, reviewer evidence
+    autoware_loader_cells_manifest: Optional[str]  # Runtime export cells regenerated from signed tiles
     
     # Operational
     fleet_target_version: Optional[str]    # If set, all vehicles should converge to this
@@ -676,6 +706,8 @@ class TileManifestEntry:
     source: str                            # "survey", "fleet_slam", "airac"
     diff_available_from: List[str]         # Versions with available diffs
 ```
+
+The distribution tile grid is not necessarily the same as an Autoware pointcloud-loader cell grid. Keep `distribution_tile_id` as the OTA/update unit, then record an `autoware_loader_cells_manifest` that lists regenerated runtime PCD cells, bounds, hashes, `x_resolution`, `y_resolution`, `pointcloud_map_metadata.yaml` hash, and projection hash. Publication is allowed only if that runtime export is reproducible from the signed tile set and its cells are axis-aligned, non-overlapping, and projection-consistent with the Lanelet2 layer.
 
 ### 3.5 Version Metadata and Provenance
 

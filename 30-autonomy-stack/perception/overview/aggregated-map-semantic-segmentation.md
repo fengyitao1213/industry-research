@@ -779,6 +779,16 @@ A map-segmentation pipeline is a long-running offline batch that produces artifa
 - **Carry provenance into the output.** Every labeled point should trace to the model version, pipeline config, and source tiles that produced it — the same provenance discipline as `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`, and what makes the labeled map auditable safety-case evidence (§1.3).
 - **Pin the environment.** The pre-/post-processing dependency stack (sparse-conv kernels, CUDA, point-cloud libraries) is version-fragile; a labeled map produced six months apart should be reproducible given the same inputs only if that stack is pinned.
 
+**Production semantic-map artifact contract.** Treat `semantic_map_manifest.json` as the machine-readable handoff from research/offline labeling to map construction, release governance, and runtime export. Shape-validate it with JSON Schema, lock its material inputs and outputs through the DVC stage state (`dvc.yaml` + `dvc.lock`), and sign the release manifest alongside the map bundle. Minimum fields:
+
+- **Identity and scope:** `schema_version`, `semantic_layer_id`, `release_state`, `site_scope`, `tile_ids`, `source_map_manifest_hash`, and `tile_partition_manifest_hash`.
+- **Inputs:** raw aggregated map digest, source survey/session IDs, pose graph digest, calibration package ID, dynamic-removal output digest, and map conditioning config hash.
+- **Producer:** code git SHA, container digest, DVC YAML hash, DVC lock hash, parameter hash, CUDA/sparse-kernel package versions, and workflow run ID.
+- **Model and taxonomy:** model ID, weights digest, taxonomy ID/version/digest, ordered `class_id_map`, explicit `unknown` class ID, safety-critical class set, confidence-calibration ID, and signed threshold file ID.
+- **Outputs:** labeled cloud digest, semantic HD-map layer digest, confidence/unknown layer digest, per-tile prediction digests, back-projection index ID, and back-projected single-scan label digest.
+- **Metrics and evidence:** held-out mIoU, per-class IoU/recall, safety-class gates, ECE/ACE, coverage at threshold, unknown rate, seam/boundary metrics, label churn on unchanged regions, QA report ID, reviewer decision, waiver/quarantine state, rollback artifact ID, and safety-case evidence IDs.
+- **Runtime export adapter:** if the map is exported to Autoware, record the paired `lanelet2_map.osm`, `pointcloud_map.pcd` or split `pointcloud_map/*.pcd`, `pointcloud_map_metadata.yaml`, and `map_projector_info.yaml` hashes. Keep semantic labels in the semantic layer unless the target runtime consumer is validated to preserve and consume extra point fields.
+
 **A worked large-scale tiling pipeline — FRACTAL.** The operational disciplines above are abstract; **FRACTAL** is a published, concrete instance of them at country scale — the construction pipeline behind a large ALS segmentation dataset built from France's national Lidar HD program. Two of its design choices are directly transferable to an airside map pipeline. First, it is **catalog-driven**: every candidate tile is registered in a **PostGIS** spatial catalog with per-tile **scene descriptors** (class histograms, density, terrain type), and the training set is then assembled by **stratified sampling over those descriptors** — deliberately concentrating tiles that contain rare classes rather than sampling tiles uniformly. This is the §8.3 "density-aware seeding" and §6.4 rare-class-resampling idea promoted to a cataloged, query-able pipeline stage, and it is the right model for an airside benchmark where markings, poles, and signs are <1% of points (§5.4). Second — and load-bearing for evaluation rigor — FRACTAL constructs **spatially-disjoint train/validation/test splits**: tiles in different splits are geographically separated so that spatial autocorrelation (adjacent tiles sharing the same structures) cannot leak structure across the split boundary. This is independent confirmation of the geographic-split rule in §13.3 and §5.4: a random tile split inflates measured mIoU because the model memorizes geometry that recurs on both sides of the split; a spatially-disjoint split is the only honest protocol. ("FRACTAL: An Ultra-Large-Scale Aerial Lidar Dataset for 3D Semantic Segmentation of Diverse Landscapes" — [arxiv.org/abs/2405.04634](https://arxiv.org/abs/2405.04634); the dataset is ALS, but the cataloged-stratified-sampling and spatially-disjoint-splitting pipeline patterns transfer regardless of sensor.)
 
 ### 8.7 Multi-Resolution Segmentation
@@ -891,6 +901,8 @@ Cheap, high-value sanity corrections: enforce ground continuity/flatness for the
 
 The pipeline emits: a **labeled point cloud** (per-point class + confidence), an optional **labeled semantic mesh**, the **HD-map semantic layer** (§14, polygonized surfaces / vectorized markings / structure footprints), and **back-projected single-scan auto-labels** (per-scan labels via pose look-up — the data-flywheel output).
 
+The production bundle also emits `semantic_map_manifest.json`, a schema-validation result, the DVC lock digest for the exact materialization, a lineage/event bundle, and QA evidence IDs. Runtime consumers should receive a conservative export view: Autoware gets `lanelet2_map.osm`, `map_projector_info.yaml`, `pointcloud_map_metadata.yaml`, and localization PCD cells; the semantic class/confidence/unknown fields remain a sibling semantic layer unless the runtime loader and downstream node contract explicitly support those fields.
+
 ### 10.6 Uncertainty and Confidence Handling
 
 The pipeline emits a per-point confidence alongside each label (§10.5); post-processing should *use* it, not just store it.
@@ -986,6 +998,7 @@ The cleanest concrete instance of foundation-model-assisted offline labeling for
 - **Heuristic cross-check** — disagreement with the ground/intensity guards (§3.3) flags regions.
 - **Geometric plausibility** — buildings off the ground, markings off non-pavement, floating ground points → flag.
 - **Seam audit** — boundary-IoU sampled along tile borders; a spike means tiling/stitching needs tuning.
+- **Artifact contract gate** — `semantic_map_manifest.json` schema-validates; DVC lock and manifest digests match materialized outputs; taxonomy, confidence thresholds, source-map hash, tile manifest, QA report, and runtime-export evidence IDs are present.
 - **Human spot-review** — route the lowest-confidence and highest-disagreement tiles (not random tiles) to annotators; this is the active-learning loop.
 - **Stability across map versions** — when the map is re-surveyed, label churn in unchanged regions should be near zero.
 
@@ -1167,6 +1180,12 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - **SALT** — "SALT: A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency" — [arxiv.org/abs/2503.23980](https://arxiv.org/abs/2503.23980)
 - **Myria3D** — IGN open-source deep-learning point-cloud segmentation library (France's national Lidar HD program)
 
+### Production Artifacts and Runtime Contracts
+- **DVC pipeline files** — stage dependencies, parameters, outputs, metrics, and `dvc.lock` materialization state — [doc.dvc.org/user-guide/project-structure/dvcyaml-files](https://doc.dvc.org/user-guide/project-structure/dvcyaml-files)
+- **JSON Schema 2020-12** — manifest shape validation meta-schema — [json-schema.org/specification](https://json-schema.org/specification)
+- **SLSA build provenance v1.2** — artifact provenance and build traceability model — [slsa.dev/spec/v1.2/build-provenance](https://slsa.dev/spec/v1.2/build-provenance)
+- **Autoware map loaders** — Lanelet2, pointcloud map, metadata, and projection file contracts — [autoware_map_loader](https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/) · [autoware_map_projection_loader](https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/)
+
 ### Pre-Training and 3D Foundation Models
 - **PointContrast** — Xie et al., "PointContrast: Unsupervised Pre-training for 3D Point Cloud Understanding" (ECCV 2020)
 - **Point Prompt Training (PPT)** — Wu et al., "Towards Large-scale 3D Representation Learning with Multi-dataset Point Prompt Training" (CVPR 2024)
@@ -1238,6 +1257,10 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `70-operations-domains/deployment-playbooks/airside-perception-slam-commissioning.md` — new-airport commissioning playbook; Phase 3 builds the semantic layers via this pipeline
 - `70-operations-domains/airside/operations/cones-chocks-barriers-map-policy.md` — airside map-layer policy for the movable objects this taxonomy classifies
 - `50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md` — the semantic-integrity publication gate consumes this pipeline's QA evidence
+- `50-cloud-fleet/ota/perception-slam-artifact-compatibility-matrix.md` — signed compatibility manifest for semantic layer, map bundle, model/taxonomy, calibration, and runtime consumers
+- `50-cloud-fleet/data-platform/data-catalog-lineage-quality-ops.md` — catalog, lineage, quality, and replay reproducibility controls for map-segmentation data products
+- `50-cloud-fleet/data-platform/perception-slam-fleet-data-contract.md` — fleet schema and evidence contract for perception-SLAM/map releases
+- `50-cloud-fleet/mlops/model-governance-release-evidence.md` — model release evidence registry for the segmenter that produced the semantic layer
 - `30-autonomy-stack/localization-mapping/maps/map-construction-pipeline.md` — the offline HD-map construction pipeline that produces the aggregated map and consumes the semantic layer
 - `30-autonomy-stack/localization-mapping/maps/semantic-mapping-learned-priors.md` — semantic map layers and learned priors
 - `30-autonomy-stack/localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md` — dynamic-object removal (required pre-processing)

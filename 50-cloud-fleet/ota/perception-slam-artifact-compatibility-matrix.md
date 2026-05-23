@@ -32,6 +32,7 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 | Neural model | Input preprocessing, ontology, uncertainty calibration, runtime thresholds | Class/order/schema change not reflected in consumers | Model card, dataset lineage, calibration and slice metrics |
 | Occupancy/free-space model | Grid resolution, unknown semantics, planner contract, protected-zone policy | Unknown/free encoding change or false-free-space gate failure | False-free-space report, OOD/unknown object evaluation |
 | Map bundle | Site/route, localization algorithm, calibration, vehicle geometry, overlays | Wrong active map, expired overlay, tile frame mismatch | Map QA report, source traversal provenance, canary metrics |
+| Semantic map layer | Source map, tile manifest, taxonomy/class order, unknown/confidence policy, segmentation model, calibration, map-runtime consumers | Semantic layer produced under a different manifest/hash, missing QA evidence, class-order mismatch, or runtime loader contract not validated | Semantic map manifest, per-tile QA, safety-class metrics, calibration/threshold report, Autoware loader smoke test |
 | Calibration package | Sensor serials, mounts, firmware, TF tree, vehicle body frame | Applied to wrong vehicle/sensor kit or drift state red | Calibration benchmark report, drift monitor record |
 | Runtime config | Code/model/map version set, ODD, monitor thresholds, release ring | Threshold differs from validation without approval | Config schema validation, safety impact record |
 | Diagnostics graph | Node names, diagnostic producers, operation modes, latch policy | Missing critical node or changed severity semantics | Diagnostic graph test and alert routing proof |
@@ -43,8 +44,10 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 |---|---|
 | `manifest_id` | Immutable ID signed by release authority |
 | `vehicle_eligibility` | Vehicle classes, sensor kits, excluded serials, site IDs |
-| `artifact_set` | Code, model, engine, map, calibration, config, schema, diagnostics graph digests |
+| `artifact_set` | Code, model, engine, source map, semantic layer, taxonomy, calibration, config, telemetry schema, diagnostics graph, runtime map contract, and release-evidence digests |
 | `compatibility_hash` | Hash over the full version set, not only individual artifacts |
+| `semantic_map_contract` | Semantic layer ID, taxonomy ID/hash, model/weights digest, calibration ID, confidence threshold file, QA report ID, source-map hash, tile-manifest hash, runtime export contract version |
+| `runtime_map_contract` | Autoware map contract version, `map_projector_info.yaml` hash, `pointcloud_map_metadata.yaml` hash, Lanelet2 loader evidence ID, pointcloud loader evidence ID, dynamic-load replay evidence ID if enabled |
 | `activation_preconditions` | Parked/mission-complete state, battery, network, operator acknowledgement if required |
 | `rollback_set` | Previous compatible artifact set and cache state |
 | `evidence_ids` | CI, replay, calibration, map QA, safety-case, security, and canary evidence |
@@ -57,7 +60,7 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 |---|---|---|
 | C0 inventory | Fleet reports active and candidate artifact IDs with digests | Unknown active version on target vehicle |
 | C1 cryptographic trust | Package signatures, metadata, and provenance verify | Unsigned package, expired metadata, failed SLSA provenance check |
-| C2 compatibility | Full compatibility matrix passes for vehicle/site/cohort | Any required axis unresolved |
+| C2 compatibility | Full compatibility matrix passes for vehicle/site/cohort; semantic map `manifest_id` and `compatibility_hash` match all evidence packets | Any required axis unresolved or evidence produced under a different manifest |
 | C3 validation | Required benchmark, replay, calibration, map, and runtime evidence attached | Evidence missing or produced under a different manifest |
 | C4 activation safety | Preconditions and rollback cache verified on representative vehicle | Activation during mission or no known-good rollback |
 | C5 canary health | Canary metrics remain within baseline envelope for hold period | Localization, free-space, OOD, latency, intervention, or support-ticket regression |
@@ -69,6 +72,8 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 |---|---|---|
 | Engine deserialization failure | Keep previous engine and mark candidate incompatible | Rebuild engine for exact runtime and hardware |
 | Map/calibration mismatch | Block dispatch for affected vehicle/site | Reissue compatible map or recalibrate vehicle |
+| Semantic layer mismatch | Keep previous map/semantic bundle and mark candidate incompatible | Rebuild semantic layer or republish manifest with matching taxonomy/model/calibration/evidence set |
+| Runtime map-load failure | Keep previous runtime map contract and block candidate activation | Regenerate Autoware export cells/metadata/projection and rerun loader smoke/replay tests |
 | Unknown schema in telemetry | Freeze promotion and mark evidence invalid | Backfill parser or republish telemetry schema |
 | Canary false-free-space alert | Stop rollout and quarantine candidate manifest | Preserve logs, replay event, update safety case |
 | Security metadata failure | Abort activation and revoke affected metadata if needed | Incident review and key-rotation assessment |

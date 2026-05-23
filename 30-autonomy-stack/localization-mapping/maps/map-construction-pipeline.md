@@ -1144,6 +1144,15 @@ airport-LHR-T5-v2.3.1/
 │   ├── survey_map.pcd      — Full 3D survey (L1, 0.05m voxels, ~500MB)
 │   ├── localization_map.pcd — Decimated for VGICP (0.1m voxels, ~100MB)
 │   └── docking_templates/  — Per-stand high-res clouds (0.02m, ~5MB each)
+├── semantics/
+│   ├── semantic_map_manifest.json — Contract for model/taxonomy/config/input/output hashes
+│   ├── semantic_cloud.copc.laz    — Per-point class, confidence, unknown flag
+│   ├── semantic_layer.geojson     — Polygonized/vectorized L3 semantic layer
+│   ├── confidence_unknown.copc.laz — Confidence and abstention layer
+│   ├── taxonomy.yaml              — Ordered class IDs and unknown policy
+│   ├── tile_metrics.json          — Per-tile mIoU, class recall, seam, churn metrics
+│   ├── qa_report.json             — Reviewer decisions, waivers, quarantine state
+│   └── backprojection_index.parquet — Map point -> source scan/frame label export index
 ├── grids/
 │   ├── occupancy_2d.pgm    — 2D traversability (2cm/pixel)
 │   ├── elevation.tif        — Ground elevation (5cm/pixel)
@@ -1159,8 +1168,18 @@ airport-LHR-T5-v2.3.1/
 │   ├── survey_log.yaml       — Survey dates, conditions, sessions
 │   ├── amdb_version.yaml     — AMDB source version and AIRAC cycle
 │   └── validation_report.json — Automated QA results
+├── autoware_runtime/
+│   ├── lanelet2_map.osm       — Runtime Lanelet2 export
+│   ├── pointcloud_map/        — Runtime localization PCD cells
+│   │   ├── A.pcd
+│   │   └── B.pcd
+│   ├── pointcloud_map_metadata.yaml
+│   ├── map_projector_info.yaml
+│   └── runtime_map_contract.yaml — Autoware release/container, PCD fields, split size, loader evidence
 └── CHANGELOG.md              — Version history
 ```
+
+The `semantics/` directory is the authoritative L3 semantic layer produced by `../../perception/overview/aggregated-map-semantic-segmentation.md`. The `autoware_runtime/` directory is an adapter view for the target stack: it records `map_path`, `lanelet2_map_path`, `pointcloud_map_path`, `pointcloud_map_metadata_path`, `map_projector_info_path`, projector type/datum/grid or origin, `pcd_fields`, `pcd_resolution_m`, `pcd_split_size_m`, axis-aligned/non-overlap guarantees, target Autoware container digest, and loader smoke-test evidence IDs. Do not rely on semantic labels embedded in the localization PCD unless the exact runtime loader and downstream consumers have been validated for those extra fields.
 
 ### 11.2 Map Versioning
 
@@ -1211,7 +1230,7 @@ Map update size optimization:
 
 ### 12.1 DVC for Map Data
 
-From `cloud-backend-infrastructure.md`, DVC (Data Version Control) manages large map files alongside code. The same DVC pipeline also versions the **semantic-segmentation model weights, taxonomy, and the labeled-map output** of §8.5 alongside the geometric map — a labeled map is reproducible only when all four (raw map, weights, taxonomy, config) are version-pinned together (see `../../perception/overview/aggregated-map-semantic-segmentation.md` §8.6):
+From `cloud-backend-infrastructure.md`, DVC (Data Version Control) manages large map files alongside code. The same DVC pipeline also versions the **semantic-segmentation model weights, taxonomy, and the labeled-map output** of §8.5 alongside the geometric map — a labeled map is reproducible only when raw map, poses, calibration, dynamic-removal output, weights, taxonomy, thresholds, config, and output digests are version-pinned together in `semantic_map_manifest.json` plus `dvc.lock` (see `../../perception/overview/aggregated-map-semantic-segmentation.md` §8.6):
 
 ```yaml
 # dvc.yaml — Map construction pipeline
@@ -1239,14 +1258,25 @@ stages:
       - data/aligned_map/alignment_report.json
   
   annotate:
-    cmd: python scripts/auto_annotate.py --amdb ${amdb_dir}
+    cmd: python scripts/auto_annotate.py --amdb ${amdb_dir} --model ${semantic_model} --taxonomy ${semantic_taxonomy}
     deps:
       - scripts/auto_annotate.py
       - data/aligned_map/merged.pcd
+      - data/dynamic_removal/removed_layer.pcd
       - ${amdb_dir}
+      - ${semantic_model}
+      - ${semantic_taxonomy}
+      - configs/semantic_segmentation.yaml
     outs:
-      - data/annotated/semantic_cloud.pcd
+      - data/annotated/semantic_cloud.copc.laz
+      - data/annotated/semantic_layer.geojson
+      - data/annotated/confidence_unknown.copc.laz
+      - data/annotated/backprojection_index.parquet
+      - data/annotated/semantic_map_manifest.json
       - data/annotated/auto_labels.json
+      - data/annotated/qa_report.json
+    metrics:
+      - data/annotated/tile_metrics.json
   
   generate_lanelet2:
     cmd: python scripts/generate_lanelet2.py
@@ -1477,6 +1507,9 @@ The per-airport cost drops ~40% from airport 1 to airport 5, and ~50% by airport
 15. ISO 19157:2023. "Geographic information — Data quality."
 16. ASPRS. "Positional Accuracy Standards for Digital Geospatial Data."
 17. Tao, Z., et al. (2023). "HD Map Quality Assessment for Autonomous Driving." IEEE IV.
+18. Autoware Foundation. "autoware_map_loader package" and "autoware_map_projection_loader" runtime map file contracts. https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_loader/ and https://autowarefoundation.github.io/autoware_core/latest/map/autoware_map_projection_loader/
+19. DVC. "`dvc.yaml` Files" pipeline stage dependencies, parameters, outputs, metrics, and `dvc.lock`. https://doc.dvc.org/user-guide/project-structure/dvcyaml-files
+20. JSON Schema. "Specification" 2020-12 meta-schema for manifest validation. https://json-schema.org/specification
 
 ### 17.6 Internal Cross-References
 
