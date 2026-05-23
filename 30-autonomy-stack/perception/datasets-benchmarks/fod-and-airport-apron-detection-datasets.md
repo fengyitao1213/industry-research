@@ -22,6 +22,21 @@ These datasets help fill an airside benchmark gap, but none alone is sufficient 
 
 ---
 
+## Evidence Boundary
+
+Treat every result from these resources as either direct public FOD/apron evidence or proxy evidence before using it in a safety argument:
+
+| Evidence class | Public inputs | Supports | Does not support |
+|---|---|---|---|
+| Direct public FOD screening | FOD-A, IVFOD, DualFOD/FOD-UAS, Airport-FOD3S real seed data | Detector pretraining, object-size slicing, wet/dry or light-level screening, and rare-FOD augmentation design. | Target-airport clearance, 3D vehicle localization, or closed-loop operational response without local holdout and placed-object tests. |
+| Apron logistics proxy | Apron Dataset and airport-surface object datasets | Detecting GSE, aircraft-adjacent clutter, personnel-adjacent objects, and environmental robustness on apron imagery. | Small runway FOD detection or final debris-clearance claims by itself. |
+| Synthetic/data-engine proxy | Airport-FOD3S and FOD-S2R-style sim-to-real workflows | Long-tail generation, augmentation ablations, lineage design, and negative-control experiments. | Acceptance evidence unless gains survive a locked real-only target-airport holdout. |
+| Adverse-condition proxy | Weather datasets such as SemanticSpray++, RADIATE, Seeing Through Fog/DENSE, DSERT-RoLL, CMHT, and LIDAROC | Sensor degradation patterns, spray/fog/rain/snow stress tests, radar-primary fallback design, and LiDAR cover-contamination checks. | Direct validation of jet-blast dust, de-icing mist, glycol film, steam, wet-apron multipath, or retroreflector bloom on the target apron. |
+
+Public FOD, apron, RGB/IR, RGB/thermal, and synthetic resources are therefore best used for pretraining, modality screening, regression tests, and test design. Final airside clearance claims still require target-airport evidence with local debris, pavement, markings, lighting, weather, aircraft adjacency, GSE, operating procedures, raw sensor provenance, reviewer disposition, and alert or inspection closure.
+
+---
+
 ## What They Measure
 
 | Measurement question | Relevant dataset |
@@ -88,7 +103,8 @@ For airside autonomy, AP is not enough. The acceptance metric must include false
 - Infrared-visible and RGB/thermal research may not transfer to the exact camera baseline, mounting height, or thermal environment of a vehicle.
 - Synthetic FOD images can teach paste artifacts, wrong scale, or unrealistic placements if lineage and quality gates are weak.
 - Apron object categories are broader logistics objects, not necessarily small FOD.
-- Dataset images do not replace live tests with glare, rain, nighttime apron lighting, rubber deposits, de-icing residue, and moving GSE.
+- Dataset images do not replace live tests with glare, rain, nighttime apron lighting, rubber deposits, de-icing residue, jet-blast dust, steam, glycol film, wet-apron multipath, retroreflector bloom, and moving GSE.
+- A visually clean benchmark frame is not evidence that a downstream map cleaner, denoiser, or semantic filter preserved all FOD-like hazards; rejected candidates need raw evidence and reviewer disposition.
 
 ---
 
@@ -123,9 +139,15 @@ Recommended evidence flow: pretrain or screen on FOD-A, expand rare examples wit
 
 - [FOD-A GitHub repository](https://github.com/FOD-UNOmaha/FOD-data)
 - [FOD-A arXiv paper](https://arxiv.org/abs/2110.03072)
+- [FAA AC 150/5210-24A Airport Foreign Object Debris Management](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5210-24)
+- [FAA AC 150/5200-30D Airport Field Condition Assessments and Winter Operations Safety](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5200-30)
+- [FAA AC 150/5300-14D Design of Aircraft Deicing Facilities](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5300-14)
 - [Small-Scale Foreign Object Debris Detection Using Deep Learning and Dual Light Modes](https://www.mdpi.com/2076-3417/14/5/2162)
 - [Airport-FOD3S Sensors paper](https://www.mdpi.com/1424-8220/25/15/4565)
 - [RDD5000 RGB-IR runway detection paper](https://www.mdpi.com/2072-4292/17/4/669)
 - [DualFOD / FOD-UAS Drones paper](https://www.mdpi.com/2504-446X/10/3/225)
 - [AIT Apron Dataset record](https://publications.ait.ac.at/de/datasets/apron-dataset/)
 - [Apron Dataset GitHub repository](https://github.com/apronai/apron-dataset)
+- [LIDAROC Zenodo dataset](https://zenodo.org/records/12800039)
+- [SemanticSpray++ project page](https://semantic-spray-dataset.github.io/)
+- [RADIATE dataset documentation](https://pro.hw.ac.uk/radiate/doc/dataset/)

@@ -24,6 +24,21 @@ This page focuses on benchmark design and data-engine use for airside perception
 
 ---
 
+## Evidence Boundary
+
+FOD benchmark evidence must be classified before it is used:
+
+| Evidence class | Resources | Correct use | Boundary |
+|---|---|---|---|
+| Direct public FOD proxy | FOD-A, IVFOD, DualFOD/FOD-UAS | Public screening for small-object detection, wet/dry or light slices, and visible/IR or RGB/thermal modality trade studies. | Proxy evidence unless the target airport surface, sensor geometry, object-size distribution, lighting, weather, and response procedure match the deployment. |
+| Synthetic augmentation | Airport-FOD3S, FOD-S2R-style workflows | Rare-object expansion, detector ablation, data-lineage design, and sim-to-real stress testing. | Not acceptance evidence; synthetic samples must stay separable from real validation and holdout data. |
+| Adverse-condition proxy | SemanticSpray++, RADIATE, Seeing Through Fog/DENSE, REHEARSE-3D, LIDAROC | Spray, fog, rain, snow, radar/LiDAR disagreement, and sensor-cover contamination stress. | Not direct evidence for airside de-icing mist, glycol film, jet-blast dust, steam, wet-apron multipath, or retroreflector bloom. |
+| Direct acceptance evidence | Target-airport placed-object tests, in-service captures, verified inspection records | Safety claim closure, ODD expansion, threshold approval, and operating-procedure release. | Requires raw sensor provenance, object dimensions/material, location, reviewer disposition, alert or inspection closure, and locked thresholds. |
+
+Report false-clear and hazardous-FOD miss rate separately from detector AP/mAP. A public or synthetic benchmark can justify algorithm selection and regression testing; it cannot close a FOD safety claim by itself.
+
+---
+
 ## Operational Definition
 
 The FAA defines FOD as any object, living or not, located in an inappropriate place in the airport environment that can injure personnel or damage aircraft. That broad definition is important for perception: the target class is not a closed list of "debris categories." It includes ordinary objects in the wrong place, such as tools, metal fragments, loose pavement, straps, baggage pieces, wildlife, broken light hardware, chocks, and plastic wrap.
@@ -97,6 +112,7 @@ Synthetic data is a data-engine lever, not final safety evidence. A high score o
 - Bounding boxes do not prove ground contact, 3D size, or whether the object lies inside the vehicle's swept path.
 - Fuel-tank FOD sim-to-real results do not automatically transfer to runway or apron scenes.
 - Public datasets rarely encode operational consequences such as runway closure threshold, inspection response, or vehicle stop distance.
+- Public weather, RGB/IR, thermal, and synthetic benchmarks must not be treated as acceptance evidence for adverse airside obscurants without target-airside validation or an explicit degraded-mode/ODD-exclusion rule.
 
 ---
 

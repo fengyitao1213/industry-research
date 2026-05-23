@@ -224,6 +224,8 @@ U-Net++ on 3D range-intensity-reflectivity images; no manual labels needed. Pseu
 
 Airport apron conditions that introduce spurious points: (a) de-icing glycol/water mist from Type I/IV spray trucks; (b) jet-blast carrying fine ice/snow crystals; (c) exhaust condensation plumes; (d) dust on unpaved maintenance roads. DVIOR and IDSOR are the best classical options when labels are unavailable. LiSnowNet's self-supervised training and TripleMixer's real-world WADS accuracy make them candidates for fine-tuning on apron-collected data. *Uncertainty flag: no published benchmark specifically covers de-icing mist; the nearest analogy is wheel-spray noted in augmentation work as causing phantom-braking artefacts.*
 
+Public adverse-weather datasets are screening proxies here, not direct airside evidence. SemanticSpray++, RADIATE, Seeing Through Fog/DENSE, REHEARSE-3D, DSERT-RoLL, CMHT, and LIDAROC can support stress-test design, radar-primary fallback, and sensor-cover contamination checks, but de-icing mist, glycol film, jet-blast dust, steam, wet-apron multipath, and retroreflector bloom still need target-airside clips or explicit ODD/degraded-mode exclusions.
+
 ---
 
 ## 5. Ghost Points, Multipath, and Specular Artifacts
@@ -538,6 +540,7 @@ Published pipelines (LIO-SAM, DLIO, Autoware) all perform deskew before registra
 | Wet apron or reflective terminal area | Ground-model and multipath diagnostics, camera/radar agreement. | Treating below-ground points as real obstacles or deleting all low returns. |
 | Retroreflective apron markings | Intensity saturation checks and known-object geometry bounds. | Letting bloom enlarge object boxes or map features. |
 | Static map build | Combine dynamic masks, ERASOR/Removert/MapCleaner, multi-session consensus. | Building a localisation map from a single busy operational shift. |
+| FOD-sensitive map cleaning | Export low-height debris, chocks, cones, hoses, tools, stationary people, staged GSE, and unknown sparse clusters to hazard/review layers with raw evidence. | Letting a cleaner, semantic filter, or threshold silently delete a small/stationary hazard. |
 | Runtime localisation | Downweight dynamic/artifact points but monitor static inlier count. | Removing so many points that scan matching becomes unobservable. |
 
 ---
@@ -572,6 +575,7 @@ Minimum evidence package:
 - Detector and tracker before/after metrics.
 - Localisation inlier, residual, and degeneracy metrics.
 - Static map ghost rate and static preservation rate.
+- Do-not-delete hazard retention, including raw and removed-layer provenance for any low-height or movable-static candidate.
 - ODD transition logs showing speed reduction, radar-primary mode, cleaning, or controlled stop.
 
 ---
@@ -619,5 +623,10 @@ Minimum evidence package:
 - Retroreflector blooming DL: https://www.researchgate.net/publication/387925721
 - FAST radius outlier variant: https://www.mdpi.com/2306-5729/8/10/149
 - Autoware blockage diagnostics: https://autowarefoundation.github.io/autoware_universe/pr-10077/sensing/autoware_pointcloud_preprocessor/docs/blockage-diag/
+- FAA AC 150/5200-30D Airport Field Condition Assessments and Winter Operations Safety: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5200-30
+- FAA AC 150/5300-14D Design of Aircraft Deicing Facilities: https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5300-14
+- LIDAROC LiDAR cover contamination dataset: https://zenodo.org/records/12800039
+- SemanticSpray++ dataset: https://semantic-spray-dataset.github.io/
+- RADIATE dataset documentation: https://pro.hw.ac.uk/radiate/doc/dataset/
 - ISO 21448 SOTIF: https://www.iso.org/standard/77490.html
 - Oren-Nayar reflectance model: https://www.sciencedirect.com/science/article/abs/pii/S0924271615002658

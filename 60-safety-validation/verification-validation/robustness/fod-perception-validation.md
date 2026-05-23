@@ -1,6 +1,6 @@
 # FOD Perception Validation
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Foreign object debris perception is a safety-relevant function when an autonomous vehicle or inspection system uses sensors to declare a runway, taxiway, stand, service road, or apron path clear. Validation must prove that the perception chain can detect hazardous debris early enough for the operational response, while controlling false alarms that can disrupt airport operations.
 
@@ -44,6 +44,8 @@ The claim is intentionally bounded. FOD perception does not prove the airport is
 | Runtime logs | Raw sensor data, detections, confidence, tracks, removed candidates, health state, ODD state, and operator/planner response. |
 | Change-control records | Model, threshold, sensor, mount, calibration, and post-processing versions tied to test results. |
 
+Evidence boundary: public FOD, public road-weather, indoor moved-object, synthetic, RGB/IR, RGB/thermal, and LiDAR cover-contamination datasets are proxy evidence unless they match the target airport surface, sensor geometry, calibration, object-size distribution, lighting/weather, ODD slice, and response procedure. Proxy evidence can support algorithm selection, pretraining, regression testing, and test design, but it must not close a safety claim, expand the ODD, or justify relaxing FOD/hazard retention without target-airside validation.
+
 ---
 
 ## Metrics
@@ -67,11 +69,13 @@ The safety review should prioritize false-clear and hazardous-FOD miss rate over
 |---|---|
 | Define hazardous FOD before testing. | Acceptance depends on object size, material, location, and operational response. |
 | No acceptance from public datasets alone. | Public data cannot cover a specific airport's pavement, lighting, debris, and procedures. |
+| No synthetic or public-proxy-only acceptance. | Airport-FOD3S-style augmentation, FOD-A screening, RGB/IR or thermal FOD studies, and adverse-weather proxies must survive locked target-airport holdouts before release. |
 | Lock thresholds before the target holdout run. | Prevents optimistic post-hoc tuning. |
 | Report false clear separately from general false negatives. | The operational risk is path clearance with a hazard present. |
 | Validate minimum detectable size by range. | Sensor resolution imposes hard limits that model metrics can obscure. |
 | Require hard-negative performance. | Excessive false alarms can make the system operationally unusable. |
 | Log raw evidence and rejected candidates. | Missed detections and false suppressions must be auditable. |
+| Preserve do-not-delete hazards. | Chocks, cones, hoses, tow bars, loose tools, straps, stationary people, parked/staged GSE, and unknown sparse clusters in FOD-sensitive zones must route to hazard, movable-static, or review layers rather than silent deletion. |
 | Revalidate after sensor, mount, calibration, model, or post-processing changes. | FOD perception is sensitive to imaging geometry and thresholds. |
 
 Acceptance thresholds should be set by the safety case and airport operation, not copied from public leaderboards. At minimum, each threshold must specify the object class/size, corridor, range, operating speed, sensor state, environmental slice, and response action.
@@ -88,7 +92,7 @@ Acceptance thresholds should be set by the safety case and airport operation, no
 | Placement | Centerline/path, edge of corridor, near markings, near cracks, in shadow, partly occluded, adjacent to legitimate equipment. |
 | Background | Runway/taxiway pavement, apron concrete, stand markings, rubber deposits, wet pavement, snow/slush where in ODD. |
 | Lighting | Day, dusk/dawn, night apron lighting, glare, backlight, flashing beacons. |
-| Weather/condition | Dry, wet, rain, fog/mist if in ODD, de-icing residue, dust/jet-blast residue where applicable. |
+| Weather/condition | Dry, wet, rain, fog/mist if in ODD, de-icing residue, de-icing mist, glycol film, steam/exhaust plume, dust/jet-blast residue, wet-apron multipath, retroreflector bloom where applicable. |
 | Sensor state | Clean, dirty lens/window, partial blockage, exposure failure, LiDAR point loss, calibration drift, missing frame. |
 | Operational mode | Inspection speed, autonomous transit speed, stop-and-confirm, remote operator review, degraded fallback. |
 
@@ -117,3 +121,11 @@ Each production release should include a FOD perception evidence package: datase
 - [FOD-A GitHub repository](https://github.com/FOD-UNOmaha/FOD-data)
 - [FOD-A arXiv paper](https://arxiv.org/abs/2110.03072)
 - [Small-Scale Foreign Object Debris Detection Using Deep Learning and Dual Light Modes](https://www.mdpi.com/2076-3417/14/5/2162)
+- [Airport-FOD3S Sensors paper](https://www.mdpi.com/1424-8220/25/15/4565)
+- [DualFOD / FOD-UAS Drones paper](https://www.mdpi.com/2504-446X/10/3/225)
+- [AIT Apron Dataset record](https://publications.ait.ac.at/en/datasets/apron-dataset/)
+- [SemanticSpray++ project page](https://semantic-spray-dataset.github.io/)
+- [RADIATE dataset documentation](https://pro.hw.ac.uk/radiate/doc/dataset/)
+- [LIDAROC Zenodo dataset](https://zenodo.org/records/12800039)
+- [FAA AC 150/5200-30D, Airport Field Condition Assessments and Winter Operations Safety](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5200-30)
+- [FAA AC 150/5300-14D, Design of Aircraft Deicing Facilities](https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.current/documentNumber/150_5300-14)

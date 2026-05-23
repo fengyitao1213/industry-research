@@ -1,6 +1,6 @@
 # FOD Retention Map-Cleaning Safety Case
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Airside map cleaning must not turn "small, transient, and low to the ground" into "safe to delete." Foreign object debris (FOD) is often exactly that: small, temporary, sparse in LiDAR, and safety critical. A static-map cleaner may remove FOD from the permanent localization map, but it must retain the evidence as a current hazard, alert, or review item.
 
@@ -9,6 +9,8 @@ Airside map cleaning must not turn "small, transient, and low to the ground" int
 Within the validated ODD, the map-cleaning pipeline does not silently erase hazardous FOD-like objects from the operational evidence chain. FOD candidates are either retained in a hazard/review layer, routed to perception/FOD workflow, or explicitly dispositioned by a reviewer.
 
 This claim does not prove the airport is free of FOD. It proves that the cleaning pipeline does not hide FOD evidence it observed.
+
+Do-not-delete hazard rule: map cleaning may exclude transient or movable objects from the permanent static map, but it must not delete them from the operational evidence chain. FOD-like debris, loose tools, straps, hoses, cables, chocks, cones, barrier bases, tow bars, small low obstacles, stationary people, parked or staged GSE, and unknown sparse clusters in route, stand, pedestrian, or FOD-sensitive zones must be exported to `hazard`, `movable_static`, or `unknown_review`, not silently discarded.
 
 ## Evidence Model
 
@@ -48,6 +50,7 @@ This claim does not prove the airport is free of FOD. It proves that the cleanin
 |---|---|
 | Hazardous-FOD false deletion rate | zero unresolved false deletions in approved test corridor |
 | FOD evidence retention | all placed FOD has raw, rejected, kept, or alert evidence trace |
+| Do-not-delete hazard retention | zero unresolved hazardous false deletions in approved route, stand, pedestrian, and FOD-sensitive slices |
 | Ground-plane localization error | within recovery/inspection tolerance for the site workflow |
 | Alert latency | within stop, avoid, or operator-review timing budget |
 | False alarm burden | below operational limit without suppressing hazardous candidates |
@@ -71,6 +74,7 @@ This claim does not prove the airport is free of FOD. It proves that the cleanin
 4. Run target-airport hard negatives before lowering alert thresholds.
 5. Require human disposition for any FOD-like object removed from the candidate static map.
 6. Attach FOD evidence to the map release or quarantine the affected tile.
+7. Block publication if a cleaner, semantic filter, or post-processing threshold can suppress small/stationary hazards without preserving rejected evidence and reviewer disposition.
 
 ## Sources
 

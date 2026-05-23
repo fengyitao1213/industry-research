@@ -42,6 +42,8 @@ This index summarizes adverse-weather driving datasets that are useful for valid
 
 The key gap is dust/steam/de-icing fluid realism. Existing public data provides useful particle, aerosol, wet-surface, and sensor-cover contamination proxies, but an airside validation program still needs local recordings around jet blast, de-icing trucks, apron dust, rubber residue, glycol film, wet-apron multipath, and sensor-window contamination.
 
+Evidence boundary: public road-weather and sensor-contamination datasets are screening and training proxies. They may justify model selection, stress-test design, degraded-mode thresholds, and sensor-cleaning triggers, but they do not close an airside safety claim for de-icing mist, glycol film, jet-blast dust/FOD entrainment, steam, heat shimmer, apron floodlighting, wet-apron multipath, standing-water reflection, or retroreflector bloom without direct target-airside validation.
+
 ---
 
 ## Recommended Validation Stack
@@ -49,7 +51,7 @@ The key gap is dust/steam/de-icing fluid realism. Existing public data provides 
 1. **Point-level removal first:** use WADS for falling/accumulated snow, REHEARSE-3D for rain-point removal, and SemanticSTF for all-weather semantic segmentation stress tests.
 2. **Object-level degradation next:** use CADC/CADC+ for snow-vs-clear 3D detection, RainSense for measured rain-rate curves, RADIATE for radar-first adverse-weather detection, and SemanticSpray++ for wet-road spray.
 3. **Fusion robustness last:** use Seeing Through Fog/DENSE and RADIATE to validate that radar, gated NIR, FIR, camera, and LiDAR degrade asymmetrically rather than assuming one weather scalar applies to every sensor.
-4. **Airside transfer gate:** after public-dataset screening, require a proprietary airside set with aircraft, GSE, cones, baggage carts, jet bridges, reflective markings, de-icing mist, dust, and heated exhaust plumes before production claims.
+4. **Airside transfer gate:** after public-dataset screening, require a proprietary airside set with aircraft, GSE, cones, baggage carts, jet bridges, reflective markings, de-icing mist, dust, heated exhaust plumes, wet-apron multipath, and do-not-delete hazard labels before production claims. LIDAROC is a LiDAR cover-contamination proxy, not proof that free-air dust, glycol mist, or wet-apron multipath is handled.
 
 ---
 
