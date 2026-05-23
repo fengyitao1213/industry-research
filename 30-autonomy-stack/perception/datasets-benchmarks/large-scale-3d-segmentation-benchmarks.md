@@ -1,6 +1,6 @@
 # Large-Scale 3D Point Cloud Semantic Segmentation Benchmarks
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -21,6 +21,7 @@ The practical point: these datasets shape what every 3D segmentation method repo
 | Toronto-3D | MLS | Segmentation | 8 | mIoU / OA | Public split (L002 test) |
 | KITTI-360 | MLS (accumulated) | 3D segmentation; 2D-3D | ~19 | mIoU | Online server (cvlibs.net) |
 | DALES | ALS (airborne) | Segmentation | 8 | mIoU / OA | Public split |
+| GridNet-HD | UAV LiDAR + oblique RGB imagery | 3D semantic; image segmentation; LiDAR-image fusion | 11 evaluated groups | mIoU | Hugging Face hidden-label leaderboard |
 | SensatUrban | UAV photogrammetry | Segmentation | 13 | mIoU / OA | Hidden test server (CodaLab) |
 | STPLS3D | Aerial photogrammetry + synthetic | Segmentation; instance | up to 18 | mIoU / AP | Public + challenge |
 | CUS3D | UAV photogrammetry point cloud + mesh + imagery | 3D/mesh/2D semantic segmentation | 10 | mIoU / OA / mAcc | Paper benchmark |
@@ -141,6 +142,16 @@ The practical point: these datasets shape what every 3D segmentation method repo
 - **Licence:** Open for research.
 - **Known pitfalls:** Aerial nadir viewpoint — density drops severely for vertical objects (poles, fences). "Power lines" are extremely sparse (one return per line segment); all existing methods achieve very low IoU on this class. US Midwest geography only.
 
+### GridNet-HD — multimodal utility-infrastructure LiDAR/image benchmark
+
+- **Sensor / acquisition:** UAV LiDAR plus high-resolution oblique RGB imagery with camera poses and calibration files. The official dataset card describes 36 geographic zones, each with images, masks, LiDAR, and pose folders.
+- **Scale:** 7,694 images and 2,448,762,950 LiDAR points across the official train/test split.
+- **11 evaluated semantic groups:** `pylon, conductor cable, structural cable, insulator, high vegetation, low vegetation, herbaceous vegetation, rock/gravel/soil, impervious soil/road, water, building`; the unassigned/unlabeled group is ignored.
+- **Tasks and baselines:** LiDAR-only Superpoint Transformer, image-vote projection, and late-fusion MLP baselines are released. The dataset card reports 66.90 mIoU for SPT, 69.10 for ImageVote, and 74.22 for late fusion.
+- **Access and license:** Hugging Face dataset and leaderboard; CC-BY-4.0. The card recommends `huggingface_hub.snapshot_download` rather than the auto-converted Parquet dataset view.
+- **Benchmark role:** Best current public proxy for long-thin utility infrastructure and calibrated LiDAR-image fusion in a large dense point cloud. It is relevant to poles, masts, cables, gantries, and overhead/edge infrastructure in non-road sites.
+- **Known pitfalls:** UAV utility-corridor acquisition is not vehicle-mounted MLS and is not airside. Treat it as a thin-class and fusion stress test, not as validation for pavement semantics, FOD retention, GSE, or dynamic map cleaning.
+
 ### SensatUrban — the scale / tiling benchmark
 
 - **Sensor:** Photogrammetric dense point clouds (SfM + MVS from UAV oblique imagery — NOT direct LiDAR pulses). The dataset paper reports Birmingham, Cambridge, and York, covering 7.6 km²; benchmark descriptions may refer to the labelled two-city release subset.
@@ -255,12 +266,14 @@ Architecture papers consistently report on ScanNet v2 and ScanNet200 for head/ta
 - **Airside transfer:** High for dense urban district mapping, service-road corridors, and urban non-road campus environments because it combines ground-level MLS and aerial ALS views. It is also a good stress test for the "same place, different acquisition geometry" problem that airside survey and site-survey products will face.
 - **Known pitfalls:** Licence and redistribution terms are not explicit in the public landing page. Use it for research benchmarking unless terms are confirmed.
 
-### Recent additions: Turin3D, CITYLID, SIP, Waymo-4DSeg
+### Recent additions: Turin3D, CITYLID, SIP, Waymo-4DSeg, YUTO, Industrial3D
 
 - **Turin3D** — ALS, ~1.43 km², ~70 M points, central Turin. Training set is unlabeled by design; only validation and test sets are annotated. Purpose-built for semi-supervised and domain-adaptation evaluation, not a fully-supervised leaderboard. Classes not enumerated in public abstract — verify in arXiv:2504.05882.
 - **CITYLID** — Citywide ALS of Berlin (1,060 tiles, ~15 billion points). 13 classes: 3 standard (`ground, buildings, trees`); 5 fine street features (`medians, driveways, bikepaths, walkways, on-street parking`); 5 shadow bins (0–3, 3–5, 5–7, 7–10, 10–12 h). Licence: DL-DE (allows commercial + research use, redistribution). No quantitative DL benchmark — visual/qualitative validation only; the researcher must define their own splits and metrics. Access: HuggingFace `Deepank/CITYLID`.
 - **SIP (Site in Pieces)** — TLS single-station, 40 scenes (27 indoor, 13 outdoor construction sites), ~140–200 M total points, 23 classes covering structural elements, temporary objects, and site context. Single-station viewpoint preserves radial density decay and self-occlusion — the explicit counterpoint to aggregated maps. Licence: publicly available (terms in arXiv:2512.09062).
 - **Waymo-4DSeg / SAM4D** — Pseudo-labeled, cross-modal (camera + LiDAR) masklet dataset (~30 M LiDAR masks). Labels are class-agnostic (instance/masklet identity, not a fixed taxonomy). Pre-training and promptable-segmentation resource, not a closed-taxonomy leaderboard. Released as part of SAM4D (arXiv:2506.21547).
+- **YUTO Semantic** — ALS campus dataset over York University, with approximately 738 M points over 9.46 km² and 9 semantic classes. Use it as a campus-scale aerial/site-survey proxy; do not treat it as ground-vehicle MLS.
+- **Industrial3D** — 2026 TLS industrial-infrastructure benchmark with 612.7 M labeled points at 6 mm resolution, 12 MEP/structure classes, and cross-paradigm baselines. The public repository still marks full dataset/code release as tied to paper acceptance, so keep it as a watchlist/proxy note until the full release is available.
 
 ## Cross-Dataset Taxonomy Mismatch
 
@@ -375,6 +388,7 @@ A SOTA claim is only meaningful with the **task variant, split, evaluation sourc
 | Toronto-3D | LAS/LAZ | (x,y,z,R,G,B,intensity,GPS time,scan angle,label) | integer attribute |
 | KITTI-360 | LAS-style binary | (x,y,z,intensity,timestamp) | semantic + instance via devkit |
 | DALES / FRACTAL | LAS / LAZ 1.4 | (x,y,z,intensity,return info,colour) | class attribute |
+| GridNet-HD | LAS + images + masks + poses | LiDAR point cloud with `ground_truth` field plus RGB projection assets | grouped semantic class IDs; test labels hidden for leaderboard |
 | SensatUrban | PLY | per-point | integer class label |
 | CUS3D | Point cloud + mesh + 2D imagery | RGB geometry from UAV reconstruction | 10 semantic classes on 3D points, mesh triangles, and 2D images |
 | SUM / SUM Parts | Textured mesh | mesh faces + texture pixels | 6-class SUM; 21-class SUM Parts with face/pixel label variants |
@@ -401,6 +415,7 @@ Taxonomies do not align across datasets. Cross-dataset training requires an expl
 | Toronto-3D | Open (research) | Research use |
 | KITTI-360 | CC BY-NC-SA | Non-commercial only |
 | DALES | Open (research) | Research use |
+| GridNet-HD | CC-BY-4.0 | Commercial + research with attribution; verify downstream model/data redistribution rules |
 | SensatUrban | Academic (registration) | Research use; check before commercial |
 | CUS3D | Open-access paper; data terms to verify | Research use until data licence is confirmed |
 | SUM / SUM Parts | Project/code/data released; data terms to verify | Research use until data licence is confirmed |
@@ -435,6 +450,7 @@ No airside aggregated-map benchmark exists — the 2023–2026 additions above c
 | SemanticKITTI (multi-scan) | MLS per-scan sequences + motion | Moderate — per-scan, but 4D labelling available |
 | FRACTAL | ALS nadir, large-area | Moderate for site surveys; wrong viewpoint for ground-vehicle |
 | DALES | ALS nadir | Low for ground-vehicle; nadir density profile |
+| GridNet-HD | UAV LiDAR + oblique imagery, utility corridor | Low-moderate for airside; strong for thin overhead/edge infrastructure and LiDAR-image fusion stress |
 | CUS3D / SUM Parts / SensatUrban / STPLS3D | UAV photogrammetric or textured mesh | Low-moderate — excellent for RGB/mesh/tiling design; no LiDAR pulse noise |
 | nuScenes / Waymo | Per-frame, no map accumulation | Low — per-scan paradigm only |
 
@@ -444,6 +460,7 @@ No airside aggregated-map benchmark exists — the 2023–2026 additions above c
 |---|---|---|
 | Dense urban district, campus, or depot map | WHU-Urban3D, KITTI-360, Paris-Lille-3D, Toronto-3D, SemanticTHAB | Pre-train MLS backbones and validate markings, poles, wires, road/driveway, building, and low-vegetation confusion |
 | Railway, taxiway, or service-road corridor | SemanticRail3D, WHU-Railway3D | Stress linear-infrastructure classes, overhead/edge structures, corridor tiling, and constrained-route geometry |
+| Utility, overhead-line, perimeter, or gantry infrastructure | GridNet-HD, DALES, Toronto-3D, WHU-Railway3D | Stress pylon/cable/insulator/pole/wire classes, LiDAR-image projection, and rare long-thin recall |
 | Construction, quarry, apron works, and large equipment | GOOSE-Ex, SIP, CUS3D, STPLS3D | Cover unstructured terrain, temporary equipment, construction-site clutter, and simulator/synthetic rare-class augmentation |
 | Aerial/site-survey layer | FRACTAL, DALES, ECLAIR, CITYLID, CUS3D | Train or validate nadir/site-survey products that complement the ground survey map |
 | Mesh or digital-twin release product | SUM, SUM Parts, CUS3D, H3D | Validate point-to-mesh transfer, textured-map annotation, road-marking/cycle-lane/sidewalk surfaces, and facade/roof class splits |
@@ -452,6 +469,7 @@ Three additions are worth singling out for airside work specifically:
 
 - **GOOSE-Ex** is the most directly relevant new resource — built on odometry-merged aggregated clouds (same accumulation regime as an airside apron map) and covers unstructured large-vehicle scenes (excavator, quadruped) sharing more with apron/movement-area operations than any urban-road benchmark. It is the primary public pre-training source for the mining and construction ODDs and a reasonable off-road transfer source for airside.
 - **SemanticRail3D** adds a large MLS corridor reference; railway-domain classes (catenary poles, rails, trackbed, masts, overhead lines) directly parallel airside ground-lighting arrays, taxiway edge structures, and jet-bridge infrastructure.
+- **GridNet-HD** adds the strongest current LiDAR-image utility-infrastructure proxy. It does not match airside geometry, but its pylon/cable/insulator split is a useful stress test for whether a taxonomy and model can preserve long, thin, safety-relevant static infrastructure instead of merging it into generic pole or vegetation classes.
 - **FRACTAL** is the strongest ALS pre-training source — a 250 km², statistically balanced, geometry-only corpus useful for nadir-scanned site-survey models, though its airborne viewpoint still differs from a ground survey-drive.
 
 The full selection rationale and the proposed airside benchmark specification are in `../overview/aggregated-map-semantic-segmentation.md` §5.3–§5.4.
@@ -468,6 +486,7 @@ The full selection rationale and the proposed airside benchmark specification ar
 - Toronto-3D: Tan et al., CVPRW 2020 — arXiv:2003.08284
 - KITTI-360: Liao et al., PAMI 2022 — https://www.cvlibs.net/datasets/kitti-360 · arXiv:2109.13410
 - DALES: Varney et al., CVPRW 2020 — arXiv:2004.11985
+- GridNet-HD: Carreaud et al., 2026 — https://arxiv.org/abs/2601.13052 · https://huggingface.co/datasets/heig-vd-geo/GridNet-HD · [GridNet-HD page](gridnet-hd-power-line-lidar-image-segmentation.md)
 - SensatUrban: Hu et al., CVPR 2021 — arXiv:2201.04494 · https://github.com/QingyongHu/SensatUrban · https://point-cloud-analysis.cs.ox.ac.uk/
 - H3D (Hessigheim): arXiv:2102.05346 · ISPRS Open Journal 2021
 - STPLS3D: Chen et al., BMVC 2022 — arXiv:2203.09065
@@ -486,6 +505,8 @@ The full selection rationale and the proposed airside benchmark specification ar
 - Turin3D: CVPR Workshops 2025 — arXiv:2504.05882
 - CITYLID: Environment and Planning B (SAGE), 2025 — https://journals.sagepub.com/doi/full/10.1177/23998083241312273 · HuggingFace `Deepank/CITYLID`
 - SIP: arXiv:2512.09062
+- YUTO Semantic: https://www.ausmlab.com/datasets/dataset · https://huggingface.co/datasets/ausmlab/yuto-semantic
+- Industrial3D: https://arxiv.org/abs/2603.28660 · https://github.com/pointcloudyc/Industrial3D
 - ECLAIR: arXiv:2404.10699
 - RELLIS-3D: ICRA 2021 — https://dl.acm.org/doi/10.1109/ICRA48506.2021.9561251
 - SynLiDAR: arXiv:2107.05399 (AAAI 2022) · https://github.com/xiaoaoran/SynLiDAR

@@ -1,6 +1,6 @@
 # Semantic Class Taxonomy Design for 3D / LiDAR Segmentation
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 This page is the deep-dive companion to §6 (Class Taxonomies) of the [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) hub page. It covers the full range of design decisions that determine what a 3D LiDAR segmentation taxonomy contains and why — from the stuff/things dichotomy and granularity trade-offs through cross-dataset harmonization, safety-criticality weighting, and open-set handling — culminating in a proposed 14-class airside aggregated-map taxonomy. Readers wanting single-scan taxonomy considerations in the context of runtime perception should also consult [LiDAR Semantic Segmentation](lidar-semantic-segmentation.md) §8.
 
@@ -56,6 +56,7 @@ There is no universal answer; class count reflects required fidelity of downstre
 | Paris-Lille-3D | 50 (full XML) | 9–10 coarse | Urban MLS |
 | Toronto-3D | 8 | 8 | Urban MLS roadway |
 | DALES | 8 | 8 | Aerial ALS |
+| GridNet-HD | 12 groups incl. ignored | 11 | UAV LiDAR + image utility infrastructure |
 | S3DIS | 13 | 13 | Indoor |
 | ScanNet / ScanNet200 | 20 / 200 | 20 / 200 | Indoor |
 
@@ -290,6 +291,12 @@ Road, Road marking, Natural, Building, Utility line, Pole, Car, Fence. Covers ap
 
 Ground, Vegetation, Cars, Trucks, Power lines, Fences, Poles, Buildings. Acquired from fixed-wing aircraft; no pedestrians (scale resolution insufficient); no ground surface subdivision (no road/sidewalk distinction at 10–20 pts/m²); buildings are rooftops only. The minimal taxonomy reflects the resolution constraints of aerial ALS rather than a deliberate design choice.
 
+### Utility infrastructure: GridNet-HD — 11 evaluated groups
+
+Pylon, Conductor cable, Structural cable, Insulator, High vegetation, Low vegetation, Herbaceous vegetation, Rock/gravel/soil, Impervious soil/road, Water, Building, plus an unassigned/unlabeled group ignored by evaluation. Acquired from UAV LiDAR plus oblique RGB imagery over overhead electrical infrastructure.
+
+This taxonomy is valuable because it splits utility assets that many AV datasets collapse into generic `pole`, `wire`, `manmade`, or `other` labels. That split is useful for long-thin infrastructure stress testing, but it should not be copied into an AV release taxonomy without evidence: an airside, yard, or campus map should add `cable`, `gantry`, `mast`, or `overhead equipment` IDs only when reviewed examples, point counts, confusion analysis, and an operational need show the parent `pole/mast/light` or `fixed equipment` class is insufficient.
+
 ### Indoor reference: S3DIS — 13 classes
 
 Ceiling, Floor, Wall, Beam, Column, Window, Door, Table, Chair, Sofa, Bookcase, Board, Clutter. Structured/architectural stuff dominates; things are furniture instances.
@@ -361,6 +368,7 @@ This is especially important for urban-district and non-road mapping. OpenUrban3
 - **Pavement split 3 ways** because manoeuvring area, apron, and landside road have different speed limits, right-of-way rules, and sensor-reflectance signatures. AV operational domain differentiation requires these classes to be distinguishable.
 - **Pavement marking separate** because it is the primary localization anchor in airside HD maps; conflating it with pavement wastes a critical geometric and radiometric cue.
 - **Kerb separate** (not merged into terrain or pavement) because AV path planning treats it as a hard lateral constraint — not a soft semantic category.
+- **Overhead/utility subclasses stay conditional.** GridNet-HD shows when pylons, conductor cables, structural cables, and insulators deserve separate labels in utility corridors, but a generic airside map should keep those under `pole / mast / light` or `fixed equipment` until a target site has enough reviewed points and an operational consumer for the split.
 - **Staged GSE distinct** from fixed infrastructure because it may move between map updates. Map versioning logic needs to flag these as potentially stale objects during change detection.
 - **Parked aircraft** is an obstacle category. At normal AV operation it does not need to be tracked as a counted instance — the AV needs to know the volume is occupied, not which aircraft it is.
 - **Moving GSE, vehicles, persons** are absent from this taxonomy; they belong to the single-scan real-time perception taxonomy only.
@@ -449,6 +457,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - Paris-Lille-3D paper: https://arxiv.org/pdf/1712.00032
 - Toronto-3D (arXiv 2003.08284): https://arxiv.org/pdf/2003.08284
 - DALES aerial ALS dataset (arXiv 2004.11985): https://arxiv.org/abs/2004.11985
+- GridNet-HD utility LiDAR-image dataset: https://arxiv.org/abs/2601.13052 · https://huggingface.co/datasets/heig-vd-geo/GridNet-HD · [dataset page](../datasets-benchmarks/gridnet-hd-power-line-lidar-image-segmentation.md)
 - S3DIS MMDetection3D docs: https://mmdetection3d.readthedocs.io/en/v0.18.0/datasets/s3dis_sem_seg.html
 - ScanNet200 project page: https://rozdavid.github.io/scannet200
 - ScanNet200 paper (arXiv 2204.07761): https://arxiv.org/pdf/2204.07761

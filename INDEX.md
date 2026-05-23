@@ -64,7 +64,8 @@
 | Weather robustness datasets | `30-autonomy-stack/perception/datasets-benchmarks/weather-robustness-datasets.md` | WADS, CADC/CADC+, SemanticSTF, REHEARSE-3D, RainSense, SemanticSpray, RADIATE, DSERT-RoLL, CMHT, and Seeing Through Fog/DENSE |
 | Moving/static separation datasets | `30-autonomy-stack/perception/datasets-benchmarks/moving-static-separation-mos-datasets.md` | SemanticKITTI-MOS, HeLiMOS, 4DMOS-style labels, moving/static taxonomy, and map-cleaning evaluation fit |
 | Occupancy-flow benchmarks | `30-autonomy-stack/perception/datasets-benchmarks/occupancy-flow-and-4d-occupancy-benchmarks.md` | Cam4DOcc, OpenOccupancy, Occ3D/OpenScene, UniOcc, nuCraft, and 4D occupancy metrics for flow/removal systems |
-| Large-scale 3D segmentation benchmarks | `30-autonomy-stack/perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md` | SemanticKITTI single/multi-scan, SemanticTHAB, Semantic3D, Paris-Lille-3D/NPM3D, Toronto-3D, KITTI-360, DALES, SensatUrban, WHU-Urban3D, WHU-Railway3D, CUS3D, SUM Parts, GOOSE-Ex, STPLS3D — splits, metrics, test servers, label formats, licensing, and urban/non-road proxy fit for point-cloud and mesh semantic segmentation |
+| Large-scale 3D segmentation benchmarks | `30-autonomy-stack/perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md` | SemanticKITTI single/multi-scan, SemanticTHAB, Semantic3D, Paris-Lille-3D/NPM3D, Toronto-3D, KITTI-360, DALES, GridNet-HD, SensatUrban, WHU-Urban3D, WHU-Railway3D, CUS3D, SUM Parts, GOOSE-Ex, STPLS3D — splits, metrics, test servers, label formats, licensing, and urban/non-road/utility-infrastructure proxy fit for point-cloud, LiDAR-image, and mesh semantic segmentation |
+| GridNet-HD utility segmentation | `30-autonomy-stack/perception/datasets-benchmarks/gridnet-hd-power-line-lidar-image-segmentation.md` | 2026 LiDAR-image benchmark for overhead electrical infrastructure: 36 zones, 7,694 images, 2.45B LiDAR points, 11 evaluated semantic groups, hidden-label leaderboard, SPT/ImageVote/late-fusion baselines, and thin-class transfer notes for aggregated-map segmentation |
 | Adverse/OOD/FOD/V2X benchmarks | `30-autonomy-stack/perception/datasets-benchmarks/muses-multisensor-adverse-semantic-perception.md`, `30-autonomy-stack/perception/datasets-benchmarks/dsert-roll.md`, `30-autonomy-stack/perception/datasets-benchmarks/cmht-autonomous-dataset.md`, `30-autonomy-stack/perception/datasets-benchmarks/sensor-corruption-robustness-benchmarks.md`, `30-autonomy-stack/perception/datasets-benchmarks/open-world-ood-anomaly-segmentation-benchmarks.md`, `30-autonomy-stack/perception/datasets-benchmarks/stu-3d-lidar-anomaly-segmentation.md`, `30-autonomy-stack/perception/datasets-benchmarks/fod-and-airport-apron-detection-datasets.md`, `30-autonomy-stack/perception/datasets-benchmarks/airside-fod-synthetic-multimodal-benchmarks.md`, `50-cloud-fleet/data-platform/airport-fod3s-synthetic-data.md`, `30-autonomy-stack/perception/datasets-benchmarks/rcp-bench-cooperative-corruption-robustness.md`, `30-autonomy-stack/perception/datasets-benchmarks/v2x-large-range-sequential-datasets.md`, `30-autonomy-stack/perception/datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md` | MUSES, DSERT-RoLL, CMHT, Robo3D/MultiCorrupt-style corruption tests, STU 3D anomaly segmentation, SegmentMeIfYouCan/OpenAD-style anomaly segmentation, airport FOD and synthetic multimodal FOD benchmark framing with public-proxy caveats, Airport-FOD3S data-engine workflow, cooperative corruption robustness, large-range V2X datasets, and truck-centered cooperative perception |
 | Embodied 3D perception benchmarks | `30-autonomy-stack/perception/datasets-benchmarks/embodiedscan-mmscan-embodied-3d-benchmarks.md` | EmbodiedScan and MMScan for egocentric RGB-D 3D perception, semantic occupancy, visual grounding, 3D QA, and VLM/VLA spatial-grounding evaluation |
 | Perception coverage audit | `30-autonomy-stack/perception/overview/coverage-audit-2026.md` | May 2026 multi-agent sweeps across camera BEV/occupancy, LiDAR MOS, 4D radar, open-world/OOD, V2X, robust fusion, deployment validation, and benchmarks |
@@ -72,7 +73,7 @@
 | Infrastructure cooperative perception | `30-autonomy-stack/perception/overview/infrastructure-cooperative-perception.md` | V2I fusion, fixed sensors, DAIR-V2X, QuantV2X/SparseCoop/VOGS-CP communication primitives, TruckV2X, airport existing systems |
 | LiDAR foundation models | `30-autonomy-stack/perception/overview/lidar-foundation-models.md` | PTv3, Sonata, ScaLR, PointLoRA, 50-80% data savings |
 | LiDAR semantic segmentation | `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` | Cylinder3D, FlatFormer, PTv3, ALPINE panoptic, airside 18-class taxonomy |
-| Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, urban/non-road proxy datasets, KPConv/RandLA/SPT, compact proxy/input/training selector, point-cloud Mamba/SSM efficiency frontiers, LiDAR±image, LOSC pseudo-label consolidation, map-hygiene ground-truth gates, mesh/digital-twin transfer, auto-label flywheel |
+| Aggregated-map semantic segmentation | `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md` | End-to-end pipeline for segmenting registered multi-scan LiDAR maps: tiling/stitching, urban/non-road/utility-infrastructure proxy datasets including GridNet-HD, KPConv/RandLA/SPT, compact proxy/input/training selector, point-cloud Mamba/SSM efficiency frontiers, LiDAR±image, LOSC pseudo-label consolidation, map-hygiene ground-truth gates, mesh/digital-twin transfer, auto-label flywheel |
 | Aggregated-map segmentation companions | `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md`, `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`, `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md`, `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md`, `30-autonomy-stack/perception/overview/static-but-transient-point-removal.md`, `30-autonomy-stack/perception/methods/point-cloud-mamba-ssm-backbones.md`, `30-autonomy-stack/perception/methods/losc.md`, `30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md`, `60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md`, `30-autonomy-stack/localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md`, `30-autonomy-stack/localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md` | Class-taxonomy design, training architecture comparison, map-scale tiling/throughput, label-refinement/post-processing, stationary-transient object removal, point-cloud SSM/Mamba backbone candidates, LOSC-style pseudo-label consolidation, canonical map-hygiene ground-truth and V&V workflow, detector-based movable-object quarantine, and dynamic-aware heterogeneous-LiDAR map merging for registered LiDAR/RGB map products |
 | Model compression & edge | `30-autonomy-stack/perception/overview/model-compression-edge-deployment.md` | PTQ/QAT, distillation, pruning, TensorRT, ModelOpt, Orin recipes |
 | Multi-object tracking | `30-autonomy-stack/perception/overview/multi-object-tracking.md` | CenterPoint tracker, SimpleTrack, MCTrack, HOTA, airside Re-ID |
@@ -360,6 +361,7 @@
 | Recurring infrastructure-aided localization batch | Infrastructure-Aided Localization was promoted as a localization overview covering UWB, fiducials, RFID/BLE, Wi-Fi RTT, magnetic maps, reflectors, 5G NR/mmWave positioning, measurement contracts, lifecycle controls, and estimator handoff patterns |
 | Recurring fiducial/corner localization batch | Fiducial and Corner Localization was promoted as a geometry foundation page covering AprilTag, ArUco, ChArUco, checkerboard and AprilGrid targets, planar PnP/IPPE pose evidence, marker-map survey contracts, estimator handoff, and managed-site failure modes |
 | Recurring semantic-map navigation cleanup | Post-merge corpus counts, perception audit counts, and README/INDEX routes were synchronized for the aggregated-map semantic segmentation hub and companion pages covering taxonomy, training, tiling, post-processing, and static-transient removal |
+| Recurring GridNet-HD dataset batch | GridNet-HD was promoted as a LiDAR-image utility-infrastructure benchmark for thin pylon, cable, insulator, vegetation, soil/road, water, and building classes, with routing through the benchmark, taxonomy, hub, audit, source registry, README, INDEX, and methodology surfaces |
 | Recurring Uni-Mapper map-merging loop | Uni-Mapper was promoted as a dynamic-aware heterogeneous-LiDAR map-merging page and routed through the aggregated-map segmentation, static-transient, dynamic-cleaning, map construction, SLAM audit, stack comparison, README, and INDEX surfaces |
 | Recurring LOSC consolidation batch | LOSC was promoted as an atomic perception method page for open-vocabulary LiDAR pseudo-label consolidation, then routed through aggregated-map segmentation, open-vocabulary detection, data-engine, annotation, audit, README, and INDEX surfaces |
 | Recurring map-hygiene workflow cleanup | Canonical map-hygiene ground truth and its V&V companion were routed through aggregated-map QA, map publication gates, operational monitoring, regulatory evidence, README, INDEX, and the active loop queue |
@@ -442,13 +444,13 @@
 
 | Metric | Value |
 |--------|-------|
-| Reader Markdown pages | 853 |
-| Core research documents | 849 |
+| Reader Markdown pages | 854 |
+| Core research documents | 850 |
 | Reader/research lines | 390k+ |
 | `00-start-here/` documents | 4 |
 | `10-knowledge-base/` documents | 137 |
 | `20-av-platform/` documents | 41 |
-| `30-autonomy-stack/` documents | 455 |
+| `30-autonomy-stack/` documents | 456 |
 | `40-runtime-systems/` documents | 23 |
 | `50-cloud-fleet/` documents | 32 |
 | `60-safety-validation/` documents | 56 |
@@ -463,7 +465,7 @@
 | AV platform documents | 41 |
 | Knowledge base documents | 137 |
 | Synthesis documents | 12 |
-| Perception documents | 211 |
+| Perception documents | 212 |
 | Localization/mapping | 182 |
 | Planning documents | 16 |
 | Multi-agent and V2X | 7 |
