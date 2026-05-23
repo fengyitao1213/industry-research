@@ -35,13 +35,14 @@ The 2026-05-09 loops promoted thirteen high-value gap clusters into first-class 
 | Dataset and validation gaps | MUSES, sensor-corruption robustness benchmarks, open-world/OOD anomaly segmentation benchmarks, FOD and airport apron detection datasets, FOD perception validation, and knowledge-base evaluation protocol. |
 | Perception/SLAM reliability gap wave | LiDAR-camera occupancy fusion, dynamic occupancy/free-space, radar-LiDAR adverse-weather detection, RobuRCDet, SAMFusion, STU, synthetic multimodal FOD benchmarks, OVAD/OVODA, open-vocabulary panoptic occupancy, RCP-Bench, V2X sequential datasets, Scan Context, LiDAR BA factors, Kimera-Multi, COVINS/COVINS-G, D2SLAM, UWB/range SLAM, OKVIS2-X, MM-LINS, event/thermal/4D-radar localization, continuous-time and volumetric-map foundations, detection/tracking foundations, fleet-data contracts, and perception/SLAM/map validation protocols. |
 | Cross-architecture KB gap fill | 30 pages across safety standards, runtime/data governance, platform integration, closed-loop autonomy evaluation, regulatory/deployment maps, and company deployment evidence. |
+| Sparse-query and end-to-end driving (2026-05-23) | [SparseBEV](../../30-autonomy-stack/perception/methods/sparsebev.md), [SparseDrive](../../30-autonomy-stack/perception/methods/sparsedrive.md), and [DiffusionDrive](../../30-autonomy-stack/perception/methods/diffusiondrive.md) promoted into the perception method library. |
 
 ## Active Next Queue
 
 | Priority | Queue | Next atomic files to consider |
 |---|---|---|
 | P0 | Perception occupancy and radar | EvOcc, DepthOcc, LinkOcc, missing-view resilient occupancy, Gaussian-rendered occupancy, 4D radar road-boundary/freespace, and Drive-OccWorld/DFIT-OccWorld where separate world-model coverage is needed. |
-| P0 | Sparse and end-to-end perception | SparseBEV, DETR4D, ForeSight, SparseDrive, DiffusionDrive, SAM4D, DriveBench, and Open3DTrack. |
+| P0 | Sparse and end-to-end perception | DETR4D and DriveBench remain. SparseBEV, SparseDrive, and DiffusionDrive were promoted in the 2026-05-23 loop; ForeSight, SAM4D, and Open3DTrack were already first-class. |
 | P0 | Removal validation and adverse-weather datasets | Airside dust, de-icing mist, steam, glycol film, wet apron multipath, retroreflector bloom, do-not-delete hazard labels, DR-REMOVER, ExelMap, and Airport-FOD3S data-engine coverage. |
 | P0 | SLAM robustness and benchmarks | DR-REMOVER, ExelMap, NDT variants, SLAM Toolbox, PIN-SLAM, ROMAN, and benchmark pages for SNAIL Radar, HeRCULES, GEODE, and COSMO-Bench. |
 | P0 | Sensor and calibration fundamentals | Ultrasonic proximity models, thermal IR radiometry as a standalone file, fleet calibration operations, calibration-bay fixtures, online calibration drift response, and fiducial/corner localization. |
