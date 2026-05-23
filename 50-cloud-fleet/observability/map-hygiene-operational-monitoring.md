@@ -23,6 +23,26 @@ Map hygiene needs runtime monitoring after publication. A map that passed offlin
 | `map.tile_id` | string | stable tile/zone/stand identifier |
 | `map.bundle_id` | string | signed map package ID |
 | `map.layer_ids` | string array | point cloud, semantic, overlay, hazard, unknown |
+| `release.manifest_id` | string | signed release manifest ID from the release authority |
+| `release.compatibility_hash` | string | hash over active code/model/map/semantic/calibration/config/schema/evidence set |
+| `map.semantic.layer_id` | string | active semantic HD-map layer ID |
+| `map.semantic.manifest_id` | string | signed semantic-map manifest ID |
+| `map.semantic.compatibility_hash` | string | hash binding source map, semantic layer, taxonomy, model, calibration, config, schema, and evidence |
+| `map.semantic.taxonomy_id` | string | ordered class ontology and unknown-policy ID |
+| `map.semantic.evidence_ids` | string array | map QA, runtime replay, calibration, and safety-case evidence packets |
+| `map.semantic.coverage_at_tau` | double | fraction of route/tile points above the approved confidence threshold |
+| `map.semantic.unknown_rate` | double | fraction of points/elements abstained to `unknown` |
+| `map.semantic.safety_class_gate_state` | enum | green, yellow, red, unknown for markings, boundaries, FOD/hazard, barriers, and movable-static classes |
+| `map.semantic.seam_boundary_f1` | double | tile-boundary semantic consistency metric from the release QA report |
+| `map.semantic.label_churn_rate` | double | label change rate in unchanged geometry since the prior semantic layer |
+| `map.semantic.review_status` | enum | passed, review, quarantined, waived, expired |
+| `map.semantic.qa_report_id` | string | immutable semantic QA evidence packet |
+| `telemetry.schema_url` | string | OpenTelemetry/custom schema URL used to interpret custom map fields |
+| `telemetry.schema_version` | string | schema version expected by dashboards and release gates |
+| `runtime.validation.map_manifest_match` | bool | vehicle-reported map/release IDs match the signed manifest |
+| `runtime.validation.semantic_layer_match` | bool | vehicle-reported semantic layer matches the signed manifest |
+| `runtime.validation.taxonomy_match` | bool | vehicle-reported taxonomy matches the signed manifest |
+| `runtime.validation.schema_match` | bool | emitted telemetry schema matches the expected schema URL/version |
 | `map.cleaner.version` | string | algorithm/model/config version |
 | `map.release_state` | enum | draft, validation, canary, active, rolled_back, retired |
 | `map.hygiene.static_preservation_rate` | double | by zone or asset class |
@@ -48,6 +68,8 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 | expired overlay | temporary overlay active past expiry | block route or renew approval |
 | FOD conflict | FOD/hazard candidate overlaps cleaned/removed layer | safety review ticket |
 | unknown growth | unknown/quarantine area exceeds route threshold | block publication or data collection |
+| semantic contract mismatch | semantic layer, taxonomy, manifest, or compatibility hash differs from signed bundle | stop dispatch/canary and force approved reload |
+| semantic QA drift | unknown rate, coverage at threshold, safety-class gate, seam score, or label churn leaves validation envelope | quarantine tile, open label/map review, and preserve evidence |
 | intervention cluster | remote assist/manual takeover by map tile | incident triage |
 
 ## Dashboard Views
@@ -57,18 +79,20 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 | release health | map bundle, release state, cohort, rollback readiness |
 | localization by tile | NDT score, covariance, residuals, relocalization failures |
 | hygiene by asset | static preservation, ghost rate, movable-static decisions |
+| semantic layer health | active semantic layer, taxonomy, coverage, unknown rate, safety-class gate, seam score, label churn, review state |
 | FOD and hazards | retained candidates, inspection status, false alarms, closures |
 | overlays | owner, expiry, affected routes, active vehicles |
 | incidents | active/prior map ID, logs, reviewer records, source evidence |
 
 ## Operational Rules
 
-1. Every mission log must include the active map bundle ID and active overlay IDs.
+1. Every mission log must include the active map bundle ID, semantic layer ID, semantic manifest ID, compatibility hash, and active overlay IDs.
 2. Every map-related alert must include tile, route, vehicle, software, sensor config, and timestamp.
 3. Canary promotion requires monitoring coverage for the operational slices affected by the release.
 4. Diagnostics should feed the same incident workflow as software and vehicle health alerts.
 5. Map schema changes must be versioned so older dashboards do not silently misread fields.
-6. Retain telemetry, raw evidence, and map bundles for any incident or safety event.
+6. Semantic QA drift must be interpreted against the signed threshold file; do not tune dashboard thresholds outside the release process.
+7. Retain telemetry, raw evidence, semantic manifests, QA reports, and map bundles for any incident or safety event.
 
 ## Sources
 

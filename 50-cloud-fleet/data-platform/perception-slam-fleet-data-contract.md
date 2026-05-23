@@ -35,6 +35,15 @@ It supports the safety protocols in:
 | `bag_id` / `mcap_id` | Content hash plus metadata ID | Data platform | Immutable after upload |
 | `map_package_id` | Semantic version plus content hash | Mapping | Includes tile hashes |
 | `map_tile_id` | Airport/zone/tile coordinate/version | Mapping | Used for quarantine and rollback |
+| `manifest_id` | Signed release manifest ID | Release | Connects vehicle-reported runtime state to the release authority |
+| `compatibility_hash` | Hash over release artifact set | Release | Code/model/map/semantic/calibration/config/schema/evidence set |
+| `semantic_layer_id` | Layer ID plus content hash | Mapping/ML | Active semantic HD-map layer |
+| `semantic_manifest_id` | Signed manifest ID | Mapping/release | Binds source map, taxonomy, model, calibration, config, QA, and runtime export evidence |
+| `semantic_compatibility_hash` | Hash over full release set | Release | Must match the OTA compatibility manifest |
+| `semantic_taxonomy_id` | Taxonomy version plus digest | ML/perception | Ordered class IDs and unknown policy |
+| `telemetry_schema_url` | HTTP(S) schema URL | Data platform | Custom OpenTelemetry schema for robotics/map fields |
+| `telemetry_schema_version` | SemVer-like schema version | Data platform | Expected by dashboards and release gates |
+| `release_evidence_id` | Evidence packet ID | V&V/release | Map QA, runtime replay, calibration, safety-case evidence |
 | `calibration_id` | Sensor rig/version/hash | Perception/maintenance | Includes intrinsics, extrinsics, time sync |
 | `software_build_id` | Git SHA/container digest | Release | Includes runtime config |
 | `model_id` | Registry ID/hash | ML/perception | Includes training dataset manifest |
@@ -65,7 +74,7 @@ It supports the safety protocols in:
 | Time sync | Sensor timestamps, host receive time, clock source, PTP/NTP status, dropped/reordered frames |
 | Localization | Pose, covariance, map frame, factor residuals, scan-match score, relocalization state |
 | Perception | Objects, tracks, occupancy/free-space, class confidence, uncertainty, unknown regions |
-| Map runtime | Map package ID, tile IDs loaded, layer versions, lookup failures, quarantine status |
+| Map runtime | Manifest ID, compatibility hash, map package ID, tile IDs loaded, semantic layer/taxonomy IDs, layer hashes, schema URL/version, loader validation state, lookup failures, quarantine status/reason |
 | Sensor health | Point count, range distribution, intensity stats, image exposure/blur, radar health, temperature |
 | Runtime health | Node latency, CPU/GPU/memory, queue sizes, watchdogs, diagnostics |
 | Vehicle state | Speed, steering, braking, mode, commanded trajectory, safety monitor state |
@@ -91,8 +100,17 @@ Each session and event must include a metadata record equivalent to:
   "odd_tags": ["night", "wet_surface", "aircraft_present"],
   "software_build_id": "git-or-container-digest",
   "model_id": "perception-model-hash",
+  "manifest_id": "release-manifest-2026.05.09+sha256...",
+  "compatibility_hash": "sha256:...",
   "map_package_id": "SIN-map-2026.05.09+hash",
   "map_tile_ids": ["SIN-A42-001@v17"],
+  "semantic_layer_id": "SIN-semantic-map-v2.3.1+hash",
+  "semantic_manifest_id": "semantic-manifest-uuid",
+  "semantic_compatibility_hash": "sha256:...",
+  "semantic_taxonomy_id": "airside-map-taxonomy/v1+hash",
+  "telemetry_schema_url": "https://telemetry.example.com/schemas/perception-slam/1.4.0",
+  "telemetry_schema_version": "1.4.0",
+  "release_evidence_ids": ["mapqa-...", "runtime-replay-..."],
   "calibration_id": "rig-cal-2026.05.01+hash",
   "sensor_config_id": "lidar8-camera6-radar4",
   "recording_tier": "event_full_fidelity",
@@ -113,7 +131,7 @@ Each session and event must include a metadata record equivalent to:
 | DQ2 identity | Vehicle/build/map/calibration IDs present | Cannot use for release evidence |
 | DQ3 completeness | Required pre/post event windows present | P0 reroute to recovery workflow |
 | DQ4 sensor integrity | Topic rates and diagnostic fields within expected envelope or fault-tagged | Quarantine unlabeled degradation |
-| DQ5 map traceability | Runtime map tile IDs match map package manifest | Block map release evidence |
+| DQ5 map traceability | Runtime map tile IDs, semantic layer ID, semantic manifest ID, semantic taxonomy ID, telemetry schema URL/version, and compatibility hash match the signed map package/OTA manifest | Block map release evidence |
 | DQ6 ODD tags | Zone/weather/light/route tags populated | Exclude from sliced statistical claims |
 | DQ7 privacy/security | Access class, encryption, and retention controls set | Hold from general ML use |
 
@@ -137,6 +155,9 @@ Near-duplicate logs are assigned together by route, date, map version, and event
 | Localization alerts per operating hour | Count by severity and ODD slice | Investigate trend or route-specific spike |
 | Controlled stops due to perception/SLAM | Stops by trigger and map tile | Review within safety SLA |
 | Map quarantine rate | Tiles quarantined per airport/week | Trigger mapping capacity review |
+| Semantic unknown-rate drift | Runtime `map.semantic.unknown_rate` vs validation envelope by tile/route | Quarantine tile or trigger targeted data collection |
+| Semantic safety-class gate red rate | Count of red/yellow safety-class gates by operating hour and ODD slice | Pause canary or route expansion |
+| Semantic label churn in unchanged tiles | Churn rate after geometry/source-map hash is unchanged | Review taxonomy/model/config mismatch |
 | Scan-to-map residual drift | Distribution shift vs validation envelope | Quarantine route/tile if persistent |
 | Sensor degradation rate | Events by sensor and weather | Maintenance or ODD adjustment |
 | False-free-space candidates | Suspected or confirmed events | Immediate safety triage |
@@ -188,6 +209,8 @@ For crashes, near misses, aircraft/GSE contact, injuries, or events that may req
 - Waymo Open Dataset about page: https://waymo.com/intl/jp/open/about/
 - Waymo Safety Impact Hub: https://waymo.com/safety/impact/
 - NHTSA Standing General Order on Crash Reporting: https://www.nhtsa.gov/laws-regulations/standing-general-order-crash-reporting
+- OpenTelemetry telemetry schemas: https://opentelemetry.io/docs/specs/otel/schemas/
+- Perception-SLAM artifact compatibility matrix: ../ota/perception-slam-artifact-compatibility-matrix.md
 - NHTSA SGO ADS/ADAS order document: https://www.nhtsa.gov/document/sgo-crash-reporting-adas-ads
 - MCAP file format: https://mcap.dev/
 - Foxglove MCAP documentation: https://docs.foxglove.dev/docs/visualization/mcap/

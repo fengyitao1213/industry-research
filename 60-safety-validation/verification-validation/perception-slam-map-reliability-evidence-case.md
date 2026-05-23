@@ -62,6 +62,7 @@ Each release candidate creates an immutable evidence bundle:
 | Robustness campaign report | Perception owner | Corruption matrix, fault injection seeds, severity levels, observed failure modes |
 | Calibration report | ML/perception owner | Reliability diagrams, ECE/NLL/Brier, conformal coverage, calibration-set provenance |
 | Shadow-mode report | Fleet ops owner | Disengagements, interventions, map-localization alerts, route exposure, operator notes |
+| Semantic telemetry evidence packet | Fleet ops + data platform | Vehicle active map ID, semantic layer ID, manifest ID, compatibility hash, telemetry schema version, unknown/confidence drift metrics, route/zone/tile IDs, evidence IDs, retention links |
 | Defect disposition log | Safety board | Open defects, severity, mitigations, waiver rationale, expiry date |
 | Release decision record | Release manager | Gate results, sign-offs, rollback target, post-release monitoring window |
 
@@ -90,7 +91,7 @@ Each release candidate creates an immutable evidence bundle:
 | G4 uncertainty calibration | Independent calibration and test partitions exist | ECE/NLL/conformal coverage gates pass by risk slice | Overconfident errors near aircraft, people, or geofence boundaries |
 | G5 shadow mode | Vehicle operates non-autonomously or under safety operator | No unresolved critical events; intervention rate below threshold | Repeated unexplained localization or map inconsistency alerts |
 | G6 safety board release | All reports are complete | Safety, mapping, perception, data, fleet ops, and release owner sign | Open critical defect without approved ODD restriction |
-| G7 post-release watch | OTA/map release is deployed to limited fleet | 7-day watch passes with no new critical regression | Rollback, route disable, or map quarantine triggered |
+| G7 post-release watch | OTA/map release is deployed to limited fleet | 7-day watch passes; semantic telemetry joins to the signed manifest/compatibility hash and evidence IDs | Rollback, route disable, map quarantine, unknown telemetry schema, missing semantic layer ID, or mismatched compatibility hash |
 
 ## Failure Modes Covered
 

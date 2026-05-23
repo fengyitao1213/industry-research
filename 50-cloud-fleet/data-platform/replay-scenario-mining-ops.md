@@ -23,11 +23,11 @@ This page covers the operational loop from mined fleet event to replayable scena
 | Artifact | Minimum contents | Owner |
 |---|---|---|
 | Scenario mining query | Query text or rule, search index version, time window, filters, requester | Scenario curator |
-| Candidate clip manifest | Source log IDs, timestamps, map version, sensor availability, model versions | Data platform |
+| Candidate clip manifest | Source log IDs, timestamps, manifest ID, compatibility hash, semantic layer ID, taxonomy ID, map tile IDs, telemetry schema URL/version, sensor availability, model versions | Data platform |
 | Triage record | Why the clip matters, duplicate check, severity, regression priority | Safety validation |
-| Scenario metadata | Actors, maneuvers, triggers, ODD tags, expected behavior, acceptance metric | Scenario curator |
-| Annotation package | OpenLABEL-style labels, taxonomy version, QA result, reviewer | Label operations |
-| Replay package | Simulator version, maps, seed, initial state, scenario file, runtime config | Simulation owner |
+| Scenario metadata | Actors, maneuvers, triggers, ODD tags, semantic-map context, affected map tiles, expected classes/unknown regions, source evidence IDs, expected behavior, acceptance metric | Scenario curator |
+| Annotation package | OpenLABEL-style labels, taxonomy ID/hash, label schema version, semantic-layer source, QA report ID, reviewer | Label operations |
+| Replay package | Simulator version, map bundle, semantic layer, taxonomy, telemetry schema, runtime config, release evidence IDs, seed, initial state, scenario file | Simulation owner |
 | Regression result | Pass/fail, metric deltas, videos, logs, model version, waiver if any | Safety validation |
 
 ## Acceptance Checks
@@ -36,6 +36,8 @@ This page covers the operational loop from mined fleet event to replayable scena
 - Scenario metadata has enough structure for search, replay selection, and coverage accounting.
 - Scenario labels use a controlled taxonomy and record the schema version.
 - The replay package can be executed by a clean worker without local manual files.
+- A scenario is not `replay_ready` until the clean worker validates the signed manifest, resolves all map/semantic/taxonomy/schema IDs, and confirms replayed telemetry conforms to the recorded schema URL/version.
+- Runtime validation compares vehicle-reported active IDs against replay package IDs before metrics count as release-regression evidence.
 - The expected behavior is measurable: clearance, stop distance, yield behavior, route recovery, localization bound, or intervention avoidance.
 - Regression-required scenarios are included in release gates before a model can be promoted.
 - Retired scenarios keep a reason, replacement scenario if any, and last passing release.
@@ -49,6 +51,7 @@ This page covers the operational loop from mined fleet event to replayable scena
 | Duplicate scenarios flood the suite | Release gates become slow without added coverage | Cluster and deduplicate before promotion |
 | Labels drift across teams | Scenario semantics change over time | Version taxonomy and run label QA |
 | Replay omits map or weather context | Test no longer represents the field event | Store map, zone, weather, lighting, and initial state |
+| Replay omits semantic layer or schema context | Metrics compare against the wrong class ontology or dashboard interpretation | Require semantic layer/taxonomy/schema IDs before `replay_ready` |
 | Expected behavior is vague | Review becomes subjective | Define quantitative pass criteria |
 | Scenario suite only includes failures | Overfits to known bad cases and misses normal behavior | Maintain balanced coverage by ODD and maneuver |
 
@@ -68,4 +71,6 @@ This page covers the operational loop from mined fleet event to replayable scena
 - ASAM OpenSCENARIO User Guide. https://www.asam.net/fileadmin/Standards/OpenSCENARIO/QUICK_READ_ASAM_OpenSCENARIO_BS-1-2_User-Guide_V1-0-0.html
 - ASAM OpenLABEL. https://www.asam.net/standards/detail/openlabel/
 - Apache Iceberg, "Spec." https://iceberg.apache.org/spec/
+- OpenTelemetry telemetry schemas. https://opentelemetry.io/docs/specs/otel/schemas/
+- OpenLineage object model. https://openlineage.io/docs/spec/object-model/
 - Waymo, "Safe to Deploy: How We Know The Waymo Driver Is Ready For The Road," 2025-06. https://waymo.com/blog/2025/06/safe-to-deploy/

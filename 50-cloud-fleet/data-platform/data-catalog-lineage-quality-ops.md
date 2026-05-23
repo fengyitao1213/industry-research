@@ -27,6 +27,7 @@ This page covers operational controls for curated fleet data products: raw logs,
 | Quality report | Rule results, sample counts, failure rows, waived failures, trend | Data quality owner |
 | Data contract | Required fields, units, coordinate frames, timing assumptions, valid ranges | Producer and consumer |
 | Label-schema record | Taxonomy, label versions, ontology references, compatibility notes | Label operations |
+| Semantic-map catalog record | Semantic layer ID, manifest ID, compatibility hash, source map snapshot, map tile IDs, taxonomy ID/hash, schema URL/version, QA/evidence IDs, retention hold | Mapping + data platform |
 | Approval decision | Accepted use, restrictions, expiry, approvers, downstream consumers | Data steward |
 
 ## Acceptance Checks
@@ -37,6 +38,9 @@ This page covers operational controls for curated fleet data products: raw logs,
 - Schema changes are reviewed for downstream model, feature, replay, and safety evidence impact.
 - Catalog entries identify the data owner, business purpose, access restrictions, retention class, and approved uses.
 - Data used in release evidence is marked `approved_for_safety_evidence`, not only `approved_for_training`.
+- Semantic-map datasets used for replay, training, or safety evidence resolve `manifest_id`, `compatibility_hash`, `semantic_layer_id`, `taxonomy_id`, map tile IDs, telemetry schema URL/version, and evidence IDs.
+- Lineage events exist at materialization boundaries for fleet ingest, scenario extraction, semantic-label joins, replay package creation, and safety-evidence export.
+- Dataset/schema promotion fails when telemetry schema URL/version is missing or incompatible with the consuming dashboard, replay worker, or release gate.
 - Waivers have an owner, expiry date, scope, and measurable containment rule.
 
 ## Failure Modes
@@ -47,6 +51,7 @@ This page covers operational controls for curated fleet data products: raw logs,
 | Pipeline lineage stops at a staging table | Root cause analysis cannot trace bad labels or corrupted logs | Emit lineage at every materialization boundary |
 | Quality checks live only in notebooks | Failures are not enforced in production | Move checks into scheduled pipeline gates |
 | Schema evolution breaks consumers | Training jobs silently drop or misread fields | Data contract review before schema promotion |
+| Semantic-map context stripped during joins | Replay or training data points to labels from the wrong map/taxonomy | Require manifest, compatibility hash, semantic layer, taxonomy, and tile IDs in catalog records |
 | Catalog has owner gaps | Exceptions are never resolved | Block promotion for ownerless data products |
 | Quality rules ignore ODD slices | Dataset passes globally but misses airport-specific defects | Require zone, weather, lighting, sensor, and vehicle slices |
 | Retention deletes evidence inputs | Safety case cannot be reconstructed | Lock release evidence snapshots under retention hold |
@@ -64,7 +69,9 @@ This page covers operational controls for curated fleet data products: raw logs,
 ## Sources
 
 - ISO/IEC 5259-5:2025, "Artificial intelligence - Data quality for analytics and machine learning (ML) - Part 5: Data quality governance framework." https://www.iso.org/standard/84150.html
-- OpenLineage, project overview and specification. https://openlineage.io/ and https://github.com/OpenLineage/OpenLineage/blob/main/spec/OpenLineage.md
+- OpenLineage object model. https://openlineage.io/docs/spec/object-model/
+- OpenLineage facets and data quality metrics facet. https://openlineage.io/docs/spec/facets/ and https://openlineage.io/docs/spec/facets/dataset-facets/data_quality_metrics/
+- OpenTelemetry telemetry schemas. https://opentelemetry.io/docs/specs/otel/schemas/
 - Apache Iceberg, "Spec." https://iceberg.apache.org/spec/
 - Apache Iceberg, "Evolution." https://iceberg.apache.org/docs/1.4.2/evolution/
 - Regulation (EU) 2024/1689, Artificial Intelligence Act, Articles 10-12 and Annex IV. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689

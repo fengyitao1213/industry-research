@@ -39,6 +39,7 @@ This page defines fleet runbooks for perception, SLAM/localization, map, calibra
 | Timing red | PTP unlock, stamp age, skew, TF future/past failure beyond threshold | Reject stale data; degrade or stop | Timing incident, exclude logs from map/release evidence | Runtime platform |
 | Calibration red | Sensor pair residual/time offset exceeds hard threshold | Remove affected modality or stop | Maintenance ticket, recalibration required | Calibration owner |
 | Map mismatch | Active map differs from dispatch expectation or overlay expired | Stop dispatch or force approved reload | Quarantine route/map bundle | Mapping owner |
+| Semantic map drift | Semantic layer/taxonomy/compatibility hash mismatch, unknown-rate spike, safety-class gate red, or label churn in unchanged tiles | Treat affected route/tile as unknown; stop/crawl/remote assist per ODD | Quarantine tile, preserve logs, open label/map review, block canary | Mapping + ML owner |
 | Model runtime red | Engine mismatch, deserialization failure, p99 latency, GPU OOM | Keep previous artifact or stop affected perception path | Abort rollout; rebuild or rollback | ML runtime owner |
 | Diagnostics graph unknown | Critical diagnostic node missing/stale/unlatched | Treat dependent function as unknown | Repair producer/config; evidence invalid until fixed | Fleet SRE |
 | OTA compatibility failure | Candidate artifact set fails matrix | Do not activate | Stop rollout; update eligibility or manifest | Release manager |
@@ -74,6 +75,14 @@ This page defines fleet runbooks for perception, SLAM/localization, map, calibra
 2. Inspect projection/overlap residual preview and prerequisites such as route features and weather.
 3. If drift is physical, stop autonomous use until maintenance and recalibration.
 4. If monitor false alarm, retain event and update monitor qualification evidence before tuning threshold.
+
+## P1 Semantic Map Drift
+
+1. Confirm active `map_package_id`, `map.semantic.layer_id`, `map.semantic.manifest_id`, `map.semantic.compatibility_hash`, `map.semantic.taxonomy_id`, and telemetry schema URL against the signed compatibility manifest.
+2. Check whether the trigger is identity mismatch, unknown-rate growth, coverage loss, safety-class gate red/yellow, seam regression, or label churn in unchanged geometry.
+3. Preserve raw sensor logs, map tiles, semantic QA report, threshold file, runtime map-load evidence, and the fleet telemetry window.
+4. If the drift affects route, geofence, FOD/hazard, aircraft-stand, or protected-zone semantics, quarantine the tile or route until mapping/ML review closes it.
+5. Close only with evidence that the semantic layer was regenerated, the taxonomy/model/config/evidence set matches the compatibility hash, or the ODD restriction/waiver is approved.
 
 ## Suppression Rules
 
