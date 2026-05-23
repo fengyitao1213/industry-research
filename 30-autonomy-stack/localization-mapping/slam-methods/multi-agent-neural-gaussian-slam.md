@@ -147,7 +147,7 @@ Multiple robots simultaneously build local neural or Gaussian maps. The goal is 
 
 **Significance:** The only published paper in this family claiming fully peer-to-peer (no server) architecture. Important for deployments where a central server is impractical.
 
-**Follow-on — MCN-SLAM (arXiv June 2026):** The same lead author published MCN-SLAM (arXiv 2506.18678) with a triplane-grid hybrid representation and a new Dense SLAM Dataset (DES). These are distinct papers; MCN-SLAM is the 2026 follow-on and is preprint only as of mid-2026.
+**Follow-on — MCN-SLAM (arXiv June 2025):** The same lead author published MCN-SLAM (arXiv 2506.18678) with a triplane-grid hybrid representation and a new Dense SLAM Dataset (DES). These are distinct papers; MCN-SLAM is a 2025 follow-on and remains preprint-only in this corpus until source artifacts mature.
 
 ---
 
@@ -319,7 +319,7 @@ The regularizer is isotropic (penalizing anisotropic Gaussians) in monocular sys
 | 7-Scenes | Real indoor | 1–2 | RGB-D | Small-scale real-world check |
 | Kimera-Multi outdoor | Real outdoor | 2 | Stereo + IMU | ~800 m trajectories; large-scale; originally classical multi-robot SLAM benchmark |
 | INS dataset | Real indoor | multi | RGB-D | Introduced by MNE-SLAM (CVPR 2025); single + multi-agent |
-| DES (Dense SLAM) | Real indoor + outdoor | multi | RGB-D | Introduced by MCN-SLAM (2026) |
+| DES (Dense SLAM) | Real indoor + outdoor | multi | RGB-D | Introduced by MCN-SLAM (2025) |
 | S3E | Real multi-robot | multi | LiDAR + camera + IMU | Air-ground heterogeneous; none of the surveyed neural/Gaussian systems use it |
 
 The survey (arXiv 2510.23988) explicitly concludes: "None of the existing datasets fully capture requirements for benchmarking collaborative Gaussian SLAM" — gaps include outdoor scale, heterogeneous sensors, and long-duration sequences.
@@ -525,7 +525,7 @@ This decoupled architecture is consistent with how Gaussian-LIC and LVI-GS opera
 - Coko-SLAM GitHub: https://github.com/lemonci/coko-slam
 - MNE-SLAM (CVPR 2025): https://openaccess.thecvf.com/content/CVPR2025/html/Deng_MNE-SLAM_Multi-Agent_Neural_SLAM_for_Mobile_Robots_CVPR_2025_paper.html — Deng et al.
 - MNE-SLAM GitHub: https://github.com/dtc111111/MNESLAM
-- MCN-SLAM (arXiv June 2026): https://arxiv.org/abs/2506.18678 — Deng, Shen et al.
+- MCN-SLAM (arXiv June 2025): https://arxiv.org/abs/2506.18678 — Deng, Shen et al.
 - MAGS-SLAM (arXiv May 2026): https://arxiv.org/abs/2605.10760 — Cao, Shao, Zhai, Zhang, Nguyen, Huang
 - Di-NeRF (RA-L 2024): https://arxiv.org/abs/2402.01485 — Asadi, Zareinia, Saeedi
 

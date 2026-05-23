@@ -506,7 +506,7 @@ Object node o_k: {category: "GPU", serial: #47, pose: T_k in SE(3), presence: p_
 
 Between mapping surveys, p_k decays toward 0. Observing the object resets p_k to 1 and updates T_k. This is exactly the **probabilistic semi-static object map** pattern from POV-SLAM (warehouse, 4 months) and ObVi-SLAM (campus, 16 sessions). The pattern transfers directly to airside apron environments.
 
-Aircraft at stands are a special case: known shape (CAD model available from manufacturer data) plus known parking envelope means SLAM++-style ICP-based tracking is directly applicable, providing centimeter-level aircraft stand localization.
+Aircraft at stands are a special case: known shape (CAD model available from manufacturer data) plus known parking envelope means SLAM++-style ICP-based tracking could support high-precision stand-relative pose hypotheses when CAD model, surveyed stand frame, sensor calibration, and independent scan-to-map validation exist. Do not treat that as production localization evidence without target-domain validation.
 
 ### Recommended System Stack for Airside Object-Level Mapping
 
