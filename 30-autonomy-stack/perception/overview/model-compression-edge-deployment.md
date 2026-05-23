@@ -123,6 +123,8 @@ Model Compression
 
 PTQ computes quantization scale factors from a calibration dataset — no retraining needed.
 
+For cooperative perception, [QuantV2X](../methods/quantv2x.md) is the method-level reference for coupling PTQ-style model quantization with V2X feature-message quantization. Treat its codebook, model precision, TensorRT engine, and cooperative feature schema as a single runtime artifact set rather than as isolated compression settings.
+
 ```python
 import tensorrt as trt
 import numpy as np

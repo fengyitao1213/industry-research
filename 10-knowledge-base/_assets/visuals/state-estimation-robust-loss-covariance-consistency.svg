@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc" data-diagram-kind="uncertainty-geometry">
+  <title id="title">robust-loss covariance consistency workflow</title>
+  <desc id="desc">robust state-estimation covariance workflow showing residual whitening, robust weights, gate logs, covariance interpretations, and NIS/NEES release checks.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1400" height="720" fill="#f8fafc"/>
+  <rect x="42" y="38" width="1316" height="644" rx="20" fill="#ffffff" stroke="#d9e2ef" filter="url(#shadow)"/>
+  <text x="80" y="88" font-size="30" font-weight="800" fill="#0f172a">robust-loss covariance consistency workflow</text>
+  <text x="80" y="122" font-size="16" font-weight="600" fill="#475569">From whitened residuals to robust weights, covariance interpretation, and release checks.</text>
+  <rect x="80" y="144" width="1240" height="2" fill="#dbeafe"/>
+
+<!-- layout:uncertainty-geometry -->
+  <rect x="92" y="188" width="218" height="128" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="112" y="226" font-size="20" font-weight="800" fill="#1e3a8a">Raw residuals</text>
+  <text x="112" y="258" font-size="15" fill="#334155">sensor residual r_i</text>
+  <text x="112" y="282" font-size="15" fill="#334155">timestamp, source, zone</text>
+
+  <line x1="310" y1="252" x2="384" y2="252" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="394" y="188" width="226" height="128" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="414" y="226" font-size="20" font-weight="800" fill="#166534">Whitened model</text>
+  <text x="414" y="258" font-size="15" fill="#334155">e_i = L_i r_i</text>
+  <text x="414" y="282" font-size="15" fill="#334155">s_i = ||e_i||^2</text>
+
+  <line x1="620" y1="252" x2="694" y2="252" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="704" y="188" width="250" height="128" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="724" y="226" font-size="20" font-weight="800" fill="#9a3412">Robust layer</text>
+  <text x="724" y="258" font-size="15" fill="#334155">rho(s), IRLS/GNC weights</text>
+  <text x="724" y="282" font-size="15" fill="#334155">gate and rejection log</text>
+
+  <line x1="954" y1="252" x2="1028" y2="252" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="1038" y="188" width="260" height="128" rx="14" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="1058" y="226" font-size="20" font-weight="800" fill="#991b1b">Publish policy</text>
+  <text x="1058" y="258" font-size="15" fill="#334155">nominal, robust, inflated</text>
+  <text x="1058" y="282" font-size="15" fill="#334155">or invalid covariance</text>
+
+  <rect x="130" y="380" width="240" height="170" rx="16" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="154" y="418" font-size="18" font-weight="800" fill="#0f172a">Covariance views</text>
+  <ellipse cx="225" cy="482" rx="76" ry="34" fill="none" stroke="#2563eb" stroke-width="4"/>
+  <ellipse cx="258" cy="482" rx="48" ry="22" fill="none" stroke="#16a34a" stroke-width="4" transform="rotate(-20 258 482)"/>
+  <text x="154" y="534" font-size="14" fill="#334155">J^T J, J^T W J, sandwich</text>
+
+  <rect x="442" y="380" width="250" height="170" rx="16" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="466" y="418" font-size="18" font-weight="800" fill="#0f172a">Selection bias</text>
+  <rect x="474" y="448" width="38" height="64" rx="5" fill="#2563eb"/>
+  <rect x="524" y="470" width="38" height="42" rx="5" fill="#93c5fd"/>
+  <rect x="574" y="490" width="38" height="22" rx="5" fill="#f97316"/>
+  <text x="466" y="534" font-size="14" fill="#334155">pre-gate, rejected, accepted</text>
+
+  <rect x="764" y="380" width="250" height="170" rx="16" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="788" y="418" font-size="18" font-weight="800" fill="#0f172a">Weak modes</text>
+  <line x1="806" y1="500" x2="962" y2="500" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M812 492 C842 448, 874 448, 904 492 S948 536, 978 492" fill="none" stroke="#dc2626" stroke-width="4"/>
+  <circle cx="904" cy="492" r="7" fill="#dc2626"/>
+  <text x="788" y="534" font-size="14" fill="#334155">rank, nullspace, gauge prior</text>
+
+  <rect x="1086" y="380" width="250" height="170" rx="16" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="1110" y="418" font-size="18" font-weight="800" fill="#0f172a">Release checks</text>
+  <rect x="1124" y="448" width="168" height="28" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+  <rect x="1124" y="486" width="168" height="28" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+  <text x="1140" y="467" font-size="14" font-weight="700" fill="#166534">NIS / NEES pass</text>
+  <text x="1140" y="505" font-size="14" font-weight="700" fill="#991b1b">slice fails</text>
+  <text x="1110" y="534" font-size="14" fill="#334155">publish, inflate, quarantine</text>
+
+  <line x1="830" y1="316" x2="830" y2="356" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="830" y1="356" x2="567" y2="356" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="830" y1="356" x2="889" y2="356" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1168" y1="316" x2="1210" y2="356" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="210" y="602" width="980" height="42" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="235" y="629" font-size="17" font-weight="800" fill="#312e81">Do not publish covariance without residual scaling, robust-weight, gate, nullspace, and slice-validation context.</text>
+</svg>

@@ -413,6 +413,10 @@ estimates that are wrong in a motion-speed-dependent way. See
 
 ## 10. Online vs Offline Observability Assessment
 
+This section tests whether a collected calibration dataset was informative.
+For route, bay, and active-maneuver design before data collection, see
+[Active Calibration Experiment Design](active-calibration-experiment-design.md).
+
 ### 10.1 Offline Observability Analysis
 
 Collect data, compute `W = sum_k H_k^T H_k`, eigendecompose, and inspect before

@@ -66,6 +66,8 @@ coverage, and field configuration.
 | Tactile bumper / safety edge | Last-resort contact detection; simple, visible, and easy to reason about. | Contact has already occurred; must operate at very low residual energy. | Low-speed final protection on bumpers, doors, carts, and docking faces. |
 | Non-safety proximity sensors | Cheap coverage for blind spots and service aids. | Not a safety function by itself. | Advisory planning inputs and diagnostic context. |
 
+For the reusable acoustic range model behind ultrasonic proximity channels, see [Ultrasonic Proximity Sensing Models](../../10-knowledge-base/sensors/ultrasonic-proximity-sensing-models.md).
+
 ---
 
 ## Design Details
@@ -181,6 +183,7 @@ configuration. A field drawing without a response-time budget is not reviewable.
 ## Related Repository Documents
 
 - [Sensor Degradation Detection and Health Monitoring](sensor-degradation-health-monitoring.md)
+- [Ultrasonic Proximity Sensing Models](../../10-knowledge-base/sensors/ultrasonic-proximity-sensing-models.md)
 - [Automated Sensor Cleaning and Physical Self-Maintenance](automated-sensor-cleaning.md)
 - [Environmental and EMC Qualification](../ruggedization/environmental-emc-qualification.md)
 - [CAN Bus Communication and Drive-by-Wire Interfaces](../drive-by-wire/can-bus-dbw.md)

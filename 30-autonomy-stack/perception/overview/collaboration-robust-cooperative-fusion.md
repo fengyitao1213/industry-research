@@ -4,7 +4,7 @@
 
 - Cooperative perception improves range and occlusion handling by sharing information across vehicles or infrastructure.
 - Collaboration-robust fusion focuses on the failures that happen after cooperation starts: bandwidth limits, pose errors, calibration mismatch, delays, packet loss, and low-quality collaborators.
-- This page covers mmCooper, CoST, CoopDETR, and QuantV2X as current examples.
+- This page covers mmCooper, CoST, CoopDETR, [SparseCoop](../methods/sparsecoop.md), [QuantV2X](../methods/quantv2x.md), and [VOGS-CP](../methods/vogs-cp.md) as current examples.
 - It complements [Collaborative Fleet Perception](collaborative-fleet-perception.md) and [Infrastructure Cooperative Perception](infrastructure-cooperative-perception.md).
 - The key airside question is not whether cooperation improves average AP; it is whether bad or stale shared evidence can be safely gated.
 
@@ -15,7 +15,9 @@
 - CoST treats historical agents as time-delayed copies of current agents in a unified spatiotemporal representation.
 - CoST combines Spatio-temporal Transmission (STT), Unified Spatio-temporal Fusion (USTF), and Multi-Agent Deformable Attention (MADA).
 - CoopDETR transmits object queries instead of dense region-level features, then performs spatial query matching and object query aggregation.
-- QuantV2X quantizes both neural network computation and transmitted feature messages to reduce latency, memory, and bandwidth.
+- [SparseCoop](../methods/sparsecoop.md) transmits kinematic-grounded sparse instance queries rather than dense BEV features, using geometry and velocity for alignment.
+- [QuantV2X](../methods/quantv2x.md) quantizes both neural network computation and transmitted feature messages to reduce latency, memory, and bandwidth.
+- [VOGS-CP](../methods/vogs-cp.md) transmits sparse 3D semantic Gaussian primitives for collaborative occupancy, then fuses and splats them into semantic occupancy grids.
 
 ## Inputs and Outputs
 
@@ -33,7 +35,9 @@
 - CoST reports 22.908 ms inference time, 9.790M parameters, 70.96 AP@0.5, and 43.97 AP@0.7 on V2V4Real.
 - CoST reports strong robustness under injected latency and localization or heading noise.
 - CoopDETR reports state-of-the-art results on OPV2V and V2XSet while reducing transmission cost to 1/782 of previous methods.
-- QuantV2X reports a 3.2x system-level latency reduction and +9.5 mAP30 improvement over full-precision baselines under deployment-oriented metrics.
+- [SparseCoop](../methods/sparsecoop.md) reports AAAI 2026 results on V2X-Seq and Griffin with AP, AMOTA, transmission-cost, FPS, and latency-robustness measurements.
+- [QuantV2X](../methods/quantv2x.md) reports a 3.2x system-level latency reduction and +9.5 mAP30 improvement over full-precision baselines under deployment-oriented metrics.
+- [VOGS-CP](../methods/vogs-cp.md) reports AAAI 2026 collaborative semantic occupancy results, including +8.42 mIoU over single-agent perception and +3.28 mIoU over baseline collaborative methods in the paper/project claims.
 - Benchmarks should include no-collaboration baselines, late fusion, intermediate fusion, bandwidth budgets, delays, pose noise, and collaborator dropout.
 
 ## Deployment Risks
@@ -81,4 +85,7 @@
 - CoopDETR arXiv paper: https://arxiv.org/abs/2502.19313
 - QuantV2X arXiv paper: https://arxiv.org/abs/2509.03704
 - QuantV2X repository: https://github.com/ucla-mobility/QuantV2X
+- VOGS-CP AAAI 2026 paper page: https://ojs.aaai.org/index.php/AAAI/article/view/37269
+- VOGS-CP arXiv paper: https://arxiv.org/abs/2508.10936
+- VOGS-CP official repository: https://github.com/ChengChen2020/VOGS-CP
 - Existing fleet overview: [Collaborative Fleet Perception](collaborative-fleet-perception.md)

@@ -2,6 +2,8 @@
 
 > Research compiled March 2026. Covers SOTA leaderboards, world-model-specific benchmarks, metrics taxonomies, evaluation paradigms, and recommendations for building an airside-specific evaluation suite.
 
+For the reusable ML evidence contract behind splits, scenario/ODD coverage, leakage gates, and open-loop/pseudo/closed-loop benchmark interpretation, see [AV Data Evaluation Fundamentals](../../10-knowledge-base/machine-learning/av-data-evaluation-fundamentals.md).
+
 ---
 
 ## Table of Contents

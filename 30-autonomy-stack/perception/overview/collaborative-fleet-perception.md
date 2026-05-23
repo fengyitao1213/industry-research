@@ -129,6 +129,10 @@ Published results from cooperative perception research show consistent improveme
 | **CoBEVFlow** | 2024 | NeurIPS | Intermediate | Asynchronous temporal BEV flow compensation |
 | **CoAlign** | 2024 | ICRA | Intermediate | Robust to pose error via agent-object pose graph |
 | **V2X-R** | 2025 | CVPR | Intermediate | LiDAR-4D radar V2X fusion with denoising diffusion |
+| **QuantV2X** | 2025 | arXiv | Intermediate | Full-stack quantization for model execution and codebook-index BEV feature communication |
+| **TruckV2X** | 2025 | RA-L | Dataset | Tractor, trailer, CAV, and RSU benchmark for heavy-vehicle cooperative perception |
+| **SparseCoop** | 2026 | AAAI | Sparse query | Kinematic-grounded sparse instance queries for cooperative detection and tracking |
+| **VOGS-CP** | 2026 | AAAI | Gaussian occupancy | Sparse 3D semantic Gaussian messages for collaborative occupancy prediction |
 | **BM2CP** | 2024 | NeurIPS | Mixed | Bi-level multi-agent consensus via LLM |
 | **MRCNet** | 2024 | ECCV | Intermediate | Multi-resolution compressed features |
 
@@ -311,6 +315,14 @@ Receiver: Receive → Dequantize → Decoder (conv layers) → F_BEV_reconstruct
 **Entropy-coded features:** Apply arithmetic coding to quantized features. Variable-length encoding achieves 2-4x additional compression over fixed quantization.
 
 **Vector quantization:** Use VQ-VAE style codebook. Transmit only codebook indices (integers) instead of float features. With 1024-entry codebook, each spatial location needs only 10 bits.
+
+[QuantV2X](../methods/quantv2x.md) is the current method-level reference for this full-stack case: it quantizes model weights/activations and the transmitted V2X feature messages, then reports deployment-oriented latency and AP tradeoffs in the official paper and repository.
+
+[SparseCoop](../methods/sparsecoop.md) is the sparse-query alternative: it avoids transmitting dense BEV feature maps by exchanging kinematic-grounded instance queries and reports detection, tracking, transmission-cost, and FPS results on V2X-Seq and Griffin.
+
+[VOGS-CP](../methods/vogs-cp.md) is the collaborative Gaussian occupancy reference: it exchanges sparse 3D semantic Gaussian primitives, fuses collaborator Gaussians, and splats them into semantic occupancy grids instead of sending dense BEV maps or only object queries.
+
+[TruckV2X](../datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md) is the truck-centered dataset reference: it separates tractor, trailer, CAV, and RSU agents so cooperative perception can be evaluated around articulated heavy-vehicle blind zones rather than only passenger-car V2X scenes.
 
 ---
 
@@ -946,6 +958,8 @@ At 10 Hz (100ms budget), cooperative perception adds 15-45ms overhead. This fits
 - Xu, R., et al. "OPV2V: An Open Benchmark Dataset and Fusion Pipeline." ICRA 2022. [opv2v.github.io](https://opv2v.github.io)
 - Yu, H., et al. "DAIR-V2X: A Large-Scale Dataset for Vehicle-Infrastructure Cooperative 3D Object Detection." CVPR 2022.
 - Xu, R., et al. "V2V4Real: A Real-World Large-Scale Dataset for Vehicle-to-Vehicle Cooperative Perception." CVPR 2023.
+- Xie, T., et al. "TruckV2X: A Truck-Centered Perception Dataset." IEEE Robotics and Automation Letters, 2025. [project page](https://xietenghu1.github.io/TruckV2X/)
+- Chen, C., et al. "Vision-Only Gaussian Splatting for Collaborative Semantic Occupancy Prediction." AAAI 2026. [project page](https://chengchen2020.github.io/VOGS-CP/)
 
 ---
 

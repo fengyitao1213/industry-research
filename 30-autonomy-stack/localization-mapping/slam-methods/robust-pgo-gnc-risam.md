@@ -19,6 +19,8 @@ Graduated Non-Convexity (GNC) is a practical robust-estimation strategy for this
 
 This page is distinct from the general [GraphSLAM and Pose Graph Optimization](graphslam-pose-graph-optimization.md) and [Factor Graph SLAM with iSAM2 and GTSAM](factor-graph-isam2-gtsam.md) pages. Those describe the graph abstraction and sparse smoothing machinery. This page focuses on the robustness layer that decides how much a suspect measurement should influence the backend.
 
+For the safety-facing question of which covariance is safe to report after robust weighting, gating, or GNC, use [Robust-Loss Covariance Consistency](../../../10-knowledge-base/state-estimation/robust-loss-covariance-consistency.md).
+
 ## Method Class
 
 - Robust SLAM backend.

@@ -138,7 +138,7 @@ For safety use, HoloVIC would need an airport version with surveyed stand frames
 
 ## Sources
 
-- CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/html/Yu_HoloVIC_Large-scale_Dataset_and_Benchmark_for_Multi-Sensor_Holographic_Intersection_and_Vehicle-Infrastructure_CVPR_2024_paper.html
-- CVPR 2024 PDF: https://openaccess.thecvf.com/content/CVPR2024/papers/Yu_HoloVIC_Large-scale_Dataset_and_Benchmark_for_Multi-Sensor_Holographic_Intersection_and_Vehicle-Infrastructure_CVPR_2024_paper.pdf
+- CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/html/Ma_HoloVIC_Large-scale_Dataset_and_Benchmark_for_Multi-Sensor_Holographic_Intersection_and_CVPR_2024_paper.html
+- CVPR 2024 PDF: https://openaccess.thecvf.com/content/CVPR2024/papers/Ma_HoloVIC_Large-scale_Dataset_and_Benchmark_for_Multi-Sensor_Holographic_Intersection_and_CVPR_2024_paper.pdf
 - arXiv: https://arxiv.org/abs/2403.02640
 - Official project page: https://holovic.net/

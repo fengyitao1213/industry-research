@@ -10,7 +10,7 @@
 
 World models are useful only if their predictions improve decisions. A model can generate plausible videos, accurate short-horizon occupancy, or strong open-loop metrics and still fail when a planner uses it.
 
-This page complements [World Models: First Principles](world-models-first-principles.md), [JEPA and Latent Predictive Learning](jepa-latent-predictive-learning.md), and [Diffusion, Score Models, Flow Matching, and Samplers](diffusion-score-flow-samplers-first-principles.md).
+This page complements [World Models: First Principles](world-models-first-principles.md), [JEPA and Latent Predictive Learning](jepa-latent-predictive-learning.md), [Diffusion, Score Models, Flow Matching, and Samplers](diffusion-score-flow-samplers-first-principles.md), and [AV Data Evaluation Fundamentals](av-data-evaluation-fundamentals.md).
 
 ## Open-Loop Evaluation
 

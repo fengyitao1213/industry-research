@@ -4,7 +4,7 @@
 
 ## Why It Matters
 
-Scene flow estimates 3D motion for points or voxels between frames. It is the motion primitive behind occupancy flow, dynamic object segmentation, point-cloud forecasting, and flow-aware planning. For airside autonomy, scene flow is useful because not all hazards are clean tracked boxes: a pushback tug, wing sweep, baggage train, walking ground crew, or loose object can be better represented as moving 3D structure than as a single centroid trajectory.
+Scene flow estimates 3D motion for points or voxels between frames. It is the motion primitive behind occupancy flow, dynamic object segmentation, point-cloud forecasting, and flow-aware planning. For the underlying motion-field math, use [Optical Flow and Scene Flow First Principles](../../10-knowledge-base/geometry-3d/optical-flow-scene-flow-first-principles.md). For airside autonomy, scene flow is useful because not all hazards are clean tracked boxes: a pushback tug, wing sweep, baggage train, walking ground crew, or loose object can be better represented as moving 3D structure than as a single centroid trajectory.
 
 The benchmarks below span real LiDAR, stereo image scene flow, and synthetic dense supervision. Use them to separate algorithm capability from airside domain fit.
 

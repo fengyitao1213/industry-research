@@ -389,7 +389,7 @@ The gap is multidimensional, encompassing perception gaps (visual/sensor fidelit
 
 ### 6.4 Implications for Airside
 
-Airport airside is a textbook case for synthetic data: severely constrained real data collection, well-defined ODD geometry, and a long tail of rare events (aircraft pushbacks, emergency vehicle incursions, FOD encounters). The published evidence strongly suggests that even a modest airside synthetic dataset (hundreds of scenes) combined with limited real data will significantly outperform real-only training, particularly for rare object classes and adverse weather conditions.
+Airport airside is a textbook case for synthetic data: severely constrained real data collection, well-defined ODD geometry, and a long tail of rare events (aircraft pushbacks, emergency vehicle incursions, FOD encounters). The published evidence strongly suggests that even a modest airside synthetic dataset (hundreds of scenes) combined with limited real data will significantly outperform real-only training, particularly for rare object classes and adverse weather conditions. For the narrower FOD small-object case, use the [Airport-FOD3S synthetic FOD data engine](airport-fod3s-synthetic-data.md) to keep generated samples, physical-size assumptions, blending parameters, and real-only validation gates separable.
 
 ---
 
@@ -720,7 +720,7 @@ Apply structured domain randomization with airside-specific parameters:
 **Per-episode randomization:**
 - Scenario type (from Phase 3 library)
 - Agent behavior parameters (speed profiles, reaction times)
-- FOD placement (random position on taxiway/apron surface)
+- FOD placement (random position on taxiway/apron surface, with Airport-FOD3S-style size, seam, and style controls for generated image composites)
 - Construction zone placement with cones/barriers
 
 ### 10.7 Phase 6: Quality Assurance

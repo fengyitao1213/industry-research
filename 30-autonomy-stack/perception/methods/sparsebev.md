@@ -4,88 +4,103 @@
 priority:
   learning: 4
   deployment: 4
-  type: "method-family"
+  type: "method"
   stage: "modern-core"
   maturity: "prototype"
-  tags: ["perception", "road-av"]
-  reason: "Reference fully-sparse camera 3D detector that closes the accuracy gap with dense BEV at lower compute."
+  tags: ["perception", "road-av", "validation"]
+  reason: "SparseBEV is rated for efficient sparse-query multi-camera 3D detection where dense BEV memory is costly."
 method-priority:end -->
 
 ## What It Is
 
-- SparseBEV is a fully sparse, query-based multi-view camera 3D object detector for surround-view rigs.
-- It avoids constructing a dense BEV feature tensor and instead refines a small set of 3D object queries directly from multi-view image features.
-- Published at ICCV 2023 by Liu et al., it was the first fully sparse camera 3D detector to outperform its dense BEV counterparts on nuScenes while preserving real-time speed.
-- The paper argues that the prior accuracy gap between sparse and dense BEV detectors comes from limited adaptability of sparse queries, not from the sparse representation itself.
+- SparseBEV is a multi-camera 3D object detection method for autonomous-driving video.
+- It keeps the detector sparse instead of first building a dense BEV feature map.
+- Candidate objects are represented by sparse queries that adapt in BEV space and image space.
+- The method is part of the camera-only BEV detection family, but it targets boxes rather than dense occupancy or freespace.
+- Its deployment question is whether sparse object queries can recover dense-BEV accuracy with lower memory and latency.
 
 ## Core Technical Idea
 
-- Represent the scene as a fixed set of sparse 3D queries with learnable 3D anchors.
-- Use scale-adaptive self-attention so each query aggregates BEV context with a receptive field tuned to the object scale it tracks.
-- Drive sampling location prediction from the queries themselves with adaptive spatio-temporal sampling across views, scales, and frames.
-- Mix sampled features with adaptive weights generated per query, so each query decodes its own evidence rather than sharing static decoder weights.
-- Refine queries iteratively through a stack of decoder layers and emit 3D boxes directly, without an explicit BEV feature map.
+- SparseBEV argues that sparse detectors need adaptability in both BEV and image space to close the gap with dense BEV detectors.
+- Scale-adaptive self-attention lets object queries aggregate features with different receptive-field scales in BEV space.
+- Adaptive spatio-temporal sampling generates image sampling locations under query guidance instead of using a fixed local projection.
+- Adaptive mixing decodes sampled multi-view and temporal features with dynamic weights produced from the queries.
+- The detector therefore spends most computation on object-relevant samples rather than on every cell of a dense BEV grid.
 
 ## Inputs and Outputs
 
-- Input: multi-view surround camera images, camera intrinsics and extrinsics, ego pose, and frame timestamps.
-- Input across frames: a short temporal window of past frames warped into the current ego frame.
-- Training input: 3D bounding boxes, classes, velocities, and attribute labels in the nuScenes-style 10-class setting.
-- Output: 3D bounding boxes with class probability, location, dimension, orientation, and velocity.
-- Output does not include dense BEV features, occupancy, or semantic map layers by default.
+- Input: synchronized multi-view camera images or video sweeps.
+- Required metadata: camera intrinsics, camera-to-ego extrinsics, image augmentations, timestamps, and ego-motion alignment.
+- Training labels: 3D boxes, class labels, orientation, dimensions, velocity, and nuScenes-style detection metadata.
+- Output: 3D bounding boxes with class scores, centers, dimensions, orientation, and velocity.
+- Non-goals: dense semantic occupancy, freespace proof, open-vocabulary classes, and point-level segmentation are not native outputs.
 
 ## Architecture or Pipeline
 
-- Image backbone such as ResNet-50, ResNet-101, or V2-99 produces multi-scale features for each camera.
-- A small set of object queries with explicit 3D anchor parameters enters a transformer decoder.
-- Scale-adaptive self-attention modulates attention range per query based on predicted object scale.
-- Adaptive spatio-temporal sampling samples a set of 3D points around each query, projects them into multi-view, multi-scale, and multi-timestamp image features, and aggregates the sampled vectors.
-- Adaptive mixing combines the sampled features using weights produced from the query itself.
-- Decoder layers iteratively refine the query and 3D anchor and emit detection outputs after the final layer.
+- Image backbone and neck extract multi-scale image features from each camera.
+- Sparse object queries represent candidate objects in BEV-aligned 3D space.
+- Scale-adaptive self-attention lets each query attend with an adaptive BEV receptive field.
+- Adaptive spatio-temporal sampling chooses multi-view and temporal image locations conditioned on each query.
+- Adaptive mixing fuses the sampled features with query-dependent weights.
+- Detection heads iteratively refine class scores and 3D boxes.
+- The official implementation includes pretrained weights, visualization scripts, and both CUDA and native PyTorch sparse-sampling paths.
 
 ## Training and Evaluation
 
-- Main benchmark: nuScenes 3D object detection on the validation and test splits.
-- Reported metrics: NDS, mAP, mATE, mASE, mAOE, mAVE, and mAAE.
-- Validation: 55.8 NDS with ResNet-50 at 256x704 input while running at 23.5 FPS, according to the paper.
-- Test: 67.5 NDS with a V2-99 backbone and larger input, setting state of the art among camera-only detectors at submission time.
-- Ablations isolate the contribution of scale-adaptive attention, adaptive sampling, and adaptive mixing, and show that all three are needed to close the gap with dense BEV detectors.
-- Comparisons against dense baselines such as BEVFormer and BEVDet require matching backbone, pretraining, image resolution, and temporal window.
+- Primary benchmark: nuScenes 3D object detection.
+- The ICCV 2023 paper reports 67.5 NDS on the nuScenes test split.
+- It also reports 55.8 NDS on the validation split while maintaining 23.5 FPS under the paper's reported configuration.
+- The official repository reports model-zoo variants with different backbones, resolutions, training costs, and validation/test NDS values.
+- Fair comparison must match backbone pretraining, image resolution, query count, number of temporal frames, precision mode, and runtime implementation.
+- For AV release triage, split evaluation by small object, long-range, occlusion, calibration perturbation, camera dropout, and path-corridor false-negative cases.
 
 ## Strengths
 
-- Fully sparse computation scales with the number of queries rather than the area of a BEV grid, which helps on embedded compute.
-- Adaptive sampling lets the same architecture handle small and large objects without separate heads or anchor scales.
-- Real-time inference with a ResNet-50 backbone makes it a credible camera-only baseline for production-style stacks.
-- Pure camera input avoids LiDAR cost and calibration burden where LiDAR is not available.
-- Provides a clean foundation for sparse temporal and end-to-end extensions, including Sparse4D and SparseDrive-style designs.
+- Avoids the memory cost of dense BEV feature construction.
+- Computation scales more directly with query count and sampled features than with BEV grid area.
+- Temporal sampling is built into the sparse detector design.
+- The reported nuScenes results make it a strong reference point for efficient camera-only 3D detection.
+- It is easier to combine with object-centric tracking and prediction than dense-only BEV features.
+- The official repository and model zoo make reproduction more concrete than paper-only sparse-query methods.
 
 ## Failure Modes
 
-- Camera-only depth remains underconstrained at long range, in low light, and under heavy weather.
-- A fixed query budget can miss small, dense, or rare object classes that fall outside training priors.
-- Adaptive sampling depends on accurate camera calibration and ego-pose alignment; calibration drift or stale extrinsics degrade silently.
-- The method does not emit freespace or occupancy, so it cannot by itself prove absence of obstacles.
-- Reported headline numbers depend on temporal window, image resolution, and backbone pretraining; deployment variants can underperform leaderboard variants substantially.
+- Sparse query budgets can miss small, low-contrast, rare, or oddly shaped objects.
+- Camera-only geometry remains underconstrained at long range, under occlusion, and in low texture.
+- Projection and temporal sampling are sensitive to calibration, timestamp, ego-motion, and augmentation bookkeeping errors.
+- Object boxes do not prove freespace or arbitrary obstacle absence.
+- Road-domain taxonomies can underrepresent cones, chocks, hoses, tow bars, luggage, ground equipment, debris, and overhanging hazards.
+- Runtime claims may not transfer across hardware, image resolution, compiler backend, and custom CUDA availability.
 
 ## Domain Fit
 
-- Road AV: strong fit as a camera-only 3D detector for vehicles, pedestrians, and cyclists at typical driving ranges.
-- Airside: useful for vehicle-like apron traffic such as tugs, buses, and baggage tractors; weak as a sole perception layer near aircraft because it lacks dense clearance evidence and does not natively handle irregular GSE shapes.
-- Warehouse, yard, port, mining, construction, agriculture: usable where surround cameras dominate and object classes can be re-trained; pair with range sensors when small obstacles or low-clearance equipment must be detected.
-- Delivery robot and campus: relevant as a camera-only object detector when LiDAR is not affordable, but reduced range and depth ambiguity may force lower operating speeds.
+| Domain | Fit | Note |
+|---|---|---|
+| Road AV | Strong research fit | SparseBEV is evaluated on nuScenes and directly targets road-scale multi-camera 3D detection. |
+| Airside | Conditional | Useful for vehicle-like GSE, buses, tugs, and personnel, but needs apron labels, aircraft-proximity objects, glare/night/weather tests, and a dense safety layer for FOD and clearance. |
+| Warehouse / logistics yard / port | Conditional | Sparse camera detection can transfer to vehicle and pedestrian actors if camera geometry and object priors are retrained for the site. |
+| Mining / construction / agriculture | Weak to conditional | Dust, vibration, terrain, unusual machinery, and non-road layouts require validation beyond nuScenes-style evidence. |
+| Delivery robot / outdoor campus | Conditional | Smaller rigs and close-range hazards may need different query priors and stronger near-field freespace checks. |
 
 ## Implementation Notes
 
-- Tune the query budget, anchor priors, and class set to the deployment domain rather than reusing nuScenes defaults.
-- Validate camera calibration and image augmentation bookkeeping carefully; adaptive sampling failures from projection errors can be silent.
-- Measure runtime on the target compute with the actual temporal window and resolution, not only on the reference 256x704 setting.
-- Track recall on small or partially visible objects separately from mAP; sparse detectors can hide systematic misses inside aggregate metrics.
-- Combine with LiDAR or radar occupancy where the safety case requires evidence of free space, not just detected objects.
-- Verify the official deformable-style aggregation kernel in the deployment runtime, including ONNX or TensorRT exports.
+- Treat camera calibration, timestamps, augmentation transforms, and ego-motion as part of the model contract.
+- Keep query count, image resolution, and temporal history explicit in benchmark reports.
+- Validate the native PyTorch fallback if custom CUDA sparse sampling is hard to deploy.
+- Stress test false negatives for thin, low, non-boxy, and partially visible obstacles.
+- Do not use SparseBEV as a standalone safety layer for path clearance; feed it into tracking, fusion, and occupancy/freespace checks.
+- Compare against dense BEV baselines such as BEVDet, BEVDepth, BEVFormer-family methods, and SOLOFusion under matched runtime constraints.
+
+## Local Cross-Links
+
+- Sparse-query family overview: [Sparse Query Camera 3D Detection](../overview/sparse-query-camera-3d-detection.md).
+- Related sparse methods: [DETR4D](detr4d.md), [Sparse4D](sparse4d.md), [ForeSight](foresight.md).
+- Camera BEV baselines: [BEVDet](bevdet.md), [BEVDepth](bevdepth.md), [BEVStereo](bevstereo.md), [SOLOFusion](solo-fusion.md).
+- Planning-facing contrast: [Dynamic Occupancy Freespace](dynamic-occupancy-freespace.md), [SparseOcc](sparseocc.md), [FlashOcc](flashocc.md).
 
 ## Sources
 
-- SparseBEV paper: https://arxiv.org/abs/2308.09244
-- Official SparseBEV repository: https://github.com/MCG-NJU/SparseBEV
-- nuScenes 3D detection benchmark: https://www.nuscenes.org/object-detection
+- SparseBEV arXiv paper: https://arxiv.org/abs/2308.09244
+- SparseBEV CVF paper PDF: https://openaccess.thecvf.com/content/ICCV2023/papers/Liu_SparseBEV_High-Performance_Sparse_3D_Object_Detection_from_Multi-Camera_Videos_ICCV_2023_paper.pdf
+- SparseBEV official repository: https://github.com/MCG-NJU/SparseBEV
+- nuScenes detection benchmark: https://www.nuscenes.org/object-detection

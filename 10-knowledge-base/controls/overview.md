@@ -55,7 +55,7 @@ The useful review model is: `state estimate -> reference contract -> dynamics mo
 
 For trajectory feasibility, read [Frenet Trajectory Math](frenet-trajectory-math.md), then [Vehicle Dynamics and Control](vehicle-dynamics-and-control.md), then [Constrained Optimization, MPC, and iLQR](constrained-optimization-mpc-ilqr-first-principles.md).
 
-For controller optimization, start with [Constrained Optimization, MPC, and iLQR](constrained-optimization-mpc-ilqr-first-principles.md), then use the optimization section for residual scaling, trust regions, and solver behavior.
+For controller optimization, start with [Constrained Optimization, MPC, and iLQR](constrained-optimization-mpc-ilqr-first-principles.md), then use [Constrained KKT, QP, and SQP Solver Mechanics](../optimization/constrained-kkt-qp-sqp-first-principles.md) plus the optimization section for residual scaling, trust regions, and solver behavior.
 
 For decision uncertainty that reaches control, read [MDPs, POMDPs, Belief Space, and RL](mdp-pomdp-belief-space-rl-first-principles.md) after the dynamics and MPC notes.
 

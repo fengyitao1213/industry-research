@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc" data-diagram-kind="measurement-chain">
+  <title id="title">Thermal IR radiometry measurement chain</title>
+  <desc id="desc">thermal IR radiometry measurement chain showing scene emission, reflected background, atmospheric path, optics, microbolometer response, NUC tables, radiometric parameters, and fusion-ready confidence.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L10,3 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="heat" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#fee2e2"/>
+      <stop offset="50%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <linearGradient id="path" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.86"/>
+      <stop offset="100%" stop-color="#cffafe" stop-opacity="0.38"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="720" fill="#f8fafc"/>
+  <rect x="42" y="38" width="1316" height="644" rx="20" fill="#ffffff" stroke="#d9e2ef" filter="url(#shadow)"/>
+  <text x="80" y="88" font-size="30" font-weight="800" fill="#0f172a">Thermal IR radiometry measurement chain</text>
+  <text x="80" y="122" font-size="16" font-weight="600" fill="#475569">Radiance becomes a fusion-ready measurement only after scene, path, camera, and calibration assumptions are explicit.</text>
+  <rect x="80" y="144" width="1240" height="2" fill="#dbeafe"/>
+
+  <!-- layout:measurement-chain -->
+  <rect x="92" y="188" width="212" height="356" rx="18" fill="#fff7ed" stroke="#f97316" stroke-width="2.5"/>
+  <text x="198" y="224" text-anchor="middle" font-size="18" font-weight="800" fill="#7c2d12">scene terms</text>
+  <rect x="124" y="258" width="148" height="88" rx="16" fill="url(#heat)" stroke="#ea580c" stroke-width="2"/>
+  <text x="198" y="294" text-anchor="middle" font-size="15" font-weight="800" fill="#7c2d12">object emission</text>
+  <text x="198" y="320" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412">epsilon * Lbb(T)</text>
+  <path d="M126 408 C160 360, 228 360, 270 408" fill="none" stroke="#dc2626" stroke-width="4"/>
+  <path d="M126 438 C160 390, 228 390, 270 438" fill="none" stroke="#fb923c" stroke-width="4"/>
+  <text x="198" y="478" text-anchor="middle" font-size="14" font-weight="800" fill="#7c2d12">reflected background</text>
+  <text x="198" y="502" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412">(1 - epsilon) * Lref</text>
+
+  <rect x="346" y="232" width="210" height="262" rx="18" fill="url(#path)" stroke="#0284c7" stroke-width="2.5"/>
+  <text x="451" y="272" text-anchor="middle" font-size="18" font-weight="800" fill="#075985">atmospheric path</text>
+  <text x="451" y="305" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">tau_atm</text>
+  <text x="451" y="332" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">humidity</text>
+  <text x="451" y="359" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">distance</text>
+  <text x="451" y="386" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">fog, smoke, dust</text>
+  <text x="451" y="438" text-anchor="middle" font-size="13" font-weight="700" fill="#075985">attenuation plus air emission</text>
+  <line x1="304" y1="366" x2="346" y2="366" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="556" y1="366" x2="598" y2="366" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="598" y="188" width="216" height="356" rx="18" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+  <text x="706" y="224" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">camera optics</text>
+  <path d="M676 260 C638 312, 638 420, 676 474" fill="none" stroke="#334155" stroke-width="7"/>
+  <path d="M736 260 C774 312, 774 420, 736 474" fill="none" stroke="#334155" stroke-width="7"/>
+  <line x1="620" y1="366" x2="792" y2="366" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="706" y="515" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">lens, window, housing</text>
+
+  <rect x="860" y="184" width="228" height="364" rx="18" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+  <text x="974" y="222" text-anchor="middle" font-size="18" font-weight="800" fill="#312e81">microbolometer</text>
+  <rect x="910" y="260" width="128" height="128" rx="12" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+  <g stroke="#c7d2fe" stroke-width="2">
+    <line x1="932" y1="260" x2="932" y2="388"/>
+    <line x1="954" y1="260" x2="954" y2="388"/>
+    <line x1="976" y1="260" x2="976" y2="388"/>
+    <line x1="998" y1="260" x2="998" y2="388"/>
+    <line x1="1020" y1="260" x2="1020" y2="388"/>
+    <line x1="910" y1="282" x2="1038" y2="282"/>
+    <line x1="910" y1="304" x2="1038" y2="304"/>
+    <line x1="910" y1="326" x2="1038" y2="326"/>
+    <line x1="910" y1="348" x2="1038" y2="348"/>
+    <line x1="910" y1="370" x2="1038" y2="370"/>
+  </g>
+  <text x="974" y="425" text-anchor="middle" font-size="14" font-weight="800" fill="#312e81">raw counts</text>
+  <text x="974" y="453" text-anchor="middle" font-size="13" font-weight="700" fill="#4338ca">gain, offset, temporal noise</text>
+  <line x1="814" y1="366" x2="860" y2="366" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="1130" y="178" width="178" height="134" rx="16" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>
+  <text x="1219" y="212" text-anchor="middle" font-size="17" font-weight="800" fill="#14532d">NUC tables</text>
+  <text x="1219" y="240" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">gain/offset</text>
+  <text x="1219" y="265" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">bad pixels</text>
+  <text x="1219" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">camera temp</text>
+
+  <rect x="1130" y="340" width="178" height="134" rx="16" fill="#fefce8" stroke="#ca8a04" stroke-width="2.5"/>
+  <text x="1219" y="374" text-anchor="middle" font-size="17" font-weight="800" fill="#713f12">parameters</text>
+  <text x="1219" y="402" text-anchor="middle" font-size="13" font-weight="700" fill="#854d0e">emissivity</text>
+  <text x="1219" y="427" text-anchor="middle" font-size="13" font-weight="700" fill="#854d0e">reflected temp</text>
+  <text x="1219" y="452" text-anchor="middle" font-size="13" font-weight="700" fill="#854d0e">distance, RH, air</text>
+
+  <rect x="1130" y="504" width="178" height="104" rx="16" fill="#ecfeff" stroke="#0891b2" stroke-width="2.5"/>
+  <text x="1219" y="538" text-anchor="middle" font-size="17" font-weight="800" fill="#155e75">fusion handoff</text>
+  <text x="1219" y="566" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7490">apparent temp</text>
+  <text x="1219" y="590" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7490">confidence, flags</text>
+
+  <line x1="1088" y1="312" x2="1130" y2="260" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="1088" y1="366" x2="1130" y2="407" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="1088" y1="452" x2="1130" y2="556" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="110" y="582" width="960" height="54" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="132" y="616" font-size="15" font-weight="800" fill="#0f172a">review rule:</text>
+  <text x="232" y="616" font-size="14" font-weight="700" fill="#475569">do not treat apparent temperature, display contrast, or heat signature as truth without parameter, health, calibration, and context logs</text>
+</svg>

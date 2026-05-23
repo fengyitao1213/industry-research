@@ -22,6 +22,7 @@ freedoms as the real nonlinear system.
 - [Information Filters and Smoothers](information-filters-and-smoothers.md)
 - [GTSAM Factor Graph Optimization](gtsam-factor-graphs.md)
 - [Continuous-Time Trajectory Splines and Gaussian Process Priors](continuous-time-trajectory-splines-gp-priors.md)
+- [Robust-Loss Covariance Consistency](robust-loss-covariance-consistency.md)
 - [Lie Groups, SE(3), SO(3), and Jacobians](../geometry-3d/lie-groups-se3-so3-jacobians.md)
 - [Eigenvalues, Hessian Conditioning, and Observability](../numerical-linear-algebra/eigenvalues-hessian-conditioning-observability.md)
 - [GLIM](../../30-autonomy-stack/localization-mapping/slam-methods/glim.md)

@@ -14,7 +14,7 @@ This foundation exists so reviews can separate perception quality from geometric
 
 ## What This Field Studies From First Principles
 
-3D geometry studies coordinate frames, rigid transforms, projective cameras, Lie groups, sensor geometry, calibration observability, correspondence search, and point-cloud registration. It explains how physical measurements become rays, points, poses, residuals, and constraints.
+3D geometry studies coordinate frames, rigid transforms, projective cameras, two-view epipolar and homography constraints, optical and scene-flow motion fields, Lie groups, sensor geometry, calibration observability, correspondence search, and point-cloud registration. It explains how physical measurements become rays, points, poses, motion vectors, residuals, and constraints.
 
 The first-principles questions are concrete: what frame is each quantity expressed in, what transform composes the chain, what projection or measurement model is valid, what perturbation convention is used, and what motions make calibration or registration observable.
 
@@ -55,9 +55,11 @@ The practical model is: `frame convention -> timestamped transform -> sensor mod
 
 For frame and pose debugging, start with [Coordinate Frames, Projections, and SE(3)](coordinate-frames-projections-se3.md), then read [Lie Groups, SE(3), SO(3), and Jacobians](lie-groups-se3-so3-jacobians.md), then connect the result to [Geodesy, Map Projections, and Datums](geodesy-map-projections-datums.md).
 
-For camera and projection issues, read [Camera Projective Geometry, PnP, and Triangulation](camera-projective-geometry-pnp-triangulation.md), then [Camera Imaging, Noise, and Calibration](camera-imaging-noise-calibration.md).
+For camera and projection issues, read [Camera Projective Geometry, PnP, and Triangulation](camera-projective-geometry-pnp-triangulation.md), [Fiducial and Corner Localization](fiducial-corner-localization.md), then [Epipolar Geometry, Homographies, and Two-View Verification](epipolar-geometry-homographies-two-view.md), then [Camera Imaging, Noise, and Calibration](camera-imaging-noise-calibration.md).
 
-For calibration and registration reviews, read [Multi-Sensor Calibration Observability](multi-sensor-calibration-observability.md), [Sensor Calibration and Time Synchronization](sensor-calibration-time-synchronization.md), and [Point Cloud Registration Math: ICP, NDT, and GICP](point-cloud-registration-math-icp-ndt-gicp.md). For the operational handoff before algorithms consume calibrated data, use [Sensor-to-Algorithm Readiness Contract](../../20-av-platform/sensors/sensor-to-algorithm-readiness-contract.md).
+For motion-field issues, read [Optical Flow and Scene Flow First Principles](optical-flow-scene-flow-first-principles.md), then connect image-domain motion to [Rolling Shutter, LiDAR Deskew, and Motion Distortion](rolling-shutter-lidar-deskew-motion-distortion.md), [Correspondence Search and Data Structures](correspondence-search-data-structures.md), and the applied scene-flow benchmark pages.
+
+For calibration and registration reviews, read [Multi-Sensor Calibration Observability](multi-sensor-calibration-observability.md), [Active Calibration Experiment Design](active-calibration-experiment-design.md), [Fiducial and Corner Localization](fiducial-corner-localization.md), [Sensor Calibration and Time Synchronization](sensor-calibration-time-synchronization.md), and [Point Cloud Registration Math: ICP, NDT, and GICP](point-cloud-registration-math-icp-ndt-gicp.md). For the operational handoff before algorithms consume calibrated data, use [Sensor-to-Algorithm Readiness Contract](../../20-av-platform/sensors/sensor-to-algorithm-readiness-contract.md).
 
 For GLIM/GTSAM pipeline work, use the [GLIM and GTSAM Pipeline Hub](../../30-autonomy-stack/localization-mapping/slam-methods/glim-gtsam-pipeline-hub.md) to connect SE(3), scan registration geometry, IMU preintegration, Hessian diagnostics, and GTSAM factor construction.
 
@@ -71,7 +73,7 @@ Downstream, it feeds perception, state estimation, mapping, planning, calibratio
 
 ## Interfaces, Artifacts, and Failure Modes
 
-Core artifacts include transform trees, frame convention documents, camera intrinsics, sensor extrinsics, projection models, point clouds, correspondences, reprojection residuals, calibration covariance, registration residuals, and timestamp alignment logs.
+Core artifacts include transform trees, frame convention documents, camera intrinsics, sensor extrinsics, projection models, point clouds, optical flow, scene flow, correspondences, reprojection residuals, calibration covariance, registration residuals, and timestamp alignment logs.
 
 Diagnostic case: A correct detector appears misaligned because map, base, sensor, and image-frame transforms are composed in the wrong order.
 
@@ -96,6 +98,9 @@ Sensor measurement geometry:
 
 - [Camera Imaging, Noise, and Calibration](camera-imaging-noise-calibration.md)
 - [Camera Projective Geometry, PnP, and Triangulation](camera-projective-geometry-pnp-triangulation.md)
+- [Fiducial and Corner Localization](fiducial-corner-localization.md)
+- [Epipolar Geometry, Homographies, and Two-View Verification](epipolar-geometry-homographies-two-view.md)
+- [Optical Flow and Scene Flow First Principles](optical-flow-scene-flow-first-principles.md)
 - [LiDAR Working Principles and Noise Models](lidar-working-principles-noise-models.md)
 - [Event and Thermal Camera Models](event-thermal-camera-models.md)
 - [Rolling Shutter, LiDAR Deskew, and Motion Distortion](rolling-shutter-lidar-deskew-motion-distortion.md)
@@ -104,6 +109,7 @@ Calibration, timing, correspondence, and registration:
 
 - [Sensor Calibration and Time Synchronization](sensor-calibration-time-synchronization.md)
 - [Multi-Sensor Calibration Observability](multi-sensor-calibration-observability.md)
+- [Active Calibration Experiment Design](active-calibration-experiment-design.md)
 - [Correspondence Search and Data Structures](correspondence-search-data-structures.md)
 - [Point Cloud Registration Math: ICP, NDT, and GICP](point-cloud-registration-math-icp-ndt-gicp.md)
 

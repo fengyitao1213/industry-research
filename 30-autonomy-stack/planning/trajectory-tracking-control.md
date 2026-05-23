@@ -160,6 +160,7 @@ Airside control is forgiving in speed but unforgiving in geometry. Low speed cre
 
 - [Bicycle Kinematic Model](../../20-av-platform/drive-by-wire/bicycle-kinematic-model.md)
 - [Frenet Trajectory Math](../../10-knowledge-base/controls/frenet-trajectory-math.md)
+- [Constrained KKT, QP, and SQP Solver Mechanics](../../10-knowledge-base/optimization/constrained-kkt-qp-sqp-first-principles.md)
 - [Frenet Planner Augmentation](frenet-planner-augmentation.md)
 - [Safety-Critical Planning with CBFs](safety-critical-planning-cbf.md)
 - [Simplex Architecture, Safety, and Shadow Mode](../../60-safety-validation/runtime-assurance/simplex-safety-architecture.md)

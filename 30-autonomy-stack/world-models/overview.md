@@ -297,12 +297,16 @@ The key conceptual shift is from **reactive** to **imaginative** autonomy. A wor
 
 Autoregressively generates perception, prediction, and planning in a unified transformer. Evaluated on nuScenes for VQA, action-conditioned video generation, and motion planning.
 
-### 2.17 Other Notable Models (2024--2025)
+### 2.17 Other Notable Models (2024--2026)
 
 | Model | Key Innovation |
 |---|---|
 | **DrivingWorld** (arXiv:2412.19505) | Video GPT generating >40-second driving clips with spatial-temporal fusion |
-| **DFIT-OccWorld** (arXiv:2412.13772) | Efficient 3D occupancy world model with decoupled dynamic flow |
+| **DFIT-OccWorld** (arXiv:2412.13772) | Efficient 3D occupancy world model with decoupled dynamic flow and image-assisted training |
+| **IR-WM** (arXiv:2510.16729) | Implicit residual world model that predicts scene changes rather than full future reconstruction |
+| **SparseWorld** (arXiv:2510.17482) | Sparse dynamic-query occupancy world model for range-adaptive forecasting and planning |
+| **OccTENS** (arXiv:2509.03887) | Temporal next-scale prediction for controllable long-horizon occupancy generation |
+| **OccSim** (arXiv:2603.28887) | Multi-kilometer 3D simulator driven by long-horizon occupancy world models |
 | **DrivePhysica** (arXiv:2412.08410) | Physics-informed world model with coordinate alignment and flow guidance |
 | **InfinityDrive** (arXiv:2412.01522) | Minute-scale video generation (1500+ frames) with memory injection |
 | **HoloDrive** (arXiv:2412.01407) | First joint 2D-3D generation (camera + LiDAR) via BEV transforms |
@@ -599,6 +603,10 @@ Key trends:
 - Doe-1: arXiv:2412.09627
 - DrivingWorld: arXiv:2412.19505
 - DFIT-OccWorld: arXiv:2412.13772
+- IR-WM: arXiv:2510.16729
+- SparseWorld: arXiv:2510.17482
+- OccTENS: arXiv:2509.03887
+- OccSim: arXiv:2603.28887
 - DrivePhysica: arXiv:2412.08410
 - InfinityDrive: arXiv:2412.01522
 - HoloDrive: arXiv:2412.01407

@@ -747,7 +747,21 @@ informs its design:
 
 ---
 
-## 14. Sources
+## 14. Related Repository Documents
+
+- [Coordinate Frames, Projections, and SE(3)](coordinate-frames-projections-se3.md)
+- [Active Calibration Experiment Design](active-calibration-experiment-design.md)
+- [RTK-GPS, IMU, and Multi-Sensor Localization](../state-estimation/rtk-gps-imu-localization.md)
+- [GTSAM Factor Graph Optimization](../state-estimation/gtsam-factor-graphs.md)
+- [Multi-LiDAR Calibration](../../20-av-platform/sensors/multi-lidar-calibration.md)
+- [Sensor Degradation and Health Monitoring](../../20-av-platform/sensors/sensor-degradation-health-monitoring.md)
+- [Calibration Tracking](../../20-av-platform/sensors/calibration-tracking.md)
+- [Deterministic Networking and TSN](../../20-av-platform/networking-connectivity/deterministic-networking-tsn.md)
+- [Production LiDAR-to-Map Localization](../../30-autonomy-stack/localization-mapping/overview/production-lidar-map-localization.md)
+
+---
+
+## 15. Sources
 
 - LIDAR Velodyne HDL-64E Calibration Using Pattern Planes — SAGE Journals: https://journals.sagepub.com/doi/full/10.5772/50900
 - On-Site Sensor Recalibration of a Spinning Multi-Beam LiDAR — PMC: https://pmc.ncbi.nlm.nih.gov/articles/PMC3545590/

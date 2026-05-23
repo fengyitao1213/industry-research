@@ -4,6 +4,7 @@
 
 - Scene flow estimates a 3D motion vector for each point between successive LiDAR sweeps.
 - For world models, the key use is not only motion prediction but also selective removal: dynamic points can be excluded from static maps, and static background can be excluded when isolating moving actors.
+- The first-principles motion-field layer is covered in [Optical Flow and Scene Flow First Principles](../../10-knowledge-base/geometry-3d/optical-flow-scene-flow-first-principles.md).
 - It is a flow-based complement to binary MOS methods such as [LiDAR-MOS](../perception/methods/lidar-mos.md), [4DMOS](../perception/methods/4dmos.md), [InsMOS](../perception/methods/insmos.md), and [StreamMOS](../perception/methods/streammos.md).
 - It can also feed future occupancy and flow models such as [StreamingFlow](../perception/methods/streamingflow.md).
 - The output is valuable for map hygiene, occupancy clearing, actor extraction, and replay simulation.

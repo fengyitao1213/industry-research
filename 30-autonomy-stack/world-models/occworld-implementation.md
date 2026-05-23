@@ -277,6 +277,8 @@ training_config = {
 
 ## 4. Drive-OccWorld (AAAI 2025)
 
+**Primary sources:** [paper](https://arxiv.org/abs/2408.14197), [project](https://drive-occworld.github.io/), [code](https://github.com/yuyang-cloud/Drive-OccWorld)
+
 ### 4.1 Action Conditioning
 
 The critical upgrade from OccWorld: the world model is conditioned on ego actions.
@@ -416,7 +418,7 @@ Communication: torch.cuda.Stream for async GPU ops
 ## Sources
 
 - [OccWorld (ECCV 2024)](https://arxiv.org/abs/2311.16038) — [GitHub](https://github.com/wzzheng/OccWorld)
-- [Drive-OccWorld (AAAI 2025)](https://arxiv.org/abs/2311.16038)
+- [Drive-OccWorld (AAAI 2025)](https://arxiv.org/abs/2408.14197) — [GitHub](https://github.com/yuyang-cloud/Drive-OccWorld)
 - [Occ3D (NeurIPS 2023)](https://github.com/Tsinghua-MARS-Lab/Occ3D)
 - [SelfOcc](https://arxiv.org/abs/2311.12754)
 - [RenderOcc](https://arxiv.org/abs/2309.09502)

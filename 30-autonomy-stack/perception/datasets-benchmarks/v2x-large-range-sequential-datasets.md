@@ -4,7 +4,7 @@
 
 Large-range and sequential V2X datasets extend cooperative perception from isolated frames at a single intersection to multi-agent, multi-sensor, temporally consistent scenes. V2XScenes, V2XPnP Sequential, UrbanIng-V2X, V2X-Real, and related datasets are especially relevant to airport autonomy because fixed infrastructure can observe around occlusions and beyond the ego vehicle's range.
 
-**Related pages:** [infrastructure cooperative perception](../overview/infrastructure-cooperative-perception.md), [RCP-Bench cooperative corruption robustness](rcp-bench-cooperative-corruption-robustness.md), [sensor fusion architectures](../overview/sensor-fusion-architectures.md), [RCooper](../methods/rcooper.md), [V2X-Radar](../methods/v2x-radar.md), [CoopTrack](../methods/cooptrack.md)
+**Related pages:** [infrastructure cooperative perception](../overview/infrastructure-cooperative-perception.md), [RCP-Bench cooperative corruption robustness](rcp-bench-cooperative-corruption-robustness.md), [TruckV2X](truckv2x-truck-centered-cooperative-perception.md), [sensor fusion architectures](../overview/sensor-fusion-architectures.md), [RCooper](../methods/rcooper.md), [V2X-Radar](../methods/v2x-radar.md), [CoopTrack](../methods/cooptrack.md)
 
 ---
 
@@ -16,6 +16,7 @@ Large-range and sequential V2X datasets extend cooperative perception from isola
 | V2XPnP Sequential | Real-world multi-agent V2X sequential perception and prediction | Two vehicles, two infrastructure agents, all collaboration modes, trajectories, maps, and benchmarks. |
 | UrbanIng-V2X | Multi-vehicle, multi-infrastructure data across multiple intersections | Larger diversity across intersections with vehicle cameras/LiDAR and infrastructure thermal cameras/LiDAR. |
 | V2X-Real | Real-world multi-modal V2X cooperative perception | 2 vehicles + 2 infrastructures, 1.2M annotated 3D boxes, four collaboration modes. |
+| TruckV2X | Synthetic truck-centered cooperative perception | Tractor, trailer, CAV, and RSU agents for heavy-vehicle occlusion and articulation analysis. |
 | CoopScenes | Ego-infrastructure collective perception scenes in Germany | 10 Hz synchronized data, multi-scene registration, anonymization, and development kit. |
 | V2X-Seq | Sequential vehicle-infrastructure cooperative perception and forecasting | Sequential perception, trajectories, maps, and forecasting labels across many intersections. |
 
@@ -46,6 +47,7 @@ V2XScenes emphasizes large-range, challenging-condition vehicle-infrastructure p
 | V2XPnP Sequential | 40K LiDAR frames and 208K camera data from two vehicles and two infrastructure agents | Object trajectories, 136 objects/scene, 10 object types, PCD map, vector map, 100 scenarios, 24 intersections. |
 | UrbanIng-V2X | 12 vehicle RGB cameras, 2 vehicle LiDARs, 17 infrastructure thermal cameras, 12 infrastructure LiDARs | Cooperative perception data, HD map/digital twin, OpenCOOD conversion, sequence/frame API. |
 | V2X-Real | Multi-view camera and LiDAR streams from two vehicles and two infrastructure nodes | 1.2M annotated 3D boxes, 10 categories, 33K LiDAR frames, 171K camera data, four sub-datasets. |
+| TruckV2X | LiDAR and RGB cameras across tractor, trailer, CAV, and RSU agents | 64 synthetic scenarios, 88,396 LiDAR frames, 1.18M 3D boxes, occlusion recovery analysis, heavy/light/VRU slices. |
 | CoopScenes | Ego vehicle six-camera/three-LiDAR setup plus infrastructure towers | 104 minutes at 10 Hz, 62K frames, synchronized/registered/anonymized scenes. |
 | V2X-Seq | Vehicle and infrastructure sequential data | Sequential perception frames, trajectories, vector maps, traffic lights, forecasting scenarios. |
 
@@ -102,10 +104,11 @@ Airports may be easier than public roads in one respect: the operator can decide
 1. Use V2X-Real and V2XPnP to compare collaboration modes before designing an airport sensor topology.
 2. Use V2XScenes to study large-range handoff, condition labels, and cooperative tracking under challenging traffic.
 3. Use UrbanIng-V2X and CoopScenes to stress multi-site calibration, synchronization, and OpenCOOD-style data conversion.
-4. Build an airport dataset with fixed stand cameras/LiDAR/radar, vehicle sensors, synchronized clocks, maps, and unique IDs across stands.
-5. Keep vehicle-only, infrastructure-only, and fused outputs in logs; the data engine needs to know which source found each object.
-6. Mine disagreement cases: infrastructure sees an object the vehicle misses, vehicle sees an object infrastructure misses, and fusion suppresses a correct single-agent detection.
-7. Add communication replay with latency, packet drop, stale transforms, and degraded collaborator trust before using V2X outputs in a safety argument.
+4. Use [TruckV2X](truckv2x-truck-centered-cooperative-perception.md) when the target fleet includes articulated trucks, trailers, long GSE, or other large occluders whose geometry is missing from light-vehicle V2X datasets.
+5. Build an airport dataset with fixed stand cameras/LiDAR/radar, vehicle sensors, synchronized clocks, maps, and unique IDs across stands.
+6. Keep vehicle-only, infrastructure-only, and fused outputs in logs; the data engine needs to know which source found each object.
+7. Mine disagreement cases: infrastructure sees an object the vehicle misses, vehicle sees an object infrastructure misses, and fusion suppresses a correct single-agent detection.
+8. Add communication replay with latency, packet drop, stale transforms, and degraded collaborator trust before using V2X outputs in a safety argument.
 
 ---
 
@@ -115,9 +118,15 @@ Airports may be easier than public roads in one respect: the operator can decide
 - [V2XScenes paper PDF](https://openaccess.thecvf.com/content/ICCV2025/papers/Wang_V2XScenes_A_Multiple_Challenging_Traffic_Conditions_Dataset_for_Large-Range_Vehicle-Infrastructure_ICCV_2025_paper.pdf)
 - [V2XScenes supplemental PDF](https://openaccess.thecvf.com/content/ICCV2025/supplemental/Wang_V2XScenes_A_Multiple_ICCV_2025_supplemental.pdf)
 - [V2XPnP project page](https://mobility-lab.seas.ucla.edu/v2xpnp/)
+- [V2XPnP arXiv record](https://arxiv.org/abs/2412.01812)
 - [V2X-Real project page](https://mobility-lab.seas.ucla.edu/v2x-real/)
+- [TruckV2X project page](https://xietenghu1.github.io/TruckV2X/)
+- [TruckV2X dataset](https://huggingface.co/datasets/XieTenghu1/TruckV2X)
+- [TruckV2X arXiv record](https://arxiv.org/abs/2507.09505)
 - [UrbanIng-V2X project page](https://thi-ad.github.io/urbaning/)
 - [UrbanIng-V2X GitHub repository](https://github.com/thi-ad/UrbanIng-V2X)
 - [UrbanIng-V2X arXiv record](https://arxiv.org/abs/2510.23478)
 - [CoopScenes project page](https://coopscenes.github.io/)
+- [CoopScenes arXiv record](https://arxiv.org/abs/2407.08261)
+- [CoopScenes Hugging Face dataset](https://huggingface.co/datasets/iis-esslingen/CoopScenes)
 - [V2X-Seq arXiv record](https://arxiv.org/abs/2305.05938)

@@ -12,6 +12,12 @@ asynchronous brightness changes at microsecond resolution across ~140 dB dynamic
 range. Thermal cameras report passive LWIR radiance — illumination-independent.
 Both require explicit sensor models before use in perception, SLAM, or mapping.
 
+For the standalone thermal measurement contract, see [Thermal IR Radiometry
+First Principles](../sensors/thermal-ir-radiometry-first-principles.md). This
+page keeps the combined event/thermal geometry view and delegates deeper
+radiometry, NUC, emissivity, reflected-background, and atmospheric terms to the
+sensor foundation page.
+
 ---
 
 ## Related Docs

@@ -22,9 +22,10 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 | Place recognition | [LiDAR Place Recognition and Re-Localization](../overview/lidar-place-recognition-relocalization.md) | Most stacks need external loop/relocalization strengthening for production. |
 | Map construction | [Map Construction Pipeline](../maps/map-construction-pipeline.md) | Stack output must be compatible with survey processing, GCP alignment, map QA, and OTA deployment. |
 | State estimation | [Robust State Estimation Multi-Sensor](../overview/robust-state-estimation-multi-sensor.md) | Pose output quality is not enough; covariance, gating, dropout, and sensor health matter. |
+| Radar and Doppler fallback | [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md) and [Radar RIO Correspondence and Uncertainty](radar-rio-correspondence-uncertainty.md) | Radarize and DRO are useful open-source Doppler/radar odometry baselines; radar_transformer and HKUST RIO add reviewable correspondence and uncertainty-aware RIO artifacts; Doppler-SLAM remains paper-backed but not yet code-mature. |
 | Backend math | [GTSAM Factor Graphs](../../../10-knowledge-base/state-estimation/gtsam-factor-graphs.md) | Essential for understanding LIO-SAM, GLIM, map optimization, and production factor insertion. |
 | Gaussian/neural maps | [Gaussian Splatting for Driving](../../perception/overview/gaussian-splatting-driving.md) | Good future-facing map/QA representation, but not yet a primary certified pose stack. |
-| Coverage audit | [SLAM Coverage Audit and Backlog](coverage-audit-2026.md) | Tracks missing stack pages such as MOLA, KISS-SLAM, FAST-LIVO/R3LIVE, LOCUS/LAMP, DLIO/DLIOM, and cuVSLAM. |
+| Coverage audit | [SLAM Coverage Audit and Backlog](coverage-audit-2026.md) | Tracks remaining SLAM, odometry, localization, backend, dataset, and benchmark gaps after the promoted method-library waves. |
 
 ## Comparison Criteria
 
@@ -57,7 +58,7 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 | [ORB-SLAM3](orb-slam2-orb-slam3.md) | Monocular, stereo, RGB-D, visual-inertial | Sparse features, bundle adjustment, multi-map SLAM | GPL-3.0 | Standalone examples, community ROS wrappers | Strong visual/VIO baseline, multi-map recovery | GPL; visual degradation in glare/weather/low texture | Camera-first robotics and research benchmark |
 | [OpenVINS](openvins.md) | Mono/stereo cameras, IMU | MSCKF/EKF visual-inertial estimator | GPL-3.0 | ROS 1/2 and ROS-free | Excellent documentation, evaluation tools, covariance discipline | Sparse VIO, not full dense mapper; GPL | VIO research, estimator consistency reference |
 | [VINS-Fusion](vins-mono-vins-fusion.md) | Mono+IMU, stereo+IMU, stereo, GPS example | Sliding-window optimization with Ceres, loop fusion | GPL-3.0 | ROS 1 | Widely used VIO baseline with multi-sensor modes | Older dependencies; GPL; calibration-sensitive | Visual-inertial baseline, GPS fusion reference |
-| SLAM Toolbox | 2D LiDAR, odom | Pose graph, scan solvers, occupancy grid | BSD-3 | ROS 2 | Practical ROS 2 indoor mapping/localization stack, Nav2 integration | 2D only; not for 3D AV maps | Warehouses, service robots, Nav2 products |
+| [SLAM Toolbox](slam-toolbox.md) | 2D LiDAR, odom | Pose graph, scan solvers, occupancy grid | LGPL-2.1-family | ROS 2 | Practical ROS 2 indoor mapping/localization stack, Nav2 integration | 2D only; not for 3D AV maps; LGPL obligations need review | Warehouses, service robots, Nav2 products |
 | Autoware NDT | 3D LiDAR, map, EKF/GNSS inputs | NDT scan matching, Monte Carlo initial pose | Apache-2.0 ecosystem | ROS 2/Autoware | Production-oriented diagnostics, dynamic map loading, covariance, services | Localization stack, not full SLAM; tied to Autoware interfaces | Road/yard/airside localization reference |
 | MOLA | LiDAR/LO/LIO/GNSS/kinematics/maps | Modular localization and mapping, metric maps, particle filters | BSD-family/MRPT ecosystem; verify modules | ROS 2 and standalone | Strong modularity, localization-only modes, georeferenced workflows | Smaller ecosystem than Autoware/ROS Nav2 | Research-to-product mapping/localization bridge |
 | gtsam_points | LiDAR/range factors | GICP/VGICP/colored ICP factors, CPU/GPU options | MIT | Library with GLIM integration | Direct bridge from scan matching to GTSAM graphs | Library, not a complete robot stack | Custom factor-graph SLAM/localization |
@@ -99,7 +100,8 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 
 | License/status | Examples | Product implication |
 |---|---|---|
-| MIT/BSD/Apache-friendly | [KISS-ICP](kiss-icp.md), KISS-SLAM, GTSAM, Ceres, [GLIM](glim.md), SLAM Toolbox, Autoware | Usually easier to integrate, but still review dependencies and modifications. |
+| MIT/BSD/Apache-friendly | [KISS-ICP](kiss-icp.md), KISS-SLAM, GTSAM, Ceres, [GLIM](glim.md), Autoware | Usually easier to integrate, but still review dependencies and modifications. |
+| LGPL-family | [SLAM Toolbox](slam-toolbox.md) | Practical open-source option, but product linking/distribution obligations require legal review. |
 | GPL-family | [FAST-LIO2](fast-lio-fast-lio2.md), [Point-LIO](point-lio.md), [ORB-SLAM3](orb-slam2-orb-slam3.md), [OpenVINS](openvins.md), [VINS-Fusion](vins-mono-vins-fusion.md) | Excellent research baselines; product linking/distribution requires legal review or clean-room reimplementation. |
 | Research/new stack | Splat-SLAM, many Gaussian SLAM projects, newer LIO variants | Useful for experimentation; require extra maturity assessment and failure monitoring. |
 | Dataset license restrictions | Hilti non-commercial, some AV datasets | Good for benchmarking, not necessarily for commercial training/product use. |
@@ -127,7 +129,7 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 | Primary LiDAR-only baseline | [KISS-ICP](kiss-icp.md) | Keep as a simple benchmark and independent odometry monitor. |
 | Primary LIO survey baseline | [FAST-LIO2](fast-lio-fast-lio2.md) and [GLIM](glim.md) | Use to generate survey trajectories/submaps; check license before product embedding. |
 | Factor-graph reference | [LIO-SAM](lio-sam.md), GTSAM, [GLIM](glim.md)/gtsam_points | Reuse concepts for IMU, GPS/GCP, loop, scan-matching, and map factors. |
-| Indoor navigation reference | SLAM Toolbox, [Cartographer](cartographer-3d.md), RTAB-Map | Use for warehouse/AGV scenarios, not as airside AV default. |
+| Indoor navigation reference | [SLAM Toolbox](slam-toolbox.md), [Cartographer](cartographer-3d.md), RTAB-Map | Use for warehouse/AGV scenarios, not as airside AV default. |
 | Visual/VIO reference | [ORB-SLAM3](orb-slam2-orb-slam3.md), [OpenVINS](openvins.md), [VINS-Fusion](vins-mono-vins-fusion.md) | Use to benchmark camera contribution and calibration, not primary all-weather pose. |
 | Runtime AV localization reference | Autoware NDT and MOLA localization | Study diagnostics/interfaces; production stack may use custom VGICP/GTSAM. |
 | Dense/neural map reference | SplaTAM, Splat-SLAM, NICE-SLAM | Treat as map QA/simulation research; require classical pose fallback. |
@@ -151,7 +153,9 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 - ORB-SLAM3 paper and official repo: https://arxiv.org/abs/2007.11898 and https://github.com/UZ-SLAMLab/ORB_SLAM3
 - OpenVINS official docs and repo link: https://docs.openvins.com/
 - VINS-Fusion official repo: https://github.com/HKUST-Aerial-Robotics/VINS-Fusion
-- SLAM Toolbox official ROS docs and repo: https://docs.ros.org/en/jazzy/p/slam_toolbox/ and https://github.com/SteveMacenski/slam_toolbox
-- Autoware NDT scan matcher official docs: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- SLAM Toolbox official ROS docs and repo: https://docs.ros.org/en/ros2_packages/jazzy/api/slam_toolbox/ and https://github.com/SteveMacenski/slam_toolbox
+- Autoware NDT scan matcher official docs: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - MOLA official localization docs: https://docs.mola-slam.org/latest/localization.html
+- radar_transformer official implementation: https://github.com/aau-cns/radar_transformer
+- HKUST-Aerial-Robotics/RIO official implementation: https://github.com/HKUST-Aerial-Robotics/RIO
 - SplaTAM paper, NICE-SLAM repo, and Splat-SLAM repo: https://arxiv.org/abs/2312.02126, https://github.com/cvg/nice-slam, and https://github.com/google-research/Splat-SLAM

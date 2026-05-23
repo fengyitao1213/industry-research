@@ -171,7 +171,7 @@ N >= log(1 - p) / log(1 - w^s)
 ```
 
 RANSAC is valuable when outliers are numerous and structured, such as feature
-matching for homography, fundamental matrix, essential matrix, PnP, plane
+matching for [homography, fundamental matrix, essential matrix](../geometry-3d/epipolar-geometry-homographies-two-view.md), PnP, plane
 fitting, and loop-closure proposal validation. OpenCV's calibration and 3D
 reconstruction module exposes RANSAC and USAC variants for these geometric
 estimation problems.

@@ -130,6 +130,6 @@ For airport use, the benchmark should add apron-speed profiles, stop-and-go oper
 
 ## Sources
 
-- arXiv paper: https://arxiv.org/abs/2504.16043
-- arXiv PDF: https://arxiv.org/pdf/2504.16043
-- V2X-Real project page: https://mobility-lab.seas.ucla.edu/v2x-real/
+- arXiv paper: https://arxiv.org/abs/2503.10034
+- arXiv PDF: https://arxiv.org/pdf/2503.10034
+- Related V2X-Real project page: https://mobility-lab.seas.ucla.edu/v2x-real/

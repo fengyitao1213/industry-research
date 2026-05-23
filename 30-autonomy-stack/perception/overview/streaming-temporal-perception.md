@@ -2,11 +2,11 @@
 
 ## From Single-Frame Detection to Temporally Consistent Scene Understanding
 
-**Last updated:** 2026-04-11
+**Last updated:** 2026-05-23
 
 ---
 
-**Summary:** Single-frame 3D detection ignores temporal information that is freely available from sequential sensor data. Streaming perception methods propagate object queries, BEV features, or latent states across frames to improve detection accuracy (+3-8% NDS), enable implicit tracking (AMOTA 65%+ without explicit association), and compensate for inference latency — all critical for airside operations where slow-moving objects (1-5 km/h carts) are easily missed in single frames. This document covers every major streaming perception architecture from dense BEV temporal fusion (BEVFormer, SOLOFusion) through sparse query propagation (StreamPETR, Sparse4D v3) to LiDAR temporal accumulation (CenterPoint-Temporal, TransFusion-L), with latency-aware methods (LASP, ASAP) that predict object positions during inference delay. The key finding: **StreamPETR's object-centric temporal mechanism adds only 2-3ms overhead while boosting NDS by 6-8% and providing free multi-object tracking — the highest value-per-FLOP temporal method for Orin deployment**. For the reference airside AV stack's LiDAR-primary stack, simple multi-scan accumulation (3-5 frames, 0.5s window) combined with CenterPoint-Temporal provides most of the benefit at minimal engineering cost.
+**Summary:** Single-frame 3D detection ignores temporal information that is freely available from sequential sensor data. Streaming perception methods propagate object queries, BEV features, or latent states across frames to improve detection accuracy (+3-8% NDS), enable implicit tracking (AMOTA 65%+ without explicit association), and compensate for inference latency — all critical for airside operations where slow-moving objects (1-5 km/h carts) are easily missed in single frames. This document covers every major streaming perception architecture from dense BEV temporal fusion (BEVFormer, SOLOFusion) through sparse query propagation (StreamPETR, Sparse4D v3, DySS) to LiDAR temporal accumulation (CenterPoint-Temporal, TransFusion-L), with latency-aware methods (LASP, ASAP) that predict object positions during inference delay. The key finding remains that StreamPETR's object-centric temporal mechanism is the most mature value-per-FLOP sparse-query baseline for Orin deployment, while DySS is a paper-backed frontier route for state-space temporal sampling and dynamic query management pending official code or broader adoption. For the reference airside AV stack's LiDAR-primary stack, simple multi-scan accumulation (3-5 frames, 0.5s window) combined with CenterPoint-Temporal provides most of the benefit at minimal engineering cost.
 
 ---
 
@@ -65,6 +65,7 @@ Temporal Perception Methods
 ├── Sparse query propagation
 │   ├── Object queries across frames (StreamPETR)
 │   ├── Anchor-based temporal (Sparse4D v3)
+│   ├── State-space dynamic queries (DySS)
 │   └── Track queries (MUTR3D, PF-Track)
 ├── Point cloud accumulation
 │   ├── Multi-sweep ego-motion compensated (CenterPoint)
@@ -436,7 +437,20 @@ Performance on nuScenes test:
 - vs StreamPETR-L: +6.0% mAP, +6.4% NDS — currently the sparse query SOTA
 ```
 
-### 4.3 MUTR3D and Track Queries
+### 4.3 DySS: State-Space Temporal Sampling with Dynamic Queries
+
+DySS (CVPR 2025 Workshop on Autonomous Driving) is a frontier sparse-query follow-on for efficient multi-camera 3D detection. It is routed here and in [Sparse Query Camera 3D Detection](sparse-query-camera-3d-detection.md) rather than split into a standalone method page because this loop found arXiv and CVF primary records but no official code release.
+
+The method combines state-space learning over temporally sampled features with dynamic query management:
+
+- State-space temporal modeling preserves longer-range information in sampled image features without carrying a large dense BEV memory.
+- Dynamic query updates can merge redundant queries, remove low-value queries, and split or expand hypotheses where a region needs more object candidates.
+- The paper reports 65.31 NDS and 57.4 mAP on the nuScenes test split, plus 56.2 NDS, 46.2 mAP, and 33 FPS on validation.
+- Treat these as paper-reported benchmark signals; compare only under matched backbone, resolution, temporal history, and online/offline settings.
+
+**Deployment note:** DySS is useful as a design signal for reducing sparse-query waste in long video windows, but dynamic query removal needs explicit health gates for dropped frames, calibration jumps, and rare small hazards. It should not replace dense freespace, LiDAR/radar occupancy, or closed-set safety layers.
+
+### 4.4 MUTR3D and Track Queries
 
 MUTR3D introduced the concept of persistent track queries — queries that live for the lifetime of an object, initialized at first detection and terminated when the object leaves the scene.
 
@@ -1339,3 +1353,5 @@ TEMPORAL_TEST_SCENARIOS = {
 11. Tang et al., "BEVDet4D: 3D Object Detection with Temporal Cues in Multi-Camera BEV Space," arXiv 2022
 12. Li et al., "MViTv2: Improved Multiscale Vision Transformers," CVPR 2022
 13. Bertasius et al., "Is Space-Time Attention All You Need for Video Understanding?" ICML 2021
+14. Yasarla et al., "DySS: Dynamic Queries and State-Space Learning for Efficient 3D Object Detection," CVPR 2025 Workshop on Autonomous Driving. https://openaccess.thecvf.com/content/CVPR2025W/WAD/html/Yasarla_DySS_Dynamic_Queries_and_State-Space_Learning_for_Efficient_3D_Object_CVPRW_2025_paper.html
+15. DySS arXiv paper: https://arxiv.org/abs/2506.10242

@@ -23,7 +23,7 @@ but the estimation problem is difficult because range-only measurements are nonl
 
 Modern systems combine UWB with visual, inertial, LiDAR, or wheel odometry. VIR-SLAM adds UWB ranging to visual-inertial SLAM for single- and multi-robot systems. VIRAL SLAM tightly couples camera, IMU, UWB, and LiDAR. C2VIR-SLAM and related systems use collaborative visual-inertial-range constraints. Recent CT-VIR work moves toward continuous-time spline-based visual-inertial-ranging fusion with sparse anchors and asynchronous measurements.
 
-This page focuses on radio range factors and cooperative localization/SLAM patterns.
+This page focuses on radio range factors and cooperative localization/SLAM patterns. For the broader site-level contract covering UWB anchors alongside fiducials, RFID/BLE, Wi-Fi RTT, magnetic maps, reflectors, 5G NR/mmWave positioning, and infrastructure maintenance, see [Infrastructure-Aided Localization](../overview/infrastructure-aided-localization.md).
 
 ## Method Class
 

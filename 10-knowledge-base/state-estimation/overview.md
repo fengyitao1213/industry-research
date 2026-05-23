@@ -59,7 +59,7 @@ For smoothing and SLAM backends, read [Information Filters and Smoothers](inform
 
 For association and tracking, read [Data Association and Gating](data-association-and-gating.md), [Probabilistic Multi-Object Association](probabilistic-multi-object-association.md), [Tracking Motion Models, Track Lifecycle, and Metrics](tracking-motion-models-track-lifecycle-metrics.md), and [Particle Filters and Hypothesis Management](particle-filters-and-hypothesis-management.md).
 
-For localization integrity, read [GNSS RTK Error Models](gnss-rtk-error-models.md), [RTK GPS and IMU Localization](rtk-gps-imu-localization.md), [SLAM/VIO Observability, FEJ, and Nullspace Consistency](slam-vio-observability-fej-nullspace-consistency.md), [Localization Integrity, Protection Levels, and RAIM](localization-integrity-protection-levels-raim.md), and [Fusion with Unknown Correlations and Covariance Intersection](fusion-unknown-correlations-covariance-intersection.md).
+For localization integrity, read [GNSS RTK Error Models](gnss-rtk-error-models.md), [RTK GPS and IMU Localization](rtk-gps-imu-localization.md), [SLAM/VIO Observability, FEJ, and Nullspace Consistency](slam-vio-observability-fej-nullspace-consistency.md), [Robust-Loss Covariance Consistency](robust-loss-covariance-consistency.md), [Localization Integrity, Protection Levels, and RAIM](localization-integrity-protection-levels-raim.md), and [Fusion with Unknown Correlations and Covariance Intersection](fusion-unknown-correlations-covariance-intersection.md).
 
 ## Dependency Map
 
@@ -112,6 +112,7 @@ SLAM graph structure, observability, and integrity:
 
 - [GTSAM Factor Graphs](gtsam-factor-graphs.md)
 - [SLAM/VIO Observability, FEJ, and Nullspace Consistency](slam-vio-observability-fej-nullspace-consistency.md)
+- [Robust-Loss Covariance Consistency](robust-loss-covariance-consistency.md)
 - [Localization Integrity, Protection Levels, and RAIM](localization-integrity-protection-levels-raim.md)
 
 ## Core Sources

@@ -87,7 +87,7 @@ relative transform:
 Z_ij = relative pose measurement between historical pose i and current pose j
 ```
 
-Visual systems may use feature matching plus PnP, essential matrix checks, or
+Visual systems may use feature matching plus PnP, [essential matrix or homography checks](../geometry-3d/epipolar-geometry-homographies-two-view.md), or
 bundle adjustment. LiDAR systems may use ICP, GICP, NDT, TEASER-style robust
 registration, or scan-to-submap alignment.
 

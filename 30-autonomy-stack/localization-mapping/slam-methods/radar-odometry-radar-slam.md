@@ -11,7 +11,7 @@ priority:
   reason: "Radar Odometry and Radar SLAM is rated for alternative-sensor localization under adverse weather, weak LiDAR, or GNSS-denied conditions."
 method-priority:end -->
 
-Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [SLAM benchmarking](benchmarking-metrics-datasets.md), [loop closure and place recognition](loop-closure-place-recognition.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [robust state estimation](../overview/robust-state-estimation-multi-sensor.md).
+Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [Radar place recognition](radar-place-recognition-4dral-sherloc.md), [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md), [CAO-RONet](cao-ronet.md), [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md), [SLAM benchmarking](benchmarking-metrics-datasets.md), [loop closure and place recognition](loop-closure-place-recognition.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [robust state estimation](../overview/robust-state-estimation-multi-sensor.md).
 
 ## Executive Summary
 
@@ -33,7 +33,7 @@ Several method families emerged:
 - **Sparse oriented-point registration:** Filter radar returns into surface-like points and solve scan matching with robust point-to-line or point-to-surface costs, as in CFEAR.
 - **Radar SLAM back ends:** Add keyframes, submaps, loop closure, and pose-graph optimization.
 
-The field is now shifting toward 4D imaging radar, radar-inertial odometry, and radar-LiDAR-inertial fusion because Doppler and elevation improve observability beyond 2D scanning radar intensity images.
+The field is now shifting toward 4D imaging radar, radar-inertial odometry, Doppler-aware direct radar registration, learned radar point correspondences, explicit radar point uncertainty, and radar-LiDAR-inertial fusion because Doppler, elevation, and better association confidence improve observability beyond 2D scanning radar intensity images. See [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md) for Radarize, DRO, and Doppler-SLAM routing, and [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md) for the matching/confidence-weighting slice.
 
 ## Sensor Assumptions
 
@@ -221,6 +221,11 @@ Airside-specific metrics should include open-apron drift, stand-revisit ambiguit
 
 - **CFEAR Radarodometry:** learning-free radar odometry based on conservative filtering and robust oriented-point registration; commonly used as a radar odometry baseline.
 - **Under the Radar:** learning-based radar keypoint and descriptor framework for radar odometry and metric localization on Oxford Radar RobotCar.
+- **CAO-RONet:** learning-based 4D radar odometry with local completion, context-aware association, and clip-window optimization for low-quality radar point clouds.
+- **radar_transformer:** transformer-based radar point-correspondence module for sparse 3D radar point clouds in radar-inertial odometry experiments.
+- **HKUST-Aerial-Robotics/RIO:** point-uncertainty-aware 4D radar-inertial odometry with runnable ROS/C++ research artifacts and sample data.
+- **Radarize:** commodity single-chip mmWave radar SLAM using Doppler-shift odometry and multipath artifact suppression, with public code and dataset release.
+- **DRO:** Doppler-aware direct radar odometry for spinning FMCW radar, with public code for radar intensity scan-to-local-map registration and evaluation.
 - **Oxford Radar RobotCar SDK/dataset tools:** useful for loading Navtech radar data and benchmark trajectories.
 - **MulRan dataset tooling:** radar/LiDAR place-recognition and odometry research ecosystem.
 - **Boreas development tools:** useful for radar/LiDAR/camera odometry evaluation with high-quality reference poses.
@@ -239,6 +244,14 @@ Do not deploy radar-only SLAM as the primary localization stack unless the route
 - Barnes, D. and Posner, I. "Under the Radar: Learning to Predict Robust Keypoints for Odometry Estimation and Metric Localisation in Radar." ICRA 2020. https://arxiv.org/abs/2001.10789
 - Adolfsson, D. et al. "CFEAR Radarodometry - Conservative Filtering for Efficient and Accurate Radar Odometry." IROS 2021. https://arxiv.org/abs/2105.01457
 - Adolfsson, D. et al. "Lidar-level localization with radar? The CFEAR approach to accurate, fast and robust large-scale radar odometry in diverse environments." https://arxiv.org/abs/2211.02445
+- Li, Z. et al. "CAO-RONet: A Robust 4D Radar Odometry with Exploring More Information from Low-Quality Points." https://arxiv.org/abs/2503.01438
+- CAO-RONet official implementation. https://github.com/NEU-REAL/CAO-RONet
+- Michalczyk et al. "Learning Point Correspondences In Radar 3D Point Clouds For Radar-Inertial Odometry." https://arxiv.org/abs/2506.18580
+- Xu et al. "Incorporating Point Uncertainty in Radar SLAM." https://arxiv.org/abs/2402.16082
+- Sie, E. et al. "Radarize: Enhancing Radar SLAM with Generalizable Doppler-Based Odometry." https://arxiv.org/abs/2311.11260
+- Radarize official implementation and dataset. https://github.com/ConnectedSystemsLab/radarize_ae, https://zenodo.org/records/11093859
+- Le Gentil, C. et al. "DRO: Doppler-Aware Direct Radar Odometry." https://arxiv.org/abs/2504.20339
+- DRO official implementation. https://github.com/utiasASRL/dro
 - Oxford Radar RobotCar Dataset. https://ori.ox.ac.uk/datasets/radar-robotcar-dataset
 - MulRan Dataset. https://sites.google.com/view/mulran-pr/dataset
 - Boreas Dataset. https://www.boreas.utias.utoronto.ca/

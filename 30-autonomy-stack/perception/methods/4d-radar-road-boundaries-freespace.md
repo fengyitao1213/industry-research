@@ -39,6 +39,14 @@ method-priority:end -->
 - Output: continuous left/right or multi-curve road-boundary estimates.
 - Planning output: drivable corridor, freespace boundary, or boundary constraints for path planning.
 
+## Assumptions and Boundaries
+
+- The anchor evidence is road-driving data, so transfer to unstructured yards, aprons, mines, farms, and campuses needs local validation.
+- The method assumes physical boundary objects produce enough radar returns to separate boundary points from clutter.
+- Open paved areas marked only by paint, geofences, or operating rules need map and camera support; radar boundary curves alone cannot infer procedural no-go zones.
+- A boundary detector does not prove that the interior corridor is clear; small-obstacle, FOD, pedestrian, and overhang detection remain separate safety requirements.
+- Radar freespace confidence should degrade under multipath, low point count, calibration drift, or stale ego-motion compensation.
+
 ## Architecture or Pipeline
 
 - Module 1: preprocess radar points, extract point-wise features, reduce noise, and fuse frames to mitigate sparsity.
@@ -76,14 +84,15 @@ method-priority:end -->
 - Temporal propagation can carry a false boundary forward if confidence is not checked.
 - A detected boundary is not a complete freespace proof; interior obstacles still need detection or occupancy.
 
-## Airside AV Fit
+## Domain Fit
 
-- Strong adverse-weather fit for service roads, stand edges, terminal curbs, fence lines, and fixed barriers.
-- Useful at night and in fog, rain, jet exhaust, or de-icing mist where camera-only freespace is weak.
-- Airport aprons often lack raised road boundaries, so the method must be adapted to cones, painted stand limits, aircraft no-go zones, and mapped geofences.
-- Radar around aircraft can be noisy because fuselage, engines, landing gear, and terminal glass create strong reflections.
-- Use radar boundary output as one layer in a drivable-space stack with maps, LiDAR, cameras, and operations rules.
-- Never treat radar freespace as empty near aircraft unless small-object/FOD coverage is separately validated.
+| Domain | Fit | Note |
+|---|---|---|
+| Road AV | strong | The primary 4DRadarRBD evidence is road-boundary detection on real driving data, with radar point segmentation and curve fitting targeted at road edges and barriers. |
+| Airside | conditional | Strong adverse-weather value for service roads, stand edges, terminal curbs, fence lines, and fixed barriers, but open aprons often need maps, cones, painted limits, aircraft no-go zones, and FOD validation. |
+| Logistics yard / port / warehouse yard | conditional | Useful where trailers, containers, walls, fences, and dock edges produce radar-visible boundaries; weaker where drivable corridors are policy-defined rather than physically bounded. |
+| Mining / construction / agriculture | conditional | Radar can help in dust, darkness, and glare, but berms, vegetation, terrain slopes, and temporary work zones require domain-specific labeling and false-boundary tests. |
+| Delivery robot / outdoor campus | weak | Low-speed robots need curb, pedestrian, and small-obstacle handling at close range; sparse 4D radar boundary curves are more likely to be an auxiliary signal than a primary freespace layer. |
 
 ## Implementation Notes
 
@@ -93,6 +102,14 @@ method-priority:end -->
 - Add airport-specific false-positive tests around aircraft stands, jet bridges, glass facades, wet pavement, and metallic GSE.
 - Fuse with HD map no-go zones so radar cannot open forbidden areas.
 - Validate downstream planning behavior with missing-boundary, false-boundary, and boundary-jump scenarios.
+
+## Local Cross-Links
+
+- Dense radar occupancy: [4D Radar-Camera Occupancy](4d-radar-camera-occupancy.md).
+- Radar detection baselines: [RadarPillars](radarpillars.md), [K-Radar](k-radar.md), [V2X-Radar](v2x-radar.md).
+- Current/future occupancy and freespace: [Dynamic Occupancy Freespace](dynamic-occupancy-freespace.md), [Spatiotemporal Memory Occupancy Flow](spatiotemporal-memory-occupancy-flow.md).
+- Radar platform constraints: [4D Radar](../../../20-av-platform/sensors/4d-radar.md).
+- Validation context: [Perception/SLAM Corruption Fault-Injection Protocol](../../../60-safety-validation/verification-validation/robustness/perception-slam-corruption-fault-injection-protocol.md).
 
 ## Sources
 

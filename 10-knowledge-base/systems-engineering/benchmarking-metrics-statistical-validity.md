@@ -15,6 +15,7 @@ dataset, protocol, metric, and uncertainty match the operational decision.
 
 ## Related docs
 
+- [AV Data Evaluation Fundamentals](../machine-learning/av-data-evaluation-fundamentals.md)
 - [Data Association and Gating](../state-estimation/data-association-and-gating.md)
 - [Probabilistic Multi-Object Association](../state-estimation/probabilistic-multi-object-association.md)
 - [Information Filters and Smoothers](../state-estimation/information-filters-and-smoothers.md)

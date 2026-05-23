@@ -15,6 +15,7 @@
 - [Schur Complement, Marginalization, and PCG](schur-complement-marginalization-pcg.md)
 - [Sparse Estimation Backend Crosswalk](sparse-estimation-backend-crosswalk.md)
 - [Nonlinear Solver Diagnostics Crosswalk](../optimization/nonlinear-solver-diagnostics-crosswalk.md)
+- [Robust-Loss Covariance Consistency](../state-estimation/robust-loss-covariance-consistency.md)
 - [GTSAM Factor Graph Optimization](../state-estimation/gtsam-factor-graphs.md)
 - [GLIM](../../30-autonomy-stack/localization-mapping/slam-methods/glim.md)
 

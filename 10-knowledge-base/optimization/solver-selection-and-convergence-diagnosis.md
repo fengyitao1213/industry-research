@@ -12,6 +12,7 @@
 - [Objective and Residual Design Audit](objective-residual-design-and-audit.md)
 - [Sparse Estimation Backend Crosswalk](../numerical-linear-algebra/sparse-estimation-backend-crosswalk.md)
 - [Gauss-Newton, Levenberg-Marquardt, and Dogleg](gauss-newton-levenberg-marquardt-dogleg.md)
+- [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md)
 - [Trust Region and Line Search Globalization](trust-region-line-search-globalization.md)
 - [Factor Graph Solver Patterns: Ceres, GTSAM, and g2o](factor-graph-solver-patterns-ceres-gtsam-g2o.md)
 
@@ -32,6 +33,7 @@ This lifecycle explains why a log can show many linear solves without state prog
 | Large-scale bundle adjustment or landmark-heavy SLAM. | Direct full solve memory too high. | LM or trust region. | Schur complement direct or iterative Schur. | Eliminated blocks are singular or dense reduced system explodes. | Fill report, Schur block stats, accepted nonlinear progress. |
 | Massive sparse SPD system with acceptable approximate linear solves. | Direct factorization too slow or memory-heavy. | LM/trust region with inexact linear solve. | PCG with preconditioner. | Operator is not SPD or residual norms stagnate. | PCG residual norms drop and nonlinear cost improves. |
 | Rank uncertain, covariance suspicious, or gauge policy under review. | Cholesky fails, covariance nonsensical, weak modes. | Debug with damped GN/LM. | QR or SVD on a representative reduced case. | Full production graph is too large for dense rank tools. | Singular values and nullspace match expected gauge. |
+| Hard bounds, path constraints, safety-filter inequalities, or MPC feasibility are central. | Active constraints, slacks, infeasible QPs, dual residuals, or deadline misses dominate logs. | QP, SQP, or interior-point method selected from the constrained problem form. | Sparse KKT factorization, active-set backend, ADMM QP solver, or OCP-structured backend. | Constraints are only soft penalties or original nonlinear constraints are not revalidated. | Primal/dual residuals, complementarity, max violation, active set, slacks, and solve time. |
 | Production library integration decision. | Same method behaves differently across APIs. | Method selected separately from solver library choice. | Backend exposed by Ceres, GTSAM, g2o, or custom stack. | Library hides telemetry needed for safety review. | Summaries expose cost, step, damping, rank, and backend stats. |
 
 ## Convergence diagnostics

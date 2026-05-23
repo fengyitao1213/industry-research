@@ -24,6 +24,7 @@ method-priority:end -->
 - A randomly initialized MLP acts as an implicit smoothness prior over the scene flow field.
 - Runtime optimization warps the source cloud toward the target cloud using the MLP-predicted flow.
 - A reverse flow and cycle-consistency term discourage degenerate one-way correspondences.
+- The measurement assumptions are the same motion-field assumptions covered in [Optical Flow and Scene Flow First Principles](../../../10-knowledge-base/geometry-3d/optical-flow-scene-flow-first-principles.md): pose compensation, occlusion masking, correspondence ambiguity, frame convention, and speed thresholding.
 - The continuous MLP representation can be sampled at any point, giving dense motion estimates even when the input clouds are sparse.
 - After ego-motion removal, flow magnitude and consistency can be converted into moving/static masks.
 - ZeroFlow later uses this kind of slow label-free optimization as a teacher for fast scene-flow distillation.

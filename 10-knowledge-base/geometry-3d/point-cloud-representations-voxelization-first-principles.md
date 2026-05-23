@@ -1,5 +1,11 @@
 # Point Cloud Representations and Voxelization: First Principles
 
+<!-- kb-visual:start -->
+![Point Cloud Representations and Voxelization: First Principles curated visual](../_assets/visuals/geometry-3d-point-cloud-representations-voxelization-first-principles.svg)
+
+*Visual: point-cloud representation comparison showing raw unordered points, voxel grid, sparse tensor, range image, pillar view, neighborhood search, devoxelization, and aggregated-map suitability.*
+<!-- kb-visual:end -->
+
 A LiDAR point cloud is a finite, unordered set of 3D measurements with no
 canonical spatial structure. Every downstream architecture — sparse CNN,
 point-based network, range-image model, or hybrid — depends critically on how

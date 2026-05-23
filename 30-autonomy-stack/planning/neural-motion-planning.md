@@ -274,6 +274,17 @@ SparseDrive-B achieves 71.4% lower collision rate than VAD (0.06% vs 0.21%), tra
 - Collision-aware rescoring is a simple but effective safety mechanism
 - No post-processing or rule-based refinement needed
 
+#### 2.5.1 SparseDriveV2: Dense Vocabulary Scoring (2026)
+
+**Paper:** [SparseDriveV2: Scoring is All You Need for End-to-End Autonomous Driving](https://arxiv.org/abs/2603.29163)
+**Code:** [github.com/swc-17/SparseDriveV2](https://github.com/swc-17/SparseDriveV2)
+
+SparseDriveV2 keeps the sparse end-to-end framing but changes the planning head into a larger scoring problem. Instead of depending only on a small dynamically generated proposal set, it factorizes the trajectory vocabulary into geometric paths and velocity profiles, scores those factors coarsely, then performs fine scoring on a smaller set of composed candidate trajectories.
+
+The useful deployment pattern is "generate many cheap options, then score only the plausible compositions." The paper and official repository report 92.0 PDMS and 90.1 EPDMS on NAVSIM, plus 89.15 Driving Score and 70.00 Success Rate on Bench2Drive with a ResNet-34 backbone. The official repository includes NAVSIM setup, training/evaluation docs, weights, and a released Bench2Drive branch.
+
+Treat the numbers as benchmark evidence rather than road-readiness evidence. NAVSIM v1 is non-reactive, NAVSIM v2 EPDMS is pseudo-simulation rather than full interactive rollout, and Bench2Drive is closed-loop CARLA with a simulation-to-real gap.
+
 ### 2.6 GenAD (ECCV 2024)
 
 **Paper:** "GenAD: Generative End-to-End Autonomous Driving"
@@ -929,25 +940,30 @@ NAVSIM v2 adds four additional metrics:
 | Lane Keeping | LK | How well ego stays centered in lane |
 | Extended Comfort | EC | Additional comfort criteria beyond basic smoothness |
 
-### 7.2 Current SOTA on NAVSIM (as of early 2026)
+### 7.2 Current SOTA on NAVSIM (point-in-time: 2026-05-23)
 
-| Method | PDMS | Approach | Key Innovation |
-|--------|------|----------|---------------|
-| TransDiffuser | 94.85 | Anchor-free diffusion | Diffusion model for trajectory generation |
-| TrajHF | 93.95 | RL fine-tuning | Human feedback RL on NAVSIM metrics |
-| DiffE2E | 92.7 | Hybrid diffusion | Combines diffusion with end-to-end |
-| HiPro-AD | 92.6 | Camera-only | Hierarchical progressive planning |
-| SparseDriveV2 | 92.0 | Sparse scoring | Scoring-based trajectory selection |
-| DriveDPO | 90.0 | Direct preference optimization | RL fine-tuning against preferences |
-| ReCogDrive | 89.6 | Cognitive reasoning | Reasoning-enhanced planning |
-| DriveDreamer-Policy | 89.2 | World model policy | Policy learned in dreamer world model |
-| ResWorld | 88.3 | Residual world model | World model for planning |
+| Method | PDMS | EPDMS | Approach | Key Innovation |
+|--------|------|-------|----------|---------------|
+| TransDiffuser | 94.85 | -- | Anchor-free diffusion | Diffusion model for trajectory generation |
+| TrajHF | 93.95 | -- | RL fine-tuning | Human feedback RL on NAVSIM metrics |
+| DiffE2E | 92.7 | -- | Hybrid diffusion | Combines diffusion with end-to-end |
+| HiPro-AD | 92.6 | -- | Camera-only | Hierarchical progressive planning |
+| SparseDriveV2 | 92.0 | 90.1 | Sparse scoring | Factorized path/velocity vocabulary with coarse and fine trajectory scoring |
+| DiffusionDriveV2 | 91.2 | 85.5 | RL-constrained diffusion | Scale-adaptive noise plus intra-anchor and inter-anchor truncated GRPO |
+| DriveDPO | 90.0 | -- | Direct preference optimization | RL fine-tuning against preferences |
+| ReCogDrive | 89.6 | -- | Cognitive reasoning | Reasoning-enhanced planning |
+| DriveDreamer-Policy | 89.2 | -- | World model policy | Policy learned in dreamer world model |
+| ResWorld | 88.3 | -- | Residual world model | World model for planning |
 
 **Trends in Top Methods:**
 1. **RL fine-tuning against NAVSIM metrics** (TrajHF, DriveDPO) provides large gains over pure IL
 2. **Diffusion-based methods** (TransDiffuser, DiffE2E) dominate the top of the leaderboard
 3. **Scoring/selection approaches** (SparseDriveV2) outperform methods that directly regress a single trajectory
 4. **World model-based policies** (DriveDreamer-Policy, ResWorld) are competitive but not yet leading
+
+SparseDriveV2 reports both NAVSIM and Bench2Drive numbers with a ResNet-34 backbone: 92.0 PDMS and 90.1 EPDMS on NAVSIM, plus 89.15 Driving Score and 70.00 Success Rate on Bench2Drive. DiffusionDriveV2 reports 91.2 PDMS on NAVSIM v1 and 85.5 EPDMS on NAVSIM v2 with an aligned ResNet-34 backbone.
+
+Do not rank PDMS and EPDMS as the same metric. PDMS is the NAVSIM v1 score after a 4-second non-reactive rollout; EPDMS is the NAVSIM v2 extension with additional direction, traffic-light, lane-keeping, and comfort terms plus pseudo closed-loop aggregation over follow-up scenes. Bench2Drive is closed-loop CARLA, so it is useful interaction evidence but not real-world validation.
 
 ### 7.3 How NAVSIM Differs from nuScenes Planning Metrics
 
@@ -969,6 +985,7 @@ NAVSIM v2 adds four additional metrics:
 
 **Limitations of NAVSIM:**
 - Non-reactive: doesn't test how well the planner handles agents that respond to its actions
+- NAVSIM v2 reduces this weakness with pseudo closed-loop follow-up scenes, but it still is not a fully interactive simulator or real-world validation
 - Short horizon: 4 seconds doesn't test strategic planning
 - Metric gaming: methods can optimize specifically for PDMS sub-metrics without genuine driving quality
 
@@ -1135,14 +1152,16 @@ Safety Monitor:
 
 ## 9. Summary Comparison Table
 
-| Method | Year | Venue | Type | Open Source | L2 (m) | Coll (%) | PDMS | Real-Time Orin? | Key Innovation |
+| Method | Year | Venue | Type | Open Source | L2 (m) | Coll (%) | NAVSIM score | Real-Time Orin? | Key Innovation |
 |--------|------|-------|------|-------------|--------|----------|------|-----------------|----------------|
 | **UniAD** | 2023 | CVPR | E2E IL | Yes | 0.73 | 0.61 | -- | No | Joint perception-prediction-planning |
 | **VAD** | 2023 | ICCV | E2E IL | Yes | 0.72 | 0.21 | -- | Likely | Vectorized constraints |
 | **VADv2** | 2024/2026 | ICLR | E2E IL | Yes | -- | -- | -- | Likely | Probabilistic action space |
 | **SparseDrive-B** | 2024 | ECCV | E2E IL | Yes | 0.58 | 0.06 | -- | Marginal | Parallel prediction-planning, sparse |
+| **SparseDriveV2** | 2026 | arXiv | E2E scoring | Yes | -- | -- | 92.0 PDMS / 90.1 EPDMS | Likely | Factorized path/velocity vocabulary, coarse-to-fine scoring |
 | **PlanTF** | 2024 | ICRA | IL | Yes | -- | -- | -- | Yes | Simple baseline, augmentation study |
 | **GenAD** | 2024 | ECCV | Generative IL | Yes | -- | -- | -- | Marginal | VAE latent space planning |
+| **DiffusionDriveV2** | 2025 | arXiv | Diffusion + RL | Yes | -- | -- | 91.2 PDMS / 85.5 EPDMS | Likely | RL-constrained truncated diffusion with anchor-wise GRPO |
 | **Diffusion-Planner** | 2025 | ICLR Oral | Diffusion IL | Yes | -- | -- | SOTA | Likely No | Flexible classifier guidance |
 | **GameFormer** | 2023 | ICCV Oral | Game-theoretic | Yes | -- | -- | -- | Likely | Level-k hierarchical reasoning |
 | **MARC** | 2023 | arXiv | Contingency | C++ | -- | -- | -- | Yes (CPU) | Tree-structured contingency plans |

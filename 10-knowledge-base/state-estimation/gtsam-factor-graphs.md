@@ -23,6 +23,7 @@
 - [Cholesky, LDLT, and Normal Equations](../numerical-linear-algebra/cholesky-ldlt-normal-equations.md)
 - [QR, SVD, and Rank-Revealing Solvers](../numerical-linear-algebra/qr-svd-rank-revealing-solvers.md)
 - [Square-Root Information and Covariance Recovery](../numerical-linear-algebra/square-root-information-and-covariance-recovery.md)
+- [Robust-Loss Covariance Consistency](robust-loss-covariance-consistency.md)
 - [Schur Complement, Marginalization, and PCG](../numerical-linear-algebra/schur-complement-marginalization-pcg.md)
 - [Lie Groups SE(3), SO(3), Adjoints, and Jacobians](../geometry-3d/lie-groups-se3-so3-jacobians.md)
 - [IMU Error Models and Preintegration](imu-error-models-preintegration.md)

@@ -4,6 +4,8 @@
 
 **Last updated:** 2026-04-11
 
+Related docs: [Thermal IR Radiometry First Principles](../../10-knowledge-base/sensors/thermal-ir-radiometry-first-principles.md), [Event and Thermal Camera Models](../../10-knowledge-base/geometry-3d/event-thermal-camera-models.md), and [Night Operations Thermal Fusion](../../30-autonomy-stack/perception/overview/night-operations-thermal-fusion.md).
+
 ---
 
 ## Table of Contents

@@ -14,7 +14,7 @@ This foundation exists to keep model review grounded in first principles instead
 
 ## What This Field Studies From First Principles
 
-Machine learning studies how data, parameterized functions, objectives, gradients, architectures, regularizers, evaluation protocols, and deployment interfaces create learned behavior. In this section, the emphasis is supervised classification, differentiable representation learning, training dynamics, sequence modeling, self-supervised objectives, latent and generative models, world-model learning, calibration, and evidence needed for autonomy review.
+Machine learning studies how data, parameterized functions, objectives, gradients, architectures, regularizers, evaluation protocols, and deployment interfaces create learned behavior. In this section, the emphasis is supervised classification, differentiable representation learning, training dynamics, sequence modeling, self-supervised objectives, latent and generative models, world-model learning, AV data-evaluation contracts, calibration, and evidence needed for autonomy review.
 
 The first-principles thread is cumulative: affine scores become probabilistic classifiers; nonlinear layers become learned representations; computation graphs carry gradients; optimization dynamics shape what is learned; architecture choices encode spatial and temporal assumptions; representation objectives define invariances; evaluation decides whether the resulting evidence survives deployment.
 
@@ -45,7 +45,7 @@ Diagnostic checks from this mental model:
 - Is the model learning a deployable representation or exploiting leakage, shortcuts, or label artifacts?
 - Are losses, logits, probabilities, thresholds, and calibration interpreted consistently across training, validation, and runtime monitors?
 - Do architecture choices match the spatial, temporal, and compute constraints of the autonomy task?
-- Are world-model or prediction objectives evaluated against closed-loop planning utility rather than open-loop loss alone?
+- Are AV data splits, scenario/ODD coverage, benchmark protocols, and world-model objectives evaluated against closed-loop planning utility instead of only an open-loop loss or leaderboard score?
 - Which failure belongs to ML foundations, and which should be handed to probability, optimization, controls, systems engineering, or MLOps?
 
 ## Problem-Class Coverage
@@ -122,7 +122,7 @@ tokenization and spatial-temporal encoding: [tokenization-and-discretization-fir
 
 world models and planning-facing evaluation: [world-models-first-principles.md](world-models-first-principles.md), [transformer-world-models.md](transformer-world-models.md), [world-model-evaluation-and-planning-objectives-first-principles.md](world-model-evaluation-and-planning-objectives-first-principles.md)
 
-evaluation and deployment evidence: [evaluation-calibration-and-data-leakage-first-principles.md](evaluation-calibration-and-data-leakage-first-principles.md)
+evaluation and deployment evidence: [av-data-evaluation-fundamentals.md](av-data-evaluation-fundamentals.md), [evaluation-calibration-and-data-leakage-first-principles.md](evaluation-calibration-and-data-leakage-first-principles.md)
 
 ## Core Sources
 

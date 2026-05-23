@@ -266,6 +266,23 @@ And predicts the noise or the clean trajectory directly (x_0-prediction paramete
 
 The comparison is striking: at 5 steps, vanilla diffusion collapses (68.4) because pure noise cannot be resolved in so few steps. Truncated diffusion with anchors at 5 steps achieves 88.1 because the starting point is already informative.
 
+### 2.5.1 DiffusionDriveV2: RL-Constrained Truncated Diffusion
+
+**Paper:** [DiffusionDriveV2: Reinforcement Learning-Constrained Truncated Diffusion Modeling in End-to-End Autonomous Driving](https://arxiv.org/abs/2512.07745)
+**Code:** [github.com/hustvl/DiffusionDriveV2](https://github.com/hustvl/DiffusionDriveV2)
+
+DiffusionDriveV2 keeps DiffusionDrive's anchor-based truncated diffusion idea, then adds reinforcement learning constraints to address mode collapse and low-quality diverse samples. The paper frames the problem as a diversity-versus-quality trade-off: imitation-only truncated diffusion can preserve multiple intentions, but some modes may remain weak or conservative.
+
+The update has three main pieces:
+
+1. **Scale-adaptive multiplicative noise:** exploration noise is scaled for trajectory planning rather than injected as a one-size-fits-all perturbation.
+2. **Intra-anchor GRPO:** samples generated from the same anchor are compared locally so the policy can improve within one driving intention.
+3. **Inter-anchor truncated GRPO:** comparisons across anchors are constrained so unlike intentions, such as turning and going straight, do not collapse into one poorly calibrated advantage estimate.
+
+The official arXiv page and repository report 91.2 PDMS on NAVSIM v1 and 85.5 EPDMS on NAVSIM v2 with an aligned ResNet-34 backbone. The repository is public and includes code, weights, documentation, and training/evaluation scripts, so this is source-mature enough to track as a DiffusionDrive follow-on.
+
+The caveat is metric scope. The NAVSIM v1 result remains non-reactive, and NAVSIM v2 EPDMS uses pseudo closed-loop aggregation rather than fully interactive closed-loop simulation. Use these scores to compare planning research, not to claim production readiness without nuPlan-style reactive tests, CARLA/Bench2Drive-style closed-loop stress, and target-domain logs.
+
 ### 2.6 Why It Works: Geometric Intuition
 
 ```
@@ -1156,6 +1173,8 @@ Several properties of airport airside operations make diffusion-based planning p
 
 - Janner, Du, Tenenbaum, Levine. "Planning with Diffusion for Flexible Behavior Synthesis." ICML, 2022. (Diffuser)
 - Liao et al. "DiffusionDrive: Truncated Diffusion Model for End-to-End Autonomous Driving." CVPR, 2025 Highlight.
+- Zou et al. "DiffusionDriveV2: Reinforcement Learning-Constrained Truncated Diffusion Modeling in End-to-End Autonomous Driving." arXiv, 2025. https://arxiv.org/abs/2512.07745
+- Official DiffusionDriveV2 implementation. https://github.com/hustvl/DiffusionDriveV2
 - Dong et al. "DiffuserLite: Towards Real-time Diffusion Planning." NeurIPS, 2024.
 - Chi et al. "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion." RSS, 2023.
 - Zheng et al. "OccWorld: Learning a 3D Occupancy World Model for Autonomous Driving." ECCV, 2024.

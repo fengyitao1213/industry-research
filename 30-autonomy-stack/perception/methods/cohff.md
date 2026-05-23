@@ -135,6 +135,11 @@ Direct deployment would require real airport occupancy labels, careful privacy c
 - For airside transfer, use LiDAR accumulation or surveyed infrastructure sensors to generate occupancy supervision.
 - Evaluate planner impact, not only voxel IoU.
 
+## Nearby Methods
+
+- [VOGS-CP](vogs-cp.md) is the Gaussian-native collaborative occupancy follow-on to compare against CoHFF. CoHFF shares hybrid planar and task-specific features; VOGS-CP shares sparse 3D semantic Gaussian primitives and splats the fused set into occupancy.
+- [GaussianFormer](gaussianformer.md) is the single-agent semantic Gaussian occupancy reference.
+
 ## Sources
 
 - CVPR 2024 paper: https://openaccess.thecvf.com/content/CVPR2024/html/Song_Collaborative_Semantic_Occupancy_Prediction_with_Hybrid_Feature_Fusion_in_Connected_CVPR_2024_paper.html

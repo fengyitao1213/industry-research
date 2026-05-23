@@ -14,9 +14,9 @@ This foundation exists because optimization failures often look like domain fail
 
 ## What This Field Studies From First Principles
 
-Optimization studies objective construction, residuals, Jacobians, linearization, manifold updates, step acceptance, damping, trust regions, line search, solver selection, and convergence diagnosis.
+Optimization studies objective construction, residuals, constraints, Jacobians, linearization, manifold updates, KKT conditions, QP/SQP subproblems, step acceptance, damping, trust regions, line search, solver selection, and convergence diagnosis.
 
-This section focuses on nonlinear least squares and solver patterns common in autonomy: Gauss-Newton, Levenberg-Marquardt, dogleg, Ceres, GTSAM, g2o, autodiff, analytic Jacobians, retractions, and globalization.
+This section focuses on nonlinear least squares and solver patterns common in autonomy: Gauss-Newton, Levenberg-Marquardt, dogleg, constrained QP/SQP mechanics, Ceres, GTSAM, g2o, OSQP/acados-style runtime QPs, autodiff, analytic Jacobians, retractions, and globalization.
 
 ## Autonomy Problem Map
 
@@ -59,6 +59,8 @@ For derivative debugging, read [Jacobians, Autodiff, Manifolds, and Linearizatio
 
 For solver deployment, read [Trust Region, Line Search, and Globalization](trust-region-line-search-globalization.md), then [Factor-Graph Solver Patterns](factor-graph-solver-patterns-ceres-gtsam-g2o.md).
 
+For constrained solver mechanics, read [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md), then return to the controls section for MPC/iLQR and safety-filter usage.
+
 For GLIM/GTSAM pipeline work, use the [GLIM and GTSAM Pipeline Hub](../../30-autonomy-stack/localization-mapping/slam-methods/glim-gtsam-pipeline-hub.md) after reading the nonlinear least-squares, Jacobian, and Gauss-Newton/LM/Dogleg pages. It connects optimizer concepts to concrete SLAM artifacts such as scan factors, iSAM2 updates, Hessian diagnostics, and marginalization priors.
 
 For solver failure triage, start with [Nonlinear Solver Diagnostics Crosswalk](nonlinear-solver-diagnostics-crosswalk.md), then use [Objective and Residual Design Audit](objective-residual-design-and-audit.md) or [Solver Selection and Convergence Diagnosis](solver-selection-and-convergence-diagnosis.md).
@@ -89,6 +91,7 @@ Common failure modes include unit mismatch, unwhitened residuals, wrong perturba
 
 - [Factor-Graph Solver Patterns](factor-graph-solver-patterns-ceres-gtsam-g2o.md)
 - [Gauss-Newton, Levenberg-Marquardt, and Dogleg](gauss-newton-levenberg-marquardt-dogleg.md)
+- [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md)
 - [Jacobians, Autodiff, Manifolds, and Linearization](jacobians-autodiff-manifold-linearization.md)
 - [Nonlinear Solver Diagnostics Crosswalk](nonlinear-solver-diagnostics-crosswalk.md)
 - [Nonlinear Least Squares](nonlinear-least-squares-first-principles.md)

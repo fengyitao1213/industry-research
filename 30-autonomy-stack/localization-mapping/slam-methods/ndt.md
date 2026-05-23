@@ -11,7 +11,7 @@ priority:
   reason: "Mature scan-to-map localization pattern used in AV and robotics stacks."
 method-priority:end -->
 
-Related library pages: [Production LiDAR-to-Map Localization](../overview/production-lidar-map-localization.md) and [Modern LiDAR SLAM and Odometry Algorithms](../overview/lidar-slam-algorithms.md).
+Related library pages: [NDT Variants and NDT Maps](ndt-variants-and-ndt-maps.md), [Production LiDAR-to-Map Localization](../overview/production-lidar-map-localization.md), and [Modern LiDAR SLAM and Odometry Algorithms](../overview/lidar-slam-algorithms.md).
 
 ## Executive Summary
 
@@ -333,5 +333,5 @@ NDT is not obsolete. It remains one of the most useful production methods becaus
 - Stoyanov, T., Magnusson, M., Andreasson, H., and Lilienthal, A. J. (2012). "Fast and accurate scan registration through minimization of the distance between compact 3D NDT representations." IJRR. DOI: `10.1177/0278364912460895`. https://journals.sagepub.com/doi/10.1177/0278364912460895
 - PCL NDT tutorial. https://pointclouds.org/documentation/tutorials/normal_distributions_transform.html
 - PCL `NormalDistributionsTransform` API. https://pointclouds.org/documentation/classpcl_1_1_normal_distributions_transform.html
-- Autoware `ndt_scan_matcher` documentation. https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware `ndt_scan_matcher` documentation. https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - Koide `fast_gicp` repository, including CUDA NDT implementation. https://github.com/koide3/fast_gicp

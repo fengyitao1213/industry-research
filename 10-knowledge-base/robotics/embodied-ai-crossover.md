@@ -88,6 +88,7 @@ Multi-robot coordination   →     Multi-GSE coordination
 - Manipulation-specific skills (grasp planning, force control)
 - Indoor-scale spatial reasoning (rooms, tables) → outdoor-scale (apron, taxiways)
 - Contact-rich dynamics (grasping) → contact-free dynamics (driving)
+- Indoor embodied 3D benchmarks such as [EmbodiedScan/MMScan](../../30-autonomy-stack/perception/datasets-benchmarks/embodiedscan-mmscan-embodied-3d-benchmarks.md) are useful for grounded 3D-language evaluation design, but they remain RGB-D indoor proxies until target-domain apron or terminal data validates the transfer.
 
 ---
 

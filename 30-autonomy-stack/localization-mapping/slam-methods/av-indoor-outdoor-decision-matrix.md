@@ -32,7 +32,7 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 | Airport airside AV, mapped ODD | Scan-to-map VGICP/NDT + GTSAM fusion | [KISS-ICP](kiss-icp.md) odometry for independent fallback | Scan Context/MinkLoc3D + ICP/NDT verification | Pure online SLAM as runtime global truth | The environment is mapped, safety-critical, and georeferenced; bounded drift beats live map growth. |
 | Airport survey mapping | [FAST-LIO2](fast-lio-fast-lio2.md) or GLIM + loop closure + GCP factors | [KISS-ICP](kiss-icp.md) or [CT-ICP](ct-icp.md) validation run | [LIO-SAM](lio-sam.md) style graph or KISS-SLAM | Visual-only SLAM | Survey needs geometric accuracy, map consistency, and independent checks against IMU/extrinsic mistakes. |
 | Urban road AV, mapped ODD | HD-map localization with LiDAR/radar/GNSS/INS fusion | Autoware NDT or MOLA localization | Place recognition and map-change detection | Monocular SLAM-only | Road AV localization is a map-matching and state-estimation problem, not just local SLAM. |
-| Warehouse AGV, flat floor | SLAM Toolbox or [Cartographer](cartographer-3d.md) 2D | 3D LiDAR odometry if racks/ramps matter | AMCL-style global localization, reflectors/AprilTags | Heavy 3D LIO unless needed | 2D maps are sufficient, cheap, explainable, and easy to integrate with Nav2. |
+| Warehouse AGV, flat floor | [SLAM Toolbox](slam-toolbox.md) or [Cartographer](cartographer-3d.md) 2D | 3D LiDAR odometry if racks/ramps matter | AMCL-style global localization, reflectors/AprilTags | Heavy 3D LIO unless needed | 2D maps are sufficient, cheap, explainable, and easy to integrate with Nav2. |
 | Multi-floor indoor or construction | 3D LiDAR-inertial SLAM | RTAB-Map if RGB-D/cameras are strong | Multi-session loop closure | 2D grid-only SLAM | Stairs, ramps, shafts, and partial floors break planar assumptions. |
 | Outdoor campus/service robot | KISS-SLAM, [LIO-SAM](lio-sam.md), or GLIM | [KISS-ICP](kiss-icp.md) local odometry | Long-term place recognition | One-session map with no maintenance plan | Campus changes seasonally and structurally; long-term relocalization matters. |
 | UAV or fast handheld scanner | [Point-LIO](point-lio.md), [FAST-LIO2](fast-lio-fast-lio2.md), or [OpenVINS](openvins.md) depending payload | [VINS-Fusion](vins-mono-vins-fusion.md) visual-inertial baseline | Visual or LiDAR place recognition | Slow scan-to-scan ICP with no motion model | Aggressive motion and vibration require IMU-aware deskew and high-rate state output. |
@@ -82,7 +82,7 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 
 | Indoor condition | Recommended stack | Why | Add-ons | Watch-outs |
 |---|---|---|---|---|
-| Flat warehouse, differential or Ackermann robot | SLAM Toolbox + Nav2 + wheel odometry | Occupancy grid and 2D pose graph are simple and adequate. | AMCL, reflectors/AprilTags, map zones | Racks and pallets create aliasing; update maps deliberately. |
+| Flat warehouse, differential or Ackermann robot | [SLAM Toolbox](slam-toolbox.md) + Nav2 + wheel odometry | Occupancy grid and 2D pose graph are simple and adequate. | AMCL, reflectors/AprilTags, map zones | Racks and pallets create aliasing; update maps deliberately. |
 | Warehouse with tall racks, mezzanine, ramps | 3D LiDAR-inertial SLAM or [Cartographer](cartographer-3d.md) 3D | 2D maps lose vertical structure and can confuse floors. | Floor segmentation, elevator/stair constraints | Repeated aisles require strong relocalization verification. |
 | Construction site or underground | GLIM, [FAST-LIO2](fast-lio-fast-lio2.md), [Point-LIO](point-lio.md) | Low light, dust, and non-planarity favor LiDAR plus IMU. | Multi-session mapping, robust kernels, dynamic filtering | Sensor protection and sync are often bigger risks than algorithm choice. |
 | Office/RGB-D mapping | RTAB-Map or RGB-D visual SLAM | Dense colored maps and object context are useful. | Loop closure, TSDF/surfel export | Sunlight and glass degrade depth cameras. |
@@ -102,7 +102,7 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 
 | Sensors available | Good method families | Candidate pages | Minimum extra checks |
 |---|---|---|---|
-| 2D LiDAR + wheel | 2D graph SLAM, AMCL/localization | SLAM Toolbox, [Cartographer](cartographer-3d.md) | Wheel scale, laser extrinsic, scan rate, planar assumption |
+| 2D LiDAR + wheel | 2D graph SLAM, AMCL/localization | [SLAM Toolbox](slam-toolbox.md), [Cartographer](cartographer-3d.md) | Wheel scale, laser extrinsic, scan rate, planar assumption |
 | 3D LiDAR only | LiDAR odometry/SLAM | [KISS-ICP](kiss-icp.md), KISS-SLAM, [CT-ICP](ct-icp.md) | Degeneracy, loop closures, deskew model |
 | 3D LiDAR + IMU | LIO | [FAST-LIO2](fast-lio-fast-lio2.md), Faster-LIO family, [Point-LIO](point-lio.md), [LIO-SAM](lio-sam.md) | Time sync, IMU noise model, extrinsics, saturation |
 | Multi-LiDAR + IMU + wheels | Production AV localization/fusion | [Production LiDAR Map Localization](../overview/production-lidar-map-localization.md), [Robust State Estimation Multi-Sensor](../overview/robust-state-estimation-multi-sensor.md) | Per-sensor extrinsics, covariance, hot-path memory, fault isolation |
@@ -115,7 +115,7 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 |---|---|---|---|
 | NVIDIA Orin with CUDA available | GPU VGICP, GLIM, gtsam_points factors | CPU-only algorithms that cannot meet multi-LiDAR throughput | CUDA improves scan matching, but certification still needs bounded timing and fallbacks. |
 | Raspberry Pi / low-power CPU | [KISS-ICP](kiss-icp.md), 2D SLAM, light VIO | Heavy neural/Gaussian SLAM | Keep map bounded and downsample aggressively. |
-| ROS 2 production stack | Autoware localization, SLAM Toolbox, MOLA, GLIM ROS 2 | ROS 1-only research stacks unless wrapped | ROS version is often a schedule driver. |
+| ROS 2 production stack | Autoware localization, [SLAM Toolbox](slam-toolbox.md), MOLA, GLIM ROS 2 | ROS 1-only research stacks unless wrapped | ROS version is often a schedule driver. |
 | GPL avoidance for closed deployment | MIT/BSD/Apache stacks, in-house scan matcher | GPL-2/GPL-3 libraries as linked product code | Verify legal interpretation before product integration. |
 | Need factor-level fusion | GTSAM-based pipelines | Black-box pose output only | Factor graphs expose residuals, covariance, robust kernels, and graph diagnostics. |
 | Need explainable safety case | Classical scan matching + explicit diagnostics | Neural-only pose estimation | Explainable residuals are easier to gate and audit. |
@@ -137,7 +137,7 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 |---|---|---|
 | Airside map survey proof-of-concept | [FAST-LIO2](fast-lio-fast-lio2.md), [KISS-ICP](kiss-icp.md), [LIO-SAM](lio-sam.md), GTSAM GCP factors | Tests LIO accuracy, LiDAR-only independence, and graph correction. |
 | Airside production localization prototype | GPU VGICP/NDT, Autoware NDT diagnostics, GTSAM/iSAM2, Scan Context recovery | Matches the production split: map localization, state estimation, recovery. |
-| Indoor warehouse product | SLAM Toolbox, AMCL/Nav2, reflectors/AprilTags, optional RTAB-Map | Fastest route to a reliable 2D navigation product. |
+| Indoor warehouse product | [SLAM Toolbox](slam-toolbox.md), AMCL/Nav2, reflectors/AprilTags, optional RTAB-Map | Fastest route to a reliable 2D navigation product. |
 | Construction/underground mapping | GLIM, [FAST-LIO2](fast-lio-fast-lio2.md), [Point-LIO](point-lio.md), Hilti benchmark | Handles 3D geometry, dark spaces, platform diversity, multi-session mapping. |
 | Camera-first robotics research | [ORB-SLAM3](orb-slam2-orb-slam3.md), [OpenVINS](openvins.md), [VINS-Fusion](vins-mono-vins-fusion.md), EuRoC/TUM-VI | Strong visual/VIO baselines and standard datasets. |
 | Dense map/semantic QA research | RTAB-Map, SplaTAM, NICE-SLAM, [Gaussian Splatting for Driving](../../perception/overview/gaussian-splatting-driving.md) | Focuses on reconstruction quality and appearance, not just pose. |
@@ -156,10 +156,10 @@ This file is a practical selection matrix for choosing SLAM, odometry, and local
 - CT-ICP official repo: https://github.com/jedeschaud/ct_icp
 - GLIM official repo and documentation: https://github.com/koide3/glim and https://koide3.github.io/glim/
 - Google Cartographer official docs: https://google-cartographer.readthedocs.io/
-- SLAM Toolbox official ROS docs and repo: https://docs.ros.org/en/jazzy/p/slam_toolbox/ and https://github.com/SteveMacenski/slam_toolbox
+- SLAM Toolbox official ROS docs and repo: https://docs.ros.org/en/ros2_packages/jazzy/api/slam_toolbox/ and https://github.com/SteveMacenski/slam_toolbox
 - RTAB-Map official project page: https://introlab.github.io/rtabmap/
 - ORB-SLAM3 paper and repo: https://arxiv.org/abs/2007.11898 and https://github.com/UZ-SLAMLab/ORB_SLAM3
 - OpenVINS official documentation: https://docs.openvins.com/
 - VINS-Fusion official repo: https://github.com/HKUST-Aerial-Robotics/VINS-Fusion
-- Autoware NDT scan matcher official documentation: https://autowarefoundation.github.io/autoware_core/pr-602/localization/autoware_ndt_scan_matcher/
+- Autoware NDT scan matcher official documentation: https://autowarefoundation.github.io/autoware_core/latest/localization/autoware_ndt_scan_matcher/
 - MOLA localization official documentation: https://docs.mola-slam.org/latest/localization.html

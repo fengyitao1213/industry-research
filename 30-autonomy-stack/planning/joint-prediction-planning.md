@@ -538,6 +538,8 @@ Trajs    Proposals
 - SparseDrive-S runs at 9 FPS on A100, estimated 2-4 FPS on Orin with TensorRT -- marginal but potentially viable at 5 Hz
 - The sparse representation naturally limits computation to occupied space
 
+**SparseDriveV2 follow-on:** SparseDriveV2 shifts the planning emphasis from generating a small dynamic proposal set to scoring a dense but factorized candidate vocabulary. It decomposes trajectories into geometric paths and velocity profiles, applies coarse factorized scoring, then applies fine scoring to composed candidates. This is still relevant to joint prediction-planning because it keeps the sparse end-to-end scene representation but makes the planner a scalable selection layer over many plausible futures. The reported scores are 92.0 PDMS and 90.1 EPDMS on NAVSIM, plus 89.15 Driving Score and 70.00 Success Rate on Bench2Drive with a ResNet-34 backbone. Treat these as benchmark results: NAVSIM v1 is non-reactive, NAVSIM v2 is pseudo closed-loop, and Bench2Drive remains CARLA simulation.
+
 ### 4.5 CTG++ and Guided Trajectory Generation
 
 **Paper:** "CTG++: Connected Traffic Generation with Large Language Models" (2024)
@@ -1214,10 +1216,13 @@ NAVSIM v1 uses the PDM Score (PDMS), a composite of:
 | 2 | TrajHF | 93.95 | RL fine-tuned | Planning-optimized prediction |
 | 3 | DiffE2E | 92.7 | Hybrid diffusion | Partially joint |
 | 4 | HiPro-AD | 92.6 | Camera-only | Hierarchical |
-| 5 | SparseDriveV2 | 92.1 | Sparse E2E | Parallel pred-plan |
+| 5 | SparseDriveV2 | 92.0 | Sparse E2E | Factorized vocabulary scoring over sparse E2E scene features |
+| 6 | DiffusionDriveV2 | 91.2 | Diffusion + RL | Anchor-wise GRPO improves truncated diffusion trajectory selection |
 | -- | PDM-Closed | ~88 | Rule-based | Prediction-scored |
 
 **Observation:** The top methods all incorporate some form of joint prediction-planning. The gap between jointly-trained methods (94.85) and prediction-scored rule-based methods (88) is about 6-7 PDMS points. However, this gap shrinks significantly on nuPlan closed-loop where PDM-Closed's implicit reactivity through re-planning compensates.
+
+NAVSIM v2 EPDMS should be tracked separately from NAVSIM v1 PDMS. SparseDriveV2 reports 90.1 EPDMS and DiffusionDriveV2 reports 85.5 EPDMS, but those numbers use the NAVSIM v2 pseudo closed-loop metric, not the original v1 PDMS table above.
 
 ### 9.3 nuPlan Closed-Loop: Where PDM-Closed Reigns
 
@@ -1949,55 +1954,59 @@ Phases 1-3 provide ~80% of the value and can be completed in ~16 weeks for ~$30-
 
 7. Sun, W., et al. (2024). "SparseDrive: End-to-End Autonomous Driving via Sparse Scene Representation." ECCV 2024. -- Parallel prediction-planning.
 
-8. Cheng, J., et al. (2024). "Rethinking Imitation-based Planner for Autonomous Driving." ICRA 2024. -- PlanTF minimal baseline.
+8. Sun, W., et al. (2026). "SparseDriveV2: Scoring is All You Need for End-to-End Autonomous Driving." arXiv 2603.29163. -- Factorized trajectory vocabulary and scoring.
+
+9. Zou, J., et al. (2025). "DiffusionDriveV2: Reinforcement Learning-Constrained Truncated Diffusion Modeling in End-to-End Autonomous Driving." arXiv 2512.07745. -- RL-constrained truncated diffusion.
+
+10. Cheng, J., et al. (2024). "Rethinking Imitation-based Planner for Autonomous Driving." ICRA 2024. -- PlanTF minimal baseline.
 
 ### Conditional and Interactive Prediction
 
-9. Sun, L., et al. (2022). "M2I: From Factored Marginal Trajectory Prediction to Interactive Prediction." CVPR 2022. -- Influencer-reactor decomposition.
+11. Sun, L., et al. (2022). "M2I: From Factored Marginal Trajectory Prediction to Interactive Prediction." CVPR 2022. -- Influencer-reactor decomposition.
 
-10. Rowe, L., et al. (2023). "FJMP: Factorized Joint Multi-Agent Motion Prediction over Learned Directed Acyclic Interaction Graphs." CVPR 2023. -- DAG-structured conditional prediction.
+12. Rowe, L., et al. (2023). "FJMP: Factorized Joint Multi-Agent Motion Prediction over Learned Directed Acyclic Interaction Graphs." CVPR 2023. -- DAG-structured conditional prediction.
 
-11. Shi, S., et al. (2024). "MTR++: Multi-Agent Motion Prediction with Symmetric Scene Modeling and Guided Intention Querying." TPAMI 2024. -- Mutually-guided prediction.
+13. Shi, S., et al. (2024). "MTR++: Multi-Agent Motion Prediction with Symmetric Scene Modeling and Guided Intention Querying." TPAMI 2024. -- Mutually-guided prediction.
 
-12. Jia, X., et al. (2023). "HDGT: Heterogeneous Driving Graph Transformer for Multi-Agent Trajectory Prediction via Scene Encoding." TPAMI 2023. -- Heterogeneous agent interaction graphs.
+14. Jia, X., et al. (2023). "HDGT: Heterogeneous Driving Graph Transformer for Multi-Agent Trajectory Prediction via Scene Encoding." TPAMI 2023. -- Heterogeneous agent interaction graphs.
 
 ### Game Theory for Driving
 
-13. Schwarting, W., Pierson, A., Alonso-Mora, J., Karaman, S., Rus, D. (2019). "Social behavior for autonomous vehicles." PNAS. -- Social value orientation.
+15. Schwarting, W., Pierson, A., Alonso-Mora, J., Karaman, S., Rus, D. (2019). "Social behavior for autonomous vehicles." PNAS. -- Social value orientation.
 
-14. Sadigh, D., Sastry, S., Seshia, S., Dragan, A. (2016). "Planning for Autonomous Cars that Leverage Effects on Human Actions." RSS 2016. -- Planning that accounts for ego influence on humans.
+16. Sadigh, D., Sastry, S., Seshia, S., Dragan, A. (2016). "Planning for Autonomous Cars that Leverage Effects on Human Actions." RSS 2016. -- Planning that accounts for ego influence on humans.
 
-15. Fisac, J., et al. (2019). "Hierarchical game-theoretic planning for autonomous vehicles." ICRA 2019. -- Stackelberg game planning.
+17. Fisac, J., et al. (2019). "Hierarchical game-theoretic planning for autonomous vehicles." ICRA 2019. -- Stackelberg game planning.
 
 ### Contingency Planning
 
-16. Geiger, P., et al. (2023). "MARC: Multipolicy and Risk-Aware Contingency Planning for Autonomous Driving." TU Munich. -- Tree-structured contingency plans.
+18. Geiger, P., et al. (2023). "MARC: Multipolicy and Risk-Aware Contingency Planning for Autonomous Driving." TU Munich. -- Tree-structured contingency plans.
 
-17. Hardy, J., Campbell, M. (2013). "Contingency Planning Over Probabilistic Obstacle Predictions for Autonomous Road Vehicles." IEEE T-RO. -- Foundational contingency planning.
+19. Hardy, J., Campbell, M. (2013). "Contingency Planning Over Probabilistic Obstacle Predictions for Autonomous Road Vehicles." IEEE T-RO. -- Foundational contingency planning.
 
 ### Occupancy Prediction for Planning
 
-18. Agro, B., et al. (2024). "UnO: Unsupervised Occupancy Fields for Perception and Forecasting." CVPR 2024. -- Self-supervised occupancy.
+20. Agro, B., et al. (2024). "UnO: Unsupervised Occupancy Fields for Perception and Forecasting." CVPR 2024. -- Self-supervised occupancy.
 
-19. Zheng, W., et al. (2023). "OccWorld: 3D Occupancy World Model for Autonomous Driving." -- Occupancy-based world model.
+21. Zheng, W., et al. (2023). "OccWorld: 3D Occupancy World Model for Autonomous Driving." -- Occupancy-based world model.
 
-20. Khurana, T., et al. (2023). "Point Cloud Forecasting as a Proxy for 4D Occupancy Forecasting." CVPR 2023. -- LiDAR occupancy prediction.
+22. Khurana, T., et al. (2023). "Point Cloud Forecasting as a Proxy for 4D Occupancy Forecasting." CVPR 2023. -- LiDAR occupancy prediction.
 
 ### Benchmarks
 
-21. Dauner, D., et al. (2024). "NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking." NeurIPS 2024. -- NAVSIM benchmark.
+23. Dauner, D., et al. (2024). "NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking." NeurIPS 2024. -- NAVSIM benchmark.
 
-22. Caesar, H., et al. (2023). "nuPlan: A Closed-loop ML-based Planning Benchmark for Autonomous Vehicles." -- nuPlan benchmark.
+24. Caesar, H., et al. (2023). "nuPlan: A Closed-loop ML-based Planning Benchmark for Autonomous Vehicles." -- nuPlan benchmark.
 
-23. Hallgarten, M., et al. (2024). "interPlan: Interactive Planning for Autonomous Driving via Conditional Prediction." -- Adversarial interaction scenarios.
+25. Hallgarten, M., et al. (2024). "interPlan: Interactive Planning for Autonomous Driving via Conditional Prediction." -- Adversarial interaction scenarios.
 
-24. Ettinger, S., et al. (2024). "Waymo Open Motion Dataset: Large-Scale Interactive Motion Forecasting." -- WOMD interactive challenge.
+26. Ettinger, S., et al. (2024). "Waymo Open Motion Dataset: Large-Scale Interactive Motion Forecasting." -- WOMD interactive challenge.
 
 ### Airside-Relevant Interaction Modeling
 
-25. Helbing, D., Molnar, P. (1995). "Social force model for pedestrian dynamics." Physical Review E. -- Social force for personnel prediction.
+27. Helbing, D., Molnar, P. (1995). "Social force model for pedestrian dynamics." Physical Review E. -- Social force for personnel prediction.
 
-26. Trautman, P., Krause, A. (2010). "Unfreezing the Robot: Navigation in Dense, Interacting Crowds." IROS 2010. -- Frozen robot problem.
+28. Trautman, P., Krause, A. (2010). "Unfreezing the Robot: Navigation in Dense, Interacting Crowds." IROS 2010. -- Frozen robot problem.
 
 ---
 
