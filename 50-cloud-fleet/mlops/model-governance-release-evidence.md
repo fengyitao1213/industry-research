@@ -1,6 +1,6 @@
 # Model Governance and Release Evidence
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 ## Why It Matters
 
@@ -16,6 +16,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 4. Require named approval from the model owner, data owner, runtime owner, safety owner, and fleet operations owner before moving the `champion` alias.
 5. Move through gates: offline metrics, scenario replay, shadow execution, limited canary, fleet expansion. Each gate either promotes, holds, or rejects the exact model version.
 6. Keep rollback executable. The rollback model must be compatible with the active runtime, map schema, calibration schema, and config bundle.
+7. Govern offboard labeler models and prompt sets as release-relevant artifacts when they influence semantic maps or training labels. A ZOPP/SALT/OpenUrban3D-style labeler may be offline-only, but its candidates can change the dataset, taxonomy, replay suite, and signed semantic-map bundle.
 
 ## Evidence Artifacts
 
@@ -24,6 +25,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 | Model registry record | Registered model, immutable version, aliases, tags, release notes | MLOps |
 | Training provenance | Run ID, code commit, dependency lock, training config, random seeds, hardware | Model owner |
 | Dataset manifest | Iceberg/DVC snapshot IDs, label schema, excluded data, leakage checks | Data owner |
+| Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
 | Evaluation report | Primary metrics, calibration, uncertainty, class slices, airport and weather slices | Model owner |
 | Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
@@ -34,6 +36,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 
 - The model can be loaded by registry alias and by immutable version.
 - The model version has dataset, code, config, and runtime provenance sufficient to rebuild or explain the release.
+- Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
@@ -49,6 +52,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 | Dataset snapshot missing | Release cannot be reproduced or audited | Block release unless dataset IDs are immutable |
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
+| Offline labeler changes without governance | Training labels or semantic maps shift while the deployed model appears unchanged | Version prompt sets, labeler models, thresholds, accepted/rejected statistics, and rollback impact |
 | Rollback model not executable | Recovery depends on a manual hotfix | Keep `rollback` alias and compatible artifact bundle current |
 | Approval expires silently | Old evidence is reused after data or ODD drift | Require evidence expiry and periodic revalidation |
 
@@ -65,6 +69,9 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 ## Sources
 
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
+- SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
+- OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842
 - Waymo, "Safe to Deploy: How We Know The Waymo Driver Is Ready For The Road," 2025-06. https://waymo.com/blog/2025/06/safe-to-deploy/
 - Waymo, "Building a credible case for safety: Waymo's approach for the determination of absence of unreasonable risk." https://waymo.com/research/building-a-credible-case-for-safety-waymos-appro/
 - Regulation (EU) 2024/1689, Artificial Intelligence Act, Articles 10-12 and Annex IV. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689

@@ -324,6 +324,17 @@ Aggregated map taxonomy (static subset) ──► back-project ──► map lab
 
 This requires: (a) the single-scan taxonomy includes all map classes as a proper subset; (b) moving-class labels and unlabeled labels from single-scan annotation map cleanly to "unknown" or "dynamic-removed" in the map taxonomy. Violating (a) means some map classes have no single-scan labels to back-project from, requiring separate annotation passes — a significant cost increase.
 
+### Taxonomy promotion from open-vocabulary candidates
+
+Open-vocabulary labelers can suggest names that the controlled taxonomy does not yet contain. Treat those names as taxonomy evidence, not as new class IDs. The promotion path should be:
+
+1. **Alias first.** Map text variants such as "light mast", "lamp post", and "floodlight pole" to an existing class or synonym table before creating a new class.
+2. **Parent class second.** If the candidate is real but too rare or ambiguous, fold it into a parent such as `pole / mast / light`, `sign / VDGS`, `fixed equipment`, `staged GSE`, or `unknown`.
+3. **New class only with evidence.** A new ID requires reviewed examples across sites or sessions, point/instance counts, boundary rules, confusion analysis against neighbouring classes, and a stated operational reason the parent class is insufficient.
+4. **Versioned rollout.** Any accepted class split updates the taxonomy ID/digest, label map, evaluation subset, compatibility map for older labels, and the semantic-map manifest. Until that happens, open-vocabulary outputs stay as `candidate_label` metadata or `unknown`, not release labels.
+
+This is especially important for urban-district and non-road mapping. OpenUrban3D-style whole-map labeling can discover campus furniture, construction assets, temporary barriers, or unusual service equipment, but a prompt string is not a safety-case ontology. The taxonomy change has to be reviewable, backward-compatible, and measurable before it is allowed to affect training, replay, or runtime map publication.
+
 ### Proposed airside aggregated-map taxonomy (14 classes)
 
 *The following is a proposed taxonomy for an airport airside aggregated LiDAR map, informed by published airside LiDAR work. It is not drawn from a published standard and should be flagged accordingly during any downstream safety-case use.*
@@ -395,6 +406,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - **Write boundary rules before annotation begins.** The ontology document must be longer than the class list. Boundary rules, edge case resolutions, and example images per class reduce inter-annotator disagreement more than any QA process can recover afterward.
 - **Encode the label_map explicitly in a config file.** Follow SemanticKITTI's YAML pattern: declare raw classes, the learning_map remapping, and the evaluation subset in one versioned file. This makes taxonomy changes auditable.
 - **Align single-scan and map taxonomies before annotation starts.** The map taxonomy must be a proper subset of the single-scan taxonomy (see back-projection pattern above). Discovering misalignment after annotation requires relabeling.
+- **Keep open-vocabulary names outside the release taxonomy until promoted.** Store prompt/model/reviewer provenance for candidate names, but require alias mapping, parent-class fallback, or a versioned taxonomy-change request before any new name receives a class ID.
 - **Plan for class splits.** When designing a new class, document the conditions under which it might be split later (e.g., "pavement-apron may split into apron-hard-stand and apron-service-road if operational data reveals sufficient point-count"). This allows forward-compatible ontology design.
 - **Track class-frequency distributions** in a held-out validation set before finalising the taxonomy. If any evaluated class has fewer than 100 instances in the training set, seriously consider merging it into a parent. Point count alone is misleading; instance count drives object-level evaluation quality.
 
@@ -452,6 +464,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - DQFormer panoptic segmentation (arXiv 2408.15813): https://arxiv.org/pdf/2408.15813
 - DOSS open-set segmentation (arXiv 2503.11097): https://arxiv.org/pdf/2503.11097
 - 3D-AVS auto-vocabulary CVPR 2025: https://openaccess.thecvf.com/content/CVPR2025/papers/Wei_3D-AVS_LiDAR-based_3D_Auto-Vocabulary_Segmentation_CVPR_2025_paper.pdf
+- OpenUrban3D annotation-free open-vocabulary urban point-cloud segmentation: https://arxiv.org/abs/2509.10842
 - Open-set panoptic guided by uncertainty (arXiv 2506.13265): https://arxiv.org/pdf/2506.13265
 - RareBoost3D (arXiv 2510.10876): https://arxiv.org/abs/2510.10876
 - Input-output balanced framework (arXiv 2103.14269): https://arxiv.org/abs/2103.14269

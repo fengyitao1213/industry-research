@@ -1,6 +1,6 @@
 # Replay and Scenario Mining Operations
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 ## Why It Matters
 
@@ -16,7 +16,8 @@ This page covers the operational loop from mined fleet event to replayable scena
 4. Normalize each accepted scenario into a scenario record: intent, actors, dynamic sequence, trigger conditions, ODD tags, source clip, and expected system response.
 5. Represent dynamic replay intent using ASAM OpenSCENARIO concepts where practical: entities, storyboard, maneuvers, events, actions, triggers, conditions, and external road-network references.
 6. Represent object and scene annotations using ASAM OpenLABEL-compatible fields where practical: object identity, class, 2D/3D geometry, segmentation, relations, actions, intentions, and taxonomy references.
-7. Promote scenarios by state: `candidate`, `triaged`, `replay_ready`, `regression_required`, `retired`.
+7. When a scenario is mined from semantic-map drift or open-vocabulary/offboard labeling, preserve whether the label is a reviewed map class, a candidate concept, or a deliberate `unknown` region. A replay can assert "this must remain unknown" just as legitimately as "this should be promoted to class X".
+8. Promote scenarios by state: `candidate`, `triaged`, `replay_ready`, `regression_required`, `retired`.
 
 ## Evidence Artifacts
 
@@ -26,6 +27,7 @@ This page covers the operational loop from mined fleet event to replayable scena
 | Candidate clip manifest | Source log IDs, timestamps, manifest ID, compatibility hash, semantic layer ID, taxonomy ID, map tile IDs, telemetry schema URL/version, sensor availability, model versions | Data platform |
 | Triage record | Why the clip matters, duplicate check, severity, regression priority | Safety validation |
 | Scenario metadata | Actors, maneuvers, triggers, ODD tags, semantic-map context, affected map tiles, expected classes/unknown regions, source evidence IDs, expected behavior, acceptance metric | Scenario curator |
+| Candidate semantic-label evidence | Prompt set, offboard model/checkpoint, source-map or projection hash, reviewer state, taxonomy action, expected class or `unknown` assertion, promotion decision ID | Label operations |
 | Annotation package | OpenLABEL-style labels, taxonomy ID/hash, label schema version, semantic-layer source, QA report ID, reviewer | Label operations |
 | Replay package | Simulator version, map bundle, semantic layer, taxonomy, telemetry schema, runtime config, release evidence IDs, seed, initial state, scenario file | Simulation owner |
 | Regression result | Pass/fail, metric deltas, videos, logs, model version, waiver if any | Safety validation |
@@ -35,6 +37,7 @@ This page covers the operational loop from mined fleet event to replayable scena
 - Every replay scenario links back to immutable raw log, map, label, and processing snapshots.
 - Scenario metadata has enough structure for search, replay selection, and coverage accounting.
 - Scenario labels use a controlled taxonomy and record the schema version.
+- Candidate labels from offboard/open-vocabulary tools are either reviewed into a controlled taxonomy class, retained as explicit unknown-region evidence, or excluded from replay assertions.
 - The replay package can be executed by a clean worker without local manual files.
 - A scenario is not `replay_ready` until the clean worker validates the signed manifest, resolves all map/semantic/taxonomy/schema IDs, and confirms replayed telemetry conforms to the recorded schema URL/version.
 - Runtime validation compares vehicle-reported active IDs against replay package IDs before metrics count as release-regression evidence.
@@ -73,4 +76,7 @@ This page covers the operational loop from mined fleet event to replayable scena
 - Apache Iceberg, "Spec." https://iceberg.apache.org/spec/
 - OpenTelemetry telemetry schemas. https://opentelemetry.io/docs/specs/otel/schemas/
 - OpenLineage object model. https://openlineage.io/docs/spec/object-model/
+- ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
+- SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
+- OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842
 - Waymo, "Safe to Deploy: How We Know The Waymo Driver Is Ready For The Road," 2025-06. https://waymo.com/blog/2025/06/safe-to-deploy/

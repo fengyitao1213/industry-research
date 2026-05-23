@@ -1,6 +1,6 @@
 # Active Labeling and Budget Operations
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 ## Why It Matters
 
@@ -16,6 +16,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 4. Use FiftyOne or equivalent dataset tooling to inspect embeddings, near-duplicates, hard examples, label mistakes, and model predictions before creating annotation tasks.
 5. Use Label Studio or equivalent annotation tooling for pre-annotations, ML backend predictions, interactive labeling, and human review. Predictions are not ground truth until reviewed and submitted.
 6. Promote labels by state: `candidate`, `pre_labeled`, `human_labeled`, `qa_passed`, `approved_for_training`, `approved_for_safety_evidence`, `rejected`.
+7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
 
 ## Evidence Artifacts
 
@@ -26,6 +27,9 @@ This page covers budgeted labeling operations for perception, prediction, planni
 | Upload selection manifest | Vehicle, local model version, storage constraint, selected sample IDs | Fleet data |
 | Annotation batch | Task IDs, label schema, instructions, source data snapshots, pre-label model | Label operations |
 | Pre-annotation record | Model version, prediction score, Label Studio prediction payload, review status | MLOps |
+| Semantic-map candidate batch | Candidate concept, prompt set, source map or sequence hash, projection/calibration hash, offboard model/checkpoint, proposal score, unknown policy | Label operations |
+| Taxonomy promotion record | Candidate name, alias/parent/new-class decision, reviewed examples, class-frequency evidence, boundary-rule update, taxonomy-change request ID | Data steward |
+| QA-passed semantic patch | Accepted tile/segment IDs, reviewer decisions, taxonomy ID/hash, QA report, semantic-map manifest ID, back-projection export ID | Map operations |
 | QA report | Inter-annotator checks, reviewer decisions, defect taxonomy, rework rate | Label QA |
 | Promotion record | Approved label snapshot, allowed use, expiry, downstream dataset IDs | Data steward |
 
@@ -34,6 +38,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 - Selection decisions are reproducible from stored scores, budgets, and source snapshots.
 - The annotation batch has a fixed label schema, task instructions, and ODD scope.
 - Pre-labels are clearly distinguished from reviewed labels in storage and downstream manifests.
+- Open-vocabulary map labels have a reviewed taxonomy mapping before they affect training, replay, release evidence, or a signed semantic-map bundle.
 - Label QA samples cover high-risk classes, rare classes, new airports, night/weather slices, and model-disagreement cases.
 - Duplicate and near-duplicate samples are controlled before spending annotation budget.
 - Labels promoted to safety evidence have stricter QA than labels used only for exploratory training.
@@ -45,6 +50,7 @@ This page covers budgeted labeling operations for perception, prediction, planni
 |---|---|---|
 | Label budget follows upload volume | Common routes consume all annotation spend | Global cloud selection with diversity and risk weighting |
 | Unreviewed predictions enter training | Model reinforces its own errors | Separate `pre_labeled` from `qa_passed` states |
+| Open-vocabulary prompt names become class IDs directly | Runtime map taxonomy drifts without evidence or backward compatibility | Require taxonomy promotion record and manifest version bump |
 | Active learning chases only uncertainty | Dataset fills with outliers and corrupt samples | Combine uncertainty with quality, diversity, and ODD coverage |
 | Label instructions drift | Annotators create incompatible labels | Version task instructions and schema with each batch |
 | QA samples are random only | Rare safety classes are under-reviewed | Risk-weight QA sampling |
@@ -69,3 +75,6 @@ This page covers budgeted labeling operations for perception, prediction, planni
 - Label Studio, "Integrate Label Studio into your machine learning pipeline." https://labelstud.io/guide/ml.html
 - Label Studio, "Import pre-annotated data into Label Studio." https://labelstud.io/guide/predictions
 - ASAM OpenLABEL. https://www.asam.net/standards/detail/openlabel/
+- ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
+- SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
+- OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842

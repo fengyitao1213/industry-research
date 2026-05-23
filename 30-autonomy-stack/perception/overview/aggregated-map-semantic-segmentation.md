@@ -956,6 +956,17 @@ The bullets above describe practice in the abstract; the systems below are concr
 
 The systems cite: ZOPP — "ZOPP: A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving" ([arxiv.org/abs/2411.05311](https://arxiv.org/abs/2411.05311)); LDMapNet-U — "LDMapNet-U: An End-to-End System for City-Scale Lane-Level Map Updating" ([arxiv.org/abs/2501.02763](https://arxiv.org/abs/2501.02763)); OpenUrban3D — "OpenUrban3D: Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds" ([arxiv.org/abs/2509.10842](https://arxiv.org/abs/2509.10842)).
 
+#### Open-vocabulary/offboard candidate promotion lane
+
+Open-vocabulary and offboard systems are most valuable as **candidate-label generators**, not as direct writers of the authoritative map. A production semantic-map lane should keep four states separate:
+
+1. `candidate_label`: ZOPP, OpenUrban3D, SALT/SAM2, SAM4D, DITR/D-DITR, or similar tools propose masks, names, prompts, and confidence over a tile or sequence.
+2. `reviewed_label`: a human or QA policy accepts, edits, rejects, or remaps the candidate to the controlled map taxonomy.
+3. `taxonomy_action`: the candidate is mapped to an existing class, folded into an alias or parent class, retained as `unknown`, or escalated as a taxonomy-change request.
+4. `release_label`: only QA-passed labels with taxonomy, confidence, source-map, reviewer, and evidence IDs enter the signed `semantic_map_manifest.json`.
+
+The minimum handoff record for this lane is: `candidate_label_batch_id`, `prompt_set_id`, model/checkpoint ID, source map or sequence hash, projection/calibration hash, confidence or proposal score, unknown/abstention policy, reviewer decision, taxonomy action, QA report ID, and back-projection export ID. This makes the offboard bridge useful for rare airside/non-road objects and urban-district transfer without letting an unconstrained text label silently become a runtime semantic class.
+
 #### Commercial survey/GIS point-cloud classification software
 
 The generic "survey industry" and "GIS platforms" bullets above concretize into a mature, named software market — the productized form of this pipeline:
@@ -999,6 +1010,7 @@ The cleanest concrete instance of foundation-model-assisted offline labeling for
 - **Geometric plausibility** — buildings off the ground, markings off non-pavement, floating ground points → flag.
 - **Seam audit** — boundary-IoU sampled along tile borders; a spike means tiling/stitching needs tuning.
 - **Artifact contract gate** — `semantic_map_manifest.json` schema-validates; DVC lock and manifest digests match materialized outputs; taxonomy, confidence thresholds, source-map hash, tile manifest, QA report, and runtime-export evidence IDs are present.
+- **Open-vocabulary candidate gate** — labels from ZOPP/OpenUrban3D/SALT/SAM4D-style tools remain read-only candidates until the manifest records prompt set, model/checkpoint, source-map hash, projection/calibration hash, confidence policy, reviewer decision, taxonomy action, QA report, and evidence IDs.
 - **Human spot-review** — route the lowest-confidence and highest-disagreement tiles (not random tiles) to annotators; this is the active-learning loop.
 - **Stability across map versions** — when the map is re-surveyed, label churn in unchanged regions should be near zero.
 
