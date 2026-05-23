@@ -13,7 +13,7 @@ method-priority:end -->
 
 **Last updated:** 2026-05-23
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal-LIO](do-removal-lio.md), [MOVES and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Large-Scale 3D Segmentation Benchmarks](../../perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md), [HeLiMOS Heterogeneous LiDAR MOS](../../perception/datasets-benchmarks/helimos-heterogeneous-lidar-mos.md), [Point Cloud Segmentation Losses and Metrics](../../../10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md).
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DR-Remover](dr-remover.md), [DO-Removal-LIO](do-removal-lio.md), [MOVES and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md), [Large-Scale 3D Segmentation Benchmarks](../../perception/datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md), [HeLiMOS Heterogeneous LiDAR MOS](../../perception/datasets-benchmarks/helimos-heterogeneous-lidar-mos.md), [Point Cloud Segmentation Losses and Metrics](../../../10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md).
 
 ---
 
@@ -23,7 +23,7 @@ Dynamic map cleaning removes ghost trails, parked-then-removed objects, moving a
 
 For airside autonomy, the risk is amplified: aircraft, tugs, carts, buses, cones, barriers, and service equipment can dominate a survey pass but should not automatically become permanent localization structure.
 
-This page is the **evaluation-mechanics reference** for the dynamic-map-cleaning method family. It defines the canonical metrics, explains why published numbers from different papers cannot be naively compared, describes the two major benchmark frameworks, and tabulates reported numbers across the main methods. Individual method pages (ERASOR, ERASOR++, FreeDOM, DUFOMap, BeautyMap, Removert, MapCleaner, DR-Remover) should link here for metric definitions and cross-method context.
+This page is the **evaluation-mechanics reference** for the dynamic-map-cleaning method family. It defines the canonical metrics, explains why published numbers from different papers cannot be naively compared, describes the two major benchmark frameworks, and tabulates reported numbers across the main methods. Individual method pages (ERASOR, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), Removert, MapCleaner, DR-Remover) should link here for metric definitions and cross-method context.
 
 ---
 
@@ -541,7 +541,7 @@ FreeDOM's VLP-16 F1 of 90.66% is substantially better than MOS models on HeLiMOS
 
 ### 11.6 Raymoval — PR / RR / F1 (SemanticKITTI)
 
-From Raymoval (arXiv 2605.08937, 2025), Table 2. Source: [arXiv 2605.08937v1](https://arxiv.org/html/2605.08937v1).
+From Raymoval (RiTA 2025 / arXiv 2605.08937, submitted 2026), Table 2. Source: [arXiv 2605.08937v1](https://arxiv.org/html/2605.08937v1).
 
 | Seq | Method | PR [%] | RR [%] | F1 |
 |---|---|---|---|---|
@@ -551,8 +551,12 @@ From Raymoval (arXiv 2605.08937, 2025), Table 2. Source: [arXiv 2605.08937v1](ht
 | 01 | Raymoval | 91.854 | 92.051 | 0.920 |
 | 02 | ERASOR | 87.731 | 97.008 | 0.921 |
 | 02 | Raymoval | 95.144 | 93.181 | 0.942 |
-| Avg (3 seqs) | ERASOR | 90.510 | 97.401 | 0.938 |
-| Avg (3 seqs) | Raymoval | 93.217 | 92.566 | 0.927 |
+| 05 | ERASOR | 88.730 | 98.262 | 0.933 |
+| 05 | Raymoval | 93.394 | 95.636 | 0.945 |
+| 07 | ERASOR | 90.624 | 99.271 | 0.948 |
+| 07 | Raymoval | 91.645 | 91.534 | 0.916 |
+| Avg (5 seqs) | ERASOR | 90.510 | 97.401 | 0.938 |
+| Avg (5 seqs) | Raymoval | 93.217 | 92.566 | 0.927 |
 
 ### 11.7 MapCleaner
 
@@ -579,6 +583,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
 - **Hub:** `lidar-map-cleaning-dynamic-removal.md` — method-family overview linking back here for metric definitions and the comparative table.
 - **Segmentation companion:** `../../perception/overview/aggregated-map-semantic-segmentation.md` §9.1 (dynamic removal as non-optional preprocessing).
 - **Individual method pages** (each should link here for standard metric definitions):
+  - `beautymap.md` — BeautyMap (RA-L 2024), binary-encoded ground matrix and SA/DA/HA in §11.4
   - `erasor.md` — ERASOR (RA-L 2021), SemanticKITTI PR/RR/F1 in §11.1
   - `erasor-plus-plus.md` — ERASOR++ (arXiv 2024), numbers in §11.2
   - Removert — numbers in §11.1 and §11.3

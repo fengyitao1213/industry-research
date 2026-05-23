@@ -339,9 +339,9 @@ The stated "+9.7% average F1 improvement" in the FreeDOM paper is computed again
 | **FreeDOM** | RA-L 2025 | Online + retroactive raycasting | 99.59% (KITTI seq 02) |
 | OTD | ICRA 2024 | Online timestamp-based | 97.5–98.8% (KITTI) |
 | ERASOR++ | arXiv 2024 | Offline pseudo-occupancy | 93.1–98.6% (KITTI) |
-| BeautyMap | RA-L 2024 | Offline binary matrix | up to 95.98% (KITTI) |
+| [BeautyMap](beautymap.md) | RA-L 2024 | Offline binary matrix | up to 95.98% HA (KITTI) |
 | DUFOMap | RA-L 2024 | Online void-region | 98.23% (KITTI seq 02) |
-| Raymoval | arXiv 2025 | Offline az-el raycast | avg ~92.7% (KITTI) |
+| Raymoval | RiTA 2025 / arXiv 2026 | Offline az-el raycast | avg 0.927 F1 (SemanticKITTI) |
 
 FreeDOM leads on the specific sequences tested in its paper. Direct head-to-head against OTD and ERASOR++ on the same evaluation split has not been published as of May 2026.
 

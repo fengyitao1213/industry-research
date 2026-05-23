@@ -11,7 +11,7 @@ priority:
   reason: "DR-REMOVER is rated for dynamic-object filtering and map-cleaning workflows that protect localization maps."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md), [BeautyMap](beautymap.md), [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [FreeDOM](freedom-dynamic-object-removal.md), [MapCleaner](mapcleaner.md), [DO-Removal LIO](do-removal-lio.md), [Moves and Label-Free Map Cleaning](moves-and-label-free-map-cleaning.md), [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md), [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md), [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Artifact Removal Techniques](../../perception/overview/lidar-artifact-removal-techniques.md).
 
 **Last updated:** 2026-05-23
 
@@ -186,7 +186,7 @@ Input: raw accumulated map M, per-scan ego-poses {T_t}, individual scans {S_t}
 
 DR-REMOVER is entirely training-free. All decisions are based on occupancy counts and spatial ratios derived from point-cloud geometry and poses. No neural network weights, no training data, no GPU, no semantic class labels.
 
-This places it in the same category as [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [MapCleaner](mapcleaner.md), [FreeDOM](freedom-dynamic-object-removal.md), Removert, BeautyMap, and DUFOMap — geometry-only offline cleaners.
+This places it in the same category as [ERASOR](erasor.md), [ERASOR++](erasor-plus-plus.md), [MapCleaner](mapcleaner.md), [FreeDOM](freedom-dynamic-object-removal.md), Removert, [BeautyMap](beautymap.md), and DUFOMap — geometry-only offline cleaners.
 
 **Implications:**
 
@@ -259,7 +259,7 @@ The method is best understood as a hybrid: it adopts the top-down 2D grid struct
 
 **Removert (IROS 2020):** shared coarse-flag / fine-revert concept. Removert applies this in range-image space; DR-REMOVER applies it in 3D occupancy grid space. The result is that DR-REMOVER does not require per-scan range-image projection or ray traversal, making it less sensitive to incidence angle and sensor occlusion geometry.
 
-**BeautyMap (RA-L 2024):** concurrent work occupying adjacent conceptual space. BeautyMap uses binary bitwise column encoding (D^E — height-layer occupancy bitmap) rather than dual-resolution count grids; both are offline, training-free, and target the same PR/RR trade-off on SemanticKITTI. BeautyMap achieves ~0.046 s/frame runtime; DR-REMOVER's runtime is not published.
+**[BeautyMap](beautymap.md) (RA-L 2024):** concurrent work occupying adjacent conceptual space. BeautyMap uses binary bitwise column encoding (height-layer occupancy bitmap) rather than dual-resolution count grids; both are offline, training-free, and target static-map dynamic-point removal. BeautyMap achieves ~0.046 s/frame runtime; DR-REMOVER's runtime is not published.
 
 ### Family Tree
 
@@ -441,6 +441,7 @@ The repository explicitly uses ERASOR's map-building code as its upstream step, 
 | FreeDOM (arXiv 2025) | https://arxiv.org/html/2504.11073v1 |
 | ERASOR (arXiv 2021) | https://arxiv.org/pdf/2103.04316 |
 | ERASOR++ (arXiv 2024) | https://arxiv.org/html/2403.05019v1 |
+| BeautyMap page | `beautymap.md` |
 | BeautyMap (arXiv 2024) | https://arxiv.org/html/2405.07283v1 |
 | MapCleaner (MDPI 2022) | https://www.mdpi.com/2072-4292/14/18/4496 |
 | Raymoval (arXiv 2025; omits DR-REMOVER from comparison) | https://arxiv.org/html/2605.08937v1 |

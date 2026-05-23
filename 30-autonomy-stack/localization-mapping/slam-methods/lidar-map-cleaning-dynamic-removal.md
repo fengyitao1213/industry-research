@@ -17,7 +17,7 @@ LiDAR map cleaning removes transient, dynamic, ghost, and artifact points from a
 
 Dynamic removal is also a hard **prerequisite** before semantic segmentation of any aggregated map: ghost trails left by moving objects pollute static classes and corrupt the back-projected auto-labels that drive MOS and semantic-segmentation training pipelines. The pipeline order is fixed — **clean → condition → segment** — and cannot safely be reversed without a pre-existing class-specific detector.
 
-Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, BeautyMap, OTD, Raymoval, detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
+Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [BeautyMap](beautymap.md), OTD, Raymoval, detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
 
 - **Static persistent map**: surveyed structure used for localization.
 - **Movable-static layer**: aircraft, GSE, cones, barriers, and staged equipment.
@@ -55,7 +55,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Conservative free-space | FreeDOM | Raycast enhancement + DynamicLevel hierarchy | Online + offline; best published F1 as of early 2025. |
 | Timestamp / observation-timing | OTD | First/last observation time difference per voxel | Low-latency online removal on tight compute budgets. |
 | Terrain and voting cleaning | MapCleaner | Terrain model, object-part separation, local observation voting | Learning-free map cleaning with ground-aware processing. |
-| Binary voxel matrix | BeautyMap | Bitwise column comparison | Fast offline cleaning with high static preservation. |
+| Binary voxel matrix | [BeautyMap](beautymap.md) | Bitwise column comparison | Fast offline cleaning with high static preservation. |
 | Neural implicit 4D mapping | 4dNDF | Time-dependent TSDF, sparse feature grids, learned static extraction | Research-grade dynamic scene reconstruction and map extraction. |
 | Online MOS | LiDAR-MOS, 4DMOS, MambaMOS, HeLiMOS-style | Moving/static point labels over time | Runtime masking and dataset evaluation. |
 | Instance-level and semantic removal | ERASOR2, Potentially Dynamic Object Removal by Ground Projection | 3D detection, ground segmentation, projection, and geometry fallback | Handles parked-but-movable objects when the detector/taxonomy covers them. |
@@ -79,7 +79,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 - Benchmark (SemanticKITTI): PR ~50.7%, RR ~82.3%, avg F1 ~0.836 (Raymoval 2025 comparison).
 - See also: [`removert.md`](removert.md) for full method notes.
 
-**Raymoval** (arXiv 2025) — extends Removert with azimuth-elevation projection plus spatial consistency validation.
+**Raymoval** (RiTA 2025 / arXiv 2026) — extends Removert with azimuth-elevation projection plus spatial consistency validation.
 - Mechanism: az-el grid projection → range-adaptive threshold comparison vs map first-hit raycasting → cluster-level reclassification (size, diameter, coverage overlap filters) that recovers boundary points and suppresses fragments.
 - Results on SemanticKITTI: avg F1 ~0.927, PR ~93.2%, RR ~92.6%. Consistently outperforms Removert; slightly below ERASOR on averaged F1 but achieves higher PR on individual sequences. Handles partial-FoV (solid-state) sensors well.
 
@@ -168,7 +168,7 @@ See also: [`dr-remover.md`](dr-remover.md), [`moves-and-label-free-map-cleaning.
 - Key property: terrain points are never candidates for removal — ground-contact failure mode is avoided by design.
 - See also: [`mapcleaner.md`](mapcleaner.md) for full method notes.
 
-**BeautyMap** (RA-L 2024)
+**[BeautyMap](beautymap.md)** (RA-L 2024)
 - Mechanism: 3D binary-encoded matrix (vertical occupancy compressed to bitwise columns) → adaptable ground extraction using MAD outlier removal + ground ratio segmentation → bitwise XOR-style comparison between scan and map matrices.
 - Performance: SA 99.17%, DA 92.99%, HA 95.98% on KITTI seq 01; runtime 0.046 s/frame (vs ERASOR's 0.718 s — ~15× faster). Best static accuracy with competitive dynamic accuracy among offline methods benchmarked as of 2024.
 
@@ -209,12 +209,12 @@ For robot deployments requiring immediate clean maps (warehouse AGVs, port AGVs)
 | ERASOR | Pseudo-occupancy + R-GPF | Offline | ~88–94% | ~95–99% | ~0.921–0.955 | ~0.073 s | Flat terrain assumed |
 | ERASOR++ | Height-coded pseudo-occ | Offline | 87–98% | — | 0.930–0.986 | ~0.10–0.14 s | Slightly slower than ERASOR |
 | MapCleaner | Terrain + moving-id | Offline | — | — | SOTA at pub. | — | Learning-free; terrain assumption |
-| BeautyMap | Binary voxel matrix | Offline | SA 99.2% | DA 93% | HA 96% | 0.046 s | Offline only |
+| [BeautyMap](beautymap.md) | Binary voxel matrix | Offline | SA 99.2% | DA 93% | HA 96% | 0.046 s | Offline only |
 | Dynablox | TSDF ever-free | Online | SA 96.3% | DA 68% | HA 79.7% | 17 FPS | Sparse LiDAR weak DA |
 | DUFOMap | Void-region detection | Online | AA 98.3% | AA 98.3% | — | 0.062 s | Semi-indoor limits |
 | OTD | Observation timestamp | Online | — | — | 0.975–0.988 | 23.8 ms | Ground contact required |
 | FreeDOM | Conservative free-space | Online + Offline | — | — | 97.1–99.6% | >10 Hz | 2025; newest |
-| Raymoval | Az-el raycasting + cluster | Offline | ~93.2% | ~92.6% | ~0.927 | — | 2025; newest |
+| Raymoval | Az-el raycasting + cluster | Offline | ~93.2% | ~92.6% | ~0.927 | 0.094 s | RiTA 2025 / arXiv 2026; paper-only |
 | ERASOR2 | Instance segmentation | Offline | — | — | 0.974–0.984 | — | Requires detector |
 | DeFlow | Scene flow (learned) | Offline | — | — | — | — | Data-dependent; domain shift |
 
@@ -258,7 +258,7 @@ Captures the PR/RR trade-off; favors methods that balance both.
 
 **KTH DynamicMap Benchmark** (ITSC 2023, continuously updated).
 - 5 datasets: Semantic-KITTI (VLP-64), Argoverse 2.0 (VLP-32), UDI-Plane (VLP-16), KTH-Campus (Leica RTC360), Indoor-Floor (Livox Mid-360).
-- 8+ methods benchmarked: DUFOMap, OctoMap, OctoMap w GF, Dynablox, DeFlow, BeautyMap, ERASOR, Removert under one refactored codebase and one evaluation protocol.
+- 8+ methods benchmarked: DUFOMap, OctoMap, OctoMap w GF, Dynablox, DeFlow, [BeautyMap](beautymap.md), ERASOR, Removert under one refactored codebase and one evaluation protocol.
 - This benchmark is the canonical way to report cleaning results. For airside work it is also a methodology template: a single harness running several cleaners on the same data is exactly the "compare multiple cleaners and inspect disagreement" step in the Map Lifecycle Pipeline.
 - UDI-Plane (warehouse/industrial indoor) and KTH-Campus offer closer analogs to airside geometry than KITTI road sequences.
 - Repository: https://github.com/KTH-RPL/DynamicMap_Benchmark
@@ -370,7 +370,7 @@ Moving Object Segmentation on SemanticKITTI-MOS is a recognized benchmark task. 
 2. Produce a high-quality trajectory using LIO/SLAM plus loop closure and control points.
 3. Build an initial raw map and preserve raw scan provenance.
 4. Apply runtime dynamic masks if available, but do not trust them as final map truth.
-5. Run offline cleaning with ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, BeautyMap, or DUFOMap — compare at least two methods and inspect disagreement.
+5. Run offline cleaning with ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, [BeautyMap](beautymap.md), or DUFOMap — compare at least two methods and inspect disagreement.
 6. Assign map points to static, movable-static, dynamic, artifact, or unknown layers.
 7. Validate localization on the cleaned map and on the raw-map baseline.
 8. Segment the cleaned map; use segmentation confidence as a downstream cleaning QA signal.
@@ -390,7 +390,7 @@ Moving Object Segmentation on SemanticKITTI-MOS is a recognized benchmark task. 
 | Dynamic ratio is high in a segment | Add a dedicated quiet survey or use multi-session cleaning. |
 | Open apron has low static inlier count after cleaning | Use additional anchors, GNSS/INS, radar, or map landmarks; do not over-clean. |
 | Wet or reflective artifacts appear in map | Use artifact layer and avoid training/localization on those points. |
-| No airside ground-truth cleaning data available | Prefer DUFOMap (tuning-free) or BeautyMap (high SA) over ERASOR/Removert. |
+| No airside ground-truth cleaning data available | Prefer DUFOMap (tuning-free) or [BeautyMap](beautymap.md) (high SA) over ERASOR/Removert. |
 
 ---
 
@@ -460,7 +460,7 @@ Metrics to report:
 - Store point provenance: source scan, timestamp, pose, cleaner decision, and map layer. This allows a mis-segmented region to be traced back to the cleaner decision that produced it.
 - Use a rejected-points review workflow; do not discard dynamic or artifact layers.
 - Compare ERASOR and Removert as complementary baselines before adopting a single default.
-- Use DUFOMap or BeautyMap as the conditioning pass before segmentation where conservative, repeatable cleaning over large multi-pass surveys matters more than per-frame latency.
+- Use DUFOMap or [BeautyMap](beautymap.md) as the conditioning pass before segmentation where conservative, repeatable cleaning over large multi-pass surveys matters more than per-frame latency.
 - Use MapCleaner/ERASOR++/FreeDOM as evaluation candidates where their assumptions match the data.
 - Use [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) when the site must merge heterogeneous LiDAR sessions or maps. Treat its dynamic-aware descriptors as loop-candidate hygiene and map-alignment support, not as a complete static-but-transient policy for parked movable objects.
 - Treat 4dNDF and DeFlow as offline research/QA until runtime, uncertainty, and maintainability are proven.
