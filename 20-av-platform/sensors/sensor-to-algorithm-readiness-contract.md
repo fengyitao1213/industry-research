@@ -34,7 +34,7 @@ It does not replace the detailed calibration, timing, signal-processing, runtime
 | LiDAR | Per-point or per-column time, scan start/end semantics, beam model, return policy, deskew reference time, intensity/ring availability, multi-LiDAR overlap alignment | Aggregated clouds smear, duplicate obstacles, or corrupt scan-to-map residuals |
 | Radar | Frame timestamp, chirp/integration window, Doppler sign convention, ego-velocity compensation, radar-camera or radar-LiDAR association residual, covariance model | Velocity and range evidence is fused at the wrong time or with the wrong sign |
 | IMU/GNSS/RTK/wheel odometry | Clock source, IMU axis convention, antenna phase center, lever arms, covariance/protection-level semantics, outage/holdover state, wheel scale, slip health | Pose propagation appears stable while biases or lever arms corrupt map or planner coordinates |
-| Thermal camera | Timestamp semantics, lens/window material, NUC/dead-pixel health, radiometry or contrast assumption, extrinsics to visible/LiDAR frames | Night or jet-blast cues are trusted outside their calibration and health envelope |
+| Thermal camera | Timestamp semantics, lens/window material, NUC/dead-pixel health, [radiometry or contrast assumption](../../10-knowledge-base/sensors/thermal-ir-radiometry-first-principles.md), extrinsics to visible/LiDAR frames | Night or jet-blast cues are trusted outside their calibration and health envelope |
 | Event camera | Event timestamp resolution, contrast threshold, polarity convention, hot-pixel filtering, extrinsics, clock source | High-rate events are fused with frame sensors under inconsistent time and contrast assumptions |
 
 ## Preprocessing Contract
@@ -58,7 +58,7 @@ Preprocessing is a monitored and versioned contract, not invisible cleanup.
 |---|---|
 | 2D/3D perception | Valid frames, source timestamps, intrinsics/extrinsics, preprocessing version, sensor health, source sensor IDs, and ODD validity |
 | Sensor fusion | Cross-modal time alignment, transform validity, covariance/confidence semantics, modality health, and source provenance |
-| SLAM/localization | Deskewed or consistently raw scans, IMU timing, extrinsics, map frame, pose covariance/protection level, residual health, and map/calibration compatibility |
+| SLAM/localization | Deskewed or consistently raw scans, IMU timing, extrinsics, map frame, pose covariance/protection level, residual health, [infrastructure-aid manifest compatibility](../../30-autonomy-stack/localization-mapping/overview/infrastructure-aided-localization.md), and map/calibration compatibility |
 | Tracking | Measurement timestamp, source frame, object covariance, latency budget, association confidence, and dropout/jitter state |
 | Occupancy/free-space | Source sensor set, blind-spot policy, unknown/free semantics, projection validity, map-frame validity, and health-aware confidence |
 | Mapping | Calibration package, pose source, traversal provenance, dynamic/static filtering state, raw-log references, and map datum/frame compatibility |
@@ -105,6 +105,7 @@ Foundations:
 Platform sensors:
 
 - [Calibration and Synchronization Tracking](calibration-tracking.md)
+- [Calibration Bay Fixtures](calibration-bay-fixtures.md)
 - [Multi-LiDAR Extrinsic Calibration](multi-lidar-calibration.md)
 - [LiDAR Timestamping, PTP/GPS Sync, Deskew, and Provenance](lidar-timestamping-ptp-gps-deskew-provenance.md)
 - [Camera PTP, Trigger, Exposure, and Timestamp Semantics](camera-ptp-trigger-exposure-timestamp-semantics.md)

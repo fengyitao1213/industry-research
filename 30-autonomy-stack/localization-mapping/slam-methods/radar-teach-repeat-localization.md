@@ -15,7 +15,7 @@ method-priority:end -->
 
 Radar teach-repeat localization lets a robot record a route during a teaching pass and later repeat that route using radar-based localization against the taught experience. It is route-following localization, not general radar odometry. Radar odometry estimates frame-to-frame motion from live radar scans; radar teach-repeat localizes the live robot to a stored route graph or taught keyframes and uses that relative pose to follow the route.
 
-Recent systems include Radar Teach and Repeat, CFEAR-Teach-and-Repeat, and cross-modal LiDAR Teach, Radar Repeat. VT&R3 provides the broader teach-and-repeat software architecture with radar and radar-LiDAR pipeline support.
+Recent systems include Radar Teach and Repeat, CFEAR-Teach-and-Repeat, and cross-modal LiDAR Teach, Radar Repeat. VT&R3 provides the broader teach-and-repeat software architecture with radar and radar-LiDAR pipeline support. CFEAR-TR is the freshest radar-only result in this line, with an ICRA 2026 arXiv record reporting held-out Boreas localization as low as 0.117 m and 0.096 degrees at 29 Hz.
 
 ## What It Is
 
@@ -83,6 +83,7 @@ The important distinction from radar odometry:
 - Route-relative localization can be easier than full global map localization.
 - Taught graph limits search space and reduces false global matches.
 - CFEAR-style oriented surface points make radar scans more registration-friendly.
+- The CFEAR-TR paper reports efficient single-spinning-radar repeat localization on held-out Boreas sequences, narrowing the heading-estimation gap to LiDAR-style route localization.
 - Cross-modal teaching can exploit high-quality LiDAR in good conditions and radar in degraded repeat conditions.
 
 ## Failure Modes
@@ -120,10 +121,11 @@ For road AVs, radar teach-repeat is most useful for constrained routes, depots, 
 - Test route segments with decreasing structure, not only visually distinctive areas.
 - Keep radar odometry, route localization, and path-tracking health separate in telemetry.
 - Treat radar teach-repeat as a route autonomy layer inside a broader safety system, not as a complete perception stack.
+- Re-check CFEAR-TR code status before implementation planning. The arXiv record says a C++ implementation is available, but this pass did not find a clearly linked TR-specific public repository; older CFEAR radar-odometry repositories are adjacent but not necessarily the same release.
 
 ## Sources
 
-- CFEAR-Teach-and-Repeat: https://arxiv.org/abs/2603.06501
+- CFEAR-Teach-and-Repeat arXiv / ICRA 2026 record: https://arxiv.org/abs/2603.06501
 - Radar Teach and Repeat: https://arxiv.org/abs/2409.10491
 - LiDAR Teach, Radar Repeat: https://arxiv.org/abs/2605.02809
 - VT&R3 official repository: https://github.com/utiasASRL/vtr3

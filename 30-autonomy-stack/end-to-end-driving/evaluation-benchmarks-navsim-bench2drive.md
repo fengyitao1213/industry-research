@@ -48,6 +48,8 @@ The main branch of the official NAVSIM repository is now NAVSIM v2, used for the
 | Pseudo-simulation | Uses synthetic observations near the planned trajectory | Reported to correlate better with closed-loop simulation than conventional open-loop metrics |
 | Human filter / false-positive filtering | Reduces unfair penalties where the human driver also violates a rule or scene data is ambiguous | Important for real-log benchmark fairness |
 
+Current E2E planner papers increasingly report both NAVSIM v1 PDMS and NAVSIM v2 EPDMS. Keep them separate in comparisons: SparseDriveV2 reports 92.0 PDMS and 90.1 EPDMS, while DiffusionDriveV2 reports 91.2 PDMS and 85.5 EPDMS. Those are useful leaderboard signals, but they do not replace full interactive evaluation or target-domain validation.
+
 ### Strengths
 
 - Uses real-world observations rather than fully synthetic roads.
@@ -184,6 +186,7 @@ Airside vehicles need an airside-specific evaluation suite. Road benchmarks do n
 
 | Document | Relevance |
 |---|---|
+| [AV Data Evaluation Fundamentals](../../10-knowledge-base/machine-learning/av-data-evaluation-fundamentals.md) | Split manifests, scenario/ODD coverage, leakage gates, and benchmark-ladder interpretation |
 | [Evaluation Methods, Benchmarks, and Metrics](../../60-safety-validation/verification-validation/evaluation-benchmarks.md) | Broader benchmark and metric taxonomy |
 | [Airside Scenario Taxonomy](../../60-safety-validation/verification-validation/airside-scenario-taxonomy.md) | Candidate airside scenario families |
 | [Open-Source Simulators for Airside](../simulation/simulators-for-airside.md) | Simulator choices for closed-loop airside routes |
@@ -205,5 +208,9 @@ Airside vehicles need an airside-specific evaluation suite. Road benchmarks do n
 - [Bench2Drive project page](https://thinklab-sjtu.github.io/Bench2Drive/)
 - [Bench2Drive GitHub repository](https://github.com/Thinklab-SJTU/Bench2Drive)
 - [Bench2Drive paper](https://arxiv.org/abs/2406.03877)
+- [SparseDriveV2 paper](https://arxiv.org/abs/2603.29163)
+- [SparseDriveV2 repository](https://github.com/swc-17/SparseDriveV2)
+- [DiffusionDriveV2 paper](https://arxiv.org/abs/2512.07745)
+- [DiffusionDriveV2 repository](https://github.com/hustvl/DiffusionDriveV2)
 - [CARLA Leaderboard](https://leaderboard.carla.org/)
 - [FAA CertAlert 24-02: Autonomous Ground Vehicle Systems Technology on Airports](https://www.faa.gov/airports/airport_safety/certalerts/part_139_certalert_24_02)

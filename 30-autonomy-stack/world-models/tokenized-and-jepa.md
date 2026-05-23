@@ -23,12 +23,12 @@ The core idea behind tokenized world models is to compress high-dimensional sens
 | Model | Venue | Tokenization | Key Innovation |
 |-------|-------|-------------|----------------|
 | [GAIA-1](https://arxiv.org/abs/2309.17080) | Wayve 2023 | VQ for video frames | 6.5B param autoregressive transformer; LLM-like scaling laws |
-| [Copilot4D](https://arxiv.org/html/2311.01017) | ICLR 2024 | VQ-VAE for LiDAR BEV | Discrete diffusion over point cloud tokens; 50% Chamfer distance reduction |
+| [Copilot4D](https://arxiv.org/html/2311.01017) | ICLR 2024 | VQ-VAE for LiDAR BEV | Discrete diffusion over point cloud tokens; >65% Chamfer distance reduction at 1s and >50% at 3s |
 | [OccWorld](https://arxiv.org/html/2311.16038) | ECCV 2024 | VQ-VAE for 3D occupancy grids | GPT-like autoregressive prediction in occupancy space; 512-code codebook |
 | [DrivingWorld](https://arxiv.org/html/2412.19505v2) | 2024 | Temporal-aware VQ-VAE | 1B param world model; 40+ second video generation (640 frames) |
 | [DrivingGPT](https://arxiv.org/html/2412.18607) | ICCV 2025 | VQ-VAE (16,384 codes) | Interleaved image+action tokens as unified "driving language" |
 
-**Copilot4D (Waabi, ICLR 2024)** is a standout example. It tokenizes LiDAR point clouds into BEV representations using a custom VQ-VAE with a PointNet encoder, Swin Transformer backbone, and dual-branch decoder (neural feature grid + binary occupancy). It then applies discrete diffusion (a modified MaskGIT with controlled noise injection at rate eta=20%) to predict future point clouds. Results: 0.36 Chamfer distance at 1s on nuScenes vs. 1.41 for prior state-of-the-art -- a 65-75% reduction.
+**Copilot4D (Waabi, ICLR 2024)** is a standout example. It tokenizes LiDAR point clouds into BEV representations using a custom VQ-VAE with a PointNet encoder, Swin Transformer backbone, and dual-branch decoder (neural feature grid + binary occupancy). It then applies discrete diffusion (a modified MaskGIT with controlled noise injection at rate eta=20%) to predict future point clouds conditioned on past observations and future ego poses. The paper reports >65% Chamfer distance reduction at 1s and >50% at 3s across nuScenes, KITTI Odometry, and Argoverse 2.
 
 **OccWorld (ECCV 2024)** tokenizes 3D semantic occupancy grids by first projecting them to BEV, assigning learnable embeddings per semantic class, encoding with a lightweight 2D CNN, and quantizing against a 512-entry codebook. A GPT-like spatiotemporal transformer with U-Net multi-scale aggregation then predicts future scenes autoregressively with temporal causal attention.
 
@@ -58,7 +58,7 @@ This hierarchical approach dramatically reduces dimensionality compared to pixel
 - Combined vocabulary: 16,768 tokens (16,384 image + 384 action)
 - Interleaved sequence: z1, q1, z2, q2, ..., zt, qt
 - Llama-like transformer with frame-wise 1D rotary embeddings
-- Results: FVD 142.61, FID 12.78; planning PDMS score 82.4% on NAVSIM
+- Results: FVD 142.61, FID 12.78; planning PDMS score 82.4% on NAVSIM navmini with front-camera VAE tokens and no ego status
 
 ### 1.4 How Tokenization Enables LLM-like Scaling
 

@@ -232,6 +232,7 @@ An incident log without clock and calibration provenance is incomplete evidence.
 ## Related Repository Documents
 
 - [Coordinate Frames, Projections, and SE(3)](coordinate-frames-projections-se3.md)
+- [Active Calibration Experiment Design](active-calibration-experiment-design.md)
 - [RTK-GPS, IMU, and Multi-Sensor Localization](../state-estimation/rtk-gps-imu-localization.md)
 - [GTSAM Factor Graph Optimization](../state-estimation/gtsam-factor-graphs.md)
 - [Multi-LiDAR Calibration](../../20-av-platform/sensors/multi-lidar-calibration.md)

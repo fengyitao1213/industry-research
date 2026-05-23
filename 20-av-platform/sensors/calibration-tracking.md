@@ -6,6 +6,8 @@
 
 **Pre-algorithm handoff:** Use the [Sensor-to-Algorithm Readiness Contract](sensor-to-algorithm-readiness-contract.md) to decide whether calibration, timestamp, TF, preprocessing, health, and provenance evidence is sufficient before downstream algorithms consume sensor-derived inputs.
 
+**Physical fixture evidence:** Use [Calibration Bay Fixtures](calibration-bay-fixtures.md) for depot/end-of-line target layout, surveyed reference-frame, and post-maintenance evidence requirements before accepting a new or recovered calibration package.
+
 ---
 
 ## Part A: Calibration & Synchronization (Recommendations #6-8)

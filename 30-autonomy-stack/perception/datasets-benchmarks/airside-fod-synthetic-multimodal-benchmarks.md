@@ -1,10 +1,10 @@
 # Airside FOD Synthetic And Multimodal Benchmarks
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-23
 
 Foreign object debris (FOD) detection is a high-consequence small-object perception problem. Public benchmarks now include real FOD images, visible/infrared small-target datasets, runway RGB-IR datasets, and synthetic augmentation pipelines, but they remain pre-operational evidence rather than a substitute for site-specific airport validation.
 
-**Related pages:** [FOD and airport apron detection datasets](fod-and-airport-apron-detection-datasets.md), [open-world OOD and anomaly segmentation benchmarks](open-world-ood-anomaly-segmentation-benchmarks.md), [sensor corruption robustness benchmarks](sensor-corruption-robustness-benchmarks.md), [night operations and thermal fusion](../overview/night-operations-thermal-fusion.md), [production perception systems](../overview/production-perception-systems.md)
+**Related pages:** [FOD and airport apron detection datasets](fod-and-airport-apron-detection-datasets.md), [Airport-FOD3S synthetic FOD data engine](../../../50-cloud-fleet/data-platform/airport-fod3s-synthetic-data.md), [open-world OOD and anomaly segmentation benchmarks](open-world-ood-anomaly-segmentation-benchmarks.md), [sensor corruption robustness benchmarks](sensor-corruption-robustness-benchmarks.md), [night operations and thermal fusion](../overview/night-operations-thermal-fusion.md), [production perception systems](../overview/production-perception-systems.md)
 
 ---
 
@@ -16,6 +16,7 @@ Foreign object debris (FOD) detection is a high-consequence small-object percept
 | Airport-FOD3S | Synthetic FOD insertion and realism pipeline | Data augmentation, small-object diversity, and sim-to-real ablation. |
 | IVFOD / dual-light FOD | Infrared-visible FOD imagery from a dual-light camera setup | Sensor trade study for visible/IR small FOD. |
 | RDD5000 | Real visible-infrared runway detection dataset | Runway-region detection and multimodal alignment stress, not FOD object detection by itself. |
+| DualFOD / FOD-UAS | UAS RGB plus thermal FOD detection framework and imagery | Early RGB/thermal modality evidence and decision-level fusion stress. |
 | FOD-S2R | Real/synthetic sim-to-real FOD detection dataset for aircraft fuel-tank imagery | Sim-to-real methodology reference; weak direct runway transfer. |
 | FAA FOD guidance | Operational definition and program context | Defines what must be managed in airport environments. |
 
@@ -46,9 +47,10 @@ For autonomy, the perception task should therefore be framed as:
 | Airport-FOD3S | RGB FOD images plus synthesized FOD composites | Detection labels from augmented data | Three-stage framework: scale transformation, seamless blending, and style transfer for realism. |
 | IVFOD | Infrared and visible-light camera imagery | Four FOD categories in the cited paper: screw, nut, key, bottle | Captured on concrete/asphalt surfaces at 5 m, 10 m, and 15 m across time-of-day variation. |
 | RDD5000 | DJI drone visible camera and infrared camera | Runway salient-object / runway-region style labels | 5,000 visible/IR image pairs from real airport runway scenes; useful for region-of-interest and multimodal robustness. |
+| DualFOD / FOD-UAS | UAS RGB and thermal imagery | RGB detector outputs, thermal anomaly outputs, decision-level fused FOD inventory | 2026 framework using supervised RGB detection and training-free thermal anomaly extraction for runway-like FOD inspection. |
 | FOD-S2R | Real and synthetic images in a simulated aircraft fuel tank | Object-detection labels for fuel-tank FOD | Sim-to-real benchmark outside open runway/apron geometry. |
 
-FOD-A remains the most direct public runway/taxiway FOD dataset. Airport-FOD3S is best treated as an augmentation and data-engine pipeline around scarce real FOD images. RDD5000 is valuable for RGB-IR runway perception and non-perfect alignment, but it is not a replacement for FOD object labels.
+FOD-A remains the most direct public runway/taxiway FOD dataset. Airport-FOD3S is best treated as an augmentation and [data-engine pipeline](../../../50-cloud-fleet/data-platform/airport-fod3s-synthetic-data.md) around scarce real FOD images. RDD5000 is valuable for RGB-IR runway perception and non-perfect alignment, but it is not a replacement for FOD object labels. DualFOD/FOD-UAS is the clearest new RGB/thermal FOD signal, especially for studying thermal recovery of low-contrast debris that RGB misses.
 
 ---
 
@@ -108,7 +110,7 @@ Synthetic data is a data-engine lever, not final safety evidence. A high score o
 | Indoor industrial | Moderate | FOD-S2R and small-object sim-to-real lessons transfer to inspection workflows. |
 | General outdoor robotics | Moderate | Useful for small unexpected objects, but environmental and operational constraints differ. |
 
-Airside relevance is strongest when these datasets are used together: FOD-A for base detection, IVFOD/RDD5000 for multimodal sensing, Airport-FOD3S for augmentation, and site-specific data for acceptance.
+Airside relevance is strongest when these datasets are used together: FOD-A for base detection, IVFOD/RDD5000/DualFOD for multimodal sensing, Airport-FOD3S for augmentation and data-engine construction, and site-specific data for acceptance.
 
 ---
 
@@ -134,4 +136,5 @@ Airside relevance is strongest when these datasets are used together: FOD-A for 
 - [Airport-FOD3S Sensors paper](https://www.mdpi.com/1424-8220/25/15/4565)
 - [Small-Scale FOD Detection Using Dual Light Modes / IVFOD](https://www.mdpi.com/2076-3417/14/5/2162)
 - [RDD5000 RGB-IR runway detection paper](https://www.mdpi.com/2072-4292/17/4/669)
+- [DualFOD / FOD-UAS Drones paper](https://www.mdpi.com/2504-446X/10/3/225)
 - [FOD-S2R arXiv record](https://arxiv.org/abs/2512.01315)

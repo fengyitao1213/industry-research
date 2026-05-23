@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc" data-diagram-kind="projection-rays">
+  <title id="title">fiducial and corner localization chain</title>
+  <desc id="desc">fiducial and corner localization chain from image evidence through marker decoding, planar PnP, map-frame composition, estimator factors, and release diagnostics.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <pattern id="taggrid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <!-- layout:projection-rays -->
+  <rect width="1400" height="720" fill="#f8fafc"/>
+  <rect x="42" y="38" width="1316" height="644" rx="20" fill="#ffffff" stroke="#d9e2ef" filter="url(#shadow)"/>
+  <text x="80" y="88" font-size="30" font-weight="800" fill="#0f172a">fiducial and corner localization</text>
+  <text x="80" y="122" font-size="16" font-weight="600" fill="#475569">image corners become pose evidence only after calibration, map version, covariance, and health checks</text>
+  <rect x="80" y="144" width="1240" height="2" fill="#dbeafe"/>
+
+  <rect x="90" y="205" width="190" height="190" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="2.2"/>
+  <text x="185" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#172033">camera image</text>
+  <path d="M138 350 L185 258 L232 350 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="185" cy="350" r="16" fill="#2563eb"/>
+  <text x="185" y="385" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">timestamp + intrinsics</text>
+
+  <line x1="280" y1="300" x2="350" y2="300" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="205" width="210" height="190" rx="16" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.2"/>
+  <text x="455" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#172033">detected target</text>
+  <rect x="405" y="265" width="100" height="100" fill="#ffffff" stroke="#111827" stroke-width="4"/>
+  <rect x="417" y="277" width="24" height="24" fill="#111827"/>
+  <rect x="469" y="277" width="24" height="24" fill="#111827"/>
+  <rect x="417" y="329" width="24" height="24" fill="#111827"/>
+  <rect x="469" y="329" width="24" height="24" fill="#111827"/>
+  <circle cx="405" cy="265" r="5" fill="#dc2626"/>
+  <circle cx="505" cy="265" r="5" fill="#dc2626"/>
+  <circle cx="505" cy="365" r="5" fill="#dc2626"/>
+  <circle cx="405" cy="365" r="5" fill="#dc2626"/>
+  <text x="455" y="385" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">ID, corners, size, quality</text>
+
+  <line x1="560" y1="300" x2="630" y2="300" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="630" y="205" width="210" height="190" rx="16" fill="#fff7ed" stroke="#ea580c" stroke-width="2.2"/>
+  <text x="735" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#172033">planar PnP</text>
+  <text x="735" y="268" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">min reprojection error</text>
+  <line x1="695" y1="338" x2="775" y2="282" stroke="#ea580c" stroke-width="2.4"/>
+  <line x1="735" y1="338" x2="775" y2="282" stroke="#ea580c" stroke-width="2.4"/>
+  <line x1="775" y1="338" x2="775" y2="282" stroke="#ea580c" stroke-width="2.4"/>
+  <rect x="686" y="338" width="98" height="36" rx="6" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+  <text x="735" y="361" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">T camera target</text>
+
+  <line x1="840" y1="300" x2="910" y2="300" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="910" y="205" width="210" height="190" rx="16" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.2"/>
+  <text x="1015" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#172033">site composition</text>
+  <rect x="955" y="274" width="120" height="72" rx="8" fill="url(#taggrid)" stroke="#7c3aed" stroke-width="2"/>
+  <circle cx="984" cy="311" r="9" fill="#7c3aed"/>
+  <path d="M1002 328 L1048 292 L1066 332" fill="none" stroke="#7c3aed" stroke-width="3"/>
+  <text x="1015" y="372" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">map frame + base frame</text>
+
+  <line x1="1120" y1="300" x2="1190" y2="300" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="1190" y="205" width="130" height="190" rx="16" fill="#ecfeff" stroke="#0891b2" stroke-width="2.2"/>
+  <text x="1255" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#172033">factor</text>
+  <circle cx="1232" cy="304" r="18" fill="#0891b2"/>
+  <circle cx="1278" cy="304" r="18" fill="#0891b2"/>
+  <line x1="1250" y1="304" x2="1260" y2="304" stroke="#0891b2" stroke-width="4"/>
+  <rect x="1225" y="346" width="60" height="28" rx="6" fill="#cffafe" stroke="#0891b2" stroke-width="2"/>
+  <text x="1255" y="366" text-anchor="middle" font-size="12" font-weight="800" fill="#334155">gate</text>
+
+  <rect x="154" y="500" width="1092" height="90" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="185" y="533" font-size="16" font-weight="800" fill="#172033">release diagnostics</text>
+  <text x="185" y="562" font-size="14" font-weight="700" fill="#475569">corner residuals</text>
+  <text x="385" y="562" font-size="14" font-weight="700" fill="#475569">pose covariance</text>
+  <text x="585" y="562" font-size="14" font-weight="700" fill="#475569">survey version</text>
+  <text x="785" y="562" font-size="14" font-weight="700" fill="#475569">target health</text>
+  <text x="985" y="562" font-size="14" font-weight="700" fill="#475569">rejection reason</text>
+
+  <line x1="735" y1="395" x2="735" y2="500" stroke="#64748b" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <text x="700" y="638" text-anchor="middle" font-size="14" font-weight="600" fill="#475569">a tag observation is pose evidence only when identity, geometry, timing, covariance, map version, and health agree</text>
+</svg>

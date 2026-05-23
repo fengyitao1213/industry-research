@@ -274,6 +274,7 @@ Never let place recognition alone reset the vehicle pose. It should propose hypo
 ## Related Repository Docs
 
 - [GTSAM Factor Graphs](../../../10-knowledge-base/state-estimation/gtsam-factor-graphs.md)
+- [Radar Place Recognition: 4D Radar Descriptor Lineage](radar-place-recognition-4dral-sherloc.md)
 - [Robust State Estimation and Multi-Sensor Localization Fusion](../overview/robust-state-estimation-multi-sensor.md)
 - [LiDAR Place Recognition and Re-Localization](../overview/lidar-place-recognition-relocalization.md)
 - [Real-Time Occupancy Grid Mapping](../maps/realtime-occupancy-grid-mapping.md)

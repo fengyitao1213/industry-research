@@ -115,7 +115,7 @@ method-priority:end -->
 
 - Streaming future occupancy: [StreamingFlow](streamingflow.md), [Cam4DOcc](cam4docc.md), [TrackOcc](trackocc.md).
 - Scene flow and motion: [Neural Scene Flow Priors](neural-scene-flow-priors.md), [Cross-Domain LiDAR Scene Flow](cross-domain-lidar-scene-flow.md), [SplatFlow](splatflow.md).
-- Radar and freespace support: [RadarPillars](radarpillars.md), [4D Radar-Camera Occupancy](4d-radar-camera-occupancy.md), [K-Radar](k-radar.md).
+- Radar and freespace support: [RadarPillars](radarpillars.md), [4D Radar-Camera Occupancy](4d-radar-camera-occupancy.md), [4D Radar Road Boundaries and Freespace](4d-radar-road-boundaries-freespace.md), [K-Radar](k-radar.md).
 - Occupancy validation context: [MSC-Bench](msc-bench.md), [MultiCorrupt](multicorrupt.md), [Conformal Boxes](conformal-boxes.md).
 
 ## Sources

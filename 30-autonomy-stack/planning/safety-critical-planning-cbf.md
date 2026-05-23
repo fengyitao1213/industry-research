@@ -99,6 +99,8 @@ where `u_nom` is the nominal control input from any upstream planner (neural, Fr
 - This is a convex QP with linear constraints -- solvable in **50-500 microseconds**
 - The QP always has a feasible solution if h is a valid CBF (by definition)
 
+For the reusable KKT, active-set, ADMM, SQP, infeasibility, slack, and dual-telemetry mechanics behind this QP contract, see [Constrained KKT, QP, and SQP Solver Mechanics](../../10-knowledge-base/optimization/constrained-kkt-qp-sqp-first-principles.md).
+
 **Class-K_inf Function Choices:**
 
 | alpha(h) | Name | Behavior |

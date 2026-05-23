@@ -16,7 +16,7 @@ This foundation exists because sensor errors are often copied into higher-level 
 
 Sensor foundations study cross-modality measurement likelihoods, noise models, covariance and confidence contracts, error budgets, observability limits, degradation modes, calibration assumptions, and the handoff from raw or feature measurements into estimation and perception.
 
-The section is intentionally modality-spanning. It asks how camera, LiDAR, radar, GNSS, IMU, odometry, and other measurements should be represented before downstream modules interpret them.
+The section is intentionally modality-spanning. It asks how camera, LiDAR, radar, ultrasonic, GNSS, IMU, odometry, and other measurements should be represented before downstream modules interpret them.
 
 ## Autonomy Problem Map
 
@@ -55,6 +55,10 @@ The review model is: `physical signal -> measurement model -> noise and bias -> 
 
 For measurement likelihoods and noise, start with [Sensor Likelihoods, Noise, and Error Budgets](sensor-likelihoods-noise-error-budgets.md), then connect the contract to state estimation and perception applied pages.
 
+For thermal sensing review, use [Thermal IR Radiometry First Principles](thermal-ir-radiometry-first-principles.md) to separate emitted radiance, reflected background, atmospheric path, optics, detector response, NUC tables, and fusion-ready confidence before treating a thermal frame as a camera-like image.
+
+For close-range acoustic time-of-flight review, use [Ultrasonic Proximity Sensing Models](ultrasonic-proximity-sensing-models.md) to check beam geometry, ringdown blind zones, temperature compensation, cross-talk scheduling, and safety-rated versus advisory use.
+
 For degradation review, use the same page as a checklist for weather, occlusion, multipath, calibration drift, saturation, and observability limitations.
 
 For operational handoff, read the sensor page alongside the [Sensor-to-Algorithm Readiness Contract](../../20-av-platform/sensors/sensor-to-algorithm-readiness-contract.md), fleet calibration, and runtime operations material so the measurement contract is visible in logs, alerts, and downstream algorithm acceptance gates.
@@ -82,6 +86,8 @@ Common failure modes include overconfident covariances, stale calibration, weath
 ## Pages In This Section
 
 - [Sensor Likelihoods, Noise, and Error Budgets](sensor-likelihoods-noise-error-budgets.md)
+- [Thermal IR Radiometry First Principles](thermal-ir-radiometry-first-principles.md)
+- [Ultrasonic Proximity Sensing Models](ultrasonic-proximity-sensing-models.md)
 
 ## Core Sources
 

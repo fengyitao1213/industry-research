@@ -11,13 +11,13 @@ priority:
   reason: "4D Imaging Radar RIO and SLAM is rated for alternative-sensor localization under adverse weather, weak LiDAR, or GNSS-denied conditions."
 method-priority:end -->
 
-Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar FMCW/MIMO/Doppler](../../../10-knowledge-base/signal-processing/radar-fmcw-mimo-doppler.md), [radar ambiguity and Doppler limits](../../../10-knowledge-base/signal-processing/radar-ambiguity-chirp-design-doppler-limits.md), [radar-inertial odometry](radar-inertial-odometry.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [radar-LiDAR-inertial fusion](radar-lidar-inertial-fusion.md), [RadarSplat RIO](radarsplat-rio.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
+Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar FMCW/MIMO/Doppler](../../../10-knowledge-base/signal-processing/radar-fmcw-mimo-doppler.md), [radar ambiguity and Doppler limits](../../../10-knowledge-base/signal-processing/radar-ambiguity-chirp-design-doppler-limits.md), [radar-inertial odometry](radar-inertial-odometry.md), [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md), [CAO-RONet](cao-ronet.md), [radar-LiDAR-inertial fusion](radar-lidar-inertial-fusion.md), [RadarSplat RIO](radarsplat-rio.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
 
 ## Executive Summary
 
 4D imaging radar RIO/SLAM uses radar detections with range, azimuth, elevation, Doppler, and often intensity/RCS, fused with IMU measurements. Compared with older 2D scanning radar or sparse automotive radar, 4D imaging radar adds vertical structure and denser point clouds, making radar-inertial mapping more plausible.
 
-Representative systems include iRIOM, Go-RIO, RIO-Vehicle, and x-RIO/multi-radar yaw-aiding work. iRIOM introduced a submap-based 4D radar-inertial odometry and mapping pipeline with robust Doppler ego-velocity, scan-to-submap matching, an iterated EKF, and loop closure. Go-RIO adds ground-optimized radar filtering and continuous velocity preintegration with Gaussian processes to better handle asynchronous radar/IMU streams and ground-vehicle assumptions.
+Representative systems include iRIOM, Go-RIO, RIO-Vehicle, x-RIO/multi-radar yaw-aiding work, and [GV-iRIOM](gv-iriom-4d-radar.md). iRIOM introduced a submap-based 4D radar-inertial odometry and mapping pipeline with robust Doppler ego-velocity, scan-to-submap matching, an iterated EKF, and loop closure. Go-RIO adds ground-optimized radar filtering and continuous velocity preintegration with Gaussian processes to better handle asynchronous radar/IMU streams and ground-vehicle assumptions. GV-iRIOM extends the iRIOM direction into globally referenced mapping by adding visual-inertial odometry, GNSS RTK constraints, loop closure, and multi-phase map fusion. [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md) covers adjacent Radarize, DRO, and Doppler-SLAM routing where Doppler becomes the main bridge between radar odometry and radar-LiDAR-inertial fusion. [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md) covers the front-end/backend hardening slice for learned point correspondences, polar point uncertainty, and point-pose uncertainty.
 
 For AV and airside autonomy, this is one of the most important adverse-weather localization directions. Radar can continue operating through fog, dust, smoke, rain, spray, darkness, and glare. The caveat is equally important: radar is noisy, sparse, multipath-prone, and dynamic-object-sensitive. RIO should be a robust aiding layer, not an unchecked sole authority.
 
@@ -92,12 +92,17 @@ Maps may be:
    - Register current 4D radar points to local submaps.
    - Use point-to-distribution, distribution-to-distribution, NDT/GICP, or radar-specific distances.
 
-5. **Fusion**
+5. **Correspondence and uncertainty weighting**
+   - Use learned correspondences, polar radar point uncertainty, Doppler/RCS consistency, or point-pose uncertainty to prevent sparse radar returns from becoming overconfident constraints.
+   - Log association entropy, covariance inflation, and residual consistency separately from average pose error.
+
+6. **Fusion**
    - iRIOM-style systems fuse ego-velocity and scan-to-submap matches in an iterated EKF.
    - Go-RIO-style systems use continuous velocity integration and Gaussian-process interpolation.
    - Factor-graph variants add wheel, vehicle, GNSS, loop closure, or multi-radar yaw constraints.
+   - GV-iRIOM-style systems add visual-inertial and GNSS constraints when globally referenced mapping is required.
 
-6. **Loop closure and mapping**
+7. **Loop closure and mapping**
    - Detect revisits using radar place recognition or scan descriptors.
    - Optimize pose graph/submaps to reduce drift.
 
@@ -184,7 +189,9 @@ X* = arg min_X
 Relevant datasets:
 
 - **iRIOM author and third-party datasets:** used for 4D radar-inertial mapping evaluation.
+- **View-of-Delft:** useful for radar-only learned odometry baselines such as CAO-RONet before transfer to broader all-weather datasets.
 - **Go-RIO datasets:** 4D radar-inertial experiments released with the method.
+- **GV-iRIOM in-house and public evaluations:** 4D radar, camera, IMU, and GNSS/RTK mapping experiments for large-scale globally referenced mapping.
 - **Coloradar:** 4D radar, LiDAR, camera, IMU, and ground truth resources.
 - **Boreas:** radar/LiDAR/camera/IMU/GNSS across seasons.
 - **Oxford Radar RobotCar:** long-term radar driving, primarily scanning radar.
@@ -260,6 +267,9 @@ Recommended architecture:
 - Zhuang et al., "4D iRIOM: 4D Imaging Radar Inertial Odometry and Mapping," arXiv/RA-L, 2023: https://arxiv.org/abs/2303.13962
 - Yang, Jang, Kim, "Ground-Optimized 4D Radar-Inertial Odometry via Continuous Velocity Integration using Gaussian Process," arXiv/ICRA, 2025: https://arxiv.org/abs/2502.08093
 - Go-RIO official implementation: https://github.com/wooseongY/Go-RIO
+- Wang et al., "GV-iRIOM: GNSS-visual-aided 4D radar inertial odometry and mapping in large-scale environments," ISPRS JPRS, 2025: https://doi.org/10.1016/j.isprsjprs.2025.01.039
+- Michalczyk et al., "Learning Point Correspondences In Radar 3D Point Clouds For Radar-Inertial Odometry." https://arxiv.org/abs/2506.18580
+- Xu et al., "Incorporating Point Uncertainty in Radar SLAM." https://arxiv.org/abs/2402.16082
 - Coloradar dataset: https://arpg.github.io/coloradar/
 - Boreas dataset: https://www.boreas.utias.utoronto.ca/
 - Oxford Radar RobotCar dataset: https://oxford-robotics-institute.github.io/radar-robotcar-dataset/

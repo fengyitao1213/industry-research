@@ -94,6 +94,16 @@ SparseDrive represents the current state-of-the-art in efficiency-performance tr
 
 ---
 
+### 1.3.1 SparseDriveV2 and DiffusionDriveV2 - 2025-2026 Follow-Ons
+
+SparseDriveV2 is the direct scoring-oriented follow-on to SparseDrive. It factorizes trajectory candidates into geometric paths and velocity profiles, applies coarse scoring over each factor, then fine-scores composed trajectories. The reported results are 92.0 PDMS and 90.1 EPDMS on NAVSIM, plus 89.15 Bench2Drive Driving Score and 70.00 Success Rate with a ResNet-34 backbone.
+
+DiffusionDriveV2 is the diffusion counterpart. It keeps truncated diffusion with trajectory anchors, then adds scale-adaptive multiplicative noise, intra-anchor GRPO, and inter-anchor truncated GRPO to reduce mode collapse while preserving diverse driving intentions. It reports 91.2 PDMS on NAVSIM v1 and 85.5 EPDMS on NAVSIM v2 with an aligned ResNet-34 backbone.
+
+For E2E architecture selection, the practical lesson is that recent leaders are no longer only "dense BEV versus sparse BEV." They increasingly separate candidate generation from candidate scoring, then optimize directly against benchmark safety/progress metrics. This is promising for low-speed domains such as airside autonomy, but NAVSIM and Bench2Drive still do not cover aircraft, GSE, ramp markings, marshalling, jet blast, or airport right-of-way.
+
+---
+
 ### 1.4 FusionAD — NeurIPS 2023 Workshop
 
 The first unified framework fusing camera and LiDAR beyond perception into prediction and planning.
@@ -736,6 +746,10 @@ Safety:
 - [VAD: Vectorized Scene Representation for Efficient Autonomous Driving — ICCV 2023](https://arxiv.org/abs/2303.12077)
 - [VADv2: End-to-End Vectorized Autonomous Driving via Probabilistic Planning](https://arxiv.org/abs/2402.13243)
 - [SparseDrive: End-to-End Autonomous Driving via Sparse Scene Representation](https://arxiv.org/abs/2405.19620)
+- [SparseDriveV2: Scoring is All You Need for End-to-End Autonomous Driving](https://arxiv.org/abs/2603.29163)
+- [SparseDriveV2 GitHub Repository](https://github.com/swc-17/SparseDriveV2)
+- [DiffusionDriveV2: Reinforcement Learning-Constrained Truncated Diffusion Modeling in End-to-End Autonomous Driving](https://arxiv.org/abs/2512.07745)
+- [DiffusionDriveV2 GitHub Repository](https://github.com/hustvl/DiffusionDriveV2)
 - [FusionAD: Multi-modality Fusion for Prediction and Planning Tasks](https://ar5iv.labs.arxiv.org/html/2308.01006)
 - [BEVFormer: Learning Bird's-Eye-View Representation](https://arxiv.org/abs/2203.17270)
 - [BEVFusion: Multi-Task Multi-Sensor Fusion](https://arxiv.org/abs/2205.13542)

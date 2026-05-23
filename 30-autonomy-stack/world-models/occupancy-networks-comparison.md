@@ -198,9 +198,8 @@ Occupancy networks predict dense 3D voxelized representations of the environment
 - **Backbone:** Not explicitly stated (uses BEV encoder)
 - **Performance:**
   - Occupancy forecasting mIoU (future): 15.1% (+1.1% over Cam4DOcc)
-  - Planning L2@1s: 0.44m (vs UniAD 0.67m, **33% improvement**)
-  - Planning L2@2s: 0.77m (vs UniAD 1.20m, **36% improvement**)
-  - Planning L2@3s: 1.20m (vs UniAD 1.65m, **27% improvement**)
+  - Planning L2 under the paper's `†` protocol: 0.32 / 0.75 / 1.49m at 1s / 2s / 3s, 0.85m average, 0.29% average collision
+  - Planning L2 under the `‡` protocol: 0.25 / 0.44 / 0.72m at 1s / 2s / 3s, 0.47m average, 0.11% average collision
 - **Latency:** Not reported
 - **Memory:** Not reported
 - **Code:** Open-source ([github.com/yuyang-cloud/Drive-OccWorld](https://github.com/yuyang-cloud/Drive-OccWorld))
@@ -566,10 +565,11 @@ This two-phase approach avoids dependency on proprietary code while leveraging t
 | OccLLaMA-O | **15.26%** | 2.03m | 1.20% | GT Occupancy | 2024 |
 | OccWorld-O | 10.51% | 1.99m | 1.35% | GT Occupancy | ECCV 2024 |
 | OccLLaMA-F | 6.98% | -- | -- | Camera pred | 2024 |
-| Drive-OccWorld | -- | **1.20m** | -- | Camera BEV | AAAI 2025 |
+| Drive-OccWorldP† | -- | 1.49m | 0.64% | Camera BEV | AAAI 2025 |
+| Drive-OccWorldP‡ | -- | **0.72m** | **0.22%** | Camera BEV | AAAI 2025 |
 | OccWorld-D | 6.22% (avg) | 2.41m | 2.08% | Camera pred | ECCV 2024 |
 
-Drive-OccWorld achieves the best planning performance (L2@3s = 1.20m vs UniAD's 1.65m). OccLLaMA has the best long-term forecasting (15.26% vs OccWorld's 10.51% at 3s).
+Drive-OccWorldP's planning numbers are protocol-dependent: the paper reports L2@3s = 1.49m under the `†` protocol and 0.72m under the `‡` protocol. OccLLaMA has the best long-term forecasting in this table (15.26% vs OccWorld's 10.51% at 3s).
 
 ---
 

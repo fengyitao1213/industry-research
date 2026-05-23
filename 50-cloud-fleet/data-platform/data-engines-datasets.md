@@ -497,6 +497,11 @@ This approach outperforms unsupervised domain adaptation methods that require ac
 - Domain randomization strategies demonstrate strong generalization when transferring to real data
 - Could be extended to airport environments with custom Unreal Engine assets
 
+**Airport-FOD3S-style FOD synthesis:**
+- [Airport-FOD3S synthetic FOD data engine](airport-fod3s-synthetic-data.md) provides a narrower rare-object data product pattern for airport FOD, using real seed images, physical-size transformation, seamless blending, style transfer, detector ablations, and lineage gates.
+- Use it for screws, washers, cable ties, dark debris, and other rare small objects that are underrepresented in real runway/taxiway data.
+- Do not use it as final safety evidence; real-only validation and target-airport holdouts remain mandatory.
+
 **Proposed synthetic data pipeline for airside:**
 1. **Environment construction:** Build airport ramp environments in Unreal Engine 5 or Unity, using real airport GIS data and satellite imagery for layout accuracy
 2. **Asset library:** Model GSE vehicles (tugs, tractors, belt loaders, fuel trucks), aircraft types, personnel, signage, and markings

@@ -158,7 +158,9 @@ Shares extracted neural network features (BEV feature maps, compressed represent
 | Spatial confidence maps | Only send features for critical regions | Where2comm (NeurIPS 2022) |
 | SENet channel attention | Weight and prune channels | Slim-FCP |
 | Point cluster packing | Geometric compression of point features | V2X-PC |
-| Codebook quantization | Transmit code indices, reconstruct locally | QuantV2X (2025) |
+| Kinematic sparse queries | Transmit instance queries instead of BEV maps | [SparseCoop](../methods/sparsecoop.md) (2026) |
+| Codebook quantization | Transmit code indices, reconstruct locally | [QuantV2X](../methods/quantv2x.md) (2025) |
+| Sparse semantic Gaussians | Transmit 3D Gaussian primitives and splat after fusion | [VOGS-CP](../methods/vogs-cp.md) (2026) |
 | Feature flow | Transmit temporal deltas, not full features | FFNet (NeurIPS 2023) |
 
 ### 1.4 Bandwidth and Latency Requirements
@@ -203,15 +205,24 @@ At 25 km/h (6.9 m/s), 200 ms of latency corresponds to 1.4 m of travel -- well w
 | **V2V4Real** | CVPR 2023 (Highlight) | Real-world | 20K LiDAR, 40K RGB, 240K 3D boxes, 410 km | LiDAR + Camera | V2V | First real-world V2V dataset; 5 classes |
 | **TUMTraf-V2X** | CVPR 2024 | Real-world (Munich) | 2,000 point clouds, 5,000 images, 30K 3D boxes | LiDAR + Camera (5 roadside + 4 onboard) | V2I + V2V | First real-world multi-sensor V2X; +14.36 mAP with cooperation |
 | **V2X-Real** | ECCV 2024 | Real-world | 33K LiDAR, 171K camera, 1.2M 3D boxes | LiDAR + Camera | V2V + V2I + I2I | 2 vehicles + 2 infrastructure; 10 object classes; most comprehensive |
+| **[HoloVIC](../methods/holovic.md)** | CVPR 2024 | Real-world intersections | 4 sensor-layouts across holographic intersections | Camera + fisheye + LiDAR | Infrastructure + VIC | Heterogeneous fixed-site perception, tracking, and vehicle-infrastructure cooperation |
+| **[CoInfra](../methods/coinfra.md)** | arXiv 2025 | Real-world adverse-weather infrastructure | 195K LiDAR, 390K camera from 8 infrastructure nodes | LiDAR + RGB cameras | I2I + V2I | 14-node system design with 5G, synchronization, OTA, monitoring, and adverse weather |
+| **[V2X-ReaLO](../methods/v2x-realo.md)** | arXiv 2025 | Real-world online replay | 25,028 synchronized test frames, 6,850 annotated keyframes | LiDAR + Camera | V2X online fusion | Online early/late/intermediate fusion benchmark with latency-aware evaluation |
 | **V2X-Radar** | NeurIPS 2025 (Spotlight) | Real-world | 20K LiDAR, 40K camera, 20K 4D radar, 350K boxes | LiDAR + Camera + 4D Radar | V2I | First cooperative 4D radar dataset; rain/night scenarios |
 | **V2X-R** | CVPR 2025 | Simulated | 12,079 scenarios, 37,727 frames, 170,859 boxes | LiDAR + Camera + 4D Radar | V2X | Simulated V2X with 4D radar and denoising diffusion |
-| **V2XPnP Sequential** | ICCV 2025 | Real-world | 40K LiDAR, 208K camera, 24 intersections | LiDAR + Camera | VC, IC, V2V, I2I | First sequential multi-agent V2X dataset with trajectories |
+| **[TruckV2X](../datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md)** | RA-L 2025 | Simulated | 64 scenarios, 88,396 LiDAR frames, 1.18M boxes | LiDAR + Camera | Tractor + trailer + CAV + RSU | Truck-centered cooperative dataset for heavy-vehicle occlusion and articulation |
+| **[V2XPnP Sequential](../datasets-benchmarks/v2x-large-range-sequential-datasets.md)** | ICCV 2025 | Real-world | 40K LiDAR, 208K camera, 24 intersections | LiDAR + Camera | VC, IC, V2V, I2I | First sequential multi-agent V2X dataset with trajectories |
+| **[V2XScenes](../datasets-benchmarks/v2x-large-range-sequential-datasets.md)** | ICCV 2025 | Real-world | 7 roadside layouts with condition-labeled scenes | LiDAR + Camera + 4D radar | Large-range V2I | Long-range vehicle-infrastructure perception and tracking under challenging traffic conditions |
+| **[UrbanIng-V2X](../datasets-benchmarks/v2x-large-range-sequential-datasets.md)** | 2025 | Real-world | Multi-intersection vehicle and infrastructure collection | Vehicle cameras/LiDAR + infrastructure thermal cameras/LiDAR | V2X | Multi-site generalization with OpenCOOD conversion and digital-twin/map support |
+| **[CoopScenes](../datasets-benchmarks/v2x-large-range-sequential-datasets.md)** | IEEE IV 2025 | Real-world | 104 minutes at 10 Hz, 62K frames | Vehicle + infrastructure sensors | Ego-infrastructure | Multi-scene synchronized collective perception with registration and anonymization tooling |
 
 **DAIR-V2X Detail**: Collected at real Beijing intersections with vehicle-mounted and infrastructure-mounted LiDAR+camera pairs. Introduced the VIC3D task (Vehicle-Infrastructure Cooperative 3D Object Detection), which explicitly models temporal asynchrony and transmission cost. The Time Compensation Late Fusion (TCLF) baseline demonstrates that even simple cooperation yields 15% AP improvement.
 
 **V2V4Real Detail**: Two vehicles equipped with LiDAR and cameras drove 410 km together through diverse road types (intersections, highway ramps, city roads). Introduced cooperative 3D tracking and Sim2Real domain adaptation benchmarks. GitHub: `ucla-mobility/V2V4Real`.
 
 **Airport relevance**: No cooperative perception dataset exists for airport airside environments. This represents both a gap and an opportunity -- the first airside cooperative perception dataset would be a landmark contribution. The TUMTraf-V2X infrastructure setup (poles with LiDAR+camera at intersections) is the closest analog to what an airport deployment would look like.
+
+**Truck-centered proxy**: [TruckV2X](../datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md) is synthetic, but its tractor/trailer/CAV/RSU setup is useful when studying long-vehicle occlusion, trailer-mounted sensing, and truck-as-cooperator roles that are missing from light-vehicle V2X datasets.
 
 ### 2.2 Core Cooperative Perception Models (2021-2023)
 
@@ -361,7 +372,7 @@ First real-world cooperative dataset with 4D radar + LiDAR + camera. Covers rain
 
 **Airside relevance**: Airport environments have specific corruption modes not well-studied: jet exhaust heat shimmer, de-icing spray, night operations with bright ramp lighting, and reflections from wet tarmac. RCP-Bench's methodology should be extended to these airport-specific corruptions.
 
-#### QuantV2X (2025)
+#### [QuantV2X (2025)](../methods/quantv2x.md)
 
 | Aspect | Detail |
 |--------|--------|
@@ -372,6 +383,43 @@ First real-world cooperative dataset with 4D radar + LiDAR + camera. Covers rain
 | **GitHub** | `ucla-mobility/QuantV2X` |
 
 **Airside relevance**: Running cooperative perception on NVIDIA Orin (the reference airside AV stack's target compute platform) requires quantization. QuantV2X demonstrates this is achievable with minimal accuracy loss.
+
+#### [SparseCoop (2026)](../methods/sparsecoop.md)
+
+| Aspect | Detail |
+|--------|--------|
+| **Key advance** | Fully sparse cooperative detection/tracking without dense BEV feature exchange |
+| **Method** | Kinematic-grounded instance queries, coarse-to-fine aggregation, and cooperative instance denoising |
+| **Result** | Reports V2X-Seq and Griffin AP, AMOTA, transmission-cost, FPS, and latency-robustness measurements |
+| **Significance** | Shows a communication primitive for V2X that can carry object state rather than dense feature maps |
+| **GitHub** | `wang-jh18-SVM/SparseCoop` |
+
+**Airside relevance**: Sparse instance queries are attractive for bandwidth-limited apron cooperation, but airport transfer needs explicit checks for workers, aircraft-adjacent GSE, FOD, long stationary objects, night lighting, and stale-query handoff.
+
+#### [VOGS-CP (2026)](../methods/vogs-cp.md)
+
+| Aspect | Detail |
+|--------|--------|
+| **Key advance** | Vision-only collaborative semantic occupancy with sparse 3D semantic Gaussian messages |
+| **Method** | Predict local semantic Gaussians from cameras, select communication-relevant Gaussians, fuse collaborator Gaussians, then splat to occupancy |
+| **Result** | Reports +8.42 mIoU over single-agent perception and +3.28 mIoU over baseline collaborative methods in the paper/project claims |
+| **Significance** | Moves cooperative perception beyond detection boxes and BEV features toward an explicit occupancy representation |
+| **GitHub** | `ChengChen2020/VOGS-CP` |
+
+**Airside relevance**: A Gaussian occupancy message is a plausible middle ground for stand-level cooperation: richer than box-only late fusion and smaller than dense BEV sharing. Airport transfer still needs pose-error replay, camera glare/night tests, aircraft/GSE classes, and checks that remote-only freespace does not override ego hazards.
+
+#### [TruckV2X (2025)](../datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md)
+
+| Aspect | Detail |
+|--------|--------|
+| **Key advance** | First truck-centered cooperative perception dataset with tractor, trailer, CAV, and RSU agents |
+| **Dataset type** | Synthetic CARLA/Unreal benchmark |
+| **Scale** | 64 scenarios, 88,396 LiDAR frames, 1.18M 3D boxes |
+| **Task** | Cooperative 3D object detection and occlusion-recovery analysis |
+| **Significance** | Exposes heavy-vehicle blind zones and trailer articulation that light-vehicle V2X datasets underrepresent |
+| **Dataset** | `XieTenghu1/TruckV2X` |
+
+**Airside relevance**: Long GSE, baggage trains, catering trucks, and fuel trucks can create truck-like occlusion and articulation problems, but airport transfer still needs aircraft/GSE classes, wet-apron and night lighting data, and network-latency replay.
 
 ### 2.5 Open-Source Frameworks and Repos
 
@@ -387,6 +435,7 @@ First real-world cooperative dataset with 4D radar + LiDAR + camera. Covers rain
 | **V2X-Real** (`ucla-mobility/V2X-Real`) | Comprehensive real-world V2X dataset | ~150 | Active |
 | **CooPre** (`ucla-mobility/CooPre`) | Cooperative pretraining framework | New | Active |
 | **QuantV2X** (`ucla-mobility/QuantV2X`) | Quantized cooperative perception | New | Active |
+| **VOGS-CP** (`ChengChen2020/VOGS-CP`) | Collaborative Gaussian semantic occupancy | New | Prototype |
 | **V2X-Radar** (`yanglei18/V2X-Radar`) | 4D radar cooperative perception | New | Active |
 | **RCP-Bench** (`LuckyDush/RCP-Bench`) | Robustness benchmark for collaborative perception | New | Active |
 | **Collaborative_Perception** (`Little-Podi/Collaborative_Perception`) | Comprehensive paper digest of all V2X perception research | ~500 | Actively maintained survey |
@@ -1195,12 +1244,20 @@ float32 confidence_threshold
 - V2V4Real (CVPR 2023 Highlight): [GitHub](https://github.com/ucla-mobility/V2V4Real)
 - TUMTraf-V2X (CVPR 2024): [Dataset](https://tum-traffic-dataset.github.io/tumtraf-v2x/)
 - V2X-Real (ECCV 2024): [GitHub](https://github.com/ucla-mobility/V2X-Real)
+- HoloVIC (CVPR 2024): [CVF](https://openaccess.thecvf.com/content/CVPR2024/html/Ma_HoloVIC_Large-scale_Dataset_and_Benchmark_for_Multi-Sensor_Holographic_Intersection_and_CVPR_2024_paper.html), [project page](https://holovic.net/)
+- CoInfra (2025): [arXiv](https://arxiv.org/abs/2507.02245), [GitHub](https://github.com/NingMingHao/CoInfra)
+- V2X-ReaLO (2025): [arXiv](https://arxiv.org/abs/2503.10034)
+- V2XScenes (ICCV 2025): [CVF](https://openaccess.thecvf.com/content/ICCV2025/html/Wang_V2XScenes_A_Multiple_Challenging_Traffic_Conditions_Dataset_for_Large-Range_Vehicle-Infrastructure_ICCV_2025_paper.html)
 - V2X-Radar (NeurIPS 2025 Spotlight): [GitHub](https://github.com/yanglei18/V2X-Radar)
+- TruckV2X (RA-L 2025): [project page](https://xietenghu1.github.io/TruckV2X/), [dataset](https://huggingface.co/datasets/XieTenghu1/TruckV2X)
 - V2X-R (CVPR 2025): [GitHub](https://github.com/ylwhxht/V2X-R)
-- V2XPnP (ICCV 2025): [UCLA Mobility Lab](https://mobility-lab.seas.ucla.edu/v2xpnp/)
+- V2XPnP (ICCV 2025): [UCLA Mobility Lab](https://mobility-lab.seas.ucla.edu/v2xpnp/), [arXiv](https://arxiv.org/abs/2412.01812)
+- UrbanIng-V2X (2025): [project page](https://thi-ad.github.io/urbaning/), [GitHub](https://github.com/thi-ad/UrbanIng-V2X)
+- CoopScenes (2024): [project page](https://coopscenes.github.io/), [arXiv](https://arxiv.org/abs/2407.08261), [dataset](https://huggingface.co/datasets/iis-esslingen/CoopScenes)
 - CooPre (IROS 2025 Oral): [GitHub](https://github.com/ucla-mobility/CooPre)
 - RCP-Bench (CVPR 2025): [GitHub](https://github.com/LuckyDush/RCP-Bench)
 - QuantV2X (2025): [GitHub](https://github.com/ucla-mobility/QuantV2X)
+- VOGS-CP (AAAI 2026): [project page](https://chengchen2020.github.io/VOGS-CP/), [repository](https://github.com/ChengChen2020/VOGS-CP)
 - LRCP (WACV 2025): [Paper](https://openaccess.thecvf.com/content/WACV2025/papers/Wang_Latency_Robust_Cooperative_Perception_using_Asynchronous_Feature_Fusion_WACV_2025_paper.pdf)
 
 ### Surveys and Repositories

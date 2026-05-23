@@ -95,7 +95,9 @@ Exact thresholds are program-specific. A defensible release pattern is:
 
 - `40-runtime-systems/software-operations/sensor-calibration-fleet-ops.md`
 - `20-av-platform/sensors/calibration-tracking.md`
+- `20-av-platform/sensors/calibration-bay-fixtures.md`
 - `20-av-platform/sensors/multi-lidar-calibration.md`
+- `10-knowledge-base/geometry-3d/active-calibration-experiment-design.md`
 - `60-safety-validation/verification-validation/slam-map-benchmark-protocol.md`
 - `60-safety-validation/verification-validation/perception-slam-leaderboard-interpretation.md`
 - `60-safety-validation/runtime-assurance/monitor-qualification-evidence.md`

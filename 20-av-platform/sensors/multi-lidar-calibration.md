@@ -2518,6 +2518,7 @@ Total: 16 weeks, $38,000-57,000
 
 **Related Documents in This Repository:**
 - `20-av-platform/sensors/robosense-lidar.md` — RoboSense RSHELIOS and RSBP specifications
+- `20-av-platform/sensors/calibration-bay-fixtures.md` — Physical bay targets, surveyed fixture frames, and evidence handoff for target-based calibration runs
 - `10-knowledge-base/state-estimation/gtsam-factor-graphs.md` — GTSAM factor graph optimization, VGICP details
 - `30-autonomy-stack/perception/overview/uncertainty-quantification-calibration.md` — Uncertainty quantification and confidence calibration
 - `60-safety-validation/runtime-assurance/runtime-verification-monitoring.md` — Runtime monitoring, safety MCU pattern

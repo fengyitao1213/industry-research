@@ -393,6 +393,8 @@ Emergency vehicles may travel at 60-80 km/h on apron during response -- far exce
 - Under-vehicle sensing (ultrasonic or short-range radar) to detect personnel in crush zone
 - V2I notification of personnel presence from infrastructure cameras
 
+Ultrasonic entries should be interpreted through the reusable [Ultrasonic Proximity Sensing Models](../../10-knowledge-base/sensors/ultrasonic-proximity-sensing-models.md) contract: cone-limited acoustic range, temperature compensation, cross-talk scheduling, and safety-rated versus advisory separation.
+
 **Residual risk:** Personnel in complete sensor shadow (behind aircraft landing gear, between stacked containers). Mitigated by infrastructure perception and operational procedures (exclusion zones).
 
 ### 6.3 H2: Collision with Aircraft
@@ -593,7 +595,7 @@ Emergency vehicles may travel at 60-80 km/h on apron during response -- far exce
 
 **Frequency estimate:** Wingtip strikes are a subset of the 22,400 annual ground damage incidents. Pushback-related wingtip strikes are specifically documented: multiple incidents of simultaneous pushback from adjacent stands causing tail-to-wingtip contact (SKYbrary records: B737+B737 collision Jan 2018; B767+A320 collision Aug 2017; B767+B737 collision Mar 2018; B787+A350 wingtip-to-stabilizer contact Apr 2024 at Heathrow).
 
-**Sensor coverage:** LiDAR provides precise 3D measurement of wingtip position. Camera provides visual confirmation. Ultrasonic for close-range (<3 m) clearance monitoring.
+**Sensor coverage:** LiDAR provides precise 3D measurement of wingtip position. Camera provides visual confirmation. Ultrasonic provides close-range (<3 m) clearance monitoring when its acoustic range and validity gates are configured for the local geometry.
 
 **Mitigation:**
 - HD map contains stand geometry with aircraft type-specific clearance envelopes

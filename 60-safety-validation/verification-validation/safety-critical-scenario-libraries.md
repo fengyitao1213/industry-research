@@ -79,6 +79,7 @@ Use closed-loop simulation for scale, HIL for timing and interface fidelity, and
 ## Related Repository Docs
 
 - [Testing and Validation Methodology](testing-validation-methodology.md)
+- [AV Data Evaluation Fundamentals](../../10-knowledge-base/machine-learning/av-data-evaluation-fundamentals.md)
 - [Airside Scenario Taxonomy](airside-scenario-taxonomy.md)
 - [Evaluation Benchmarks](evaluation-benchmarks.md)
 - [Perception/SLAM Statistical Validity Protocol](perception-slam-statistical-validity-protocol.md)

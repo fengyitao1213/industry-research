@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc" data-diagram-kind="beam-noise-model">
+  <title id="title">Ultrasonic proximity sensing model</title>
+  <desc id="desc">ultrasonic proximity sensing model showing transmit ringdown, acoustic beam cone, echo time-of-flight, temperature compensation, cross-talk scheduling, and invalid-return gates.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L10,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="returnArrow" markerWidth="12" markerHeight="12" refX="2" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M10,0 L10,6 L0,3 z" fill="#0f766e"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="beam" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#cffafe" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.28"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="720" fill="#f8fafc"/>
+  <rect x="42" y="38" width="1316" height="644" rx="20" fill="#ffffff" stroke="#d9e2ef" filter="url(#shadow)"/>
+  <text x="80" y="88" font-size="30" font-weight="800" fill="#0f172a">Ultrasonic proximity sensing model</text>
+  <text x="80" y="122" font-size="16" font-weight="600" fill="#475569">Pulse-echo range is valid only when timing, beam geometry, environment, and array schedule agree.</text>
+  <rect x="80" y="144" width="1240" height="2" fill="#dbeafe"/>
+
+<!-- layout:beam-noise-model -->
+  <rect x="96" y="270" width="164" height="124" rx="16" fill="#ecfeff" stroke="#0891b2" stroke-width="2.5"/>
+  <circle cx="178" cy="332" r="36" fill="#ffffff" stroke="#0891b2" stroke-width="3"/>
+  <path d="M158 332 C168 305, 188 305, 198 332 C188 359, 168 359, 158 332" fill="#bae6fd" stroke="#0891b2" stroke-width="2"/>
+  <text x="178" y="428" text-anchor="middle" font-size="15" font-weight="800" fill="#0f172a">transducer</text>
+  <text x="178" y="449" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">burst and listen</text>
+
+  <polygon points="230,332 910,180 910,484" fill="url(#beam)" stroke="#0891b2" stroke-width="3" opacity="0.86"/>
+  <line x1="230" y1="332" x2="910" y2="180" stroke="#0891b2" stroke-width="3" stroke-dasharray="10 10"/>
+  <line x1="230" y1="332" x2="910" y2="484" stroke="#0891b2" stroke-width="3" stroke-dasharray="10 10"/>
+  <line x1="230" y1="332" x2="835" y2="332" stroke="#2563eb" stroke-width="5" marker-end="url(#arrow)"/>
+  <line x1="835" y1="348" x2="260" y2="348" stroke="#0f766e" stroke-width="5" marker-end="url(#returnArrow)"/>
+  <text x="530" y="312" text-anchor="middle" font-size="17" font-weight="800" fill="#1d4ed8">transmit pulse</text>
+  <text x="536" y="380" text-anchor="middle" font-size="17" font-weight="800" fill="#0f766e">echo time-of-flight</text>
+
+  <rect x="720" y="216" width="178" height="232" rx="18" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+  <text x="809" y="252" text-anchor="middle" font-size="18" font-weight="800" fill="#78350f">target surface</text>
+  <path d="M770 284 L848 250 L872 390 L792 420 Z" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <line x1="730" y1="422" x2="886" y2="422" stroke="#d97706" stroke-width="4"/>
+  <text x="809" y="462" text-anchor="middle" font-size="13" font-weight="700" fill="#78350f">angle and material change echo strength</text>
+
+  <rect x="96" y="186" width="268" height="58" rx="14" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/>
+  <text x="230" y="220" text-anchor="middle" font-size="16" font-weight="800" fill="#9f1239">ringdown blind zone</text>
+  <path d="M260 244 C278 262, 292 276, 310 294" fill="none" stroke="#e11d48" stroke-width="3" stroke-dasharray="6 6"/>
+
+  <rect x="944" y="168" width="330" height="92" rx="16" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1109" y="202" text-anchor="middle" font-size="17" font-weight="800" fill="#14532d">temperature compensation</text>
+  <text x="1109" y="228" text-anchor="middle" font-size="14" font-weight="700" fill="#166534">speed of sound changes range scale</text>
+
+  <rect x="944" y="294" width="330" height="108" rx="16" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="1109" y="328" text-anchor="middle" font-size="17" font-weight="800" fill="#312e81">cross-talk scheduling</text>
+  <text x="1109" y="354" text-anchor="middle" font-size="14" font-weight="700" fill="#4338ca">multiplex sensors to preserve attribution</text>
+  <path d="M990 378 H1228" stroke="#4f46e5" stroke-width="3" stroke-dasharray="12 8"/>
+  <circle cx="1012" cy="378" r="8" fill="#4f46e5"/>
+  <circle cx="1082" cy="378" r="8" fill="#94a3b8"/>
+  <circle cx="1152" cy="378" r="8" fill="#4f46e5"/>
+  <circle cx="1222" cy="378" r="8" fill="#94a3b8"/>
+
+  <rect x="944" y="436" width="330" height="112" rx="16" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="1109" y="470" text-anchor="middle" font-size="17" font-weight="800" fill="#7c2d12">invalid-return gates</text>
+  <text x="1109" y="496" text-anchor="middle" font-size="14" font-weight="700" fill="#9a3412">timeout, saturation, weak echo, multipath</text>
+  <text x="1109" y="522" text-anchor="middle" font-size="14" font-weight="700" fill="#9a3412">become validity and covariance changes</text>
+
+  <rect x="116" y="532" width="780" height="78" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="148" y="564" font-size="15" font-weight="800" fill="#0f172a">fusion contract</text>
+  <text x="148" y="590" font-size="14" font-weight="700" fill="#475569">range plus validity, amplitude, echo width, temperature source, schedule ID, and covariance before planner or safety use</text>
+</svg>

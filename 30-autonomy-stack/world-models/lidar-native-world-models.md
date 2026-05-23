@@ -6,7 +6,7 @@
 
 ---
 
-> **Key Takeaway:** Camera-centric world models generate images or video -- representations that a LiDAR-primary stack cannot directly consume. LiDAR-native world models predict future point clouds, voxel occupancy, or range images in the same metric coordinate system the planner already operates in. For a LiDAR-primary airside AV like reference airside AV stack, this eliminates the modality translation problem entirely. Copilot4D proved LiDAR future prediction is viable (65% Chamfer distance reduction). UnO demonstrated that self-supervised LiDAR occupancy forecasting outperforms supervised baselines. The field is converging on voxel-tokenized discrete diffusion and continuous occupancy fields as the two dominant paradigms. Both are deployable on Orin within 50-100ms for 3-step prediction, and both train self-supervised -- critical when no public airside LiDAR datasets exist.
+> **Key Takeaway:** Camera-centric world models generate images or video -- representations that a LiDAR-primary stack cannot directly consume. LiDAR-native world models predict future point clouds, voxel occupancy, or range images in the same metric coordinate system the planner already operates in. For a LiDAR-primary airside AV like reference airside AV stack, this eliminates the modality translation problem entirely. Copilot4D proved LiDAR future prediction is viable with >65% Chamfer distance reduction at 1s and >50% at 3s across nuScenes, KITTI, and Argoverse 2, while UnO demonstrated that self-supervised LiDAR occupancy forecasting can outperform supervised baselines. The field is converging on voxel-tokenized discrete diffusion and continuous occupancy fields, but edge deployment still needs method-specific TensorRT/latency validation rather than assuming all 3-step predictors fit a 50-100ms Orin budget.
 
 ---
 
@@ -134,7 +134,7 @@ LiDAR Point Cloud Sequence
 │    → Bottleneck projection                             │
 │                                                        │
 │  Vector Quantization:                                  │
-│    → Lookup nearest codebook entry (K=8192 entries)    │
+│    → Lookup nearest learned codebook entry             │
 │    → Straight-through estimator for gradients          │
 │    → Exponential moving average codebook updates       │
 │                                                        │
@@ -187,12 +187,12 @@ LiDAR Point Cloud Sequence
 
 ### 2.4 Results
 
-| Metric | Copilot4D | Previous SOTA | Improvement |
-|--------|-----------|---------------|-------------|
-| Chamfer Distance @ 1s (nuScenes) | **0.36** | 1.41 | **74% reduction** |
-| Chamfer Distance @ 3s (nuScenes) | **0.72** | ~1.5 | **>50% reduction** |
-| Perceptual Quality (FPD) | **Best** | -- | First to evaluate |
-| Datasets evaluated | nuScenes, KITTI, Argoverse2 | Single dataset | 3x generality |
+| Metric | Copilot4D result | Prior baseline | Improvement |
+|--------|------------------|----------------|-------------|
+| Chamfer Distance @ 1s | New SOTA across nuScenes, KITTI Odometry, and Argoverse 2 | Prior point-cloud forecasting baselines | **>65% reduction** |
+| Chamfer Distance @ 3s | New SOTA across nuScenes, KITTI Odometry, and Argoverse 2 | Prior point-cloud forecasting baselines | **>50% reduction** |
+| Perceptual Quality (FPD) | Best reported among evaluated baselines | -- | First to evaluate |
+| Datasets evaluated | nuScenes, KITTI Odometry, Argoverse 2 | Often single-dataset | Cross-dataset generality |
 
 **Qualitative observations:**
 - Generates realistic future point clouds that preserve object shapes and scene geometry
@@ -203,19 +203,19 @@ LiDAR Point Cloud Sequence
 ### 2.5 Limitations
 
 1. **Not open-source:** Code and weights are not publicly released. Waabi (founded by Raquel Urtasun, previously of Uber ATG) treats this as proprietary technology.
-2. **BEV-only representation:** Copilot4D uses BEV pillars, collapsing height information. This limits prediction of objects at different vertical levels (e.g., aircraft wing tips above vehicle roof).
-3. **Single-sensor training:** Trained on individual LiDAR sweeps from nuScenes (32-beam) and Waymo (64-beam). Multi-LiDAR setups like the reference airside AV stack's 4-8 sensors are not directly supported -- would need to merge point clouds before tokenization.
-4. **No action conditioning:** Copilot4D predicts unconditional futures -- it does not condition on the ego vehicle's planned action. This means it cannot answer "what will happen IF I take this action?"
+2. **BEV-indexed token bottleneck:** Copilot4D encodes point clouds into BEV-indexed tokens, compressing vertical structure before forecasting, although the decoder reconstructs 3D occupancy/point clouds via a neural feature grid and differentiable depth rendering.
+3. **Single-sensor road-scene scope:** Evaluated on public road-scene LiDAR datasets rather than multi-LiDAR industrial or airside rigs. Multi-LiDAR setups like the reference airside AV stack's 4-8 sensors are not directly supported -- they would need merged point clouds or a redesigned multi-sensor tokenization stage before forecasting.
+4. **Limited planner coupling:** Copilot4D conditions on future ego poses/trajectories, including counterfactual action inputs, but it is not presented as a planner-facing candidate scorer with closed-loop safety metrics.
 5. **Inference speed:** The iterative MaskGIT decoding requires 10-20 steps per future frame. Estimated 80-150ms per 3-step prediction on A100. On Orin, this would need significant optimization.
 
 ### 2.6 Airside Relevance
 
-Despite its limitations, Copilot4D proved a critical thesis: **LiDAR future prediction is viable and dramatically better than prior approaches.** The 65-75% Chamfer distance reduction demonstrates that discrete tokenization of LiDAR data is a productive representation for world modeling.
+Despite its limitations, Copilot4D proved a critical thesis: **LiDAR future prediction is viable and dramatically better than prior approaches.** The source-reported >65% Chamfer distance reduction at 1s and >50% reduction at 3s demonstrate that discrete tokenization of LiDAR data is a productive representation for world modeling.
 
 For airside application, Copilot4D's approach would need adaptation:
 - Merge 4-8 RoboSense scans into unified cloud before tokenization
 - Extend BEV to full 3D voxelization (aircraft height variation requires it)
-- Add action conditioning for planning integration
+- Expose the ego-pose/trajectory conditioning as a planner-facing counterfactual scoring interface
 - Fine-tune on airside LiDAR data (see Section 10)
 
 The architecture is reproducible from the paper even without official code. The VQ-VAE tokenizer uses standard components (PointNet, Swin Transformer, codebook quantization), and MaskGIT-based diffusion is well-documented.
@@ -606,18 +606,15 @@ class LiDARBEVEncoder(torch.nn.Module):
 
 Drive-OccWorld extends OccWorld with **action conditioning** -- it predicts what the world will look like IF the ego vehicle takes a specific action. This is critical for planning: evaluate multiple candidate trajectories by predicting their consequences.
 
-**Action conditioning formats supported:**
-- Velocity: (vx, vy) in m/s
-- Steering angle: converted to curvature
-- Trajectory: sequence of (delta_x, delta_y) in meters
-- High-level commands: "go forward," "turn left," "turn right"
+**Action conditioning formats in scope:**
+- Reported by the paper: future ego trajectories / planning signals and action variables such as velocity.
+- Engineering variants such as steering curvature or high-level command tokens would need an explicit interface and retraining before being treated as supported inputs.
 
-**LiDAR adaptation is identical to OccWorld** -- replace the camera BEV encoder with a LiDAR voxel encoder. The action conditioning and temporal prediction stages are unchanged.
+**LiDAR adaptation is a hypothesis, not a reported result.** Drive-OccWorld is a vision-centric 4D occupancy forecasting method. A LiDAR version would likely replace the camera BEV encoder with a LiDAR voxel/BEV encoder while preserving the action-conditioned temporal predictor, but that path requires retraining, calibration of the occupancy tokenizer, and a fresh benchmark before claiming LiDAR-native accuracy or latency.
 
 **Results on nuScenes (camera-based, for reference):**
-- 33% improvement on L2@1s vs. UniAD
-- 0.85m average L2 error
-- 0.29% collision rate
+- Under the paper's `†` protocol, Drive-OccWorldP reports 0.32 / 0.75 / 1.49m L2 at 1s / 2s / 3s, 0.85m average L2, and 0.29% average collision.
+- Under the `‡` protocol, Drive-OccWorldP reports 0.25 / 0.44 / 0.72m L2 at 1s / 2s / 3s, 0.47m average L2, and 0.11% average collision.
 
 ### 6.4 DIO: Decomposable Implicit 4D Occupancy-Flow
 
@@ -694,15 +691,15 @@ class TemporalFlashOcc(torch.nn.Module):
 
 | Method | Venue | Input | Action Conditioned | Self-Supervised | LiDAR-Native | Open Source |
 |--------|-------|-------|-------------------|-----------------|--------------|-------------|
-| OccWorld | ECCV 2024 | Camera BEV | No | No | Adaptable | Yes |
-| Drive-OccWorld | AAAI 2025 | Camera BEV | **Yes** | No | Adaptable | Yes |
+| OccWorld | ECCV 2024 | Camera BEV | No | No | Adaptation hypothesis | Yes |
+| Drive-OccWorld | AAAI 2025 | Camera BEV | **Yes** | No | Adaptation hypothesis | Yes |
 | OccSora | 2024 | Camera BEV | Yes (trajectory) | No | Adaptable | Partial |
 | UnO | CVPR 2024 | **LiDAR** | No | **Yes** | **Yes** | No |
 | DIO | CVPR 2025 | Multi-modal | Yes | Partial | **Yes** | No |
 | Cam4DOcc | CVPR 2024 | Camera | No | No | No | Yes |
 | OccLLaMA | 2024 | Camera BEV | Yes (language) | No | Adaptable | Partial |
 
-**Recommendation:** Start with OccWorld (open-source, well-documented) with a LiDAR BEV encoder. Upgrade to Drive-OccWorld when action conditioning is needed. Aim toward UnO-style self-supervised training long-term to eliminate labeling requirements.
+**Recommendation:** Treat OccWorld/Drive-OccWorld LiDAR ports as prototypes, not off-the-shelf LiDAR-native world models. Start with the open-source camera-BEV code only if the project can fund LiDAR encoder/tokenizer retraining and latency benchmarking; use Drive-OccWorld when action-conditioned occupancy rollouts matter. Aim toward UnO-style self-supervised training long-term to eliminate labeling requirements.
 
 ---
 
@@ -812,7 +809,7 @@ Stack past T range images: R_{t-T}, ..., R_t
 | Pillar-based | BEV pillars | ~5M | ~15ms | ~45ms | 0.8-1.0 | BEV map | Possible |
 | SPFNet (flow) | Raw points | ~4M | ~30ms | ~90ms | 0.9-1.1 | None | No |
 | Range image | Range image | ~8M | ~20ms | ~60ms | 0.7-0.9 | None | Possible |
-| Copilot4D | BEV tokens | ~50M | ~100ms | ~300ms | **0.36** | Temporal | No |
+| Copilot4D | BEV tokens | ~50M | ~100ms | ~300ms | **0.36** | Temporal | Ego pose/trajectory |
 | UnO | Implicit field | ~30M | ~60ms | ~180ms | **~0.4** | Map + temporal | No |
 
 **Observations:**
@@ -1464,24 +1461,24 @@ Decision:
 
 | Model | Venue | Year | Representation | Self-Supervised | Action Cond. | Open Source | Orin Deployable | Airside Fit |
 |-------|-------|------|---------------|-----------------|--------------|-------------|-----------------|-------------|
-| **Copilot4D** | ICLR | 2024 | BEV tokens (discrete) | Yes | No | No | Needs optimization | HIGH |
+| **Copilot4D** | ICLR | 2024 | BEV tokens (discrete) | Yes | Ego pose/trajectory | No | Needs optimization | HIGH |
 | **UnO** | CVPR Oral | 2024 | Continuous implicit field | **Yes** | No | No | Needs optimization | **VERY HIGH** |
 | **LidarDM** | ICRA | 2025 | Range images (diffusion) | N/A (generative) | N/A | **Yes** | Offline only | HIGH (data gen) |
 | **LiDARCrafter** | AAAI Oral | 2026 | 4D point cloud | N/A (generative) | N/A (language) | **Yes** | Offline only | HIGH (data gen) |
 | **DIO** | CVPR | 2025 | Decomposed implicit | Partial | **Yes** | No | Needs optimization | HIGH |
 | **Cosmos-LidarGen** | NVIDIA | 2025 | Range images (tokenized) | N/A (generative) | N/A | **Yes** | Offline only | HIGH (data gen) |
-| **OccWorld** (LiDAR-adapted) | ECCV | 2024 | VQ-VAE voxels | No | No | **Yes** | **Feasible** | HIGH |
-| **Drive-OccWorld** (LiDAR-adapted) | AAAI | 2025 | VQ-VAE voxels | No | **Yes** | **Yes** | **Feasible** | **VERY HIGH** |
+| **OccWorld** (LiDAR-adaptation hypothesis) | ECCV | 2024 | VQ-VAE voxels | No | No | **Yes** | Not reported for LiDAR | HIGH |
+| **Drive-OccWorld** (LiDAR-adaptation hypothesis) | AAAI | 2025 | VQ-VAE voxels | No | **Yes** | **Yes** | Not reported for LiDAR | **VERY HIGH** |
 | **AD-L-JEPA** | AAAI | 2026 | BEV embeddings | **Yes** | No (yet) | **Yes** | **Yes** (lightweight) | HIGH |
 
 ### 13.2 Performance and Compute Comparison
 
 | Model | Chamfer Dist @1s | Occ IoU @1s | Params | A100 Inference | Orin Inference (est.) | VRAM |
 |-------|-----------------|-------------|--------|---------------|----------------------|------|
-| Copilot4D | **0.36** | -- | ~50M | ~100ms | ~300ms | ~4 GB |
+| Copilot4D | >65% CD reduction @1s | -- | ~50M | ~100ms | ~300ms | ~4 GB |
 | UnO | ~0.40 | SOTA | ~30M | ~60ms | ~180ms | ~3 GB |
-| OccWorld (LiDAR) | -- | ~35% | ~25M | ~50ms | ~150ms | ~2 GB |
-| Drive-OccWorld (LiDAR) | -- | ~37% | ~30M | ~60ms | ~180ms | ~2.5 GB |
+| OccWorld (LiDAR adaptation) | -- | Not reported | Not reported | Not reported | Not reported | Not reported |
+| Drive-OccWorld (LiDAR adaptation) | -- | Not reported | Not reported | Not reported | Not reported | Not reported |
 | Pillar-based prediction | ~0.8 | ~25% | ~5M | ~15ms | **~45ms** | ~1 GB |
 | Range image prediction | ~0.7 | ~28% | ~8M | ~20ms | ~60ms | ~1 GB |
 | PointPillars + ConvGRU | -- | ~22% | ~7M | ~20ms | **~50ms** | ~1 GB |

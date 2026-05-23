@@ -278,6 +278,20 @@ Actions are encoded via **Fourier embeddings**, concatenated, and fused through 
 - **0.29% collision rate**.
 - +2.0% mIoU_f improvement over Cam4DOcc for future occupancy.
 
+### 2.3.1 Post-Drive-OccWorld Follow-Ons (2024--2026)
+
+Recent occupancy world-model work is splitting into two tracks: planning-oriented forecasters that avoid reconstructing every static voxel, and simulator-oriented generators that stretch occupancy rollouts to much longer horizons.
+
+| Method | Core idea | AV relevance | Source |
+|---|---|---|---|
+| **DFIT-OccWorld** | Reformulates future occupancy as decoupled voxel warping: dynamic voxels are forecast with voxel flow while static voxels use pose transformation; adds image-assisted differentiable rendering losses. | Reduces the cost of 4D occupancy forecasting and gives a clearer place to test static/dynamic decomposition errors. | [arXiv:2412.13772](https://arxiv.org/abs/2412.13772) |
+| **IR-WM** | Predicts residual scene changes from BEV features instead of fully reconstructing future scenes at every step. | Useful when most occupancy volume is static and model capacity should focus on dynamic changes relevant to planning. | [arXiv:2510.16729](https://arxiv.org/abs/2510.16729) |
+| **SparseWorld** | Uses sparse dynamic queries, range-adaptive perception, state-conditioned forecasting, and self-scheduled training. | Aligns occupancy forecasting with continuous scene dynamics instead of only dense grid classification. | [arXiv:2510.17482](https://arxiv.org/abs/2510.17482), [GitHub](https://github.com/MSunDYY/SparseWorld) |
+| **OccTENS** | Casts long-term occupancy generation as temporal next-scale prediction with a TensFormer. | Targets controllable long-horizon generation where autoregressive occupancy models degrade or become slow. | [arXiv:2509.03887](https://arxiv.org/abs/2509.03887) |
+| **OccSim** | Uses long-horizon occupancy world models for multi-kilometer 3D simulation from a single initial frame and future ego actions. | Best treated as simulation/data-generation evidence, not as an online vehicle planner. | [arXiv:2603.28887](https://arxiv.org/abs/2603.28887) |
+
+Deployment caveat: these follow-ons remain road-dataset research artifacts unless validated on the target ODD. For airside, port, mine, yard, or warehouse transfer, the relevant question is whether the model can preserve rare large static geometry, non-road actor dynamics, and sensor-specific blind spots under closed-loop rollouts.
+
 ---
 
 ### 2.4 OccSora -- Diffusion-Based 4D World Simulator
@@ -656,7 +670,7 @@ Based on this research, an airside occupancy system should incorporate:
 
 3. **Self-Supervised Training** (SelfOcc/RenderOcc/UnO): Airside lacks large-scale 3D occupancy annotations. Self-supervised methods using camera-LiDAR pairs can bootstrap occupancy models without manual voxel labeling.
 
-4. **4D Forecasting** (Drive-OccWorld/OccWorld): Predict future occupancy conditioned on ego and aircraft actions. Critical for pushback operations where the ego tractor must predict aircraft trajectory.
+4. **4D Forecasting**: Use Drive-OccWorld/OccSora-style action- or trajectory-conditioned models when candidate ego actions need to be evaluated; use OccWorld-style history-conditioned forecasters when the task is scene evolution and ego-motion prediction without explicit action branching. Critical for pushback operations where the ego tractor must predict aircraft trajectory and clearance envelopes.
 
 5. **Hazard Occupancy Layers**: Extend standard binary occupancy with hazard semantics -- jet blast zones, propeller wash, restricted areas encoded as occupancy with semantic tags.
 
@@ -681,6 +695,11 @@ Based on this research, an airside occupancy system should incorporate:
 | GaussianFormer | 2024 | ECCV | 3D Occ | Gaussian scene representation, 17-25% memory |
 | OccWorld | 2023 | -- | 4D Occ WM | GPT-like autoregressive occupancy generation |
 | Drive-OccWorld | 2025 | AAAI | 4D Occ WM | Action-conditioned, end-to-end planning |
+| DFIT-OccWorld | 2024 | -- | 4D Occ WM | Decoupled dynamic-flow and static-pose occupancy forecasting |
+| IR-WM | 2025 | -- | 4D Occ WM | Residual world model that predicts changes instead of full future reconstruction |
+| SparseWorld | 2025 | -- | 4D Occ WM | Sparse dynamic queries for range-adaptive forecasting and planning |
+| OccTENS | 2025 | -- | 4D Occ WM | Temporal next-scale occupancy generation |
+| OccSim | 2026 | -- | 3D Occ Sim | Multi-kilometer simulation with long-horizon occupancy world models |
 | OccSora | 2024 | -- | 4D Occ WM | Diffusion-based, 16s generation |
 | Cam4DOcc | 2024 | CVPR | 4D Benchmark | Camera-only 4D forecasting benchmark |
 | UnO | 2024 | CVPR | 4D Occ | Unsupervised continuous 4D field |
@@ -697,7 +716,7 @@ Based on this research, an airside occupancy system should incorporate:
 
 1. **Occupancy prediction has replaced BEV as the dominant 3D representation** for vision-based autonomous driving perception, driven by its ability to handle arbitrary objects and fine-grained geometry.
 
-2. **4D occupancy prediction IS a world model** -- predicting future 3D occupancy grids conditioned on actions is precisely the world model formulation. Methods like OccWorld, Drive-OccWorld, and OccSora make this explicit.
+2. **4D occupancy prediction IS a world model** -- predicting future 3D occupancy grids from history, and optionally conditioning those predictions on ego actions or trajectories, is precisely the world-model formulation. Methods like OccWorld, Drive-OccWorld, OccSora, and the DFIT/IR-WM/SparseWorld follow-ons make this explicit.
 
 3. **Self-supervised and annotation-free methods** (SelfOcc, RenderOcc, UnO, ViDAR) are closing the gap with fully supervised approaches, suggesting that expensive 3D voxel annotations may become unnecessary.
 
@@ -723,6 +742,11 @@ Based on this research, an airside occupancy system should incorporate:
 - [GaussianFormer (ECCV 2024)](https://arxiv.org/abs/2405.17429)
 - [OccWorld](https://wzzheng.net/OccWorld/)
 - [Drive-OccWorld (AAAI 2025)](https://arxiv.org/abs/2408.14197)
+- [DFIT-OccWorld](https://arxiv.org/abs/2412.13772)
+- [IR-WM](https://arxiv.org/abs/2510.16729)
+- [SparseWorld](https://arxiv.org/abs/2510.17482)
+- [OccTENS](https://arxiv.org/abs/2509.03887)
+- [OccSim](https://arxiv.org/abs/2603.28887)
 - [OccSora](https://arxiv.org/abs/2405.20337)
 - [Cam4DOcc (CVPR 2024)](https://arxiv.org/abs/2311.17663)
 - [UnO (CVPR 2024)](https://arxiv.org/abs/2406.08691)

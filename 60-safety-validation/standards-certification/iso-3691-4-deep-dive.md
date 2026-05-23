@@ -846,6 +846,8 @@ The established pattern (used by EasyMile and others) is to separate the AI/ML c
 
 **Key Principle:** The AI/ML system decides where to go and how fast, but the safety system has independent authority to stop the vehicle. The safety system uses only deterministic, certifiable sensors (safety-rated LiDAR scanners certified to IEC 61496 or IEC 62998) and certified safety PLCs, and can override any command from the AI/ML layer.
 
+When ultrasonic proximity is used near docks, aircraft, racks, or underbody crush zones, treat its range as a cone-limited acoustic measurement with explicit validity gates; see [Ultrasonic Proximity Sensing Models](../../10-knowledge-base/sensors/ultrasonic-proximity-sensing-models.md) for the sensor contract and the safety-rated versus advisory split.
+
 ### Specific Challenges and Mitigations
 
 **Challenge 1: Personnel Detection**

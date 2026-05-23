@@ -85,7 +85,7 @@ Visual SLAM systems typically use multiple BA scopes:
 
 2. **Feature extraction or direct alignment.** Extract ORB/SIFT/SURF/SuperPoint-like features, or use dense/direct photometric residuals.
 
-3. **Data association.** Match features across frames using descriptors, optical flow, epipolar constraints, or BoW place recognition.
+3. **Data association.** Match features across frames using descriptors, optical flow, [epipolar constraints](../../../10-knowledge-base/geometry-3d/epipolar-geometry-homographies-two-view.md), or BoW place recognition.
 
 4. **Initial pose estimation.** Estimate motion using PnP, essential matrix, homography, stereo constraints, or inertial propagation.
 

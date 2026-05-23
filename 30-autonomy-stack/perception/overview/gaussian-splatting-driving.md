@@ -164,7 +164,13 @@ GaussianFormer v2 addresses the key limitation of v1: the splatting-to-voxel con
 
 GaussianFormer v2 achieves the best accuracy among efficient methods, though FlashOcc remains far faster for real-time-constrained deployment.
 
-### 2.3 Implications for Airside Deployment
+### 2.3 VOGS-CP: Collaborative Gaussian Occupancy (2026)
+
+[VOGS-CP](../methods/vogs-cp.md) extends semantic Gaussian occupancy into cooperative perception. Each agent predicts sparse 3D semantic Gaussian primitives from camera observations, selects communication-relevant Gaussians, fuses collaborator Gaussians after pose alignment, and splats the fused set into a semantic occupancy grid.
+
+This is distinct from GaussianFormer's single-agent occupancy formulation and from V2X methods that exchange dense BEV features or object queries. The paper/project claims report +8.42 mIoU over single-agent perception, +3.28 mIoU over baseline collaborative methods, and a reduced-transmission setting that retains a gain while using 34.6% communication volume. Treat it as a frontier prototype until reproduced under target camera coverage, pose error, delay, and domain-transfer conditions.
+
+### 2.4 Implications for Airside Deployment
 
 For airport operations on Orin AGX (275 TOPS INT8):
 
@@ -1333,6 +1339,8 @@ class GaussianPerceptionNode:
 
 18. **No public airside Gaussian datasets exist** — creating one would be a significant contribution, paralleling nuScenes' impact on urban driving research
 
+19. **VOGS-CP extends semantic Gaussians into V2X occupancy** — sparse 3D Gaussian messages are a cooperative alternative to dense BEV feature sharing, but they still need pose-error, latency, and domain-transfer validation before safety use
+
 ---
 
 ## References
@@ -1352,6 +1360,7 @@ class GaussianPerceptionNode:
 13. Qin et al., "LangSplat: 3D Language Gaussian Splatting," CVPR 2024
 14. Hess et al., "SplatAD: Real-Time Lidar and Camera Rendering with 3D Gaussian Splatting for Autonomous Driving," CVPR 2025
 15. Yu et al., "FlashOcc: Fast and Memory-Efficient Occupancy Prediction via Channel-to-Height Plugin," 2024
+16. Chen et al., "Vision-Only Gaussian Splatting for Collaborative Semantic Occupancy Prediction," AAAI 2026. https://ojs.aaai.org/index.php/AAAI/article/view/37269
 
 ---
 

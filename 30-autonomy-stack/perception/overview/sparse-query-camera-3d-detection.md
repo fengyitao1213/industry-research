@@ -4,7 +4,8 @@
 
 - Sparse query camera 3D detection predicts 3D objects from surround cameras without constructing a full dense BEV tensor as the main representation.
 - It uses object queries, sparse anchors, or adaptive sampling points to pull only object-relevant image features.
-- This page covers SparseBEV, DETR4D, DySS, and their relationship to [Sparse4D](../methods/sparse4d.md) and [ForeSight](../methods/foresight.md).
+- This page covers [SparseBEV](../methods/sparsebev.md), [DETR4D](../methods/detr4d.md), DySS, and their relationship to [Sparse4D](../methods/sparse4d.md) and [ForeSight](../methods/foresight.md).
+- For cooperative sparse-query exchange across agents, see [SparseCoop](../methods/sparsecoop.md); this page stays focused on ego-vehicle camera 3D detection.
 - The deployment question is whether sparse queries can provide enough object recall at lower memory and latency than dense BEV pipelines.
 - Sparse query methods are object-centric; they do not by default prove freespace or dense occupancy.
 
@@ -79,5 +80,6 @@
 - SparseBEV official repository: https://github.com/MCG-NJU/SparseBEV
 - DETR4D arXiv paper: https://arxiv.org/abs/2212.07849
 - DySS arXiv paper: https://arxiv.org/abs/2506.10242
+- DySS CVPR 2025 Workshop paper page: https://openaccess.thecvf.com/content/CVPR2025W/WAD/html/Yasarla_DySS_Dynamic_Queries_and_State-Space_Learning_for_Efficient_3D_Object_CVPRW_2025_paper.html
 - ForeSight arXiv paper: https://arxiv.org/abs/2508.07089
 - Existing Sparse4D page: [Sparse4D](../methods/sparse4d.md)

@@ -333,7 +333,7 @@ This challenge is directly relevant to airport airside operations, where GPS sig
 2. **Visual-inertial odometry (VIO)**: Combines camera and IMU for drift-limited dead reckoning between GPS fixes
 3. **VLOAM (Visual LiDAR Odometry and Mapping)**: Fuses visual and LiDAR data for robust navigation in degraded conditions
 4. **LiDAR-OSM matching**: Using OpenStreetMap or equivalent databases to constrain particle filter localization when GPS is denied
-5. **Infrastructure-aided positioning**: UWB beacons, magnetic markers, or reflective targets placed at known positions on the airport surface
+5. **[Infrastructure-aided positioning](infrastructure-aided-localization.md)**: UWB beacons, visual fiducials, RFID/BLE identity cues, Wi-Fi RTT, magnetic maps, 5G NR/mmWave positioning, or reflective targets placed at known positions in managed sites
 
 ### 3.5 Centimeter-Level Positioning Requirements
 

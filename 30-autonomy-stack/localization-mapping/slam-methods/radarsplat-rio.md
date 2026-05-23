@@ -11,7 +11,7 @@ priority:
   reason: "RadarSplat-RIO is rated for alternative-sensor localization under adverse weather, weak LiDAR, or GNSS-denied conditions."
 method-priority:end -->
 
-Related docs: [Radar-Inertial Odometry](radar-inertial-odometry.md), [Radar Odometry and Radar SLAM](radar-odometry-radar-slam.md), [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [Gaussian Splatting for Driving](../../perception/overview/gaussian-splatting-driving.md).
+Related docs: [Radar-Inertial Odometry](radar-inertial-odometry.md), [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md), [Radar Odometry and Radar SLAM](radar-odometry-radar-slam.md), [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [Gaussian Splatting for Driving](../../perception/overview/gaussian-splatting-driving.md).
 
 ## Executive Summary
 
@@ -102,6 +102,7 @@ It is not sufficient alone. Production AV localization should fuse radar with IM
 | Method | Sensor model | Optimization style | AV interpretation |
 |---|---|---|---|
 | RadarSplat-RIO | Range-azimuth-Doppler radar + IMU | Gaussian radar bundle adjustment after RIO front end | Emerging dense radar BA concept |
+| Radar RIO correspondence and uncertainty | 3D/4D radar + IMU | Learned association and uncertainty-aware radar residual weighting | Front-end/backend confidence model for sparse radar RIO |
 | Doppler RIO | Radar Doppler + IMU | EKF/factor velocity fusion | Practical adverse-weather odometry baseline |
 | STEAM-RIO | Radar + IMU | Continuous-time GP trajectory optimization | Strong radar-inertial research baseline |
 | iRIOM / Go-RIO | 4D radar + IMU | Radar inertial odometry/mapping | Outdoor 4D radar baselines |
@@ -141,6 +142,7 @@ Track RadarSplat-RIO as an important emerging radar SLAM direction. For current 
 
 - Kung, Tian, Li, Liu, Whitmire, Kienzle, and Benko, "RadarSplat-RIO: Indoor Radar-Inertial Odometry with Gaussian Splatting-Based Radar Bundle Adjustment." https://arxiv.org/abs/2604.13492
 - Local context: [Radar-Inertial Odometry](radar-inertial-odometry.md)
+- Local context: [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md)
 - Local context: [Radar Odometry and Radar SLAM](radar-odometry-radar-slam.md)
 - Local context: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md)
 - Local context: [factor graphs and iSAM2](factor-graph-isam2-gtsam.md)

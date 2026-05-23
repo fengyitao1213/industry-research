@@ -16,6 +16,7 @@ evaluation practices.
 
 Related local notes:
 
+- [av-data-evaluation-fundamentals.md](av-data-evaluation-fundamentals.md)
 - [../systems-engineering/benchmarking-metrics-statistical-validity.md](../systems-engineering/benchmarking-metrics-statistical-validity.md)
 - [foundation-model-training-first-principles.md](foundation-model-training-first-principles.md)
 - [self-supervised-learning-first-principles.md](self-supervised-learning-first-principles.md)

@@ -990,7 +990,7 @@ Training data should overrepresent rare but important scenarios:
 
 ### 9.1 Filling Gaps with Synthetic Data
 
-For scenarios too rare or too dangerous to collect naturally (FOD, near-misses, extreme weather), synthetic data fills the gap (see `50-cloud-fleet/data-platform/synthetic-data-generation.md` for tools).
+For scenarios too rare or too dangerous to collect naturally (FOD, near-misses, extreme weather), synthetic data fills the gap (see `50-cloud-fleet/data-platform/synthetic-data-generation.md` for tools and `50-cloud-fleet/data-platform/airport-fod3s-synthetic-data.md` for the focused Airport-FOD3S FOD data-engine workflow).
 
 **Synthetic data integration in the flywheel:**
 

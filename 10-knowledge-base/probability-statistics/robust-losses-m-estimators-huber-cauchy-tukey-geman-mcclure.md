@@ -20,6 +20,7 @@ that influence after a residual becomes too large to look like an inlier.
 - [Likelihood, MAP, MLE, and Least Squares](likelihood-map-mle-least-squares.md)
 - [Gaussian Noise, Covariance, Information, Whitening, and Uncertainty Ellipses](gaussian-noise-covariance-information.md)
 - [Mahalanobis and Chi-Square Gating](mahalanobis-chi-square-gating.md)
+- [Robust-Loss Covariance Consistency](../state-estimation/robust-loss-covariance-consistency.md)
 - [Nonlinear Least Squares from First Principles](../optimization/nonlinear-least-squares-first-principles.md)
 - [Factor Graph Solver Patterns: Ceres, GTSAM, and g2o](../optimization/factor-graph-solver-patterns-ceres-gtsam-g2o.md)
 - [GTSAM Factor Graph Optimization](../state-estimation/gtsam-factor-graphs.md)

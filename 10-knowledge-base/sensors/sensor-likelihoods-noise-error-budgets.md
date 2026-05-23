@@ -19,6 +19,8 @@ evaluation metric.
 
 - [Bayesian Filtering and Error-State Kalman Filters](../state-estimation/bayesian-filtering-and-eskf.md)
 - [Data Association and Gating](../state-estimation/data-association-and-gating.md)
+- [Thermal IR Radiometry First Principles](thermal-ir-radiometry-first-principles.md)
+- [Ultrasonic Proximity Sensing Models](ultrasonic-proximity-sensing-models.md)
 - [Sampling, FFT, Windowing, and Filtering](../signal-processing/sampling-fft-windowing-filtering.md)
 - [Radar Ambiguity, Chirp Design, and Doppler Limits](../signal-processing/radar-ambiguity-chirp-design-doppler-limits.md)
 - [Time Sync, PTP, Timestamping, and Latency Models](../systems-engineering/time-sync-ptp-timestamping-latency-models.md)
@@ -29,9 +31,9 @@ evaluation metric.
 
 Perception and localization stacks often fail because a residual is treated as
 "noise" when it is actually a systematic error. Camera reprojection error,
-LiDAR range bias, radar angle uncertainty, GNSS multipath, wheel slip, and IMU
-bias each have different structure. A single covariance number cannot capture
-all of them.
+LiDAR range bias, thermal radiometry drift, radar angle uncertainty, GNSS
+multipath, wheel slip, and IMU bias each have different structure. A single
+covariance number cannot capture all of them.
 
 For AV systems, likelihoods drive:
 

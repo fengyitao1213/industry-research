@@ -10,8 +10,11 @@ Cameras measure rays, not depth. Projective geometry is the bookkeeping that
 connects 3D points, camera intrinsics, camera extrinsics, image measurements,
 and multi-view constraints. PnP estimates a camera pose from 3D-to-2D
 correspondences; triangulation estimates 3D points from 2D measurements across
-known camera poses. Both are first-principles building blocks for calibration,
-localization, visual SLAM, and map validation.
+known camera poses. The two-view model-selection layer for 2D-to-2D matches is
+split into [Epipolar Geometry, Homographies, and Two-View Verification](epipolar-geometry-homographies-two-view.md)
+so this page can stay focused on projection, PnP, and triangulation. Together,
+these are first-principles building blocks for calibration, localization,
+visual SLAM, and map validation.
 
 ---
 
@@ -19,6 +22,7 @@ localization, visual SLAM, and map validation.
 
 - [Camera Imaging, Noise, and Calibration](camera-imaging-noise-calibration.md)
 - [Coordinate Frames, Projections, and SE(3)](coordinate-frames-projections-se3.md)
+- [Epipolar Geometry, Homographies, and Two-View Verification](epipolar-geometry-homographies-two-view.md)
 - [Lie Groups SE(3), SO(3), Adjoints, and Jacobians](lie-groups-se3-so3-jacobians.md)
 - [Sensor Calibration and Time Synchronization](sensor-calibration-time-synchronization.md)
 

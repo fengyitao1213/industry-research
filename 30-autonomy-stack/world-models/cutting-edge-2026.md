@@ -30,16 +30,16 @@
 |-------|-----------------|--------|
 | **GS-LiDAR** (ICLR 2025) | Panoramic 2D Gaussians for LiDAR simulation | LiDAR-native 3DGS |
 | **AdaWM** (ICLR 2025) | Adaptive world model alignment for distribution shift | 2x success rate over DreamerV3 |
-| **Copilot4D** (ICLR 2024, continued impact) | Discrete diffusion on LiDAR tokens | 65% Chamfer distance reduction |
+| **Copilot4D** (ICLR 2024, continued impact) | Discrete diffusion on LiDAR tokens | >65% Chamfer distance reduction at 1s; >50% at 3s |
 
-### 1.4 AAAI 2026 (February 2026)
+### 1.4 AAAI 2025-2026
 
 | Paper | Key Contribution | Impact |
 |-------|-----------------|--------|
 | **WorldRFT** | RL fine-tuning of world models with GRPO | 83% collision reduction on nuScenes |
 | **AD-L-JEPA** | First JEPA for driving LiDAR pre-training | 1.9-2.7x GPU-hour reduction vs MAE |
-| **Drive-OccWorld** | Action-conditioned 4D occupancy prediction | 33% improvement over UniAD |
-| **DrivingGPT** | Unified driving language (interleaved image+action tokens) | PDMS 82.4% on NAVSIM |
+| **Drive-OccWorld** (AAAI 2025) | Action-conditioned 4D occupancy prediction | 33% improvement over UniAD |
+| **DrivingGPT** | Unified driving language (interleaved image+action tokens) | PDMS 82.4% on NAVSIM navmini with front-camera VAE tokens and no ego status |
 
 ### 1.5 CVPR 2026 / ICML 2026 (Expected)
 
@@ -163,20 +163,23 @@ ALL IN ONE MODEL: DrivingGPT, GAIA-1, Alpamayo
 
 ### 4.1 nuScenes Planning
 
-| Rank | Method | Collision Rate | L2 Error (3s) | Year |
-|------|--------|---------------|---------------|------|
-| 1 | SparseDrive | 0.06% | 1.55m | 2024 |
-| 2 | DiffusionDrive | 0.08% | 1.48m | 2025 |
-| 3 | VADv2 | 0.12% | 1.62m | 2024 |
-| 4 | UniAD | 0.31% | 1.65m | 2023 |
+| Method | Collision Rate | L2 Error | Year | Note |
+|--------|----------------|----------|------|------|
+| SparseDrive | 0.06% | 1.55m | 2024 | Prior planning baseline |
+| DiffusionDrive | 0.16% @3s / 0.08% avg | 0.90m @3s / 0.57m avg | 2025 | Official nuScenes log in project README |
+| VADv2 | 0.12% | 1.62m | 2024 | Prior planning baseline |
+| UniAD | 0.31% | 1.65m | 2023 | Prior planning baseline |
 
 ### 4.2 NAVSIM
 
-| Rank | Method | PDMS Score | Year |
-|------|--------|-----------|------|
-| 1 | NVIDIA GTRS | 89.3% | 2025 |
-| 2 | DrivingGPT | 82.4% | 2025 |
-| 3 | DiffusionDrive | 80.1% | 2025 |
+| Method | Metric | Benchmark / split | Score | Year | Note |
+|--------|--------|-------------------|-------|------|------|
+| Latent-WAM | EPDMS | NAVSIM v2 | 89.3% | 2026 | Preprint; not directly comparable to PDMS |
+| DiffusionDrive | PDMS | NAVSIM | 88.1% | 2025 | Official project README reports 45 FPS |
+| DrivingGPT | PDMS | NAVSIM mini | 82.4% | 2025 | Mini split; do not compare as full NAVSIM |
+| GTRS-E | EPDMS | NAVSIM v2 / Navhard | 49.4% | 2025 | NAVSIM v2 challenge metric |
+
+PDMS and EPDMS are different NAVSIM metrics, and the reported splits above are not interchangeable. Treat the table as a source-backed tracker rather than a single leaderboard.
 
 ### 4.3 nuScenes Occupancy Prediction
 

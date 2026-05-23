@@ -436,8 +436,8 @@ Benchmark scores (navtest split, 12K scenarios):
 A surprising finding: the simpler TransFuser (1 GPU-day training) matched large-scale architectures like PARA-Drive (80 GPUs, 3 days).
 
 **Chamfer Distance:** For point cloud world models (Copilot4D):
-- NuScenes 3s prediction: 0.58 (vs. prior SOTA 1.40)
-- Reductions of 50-82% across datasets
+- The paper reports >65% Chamfer distance reduction at 1s and >50% at 3s
+- Evaluated across nuScenes, KITTI Odometry, and Argoverse 2
 
 **Occupancy metrics:**
 - **mIoU** for 4D occupancy prediction (OccSora: 27.4% at 32x compression)
@@ -527,7 +527,7 @@ GAIA-2's training on 25M sequences across 256 H100 GPUs represents current scale
 | **GAIA-2** | Latent Diffusion | 2025 | Continuous latents | 5 cameras | 7 pathways | 8.4B params |
 | **MagicDrive-V2** | DiT + 3D VAE | 2025/ICCV | Video latents | 6 cameras | 3D boxes, BEV | FVD 94.84 |
 | **Vista** | SVD-based LDM | 2024/NeurIPS | Video latents | Single | 4 modalities | FID 6.9 |
-| **Copilot4D** | Discrete Diffusion | 2024/ICLR | Point cloud tokens | BEV | Ego trajectory | CD 0.58 (3s) |
+| **Copilot4D** | Discrete Diffusion | 2024/ICLR | Point cloud tokens | BEV | Ego trajectory | >50% CD reduction at 3s |
 | **DriveDreamer-2** | Diffusion + LLM | 2025/AAAI | Video latents | Multi-view | LLM-generated | FVD 55.7 |
 | **OccSora** | Diffusion Transformer | 2024 | 4D Occupancy | Volumetric | Trajectory | FID 8.348 |
 | **Panacea/+** | Diffusion + ControlNet | 2024/CVPR | Video latents | Panoramic | BEV + text | Panoramic |

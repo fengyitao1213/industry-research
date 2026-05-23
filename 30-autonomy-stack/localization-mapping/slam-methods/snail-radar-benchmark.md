@@ -11,7 +11,7 @@ priority:
   reason: "SNAIL Radar Benchmark is rated as a SLAM benchmark or reference page for comparing methods and deployments."
 method-priority:end -->
 
-Related docs: [4D imaging radar RIO and SLAM](4d-imaging-radar-rio-slam.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [radar-inertial odometry](radar-inertial-odometry.md), [radar-LiDAR-inertial fusion](radar-lidar-inertial-fusion.md), and [benchmarking metrics and datasets](benchmarking-metrics-datasets.md).
+Related docs: [4D imaging radar RIO and SLAM](4d-imaging-radar-rio-slam.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [radar place recognition](radar-place-recognition-4dral-sherloc.md), [radar-inertial odometry](radar-inertial-odometry.md), [radar-LiDAR-inertial fusion](radar-lidar-inertial-fusion.md), and [benchmarking metrics and datasets](benchmarking-metrics-datasets.md).
 
 **Last updated:** 2026-05-09
 

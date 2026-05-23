@@ -12,6 +12,12 @@ asynchronous brightness changes. Thermal cameras report infrared radiance,
 often converted to apparent temperature. Both require explicit sensor models
 before using them for perception, SLAM, mapping, or validation.
 
+For the standalone thermal measurement contract, see [Thermal IR Radiometry
+First Principles](../sensors/thermal-ir-radiometry-first-principles.md). This
+page keeps the combined event/thermal geometry view and delegates deeper
+radiometry, NUC, emissivity, reflected-background, and atmospheric terms to the
+sensor foundation page.
+
 ---
 
 ## 1. Event Camera Measurement Model

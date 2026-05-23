@@ -140,6 +140,6 @@ An airside adaptation should measure critical-frame completeness around aircraft
 
 ## Sources
 
-- arXiv paper: https://arxiv.org/abs/2403.10145
+- arXiv paper: https://arxiv.org/abs/2507.02245
 - Official GitHub: https://github.com/NingMingHao/CoInfra
-- arXiv PDF: https://arxiv.org/pdf/2403.10145
+- arXiv PDF: https://arxiv.org/pdf/2507.02245

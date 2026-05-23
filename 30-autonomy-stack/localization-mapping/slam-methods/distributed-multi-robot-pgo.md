@@ -165,7 +165,7 @@ Recommended airside usage:
 
 - DPGO is C++ and provides synchronous/asynchronous distributed PGO examples plus a ROS wrapper.
 - Kimera-Multi uses DPGO as a distributed backend in a broader robust, distributed, dense metric-semantic SLAM system.
-- COSMO-Bench provides collaborative optimization datasets in JSON Robot Log format with intra-robot and inter-robot loop closure labels, including outlier factors for evaluation.
+- [COSMO-Bench](cosmo-bench.md) provides collaborative optimization datasets in JSON Robot Log format with intra-robot and inter-robot loop closure labels, including outlier factors for evaluation.
 - Start evaluation with centralized optimization as a reference solution, then compare distributed convergence, communication, and residuals.
 - Use one canonical transform convention for all inter-robot factors and encode it in tests.
 - Bound graph growth with submaps or keyframes; full keyframe sharing can become expensive.
@@ -177,7 +177,7 @@ Recommended airside usage:
 - DPGO official repository: https://github.com/mit-acl/dpgo
 - Kimera-Multi official repository: https://github.com/MIT-SPARK/Kimera-Multi
 - Kimera-RPGO robust PGO component: https://github.com/MIT-SPARK/Kimera-RPGO
-- COSMO-Bench dataset portal: https://www.cosmobench.com/
+- [COSMO-Bench](cosmo-bench.md) dataset portal: https://www.cosmobench.com/
 - JSON Robot Log format: https://github.com/MarineRoboticsGroup/jrl
 
 ## Practical Recommendation
@@ -204,6 +204,7 @@ For final map release, run a centralized or certifiable backend as an additional
 - [Robust Pose Graph Optimization with GNC and riSAM](robust-pgo-gnc-risam.md)
 - [GraphSLAM and Pose Graph Optimization](graphslam-pose-graph-optimization.md)
 - [Loop Closure and Place Recognition](loop-closure-place-recognition.md)
+- [COSMO-Bench](cosmo-bench.md)
 
 ## Sources
 

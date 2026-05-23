@@ -209,6 +209,7 @@ Early-stage thresholds should be conservative:
 | [VLA Models for Driving](vla-for-driving.md) | VLA architecture and action-head context |
 | [VLA Distillation and Scaling](vla-distillation-scaling.md) | Distilling large reasoners into deployable models |
 | [Spatial Foundation Models for Airport](spatial-foundation-models-airport.md) | Spatial reasoning and airport adaptation |
+| [EmbodiedScan and MMScan Embodied 3D Benchmarks](../perception/datasets-benchmarks/embodiedscan-mmscan-embodied-3d-benchmarks.md) | Indoor 3D grounding and QA benchmark proxy |
 | [Evaluation Benchmarks: NAVSIM and Bench2Drive](../end-to-end-driving/evaluation-benchmarks-navsim-bench2drive.md) | E2E planning benchmark context |
 | [Airside Autonomy Benchmark Spec](../end-to-end-driving/airside-autonomy-benchmark-spec.md) | Domain-specific VLM/VLA test track |
 | [End-to-End World Model Pipeline](../end-to-end-driving/e2e-world-model-pipeline.md) | VLA integration as slow reasoner |

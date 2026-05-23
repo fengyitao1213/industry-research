@@ -6,7 +6,7 @@
 
 This protocol defines the release gates for uncertainty estimates produced by perception, localization, SLAM, and map-change systems. Airside autonomy cannot rely only on point estimates. The stack must know when it is uncertain, surface that uncertainty to runtime monitors, and avoid confident wrong answers near aircraft, people, geofence boundaries, FOD, temporary GSE, and stale map regions.
 
-This file is used by the [perception-SLAM evidence case](perception-slam-map-reliability-evidence-case.md), the [statistical validity protocol](perception-slam-statistical-validity-protocol.md), the [corruption and fault injection protocol](robustness/perception-slam-corruption-fault-injection-protocol.md), and [online perception monitoring and ODD enforcement](../runtime-assurance/online-perception-monitoring-odd-enforcement.md).
+This file is used by the [perception-SLAM evidence case](perception-slam-map-reliability-evidence-case.md), the [statistical validity protocol](perception-slam-statistical-validity-protocol.md), the [corruption and fault injection protocol](robustness/perception-slam-corruption-fault-injection-protocol.md), [online perception monitoring and ODD enforcement](../runtime-assurance/online-perception-monitoring-odd-enforcement.md), and the [Robust-Loss Covariance Consistency](../../10-knowledge-base/state-estimation/robust-loss-covariance-consistency.md) foundation when robust weighting or gating changes the covariance exposed to release gates.
 
 ## Calibration Scope
 

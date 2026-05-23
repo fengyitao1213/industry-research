@@ -1503,6 +1503,8 @@ This is critical because **no public airside simulation exists** — reference a
 
 As documented across this repository (see master-synthesis.md, finding #25), there is no public airside driving dataset, and correspondingly **no public airside embodied robotics benchmark**. This is both a challenge (no standard to evaluate against) and an opportunity (first-mover advantage in defining the benchmark).
 
+[EmbodiedScan/MMScan](../perception/datasets-benchmarks/embodiedscan-mmscan-embodied-3d-benchmarks.md) is the closest public proxy added to this corpus for embodied 3D perception and grounded-language benchmark design. It should inform schema design for RGB-D views, object/region IDs, 3D boxes, occupancy labels, visual grounding, and QA, but not be treated as outdoor apron evidence.
+
 ### 7.2 Proposed Benchmark: AirsideTasks
 
 A comprehensive airside embodied AI benchmark should evaluate spatial intelligence across the task spectrum:

@@ -11,13 +11,13 @@ priority:
   reason: "Radar-LiDAR-Inertial Fusion for Robust Odometry and SLAM is rated for alternative-sensor localization under adverse weather, weak LiDAR, or GNSS-denied conditions."
 method-priority:end -->
 
-Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar-inertial odometry](radar-inertial-odometry.md), [FAST-LIO2](fast-lio-fast-lio2.md), [LIO-SAM](lio-sam.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
+Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar-inertial odometry](radar-inertial-odometry.md), [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md), [FAST-LIO2](fast-lio-fast-lio2.md), [LIO-SAM](lio-sam.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
 
 ## Executive Summary
 
 Radar-LiDAR-Inertial fusion combines three complementary sensing modes: LiDAR for dense metric geometry, radar for adverse-weather returns and Doppler velocity, and IMU for high-rate motion propagation. This is currently one of the most relevant research directions for outdoor autonomy under degradation because it addresses the main weakness of LiDAR-inertial odometry: LiDAR can be accurate in clear structured scenes, but it degrades in fog, dust, smoke, rain, snow, open spaces, tunnels, and repetitive geometry.
 
-Representative methods include Degradation Resilient LiDAR-Radar-Inertial Odometry, GaRLIO, Doppler-SLAM, AF-RLIO-style adaptive fusion, and systems that extend LiDAR-inertial smoothers with radar velocity or radar scan factors. The best designs do not simply average sensors. They detect which axes are constrained by LiDAR, add radar Doppler or radar scan information where LiDAR is weak, and use robust factor graphs or filters to prevent one failing modality from corrupting the estimate.
+Representative methods include Degradation Resilient LiDAR-Radar-Inertial Odometry, GaRLIO, [Doppler-SLAM](doppler-radar-lidar-slam.md), AF-RLIO-style adaptive fusion, and systems that extend LiDAR-inertial smoothers with radar velocity or radar scan factors. The best designs do not simply average sensors. They detect which axes are constrained by LiDAR, add radar Doppler or radar scan information where LiDAR is weak, and use robust factor graphs or filters to prevent one failing modality from corrupting the estimate.
 
 For AV and airside deployment, this family is more compelling than camera-only Gaussian SLAM or radar-only SLAM. It still needs engineering hardening, but it matches the operational reality: LiDAR gives high-precision structure near terminals and stands, radar remains useful in adverse weather and around obscurants, and IMU/wheel/GNSS/map factors handle continuity and global reference.
 
@@ -32,7 +32,7 @@ Radar-inertial odometry developed in parallel to exploit radar's weather robustn
 - IMU supplies high-rate propagation and gravity/attitude continuity.
 - Factor graphs allow modality-specific residuals, robust kernels, and degeneracy-aware weighting.
 
-The 2024 Degradation Resilient LiDAR-Radar-Inertial Odometry paper explicitly targets LiDAR degeneracy with radar as a complementary modality. GaRLIO adds radar pointwise velocity for gravity and dynamic-object handling. Doppler-SLAM extends the idea into a Doppler-aided radar-inertial and LiDAR-inertial SLAM framework with online extrinsic calibration and loop closure.
+The 2024 Degradation Resilient LiDAR-Radar-Inertial Odometry paper explicitly targets LiDAR degeneracy with radar as a complementary modality. GaRLIO adds radar pointwise velocity for gravity and dynamic-object handling. [Doppler-SLAM](doppler-radar-lidar-slam.md) extends the idea into a Doppler-aided radar-inertial and LiDAR-inertial SLAM framework with online extrinsic calibration and loop closure, while Radarize and DRO show adjacent radar-only Doppler routing.
 
 ## Sensor Assumptions
 
@@ -225,7 +225,7 @@ Airside acceptance should be scenario-based. A single average ATE across clear-w
 
 ## Open-Source Implementations
 
-- **Wayne-DWA/Doppler-SLAM:** Doppler-aided radar-inertial and LiDAR-inertial SLAM with code and dataset release.
+- **Wayne-DWA/Doppler-SLAM:** paper and repository route for Doppler-aided radar-inertial and LiDAR-inertial SLAM; as of the 2026-05-23 check, the public repository still lists usage as `todo` and says source code will be available soon, so treat it as source-backed but not yet code-mature.
 - **ChiyunNoh/GaRLIO:** gravity-enhanced radar-LiDAR-inertial odometry with public source code.
 - **ntnu-arl/lidar_degeneracy_datasets:** datasets for LiDAR-radar-inertial fusion under degraded LiDAR conditions.
 - **utiasASRL/steam_icp:** continuous-time radar, LiDAR, radar-inertial, and LiDAR-inertial odometry; useful baseline infrastructure.
@@ -246,6 +246,7 @@ Do not build a monolithic black-box fusion system without per-sensor diagnostics
 - Noh, C., Yang, W., Jung, M., Jung, S., and Kim, A. "GaRLIO: Gravity enhanced Radar-LiDAR-Inertial Odometry." arXiv, 2025. https://arxiv.org/abs/2502.07703
 - Wang, D. et al. "Doppler-SLAM: Doppler-Aided Radar-Inertial and LiDAR-Inertial Simultaneous Localization and Mapping." RA-L, 2025. https://arxiv.org/abs/2504.11634
 - Doppler-SLAM repository. https://github.com/Wayne-DWA/Doppler-SLAM
+- Local context: [Doppler Radar-LiDAR SLAM](doppler-radar-lidar-slam.md)
 - GaRLIO repository. https://github.com/ChiyunNoh/GaRLIO
 - NTNU LiDAR degeneracy datasets. https://github.com/ntnu-arl/lidar_degeneracy_datasets
 - STEAM-ICP repository. https://github.com/utiasASRL/steam_icp

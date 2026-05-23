@@ -64,6 +64,7 @@ The economics are strongest on long, repetitive, high-utilization lanes where au
 ## AV Stack Implications
 
 - **Long-range perception**: highway-speed trucks need long detection range, robust radar/lidar/camera fusion, debris detection, and stopped-vehicle performance.
+- **Truck-centered cooperative perception**: [TruckV2X](../../../30-autonomy-stack/perception/datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md) shows why tractor, trailer, CAV, and roadside sensing should be evaluated separately around articulated blind zones before assuming passenger-car V2X datasets transfer.
 - **Redundant actuation**: braking, steering, power, compute, and communications require fail-operational or controlled-stop architecture.
 - **Weather-aware ODD**: wind, rain, fog, snow, heat, glare, and road spray must drive dispatch decisions before the truck leaves the terminal.
 - **Maps and lane release**: each new lane needs map creation, change detection, route validation, safe-pullover inventory, and rollout criteria.
@@ -78,6 +79,7 @@ The economics are strongest on long, repetitive, high-utilization lanes where au
 - `60-safety-validation/runtime-assurance/weather-adaptive-odd-management.md`
 - `50-cloud-fleet/fleet-management/fleet-management-dispatch.md`
 - `40-runtime-systems/monitoring-observability/teleoperation-systems.md`
+- `30-autonomy-stack/perception/datasets-benchmarks/truckv2x-truck-centered-cooperative-perception.md`
 
 ## Sources
 

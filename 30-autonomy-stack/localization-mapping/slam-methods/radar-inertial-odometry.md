@@ -11,7 +11,7 @@ priority:
   reason: "Radar-Inertial Odometry is rated for alternative-sensor localization under adverse weather, weak LiDAR, or GNSS-denied conditions."
 method-priority:end -->
 
-Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), [EKF-SLAM](ekf-slam.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
+Related docs: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md), [radar odometry and radar SLAM](radar-odometry-radar-slam.md), [Radar RIO correspondence and uncertainty](radar-rio-correspondence-uncertainty.md), [CAO-RONet](cao-ronet.md), [factor graphs and iSAM2](factor-graph-isam2-gtsam.md), [EKF-SLAM](ekf-slam.md), and [robust multi-sensor localization](../overview/robust-state-estimation-multi-sensor.md).
 
 ## Executive Summary
 
@@ -32,6 +32,7 @@ Early radar-inertial systems often estimated ego-velocity from Doppler returns a
 - **Go-RIO:** ground-optimized 4D radar-inertial odometry using continuous velocity integration and Gaussian processes.
 - **ethz-asl/rio:** graph-based sparse radar-inertial odometry with barometer support and zero-velocity tracking for multicopter navigation.
 - **RIO-T and temporal-calibration variants:** systems that explicitly estimate radar-IMU time offset.
+- **Radar correspondence and uncertainty methods:** learned point-correspondence front ends, polar radar point uncertainty, and continuous point-pose uncertainty models harden association and backend weighting for sparse radar point clouds.
 
 The field is moving fast because 4D radar is becoming a production sensor class for harsh environments.
 
@@ -242,6 +243,8 @@ Airside tests should add apron-only drift, stand approach repeatability, low-spe
 - **wooseongY/Go-RIO:** ICRA 2025 ground-optimized 4D radar-inertial odometry.
 - **spearwin/ekf-rio-tc:** EKF-based radar-inertial odometry with online temporal calibration.
 - **robotics-upo/4D-Radar-Odom:** ROS2 Humble package for 4D radar and IMU odometry.
+- **aau-cns/radar_transformer:** learned radar point-correspondence module for sparse 3D radar point clouds in RIO experiments.
+- **HKUST-Aerial-Robotics/RIO:** point-uncertainty-aware 4D radar-inertial odometry with Docker, ARS548/Coloradar configuration, and sample bags.
 - **iRIOM:** primary paper reference for 4D imaging radar inertial odometry and mapping; code availability should be verified for the intended sensor.
 
 Before reuse, check radar model support, ROS version, license, timestamp handling, and whether the implementation estimates or assumes radar-IMU extrinsics.
@@ -259,6 +262,10 @@ Do not publish a safety pose from RIO alone unless the route has been specifical
 - STEAM-ICP repository. https://github.com/utiasASRL/steam_icp
 - ethz-asl/rio repository. https://github.com/ethz-asl/rio
 - Go-RIO repository. https://github.com/wooseongY/Go-RIO
+- Michalczyk et al., "Learning Point Correspondences In Radar 3D Point Clouds For Radar-Inertial Odometry." https://arxiv.org/abs/2506.18580
+- radar_transformer official implementation. https://github.com/aau-cns/radar_transformer
+- Xu et al., "Incorporating Point Uncertainty in Radar SLAM." https://arxiv.org/abs/2402.16082
+- HKUST-Aerial-Robotics/RIO official implementation. https://github.com/HKUST-Aerial-Robotics/RIO
 - EKF-RIO-TC repository. https://github.com/spearwin/ekf-rio-tc
 - 4D-Radar-Odom repository. https://github.com/robotics-upo/4D-Radar-Odom
 - Local context: [4D imaging radar](../../../20-av-platform/sensors/4d-radar.md)

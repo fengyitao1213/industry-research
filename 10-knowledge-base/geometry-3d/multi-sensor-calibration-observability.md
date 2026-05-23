@@ -175,6 +175,10 @@ moves at constant velocity, or repeats highly periodic motion.
 
 ## 6. Observability Tests Before Trusting a Calibration
 
+This section tests whether a collected calibration dataset was informative. For
+planning the route, bay, or active maneuver that should make weak parameters
+observable before collection, see [Active Calibration Experiment Design](active-calibration-experiment-design.md).
+
 Use these checks before accepting a calibration artifact:
 
 | Check | What it catches |

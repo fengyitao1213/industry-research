@@ -97,6 +97,11 @@ method-priority:end -->
 - Log Gaussian utilization metrics such as percent of centers in occupied space, distance to nearest occupied voxel, overlap, and per-class recall.
 - Consider temporal wrapping with [Streaming Temporal Perception](../overview/streaming-temporal-perception.md) or GaussianWorld-style state if frame-to-frame consistency is required.
 
+## Nearby Methods
+
+- [VOGS-CP](vogs-cp.md) extends sparse semantic Gaussians into collaborative occupancy by transmitting and fusing Gaussian primitives across agents.
+- [CoHFF](cohff.md) is the collaborative camera-occupancy baseline using hybrid planar and task-specific feature sharing rather than Gaussian-native messages.
+
 ## Sources
 
 - GaussianFormer paper: https://arxiv.org/abs/2405.17429

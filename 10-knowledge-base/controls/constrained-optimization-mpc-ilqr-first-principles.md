@@ -17,6 +17,7 @@ are ways to turn vehicle models, limits, and costs into executable commands.
 - [Vehicle Dynamics and Control Fundamentals](vehicle-dynamics-and-control.md)
 - [Frenet Trajectory Math](frenet-trajectory-math.md)
 - [Planning Taxonomy and Trajectory Generation](../robotics/planning-taxonomy-and-trajectory-generation.md)
+- [Constrained KKT, QP, and SQP Solver Mechanics](../optimization/constrained-kkt-qp-sqp-first-principles.md)
 - [Nonlinear Least Squares from First Principles](../optimization/nonlinear-least-squares-first-principles.md)
 - [Gauss-Newton, Levenberg-Marquardt, and Dogleg](../optimization/gauss-newton-levenberg-marquardt-dogleg.md)
 - [Jacobians, Autodiff, and Manifold Linearization](../optimization/jacobians-autodiff-manifold-linearization.md)
@@ -138,6 +139,8 @@ lambda_i g_i(x) = 0
 
 Complementarity means an inequality constraint either is inactive with
 `lambda_i = 0`, or active with `g_i(x) = 0`.
+
+For solver-family details, active-set and ADMM QP behavior, SQP loops, dual telemetry, and infeasibility handling, use [Constrained KKT, QP, and SQP Solver Mechanics](../optimization/constrained-kkt-qp-sqp-first-principles.md).
 
 ### Convexity
 

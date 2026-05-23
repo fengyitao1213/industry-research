@@ -10,6 +10,7 @@
 
 - [Objective and Residual Design Audit](objective-residual-design-and-audit.md)
 - [Solver Selection and Convergence Diagnosis](solver-selection-and-convergence-diagnosis.md)
+- [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md)
 - [Sparse Estimation Backend Crosswalk](../numerical-linear-algebra/sparse-estimation-backend-crosswalk.md)
 - [Nonlinear Least Squares from First Principles](nonlinear-least-squares-first-principles.md)
 - [Jacobians, Autodiff, and Manifold Linearization](jacobians-autodiff-manifold-linearization.md)
@@ -67,6 +68,7 @@ The pipeline is ordered because later artifacts inherit earlier mistakes. A Chol
 | Runtime/memory explodes after graph growth | Sparse backend | Bad ordering, dense marginalization prior, explicit Schur too dense, covariance query too broad. | Fill-in estimate, elimination tree, memory profile. | Compare ordering and separator size before and after graph growth. | Covariance recovery | [Sparse Estimation Backend Crosswalk](../numerical-linear-algebra/sparse-estimation-backend-crosswalk.md) |
 | PCG stagnates/reaches iteration limit | Iterative backend | Poor preconditioner, non-SPD operator, ill-conditioned Schur system, tolerance mismatch. | Unpreconditioned and preconditioned residual norms per iteration. | Symmetry/SPD test and direct solve on a small representative case. | Rank deficiency | [Sparse Estimation Backend Crosswalk](../numerical-linear-algebra/sparse-estimation-backend-crosswalk.md) |
 | Trajectory smooth but unsafe/wrong | Objective design | Missing constraint, badly scaled planner cost, local minimum, dynamics mismatch. | Cost-term contribution and constraint violation trace. | Increase one term at a time on a scenario with known expected behavior. | Local model | [Objective and Residual Design Audit](objective-residual-design-and-audit.md) |
+| QP reports solved but constraints still fail release review | Constrained solver contract | Softened safety rule, wrong slack priority, stale linearization, or tolerance mismatch. | Primal residual, dual residual, complementarity, max violation, active set, and slack-family log. | Revalidate the solution against the original nonlinear safety and actuator constraints. | Constrained solver mechanics | [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md) |
 
 ## Worked diagnostic examples
 
@@ -120,7 +122,7 @@ read next -> [Objective and Residual Design Audit](objective-residual-design-and
 
 ## Reading paths
 
-- Solver logs first: start with [Solver Selection and Convergence Diagnosis](solver-selection-and-convergence-diagnosis.md), then return here to map rejected steps, damping, gain ratio, and trial-state behavior to the owning layer.
+- Solver logs first: start with [Solver Selection and Convergence Diagnosis](solver-selection-and-convergence-diagnosis.md), then return here to map rejected steps, damping, gain ratio, and trial-state behavior to the owning layer. If hard constraints, QP statuses, slacks, active sets, or dual residuals dominate the log, branch to [Constrained KKT, QP, and SQP Solver Mechanics](constrained-kkt-qp-sqp-first-principles.md).
 - Bad output with low cost: start with [Objective and Residual Design Audit](objective-residual-design-and-audit.md), then check residual scale, missing terms, and robust loss order.
 - Linear-solve or covariance failures: start with [Sparse Estimation Backend Crosswalk](../numerical-linear-algebra/sparse-estimation-backend-crosswalk.md), then inspect rank, gauge, factorization, and covariance-recovery assumptions.
 - Runtime or memory explosion: follow sparse ordering, Schur, marginalization, and covariance-query diagnostics before changing the nonlinear method.
