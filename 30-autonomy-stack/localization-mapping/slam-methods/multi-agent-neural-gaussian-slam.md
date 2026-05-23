@@ -3,12 +3,12 @@
 <!-- method-priority:start
 priority:
   learning: 4
-  deployment: 4
+  deployment: 1
   type: "method-family"
-  stage: "modern-core"
-  maturity: "fielded-pattern"
-  tags: ["slam", "mapping", "validation", "runtime-localization"]
-  reason: "Multi-Agent Neural and Gaussian SLAM is rated for robust or collaborative backend design in multi-session SLAM and validation."
+  stage: "frontier"
+  maturity: "research"
+  tags: ["slam", "mapping", "simulation", "validation"]
+  reason: "Frontier multi-agent neural/Gaussian SLAM is useful for dense-map research and validation, but not yet a production localization baseline."
 method-priority:end -->
 
 Related docs: [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [COVINS / COVINS-G](covins-covins-g.md) · [Kimera-Multi](kimera-multi.md) · [CO-SLAM / ESLAM](co-slam-eslam.md) · [Gaussian SLAM / MonoGS](gs-slam-monogs.md) · [SplaTAM](splatam.md) · [Splat-SLAM](splat-slam.md) · [GigaSLAM](gigaslam.md) · [MASt3R-SLAM](mast3r-slam.md) · [DROID-SLAM](droid-slam.md) · [NeRF-SLAM](nerf-slam.md) · [D2-SLAM](d2slam.md) · [Loop Closure and Place Recognition](loop-closure-place-recognition.md) · [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md) · [Aggregated Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Feed-Forward 3D Reconstruction and Splatting](../../../10-knowledge-base/geometry-3d/feed-forward-3d-reconstruction-and-splatting.md) · [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md)
@@ -19,11 +19,11 @@ Related docs: [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [
 
 ## What It Is
 
-**Multi-agent neural Gaussian SLAM** is a family of SLAM systems in which N robots each run a local neural-implicit or 3D Gaussian Splatting (3DGS) front-end, then combine their per-robot submaps into a single globally consistent dense representation. There is no single canonical paper — the literature is distributed across at least six concurrent research threads that appeared between NeurIPS 2023 and mid-2026, each claiming "first" status along a different dimension. The survey (Nguyen et al., arXiv 2510.23988, October 2025) is the best current aggregator and explicitly notes that "none of the existing datasets fully capture requirements for benchmarking collaborative Gaussian SLAM."
+**Multi-agent neural Gaussian SLAM** is a family of SLAM systems in which N robots each run a local neural-implicit or 3D Gaussian Splatting (3DGS) front-end, then combine their per-robot submaps into a single globally consistent dense representation. There is no single canonical paper — the literature is distributed across concurrent research threads that appeared between NeurIPS 2023 and May 2026, each claiming "first" status along a different dimension. The survey (Nguyen et al., arXiv 2510.23988, October 2025) is the best taxonomy baseline for the pre-2026 collaborative-Gaussian literature, while CoMA-SLAM and MAGS-SLAM are newer 2026 branches that should be treated as frontier follow-ons.
 
-This page covers the full family: CP-SLAM (first complete pipeline, NeurIPS 2023), MAGiC-SLAM (centralized 3DGS, CVPR 2025), MAC-Ego3D (consensus-based 3DGS, CVPR 2025), GRAND-SLAM (first outdoor multi-agent 3DGS, RA-L 2025), MNE-SLAM (distributed peer-to-peer implicit, CVPR 2025), and Coko-SLAM (bandwidth-reduction focus, arXiv April 2026). Each addresses a distinct sub-problem. No single system addresses all four.
+This page covers the family as one research lane: CP-SLAM (first complete collaborative neural pipeline, NeurIPS 2023), MAGiC-SLAM (centralized 3DGS, CVPR 2025), MAC-Ego3D (consensus-based 3DGS, CVPR 2025), GRAND-SLAM (outdoor multi-agent 3DGS evaluation, RA-L 2025), MNE-SLAM (distributed peer-to-peer neural implicit, CVPR 2025), Coko-SLAM (bandwidth-reduction focus, arXiv April 2026), CoMA-SLAM (distributed 2D Gaussian surfels, AAAI 2026), and MAGS-SLAM (RGB-only multi-agent 3DGS, arXiv May 2026). Each addresses a distinct sub-problem. No single system yet solves metric scale, LiDAR-primary sensing, outdoor fleet scale, dynamic-scene filtering, bandwidth, and production integration together.
 
-**Research stage.** All surveyed systems operate on RGB-D (or in one case RGB-only) indoor sequences. LiDAR-primary multi-agent Gaussian SLAM does not exist as a published system as of mid-2026. For multi-vehicle outdoor survey the production-grade choices remain classical multi-robot SLAM: Swarm-SLAM (RA-L 2024) or Kimera-Multi (T-RO 2022), both with LiDAR-capable front-ends.
+**Research stage.** Most systems operate on RGB-D indoor sequences; GRAND-SLAM adds outdoor Kimera-Multi evaluation, and MAGS-SLAM explores RGB-only operation. LiDAR-primary multi-agent neural/Gaussian SLAM does not exist as a published system as of May 2026. For multi-vehicle outdoor survey the production-grade choices remain classical multi-robot SLAM: Swarm-SLAM (RA-L 2024) or Kimera-Multi (T-RO 2022), both with LiDAR-capable front-ends.
 
 ---
 
@@ -31,7 +31,7 @@ This page covers the full family: CP-SLAM (first complete pipeline, NeurIPS 2023
 
 Single-agent 3DGS-SLAM (SplaTAM, GS-SLAM, MonoGS — all CVPR 2024) demonstrated that an explicit Gaussian map can serve as the online reconstruction target in a tracking-and-mapping loop. Those first-wave systems were limited to room-scale, loop-closure-free, single-camera operation. The multi-agent extension asks a harder question: can N independently operating robots merge their Gaussian submaps into one coherent global scene?
 
-The attempt at an answer arrived quickly. CP-SLAM (NeurIPS 2023) predated the first-wave single-agent systems and established the baseline pipeline with a neural-point (not 3DGS) representation. By CVPR 2025, at least three 3DGS multi-agent papers appeared simultaneously: MAGiC-SLAM, MAC-Ego3D, and MNE-SLAM. GRAND-SLAM (RA-L 2025) then became the first to show outdoor results. Coko-SLAM (April 2026) followed with the first explicit bandwidth-budget treatment.
+The attempt at an answer arrived quickly. CP-SLAM (NeurIPS 2023) predated the first-wave single-agent systems and established the baseline pipeline with a neural-point (not 3DGS) representation. By CVPR 2025, MAGiC-SLAM and MAC-Ego3D covered multi-agent 3DGS, while MNE-SLAM covered distributed neural-implicit collaborative SLAM. GRAND-SLAM (RA-L 2025) then added outdoor evaluation on Kimera-Multi. Coko-SLAM (April 2026) followed with an explicit bandwidth-budget treatment, CoMA-SLAM (AAAI 2026) added distributed 2D Gaussian surfels and distributed keyframe optimization, and MAGS-SLAM (May 2026) explored RGB-only multi-agent 3DGS.
 
 For the 3DGS rendering model underlying all of these see [Feed-Forward 3D Reconstruction and Splatting](../../../10-knowledge-base/geometry-3d/feed-forward-3d-reconstruction-and-splatting.md) and the single-agent systems [GS-SLAM and MonoGS](gs-slam-monogs.md) and [GigaSLAM](gigaslam.md). For the Lie-algebra mathematics used in pose-graph optimization see [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md).
 
@@ -175,6 +175,35 @@ Reduction: **85–95%** versus MAGiC-SLAM.
 
 ---
 
+### CoMA-SLAM — AAAI 2026 (2D Gaussian Surfels, Distributed)
+
+**Citation:** Lin Chen, Yongxin Su, Jvboxi Wang, Pengcheng Han, Zhenyu Xia, Shuhui Bu, Kun Li, Boni Hu, Shengqi Meng, Guangming Wang. "CoMA-SLAM: Collaborative Multi-Agent Gaussian SLAM with Geometric Consistency." AAAI 2026.
+**Links:** AAAI proceedings · https://ojs.aaai.org/index.php/AAAI/article/view/37283 · GitHub: https://github.com/npu-chenlin/CoMA-SLAM
+
+**Key distinction:** CoMA-SLAM is the strongest source-mature 2026 refresh for this page because it moves the family away from a central server and toward distributed Gaussian map coordination. Its map representation uses **2D Gaussian surfels** rather than volumetric 3D Gaussians, which improves geometry consistency for surface reconstruction and reduces the depth-ambiguity failure mode common in monocular or weak-depth Gaussian maps.
+
+**Architecture:**
+- Per-agent front-end: each robot builds a local 2DGS map and trajectory estimate on the supported ReplicaMultiagent or AriaMultiagent-style inputs.
+- Loop closure: intra-agent and inter-agent loop closures provide the constraints needed to align local submaps across agents.
+- Optimization: distributed keyframe optimization and a submap-centric update propagate corrections without uploading all data to a central fusion server.
+- Repository maturity: the public repository includes setup instructions, requirements, dataset layout, configuration files for ReplicaMultiagent and AriaMultiagent, quick-start commands, and post-processing scripts. It has no tagged release as of this refresh, so treat it as research code rather than production software.
+
+**Reported evidence:** The AAAI proceedings record reports better pose accuracy, rendering fidelity, and geometric consistency than prior multi-agent Gaussian methods, and states a 99.8% communication-bandwidth reduction compared with centralized approaches by avoiding transmission to a centralized server.
+
+**Limitations:** CoMA-SLAM is still a camera/RGB-D Gaussian SLAM method, not a LiDAR-primary mapping stack. The public repository has one visible commit and no releases, so deployment claims should wait for independent reproduction, longer outdoor sequences, and sensor-hardware integration. It does not replace Kimera-Multi, Swarm-SLAM, FAST-LIO2, or KISS-SLAM for metric LiDAR map construction.
+
+---
+
+### MAGS-SLAM — arXiv May 2026 (RGB-Only Multi-Agent 3DGS)
+
+**Citation:** Zhihao Cao, Qi Shao, Shuhao Zhai, Jing Zhang, Anh Nguyen, Baoru Huang. "MAGS-SLAM: Monocular Multi-Agent Gaussian Splatting SLAM for Geometrically and Photometrically Consistent Reconstruction." arXiv 2605.10760, May 2026.
+
+**Key distinction:** MAGS-SLAM targets the RGB-only case: multiple lightweight monocular agents collaboratively reconstruct a 3DGS scene without relying on RGB-D depth. That makes it relevant for low-power robot teams and camera-only inspection rigs, but it also reintroduces scale ambiguity, monocular depth uncertainty, and stronger dependence on photometric texture.
+
+**Corpus routing:** Keep MAGS-SLAM inside this family page unless an official implementation, stable benchmark package, or repeated external adoption makes a separate atomic page worthwhile. It is useful for tracking the frontier, not for safety-critical metric map publication.
+
+---
+
 ## Operator Mechanics
 
 ### Inter-Robot Rendezvous Detection
@@ -274,16 +303,16 @@ Inter-Robot Communication Layer
          |
          v
 Central Server (CP-SLAM / MAGiC-SLAM / GRAND-SLAM / Coko-SLAM)
-OR Distributed Coordinator (MAC-Ego3D / MNE-SLAM)
+OR Distributed Coordinator (MAC-Ego3D / MNE-SLAM / CoMA-SLAM)
     |
     +-- Pose-graph construction + optimization (GTSAM / G2O)
     +-- Corrected pose broadcast back to agents
     +-- Map fusion: rigid transform of Gaussians + fine-tuning / distillation
 ```
 
-**Centralized systems** (CP-SLAM, MAGiC-SLAM, GRAND-SLAM, Coko-SLAM): a server handles PGO and fusion. More tractable for heavy neural optimization but constitutes a single point of failure. All currently published 3DGS multi-agent systems with the best benchmark results use centralized coordination.
+**Centralized systems** (CP-SLAM, MAGiC-SLAM, GRAND-SLAM, Coko-SLAM): a server handles PGO and fusion. More tractable for heavy neural optimization but constitutes a single point of failure.
 
-**Distributed systems** (MAC-Ego3D, MNE-SLAM): peer-to-peer; consensus-based alignment; no server. More robust to server failure and more scalable in principle, but global consistency is harder to guarantee and current results cover only 2-agent single-room scenarios.
+**Distributed systems** (MAC-Ego3D, MNE-SLAM, CoMA-SLAM): peer-to-peer or distributed coordination; consensus, distillation, or distributed keyframe optimization; no central fusion server. More robust to server failure and more scalable in principle, but global consistency is harder to guarantee and current results remain research-scale.
 
 ---
 
@@ -377,9 +406,9 @@ See [Kimera-Multi](kimera-multi.md), [COVINS / COVINS-G](covins-covins-g.md), an
 
 3. **Map representation after fusion:** Classical → sparse 3D mesh or point cloud, usable for geometric navigation. Neural/Gaussian → photorealistic splat or NeRF supporting novel-view synthesis — useful for inspection but not needed for geometry-only navigation.
 
-4. **Maturity:** Classical multi-robot SLAM (Swarm-SLAM, Kimera-Multi) has ROS 2 integrations, real-robot deployments, and outdoor evaluation at hundreds of meters. Neural/Gaussian multi-agent SLAM is largely synthetic-dataset research (2024–2026); outdoor results exist only from GRAND-SLAM on a ~100 m scale dataset.
+4. **Maturity:** Classical multi-robot SLAM (Swarm-SLAM, Kimera-Multi) has ROS 2 integrations, real-robot deployments, and outdoor evaluation at hundreds of meters. Neural/Gaussian multi-agent SLAM is largely synthetic-dataset research (2024–2026); outdoor results exist mainly from GRAND-SLAM on the Kimera-Multi outdoor benchmark rather than from LiDAR-primary fleet surveys.
 
-5. **Sensor:** Classical systems — especially Swarm-SLAM — natively support LiDAR front-ends. No neural/Gaussian multi-agent SLAM system as of mid-2026 has a LiDAR-primary front-end.
+5. **Sensor:** Classical systems — especially Swarm-SLAM — natively support LiDAR front-ends. No neural/Gaussian multi-agent SLAM system as of May 2026 has a LiDAR-primary front-end.
 
 ---
 
@@ -402,9 +431,11 @@ Classical sparse multi-robot SLAM (ORB-SLAM2 multi-agent, CCM-SLAM, ~2016-2019)
     +-- 3DGS single-agent with loop closure: Splat-SLAM, LoopSplat (2024-2025)
     |   Adds pose-graph correction to single-agent Gaussian systems
     |
-    +-- 3DGS multi-agent: MAGiC-SLAM, MAC-Ego3D, GRAND-SLAM,
-        MNE-SLAM, Coko-SLAM (CVPR 2025 / RA-L 2025 / arXiv 2026)
-        Explicit Gaussian submaps; inter-robot loop closure; PGO or consensus fusion
+    +-- 3DGS / 2DGS multi-agent: MAGiC-SLAM, MAC-Ego3D,
+        GRAND-SLAM, Coko-SLAM, CoMA-SLAM, MAGS-SLAM
+        (CVPR 2025 / RA-L 2025 / AAAI 2026 / arXiv 2026)
+        Explicit Gaussian or surfel submaps; inter-robot loop closure;
+        centralized or distributed PGO / consensus / keyframe optimization
 ```
 
 The most direct single-agent precursors are [GS-SLAM and MonoGS](gs-slam-monogs.md) (iter 26) and [GigaSLAM](gigaslam.md) (iter 29). GigaSLAM's hierarchical LoD submap architecture is conceptually relevant for handling large-scale outdoor multi-agent scenes, though no multi-agent extension of GigaSLAM exists yet. For loop closure methods that underpin inter-robot rendezvous detection see [Loop Closure and Place Recognition](loop-closure-place-recognition.md) (iter 28) and [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md) (iter 18).
@@ -431,7 +462,7 @@ The most direct single-agent precursors are [GS-SLAM and MonoGS](gs-slam-monogs.
 |---|---|---|
 | Communication-bandwidth bottleneck | Even with 85–95% compaction, multi-vehicle survey of a large space generates gigabytes; no system measures continuous streaming | Critical for outdoor fleet |
 | Rendezvous-detection sensitivity | If two robots never share overlapping views (textureless tarmac, non-overlapping sectors), no loop closure detectable; submaps remain in disjoint frames | Critical for outdoor survey |
-| No LiDAR support | All surveyed systems assume RGB-D or stereo RGB input; no LiDAR-primary front-end exists | Critical for industrial deployment |
+| No LiDAR support | Surveyed systems assume RGB-D, RGB, or stereo/visual input; no LiDAR-primary front-end exists | Critical for industrial deployment |
 | RGB-D depth range limitation | Active depth sensors (RealSense, Kinect) saturate at 5–10 m; useless for outdoor survey ranges | Critical for airside |
 | Post-PGO rendering degradation | Rigid transform corrects geometry but SH color coefficients optimized in old frame degrade novel-view quality; requires fine-tuning | Moderate for inspection |
 | Sub-real-time mapping | MAGiC-SLAM: 0.71 s/frame; CP-SLAM: 16.95 s/frame; only MAC-Ego3D approaches real-time for tracking (~0.07 s/frame) | High for online deployment |
@@ -468,7 +499,7 @@ Multi-agent neural Gaussian SLAM is research-stage RGB-D work. For an airside mu
 
 3. **Scale mismatch.** Airside apron surveys span hundreds to thousands of meters. All neural/Gaussian multi-agent SLAM papers operate on submeter to tens-of-meters indoor scenes, with GRAND-SLAM as the single exception at ~100 m outdoor scale.
 
-4. **No LiDAR front-end in any published system.** Multi-agent neural Gaussian SLAM as of mid-2026 is camera-only. The closest published outdoor result (GRAND-SLAM on Kimera-Multi outdoor) uses a dataset originally captured with stereo + IMU — a sensor modality that is itself inadequate for production airside survey.
+4. **No LiDAR front-end in any published system.** Multi-agent neural Gaussian SLAM as of May 2026 is visual/RGB-D/RGB-first rather than LiDAR-primary. The closest published outdoor result (GRAND-SLAM on Kimera-Multi outdoor) uses a dataset originally captured with stereo + IMU — a sensor modality that is itself inadequate for production airside survey.
 
 **Recommended production path for multi-vehicle airside survey:**
 
@@ -500,7 +531,7 @@ This decoupled architecture is consistent with how Gaussian-LIC and LVI-GS opera
 
 - **Do not expect real-time operation.** MAGiC-SLAM maps at ~0.71 s/frame, CP-SLAM at ~16.95 s/frame. Only MAC-Ego3D reports near-real-time tracking (0.07 s/frame). Treat these as offline or slow-online mapping systems. Design data collection missions accordingly.
 - **GPU budget per agent is substantial.** CP-SLAM requires ~9.7 GiB per agent; MAGiC-SLAM ~1.12 GiB. For a 3-agent setup on a shared server, budget at least 6–10 GiB for the coordination overhead plus per-agent maps. An RTX 4090 (24 GiB) handles 2–3 agents simultaneously in the MAGiC-SLAM configuration.
-- **Centralized architecture is the current best-performing choice.** The distributed systems (MAC-Ego3D, MNE-SLAM) have been tested only at 2-agent single-room scale. For any multi-agent deployment with more than 2 robots, use a centralized architecture and accept the single-point-of-failure risk.
+- **Centralized vs distributed remains unsettled.** Centralized systems are easier to reproduce and compare, but CoMA-SLAM makes the distributed branch source-mature enough to evaluate. For production fleet mapping, keep classical distributed C-SLAM as the safety-critical layer and treat distributed neural/Gaussian SLAM as an offline appearance or validation experiment.
 - **DINOv2 descriptor quality depends on visual texture.** Loop closure detection fails in textureless environments (uniform walls, apron concrete, painted runways). For indoor airport environments add GeM or NetVLAD fallback; for outdoor add scan-context-style geometric descriptors from LiDAR (see [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md)).
 - **Implement loop closure verification before map merging.** False inter-robot loop closures couple independent maps and are especially damaging — harder to detect and correct than single-agent false loops. Use point-to-plane ICP fitness + inlier RMSE thresholds (as in GRAND-SLAM) as a quality gate, and log all accepted/rejected loop candidates for audit.
 - **Budget for fine-tuning after every PGO correction.** Rigid Gaussian transforms fix geometry but degrade appearance. MAGiC-SLAM's 3 000-iteration fine-tuning pass is the minimum to restore rendering quality. For inspection use cases where appearance matters, this cost must be factored into the mission timeline.
@@ -523,6 +554,8 @@ This decoupled architecture is consistent with how Gaussian-LIC and LVI-GS opera
 - MAC-Ego3D GitHub: https://github.com/Xiaohao-Xu/MAC-Ego3D
 - Coko-SLAM (arXiv April 2026): https://arxiv.org/abs/2604.00804 — Li, Lajoie, Liu, Beltrame
 - Coko-SLAM GitHub: https://github.com/lemonci/coko-slam
+- CoMA-SLAM (AAAI 2026): https://ojs.aaai.org/index.php/AAAI/article/view/37283 — Chen, Su, Wang, Han, Xia, Bu, Li, Hu, Meng, Wang
+- CoMA-SLAM GitHub: https://github.com/npu-chenlin/CoMA-SLAM
 - MNE-SLAM (CVPR 2025): https://openaccess.thecvf.com/content/CVPR2025/html/Deng_MNE-SLAM_Multi-Agent_Neural_SLAM_for_Mobile_Robots_CVPR_2025_paper.html — Deng et al.
 - MNE-SLAM GitHub: https://github.com/dtc111111/MNESLAM
 - MCN-SLAM (arXiv June 2025): https://arxiv.org/abs/2506.18678 — Deng, Shen et al.
