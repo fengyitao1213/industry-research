@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kvynlim.github.io/industry-research/schemas/semantic-map-manifest.schema.json",
+  "title": "Semantic Map Manifest",
+  "description": "Machine-readable contract for an offline semantic layer produced from an aggregated LiDAR map.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "semantic_layer_id",
+    "release_state",
+    "site_scope",
+    "tile_ids",
+    "source_map_manifest_hash",
+    "tile_partition_manifest_hash",
+    "inputs",
+    "producer",
+    "model_taxonomy",
+    "outputs",
+    "prior_inputs",
+    "metrics_evidence",
+    "runtime_export_adapter",
+    "signatures_provenance",
+    "compatibility"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "semantic-map-manifest/v1"
+    },
+    "semantic_layer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_state": {
+      "type": "string",
+      "enum": ["draft", "validation", "quarantined", "canary", "active", "rolled_back", "retired"]
+    },
+    "site_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["site_id", "zones", "coordinate_frame"],
+      "properties": {
+        "site_id": { "type": "string", "minLength": 1 },
+        "zones": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "coordinate_frame": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tile_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "source_map_manifest_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "tile_partition_manifest_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "aggregated_map_digest",
+        "source_survey_ids",
+        "pose_graph_digest",
+        "calibration_package_id",
+        "dynamic_removal_output_digest",
+        "conditioning_config_hash"
+      ],
+      "properties": {
+        "aggregated_map_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "source_survey_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "pose_graph_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "calibration_package_id": { "type": "string", "minLength": 1 },
+        "dynamic_removal_output_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "conditioning_config_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code_git_sha",
+        "container_digest",
+        "dvc_yaml_hash",
+        "dvc_lock_hash",
+        "parameter_hash",
+        "workflow_run_id",
+        "runtime_packages"
+      ],
+      "properties": {
+        "code_git_sha": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+        "container_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "dvc_yaml_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "dvc_lock_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "parameter_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "workflow_run_id": { "type": "string", "minLength": 1 },
+        "runtime_packages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "model_taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_id",
+        "weights_digest",
+        "taxonomy_id",
+        "taxonomy_digest",
+        "class_id_map",
+        "unknown_class_id",
+        "safety_critical_class_ids",
+        "confidence_calibration_id",
+        "threshold_file_id"
+      ],
+      "properties": {
+        "model_id": { "type": "string", "minLength": 1 },
+        "weights_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "taxonomy_id": { "type": "string", "minLength": 1 },
+        "taxonomy_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "class_id_map": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["class_id", "name"],
+            "properties": {
+              "class_id": { "type": "integer", "minimum": 0 },
+              "name": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "unknown_class_id": { "type": "integer", "minimum": 0 },
+        "safety_critical_class_ids": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 }
+        },
+        "confidence_calibration_id": { "type": "string", "minLength": 1 },
+        "threshold_file_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "labeled_cloud_digest",
+        "semantic_layer_digest",
+        "confidence_unknown_layer_digest",
+        "per_tile_prediction_digests",
+        "back_projection_index_id"
+      ],
+      "properties": {
+        "labeled_cloud_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "semantic_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "confidence_unknown_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "per_tile_prediction_digests": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["tile_id", "digest"],
+            "properties": {
+              "tile_id": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+            }
+          }
+        },
+        "back_projection_index_id": { "type": "string", "minLength": 1 },
+        "back_projected_single_scan_label_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "prior_inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "prior_id",
+          "producer_type",
+          "source_sequence_or_map_hash",
+          "pose_graph_digest",
+          "calibration_hash",
+          "rasterization_policy",
+          "confidence_calibration_id",
+          "validation_evidence_ids"
+        ],
+        "properties": {
+          "prior_id": { "type": "string", "minLength": 1 },
+          "producer_type": {
+            "type": "string",
+            "enum": [
+              "semantic_slam",
+              "gaussian_slam",
+              "neural_map",
+              "open_vocab_candidate",
+              "dynamic_mask",
+              "static_dynamic_mask",
+              "four_d_segmentation",
+              "map_change_detector",
+              "other"
+            ]
+          },
+          "source_sequence_or_map_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "pose_graph_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "calibration_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "rasterization_policy": { "type": "string", "minLength": 1 },
+          "confidence_calibration_id": { "type": "string", "minLength": 1 },
+          "validation_evidence_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "metrics_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "heldout_miou",
+        "safety_class_gate_status",
+        "ece",
+        "coverage_at_threshold",
+        "unknown_rate",
+        "seam_metric",
+        "label_churn_unchanged_regions",
+        "qa_report_id",
+        "reviewer_decision",
+        "waiver_or_quarantine_state",
+        "safety_case_evidence_ids"
+      ],
+      "properties": {
+        "heldout_miou": { "type": "number", "minimum": 0, "maximum": 1 },
+        "safety_class_gate_status": { "type": "string", "enum": ["pass", "warn", "fail"] },
+        "ece": { "type": "number", "minimum": 0, "maximum": 1 },
+        "coverage_at_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "unknown_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "seam_metric": { "type": "number", "minimum": 0 },
+        "label_churn_unchanged_regions": { "type": "number", "minimum": 0, "maximum": 1 },
+        "qa_report_id": { "type": "string", "minLength": 1 },
+        "reviewer_decision": { "type": "string", "enum": ["approved", "approved_with_waiver", "quarantined", "rejected"] },
+        "waiver_or_quarantine_state": { "type": "string", "enum": ["none", "waiver", "quarantine"] },
+        "safety_case_evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "runtime_export_adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["autoware_exported", "runtime_map_contract_id"],
+      "properties": {
+        "autoware_exported": { "type": "boolean" },
+        "runtime_map_contract_id": { "type": "string", "minLength": 1 },
+        "lanelet2_map_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "pointcloud_map_hashes": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "pointcloud_map_metadata_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "map_projector_info_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "signatures_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest_digest", "signed_release_manifest_id", "signer_id", "slsa_provenance_ref", "uptane_metadata_ref"],
+      "properties": {
+        "manifest_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "signed_release_manifest_id": { "type": "string", "minLength": 1 },
+        "signer_id": { "type": "string", "minLength": 1 },
+        "slsa_provenance_ref": { "type": "string", "minLength": 1 },
+        "uptane_metadata_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_compatibility_hash"],
+      "properties": {
+        "semantic_compatibility_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

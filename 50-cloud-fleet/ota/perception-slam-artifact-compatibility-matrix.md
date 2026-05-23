@@ -40,6 +40,8 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 
 ## Manifest Fields
 
+Use the checked JSON Schema contracts as the narrow machine-readable surface for semantic-map promotion: `../../schemas/semantic-map-manifest.schema.json` covers the semantic layer release manifest and `../../schemas/runtime-map-contract.schema.json` covers the runtime map-loader handoff, with examples under `../../examples/map-contracts/`.
+
 | Field | Requirement |
 |---|---|
 | `manifest_id` | Immutable ID signed by release authority |

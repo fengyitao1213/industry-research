@@ -1,0 +1,60 @@
+{
+  "schema_version": "runtime-map-contract/v1",
+  "runtime_map_contract_id": "runtime-map-contract-SIN-v2.3.1",
+  "target_stack": "autoware",
+  "map_contract_version": "autoware-map-runtime/v1",
+  "target_container_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "paths": {
+    "map_path": "map/",
+    "lanelet2_map_path": "map/lanelet2_map.osm",
+    "pointcloud_map_path": "map/pointcloud_map/",
+    "pointcloud_map_metadata_path": "map/pointcloud_map_metadata.yaml",
+    "map_projector_info_path": "map/map_projector_info.yaml"
+  },
+  "projection": {
+    "projector_type": "mgrs",
+    "datum": "WGS84",
+    "mgrs_grid": "48N",
+    "map_projector_info_hash": "sha256:efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+  },
+  "pointcloud_loader": {
+    "pcd_fields": ["x", "y", "z", "intensity"],
+    "pcd_resolution_m": 0.1,
+    "pcd_split_size_m": 100.0,
+    "pointcloud_map_metadata_hash": "sha256:dededededededededededededededededededededededededededededededede",
+    "axis_aligned": true,
+    "non_overlapping": true,
+    "projection_consistent": true,
+    "loader_cells": [
+      {
+        "cell_id": "SIN-A42-runtime-cell-0001",
+        "pcd_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "point_count": 1840242,
+        "bounds": {
+          "min_x": 1200.0,
+          "min_y": 840.0,
+          "min_z": -1.5,
+          "max_x": 1300.0,
+          "max_y": 940.0,
+          "max_z": 8.0
+        }
+      }
+    ]
+  },
+  "loader_evidence": {
+    "lanelet2_loader_evidence_id": "lanelet2-load-smoke-20260524-001",
+    "pointcloud_loader_evidence_id": "pointcloud-load-smoke-20260524-001",
+    "dynamic_load_replay_evidence_id": "dynamic-map-load-replay-20260524-001"
+  },
+  "signatures_provenance": {
+    "contract_digest": "sha256:2323232323232323232323232323232323232323232323232323232323232323",
+    "signed_release_manifest_id": "release-manifest-2026.05.24+sha256",
+    "signer_id": "map-release-authority-prod",
+    "slsa_provenance_ref": "slsa-provenance/runtime-map-export-20260524-001",
+    "uptane_metadata_ref": "uptane/targets/SIN-map-v2.3.1"
+  },
+  "compatibility": {
+    "runtime_compatibility_hash": "sha256:4545454545454545454545454545454545454545454545454545454545454545",
+    "semantic_manifest_id": "SIN-apron-semantic-v2.3.1+sha256"
+  }
+}

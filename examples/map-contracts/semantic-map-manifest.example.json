@@ -1,0 +1,111 @@
+{
+  "schema_version": "semantic-map-manifest/v1",
+  "semantic_layer_id": "SIN-apron-semantic-v2.3.1+sha256",
+  "release_state": "validation",
+  "site_scope": {
+    "site_id": "SIN",
+    "zones": ["apron_stand_42", "service_road_east"],
+    "coordinate_frame": "map"
+  },
+  "tile_ids": ["SIN-A42-001@v17", "SIN-A42-002@v17"],
+  "source_map_manifest_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "tile_partition_manifest_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "inputs": {
+    "aggregated_map_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "source_survey_ids": ["SIN-20260501-survey-001", "SIN-20260502-survey-002"],
+    "pose_graph_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "calibration_package_id": "rig-cal-2026.05.01+hash",
+    "dynamic_removal_output_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "conditioning_config_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "producer": {
+    "code_git_sha": "e952ed4",
+    "container_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "dvc_yaml_hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "dvc_lock_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "parameter_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "workflow_run_id": "mapseg-run-20260524-001",
+    "runtime_packages": [
+      { "name": "pytorch", "version": "2.6.0" },
+      { "name": "spconv", "version": "2.3.8" }
+    ]
+  },
+  "model_taxonomy": {
+    "model_id": "airside-map-spt-v4",
+    "weights_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "taxonomy_id": "airside-map-taxonomy/v1",
+    "taxonomy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "class_id_map": [
+      { "class_id": 0, "name": "unknown" },
+      { "class_id": 1, "name": "pavement" },
+      { "class_id": 2, "name": "marking" },
+      { "class_id": 3, "name": "static_structure" }
+    ],
+    "unknown_class_id": 0,
+    "safety_critical_class_ids": [2, 3],
+    "confidence_calibration_id": "calibration-report-20260524-001",
+    "threshold_file_id": "thresholds-airside-map-v2.3.1"
+  },
+  "outputs": {
+    "labeled_cloud_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "semantic_layer_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "confidence_unknown_layer_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "per_tile_prediction_digests": [
+      {
+        "tile_id": "SIN-A42-001@v17",
+        "digest": "sha256:1212121212121212121212121212121212121212121212121212121212121212"
+      },
+      {
+        "tile_id": "SIN-A42-002@v17",
+        "digest": "sha256:3434343434343434343434343434343434343434343434343434343434343434"
+      }
+    ],
+    "back_projection_index_id": "backproj-index-20260524-001",
+    "back_projected_single_scan_label_digest": "sha256:5656565656565656565656565656565656565656565656565656565656565656"
+  },
+  "prior_inputs": [
+    {
+      "prior_id": "semantic-slam-histogram-prior-001",
+      "producer_type": "semantic_slam",
+      "source_sequence_or_map_hash": "sha256:7878787878787878787878787878787878787878787878787878787878787878",
+      "pose_graph_digest": "sha256:9090909090909090909090909090909090909090909090909090909090909090",
+      "calibration_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "rasterization_policy": "voxel-histogram-0.10m-min-3-views",
+      "confidence_calibration_id": "semantic-prior-calibration-20260524-001",
+      "validation_evidence_ids": ["semantic-prior-qa-20260524-001"]
+    }
+  ],
+  "metrics_evidence": {
+    "heldout_miou": 0.812,
+    "safety_class_gate_status": "pass",
+    "ece": 0.041,
+    "coverage_at_threshold": 0.934,
+    "unknown_rate": 0.027,
+    "seam_metric": 0.018,
+    "label_churn_unchanged_regions": 0.006,
+    "qa_report_id": "mapqa-20260524-001",
+    "reviewer_decision": "approved",
+    "waiver_or_quarantine_state": "none",
+    "safety_case_evidence_ids": ["safety-evidence-map-semantic-20260524-001"]
+  },
+  "runtime_export_adapter": {
+    "autoware_exported": true,
+    "runtime_map_contract_id": "runtime-map-contract-SIN-v2.3.1",
+    "lanelet2_map_hash": "sha256:bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc",
+    "pointcloud_map_hashes": [
+      "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+    ],
+    "pointcloud_map_metadata_hash": "sha256:dededededededededededededededededededededededededededededededede",
+    "map_projector_info_hash": "sha256:efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+  },
+  "signatures_provenance": {
+    "manifest_digest": "sha256:fafafafafafafafafafafafafafafafafafafafafafafafafafafafafafafafa",
+    "signed_release_manifest_id": "release-manifest-2026.05.24+sha256",
+    "signer_id": "map-release-authority-prod",
+    "slsa_provenance_ref": "slsa-provenance/mapseg-run-20260524-001",
+    "uptane_metadata_ref": "uptane/targets/SIN-map-v2.3.1"
+  },
+  "compatibility": {
+    "semantic_compatibility_hash": "sha256:0101010101010101010101010101010101010101010101010101010101010101"
+  }
+}
