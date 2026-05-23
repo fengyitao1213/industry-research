@@ -11,7 +11,7 @@ priority:
   reason: "LT-Mapper, Khronos, and Lifelong Mapping is rated for dynamic-object filtering and map-cleaning workflows that protect localization maps."
 method-priority:end -->
 
-Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [ERASOR](erasor.md) · [Removert](removert.md) · [Scan Context Family](scan-context-family.md) · [KISS-ICP](kiss-icp.md) · [FreeDOM](freedom-dynamic-object-removal.md) · [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md) · [Object-Level SLAM](object-level-slam.md) · [Semantic SLAM](semantic-slam.md) · [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [HD-Map Change Detection and Maintenance](../maps/hd-map-change-detection-maintenance.md) · [ArgoTweak Self-Updating HD-Map Priors](../maps/argotweak-self-updating-hd-map-priors.md)
+Related docs: [LiDAR Map Cleaning — Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) · [Uni-Mapper Dynamic-Aware LiDAR Map Merging](uni-mapper-dynamic-aware-lidar-map-merging.md) · [ERASOR](erasor.md) · [Removert](removert.md) · [Scan Context Family](scan-context-family.md) · [KISS-ICP](kiss-icp.md) · [FreeDOM](freedom-dynamic-object-removal.md) · [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md) · [Object-Level SLAM](object-level-slam.md) · [Semantic SLAM](semantic-slam.md) · [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [HD-Map Change Detection and Maintenance](../maps/hd-map-change-detection-maintenance.md) · [ArgoTweak Self-Updating HD-Map Priors](../maps/argotweak-self-updating-hd-map-priors.md)
 
 **Last updated:** 2026-05-23
 
@@ -670,6 +670,7 @@ For downstream change monitoring of [HD-Map Change Detection and Maintenance](..
 - **Do not update production localisation maps automatically.** Gate every M_live version update through a localisation regression test (see [HD-Map Change Detection and Maintenance](../maps/hd-map-change-detection-maintenance.md)). A single false-permanent PD cluster can degrade ICP-based localisation on subsequent passes.
 - **ELite (ICRA 2025, arXiv 2502.13452) as the recommended successor.** ELite extends LT-Mapper with Bayesian ephemerality scores epsilon in [0, 1] instead of binary PD/ND classification, providing softer, probabilistic transient labelling. For new deployments where ELite is available and tested, prefer it over vanilla LT-Mapper.
 - **Yang et al. 2025 lifelong framework (arXiv 2501.18110) as an alternative.** This framework avoids Scan Context (uses PCA-SHOT + NDT instead) and adds explicit map version control. Consider it for environments where SC descriptor quality is poor (feature-sparse outdoor or adversarial illumination). The map-store and PD/ND artifact contract is split out in [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md).
+- **Uni-Mapper for heterogeneous LiDAR map merging.** If repeated surveys are collected by different rigs, handheld/robot-mounted devices, or infrastructure LiDARs, route them through [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) before lifecycle policy. It combines free-space dynamic removal, DynaSTD loop retrieval, and centralized anchor-node pose graph optimization, but still needs detector/semantic quarantine for parked movable classes.
 
 ---
 
@@ -704,6 +705,7 @@ For downstream change monitoring of [HD-Map Change Detection and Maintenance](..
 - Related method page: [FreeDOM](freedom-dynamic-object-removal.md) — current best-published F1 for single-session cleaning; complements lifelong approach
 - Related method page: [Dynamic Map Cleaning Benchmarks](dynamic-map-cleaning-benchmarks.md) — cross-method evaluation for single-session cleaners
 - Related method page: [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md) — Yang et al. base-map/diff/boundary architecture for reconstructable clean session maps
+- Related method page: [Uni-Mapper Dynamic-Aware LiDAR Map Merging](uni-mapper-dynamic-aware-lidar-map-merging.md) — dynamic-aware heterogeneous-LiDAR map merging before lifecycle governance
 - Related method page: [Object-Level SLAM](object-level-slam.md) — Khronos's fragment tracking is closely related
 - Related method page: [Semantic SLAM](semantic-slam.md) — Khronos's semantic labelling path
 - Related overview page: [Static-but-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) — canonical treatment of the LD problem that LT-Mapper and Khronos address

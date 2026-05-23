@@ -6,7 +6,7 @@ Classical dynamic-object removal methods — ERASOR, Removert, Dynablox, FreeDOM
 
 The problem has particular severity in airside LiDAR mapping because the permanent map serves a dual purpose that creates conflicting constraints: it is both the localization reference (where map completeness improves localization robustness) and the FOD-detection baseline (where map cleanliness is the safety requirement). Any transient object incorrectly baked into the permanent layer simultaneously weakens FOD detection and risks corrupting the auto-labeling pipeline that trains future perception models. The three-layer architecture (permanent / transient-candidate / FOD-candidate) described in this page is the minimum structure needed to resolve this tension without sacrificing either requirement.
 
-> Deep-dive companion to [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) (§9 conditioning, §10 post-processing). See also the pre-processing sibling [LiDAR Artifact Removal Techniques](lidar-artifact-removal-techniques.md), the intra-scan dynamic-removal sibling [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md), the map-history companion [Lifelong 3D Map Version Control](../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md), and the single-survey semantic branch [Potentially Dynamic Object Removal by Ground Projection](../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md).
+> Deep-dive companion to [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) (§9 conditioning, §10 post-processing). See also the pre-processing sibling [LiDAR Artifact Removal Techniques](lidar-artifact-removal-techniques.md), the intra-scan dynamic-removal sibling [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md), the map-history companion [Lifelong 3D Map Version Control](../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md), the heterogeneous-map merging companion [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../../localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md), and the single-survey semantic branch [Potentially Dynamic Object Removal by Ground Projection](../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md).
 
 ---
 
@@ -67,7 +67,7 @@ The method families below span the full spectrum from geometry-only multi-pass d
 
 | Method family | Requires 2+ passes? | Requires semantic model? | Primary strength | Primary weakness |
 |---|---|---|---|---|
-| Multi-pass map differencing and version control (LT-Mapper, ELite, Lifelong 3D Map Version Control) | Yes | No | Geometry-reliable; reconstructable history; no class confusion | Latency; needs accurate alignment and diff governance |
+| Multi-pass map differencing, map merging, and version control (LT-Mapper, ELite, Uni-Mapper, Lifelong 3D Map Version Control) | Yes | No | Geometry-reliable; reconstructable history; no class confusion | Latency; needs accurate alignment and diff governance |
 | Lifelong SLAM (Khronos) | Yes | Partial | Handles moving + static-transient in one framework | Computationally heavy; research maturity |
 | Semantic-aware filtering and detector-ground projection | No | Yes | Operates on single survey; catches parked/movable classes before a second pass exists | Misclassification risk; sparse returns at range; taxonomy must match the site |
 | Probabilistic decay (OctoMap, K-of-N) | Partial (decay = no; K-of-N = yes) | No | Principled uncertainty; tunable timescale | Decay model choice is environment-specific |
@@ -82,6 +82,8 @@ The method families below span the full spectrum from geometry-only multi-pass d
 > See [LT-Mapper and Khronos Lifelong Mapping](../../localization-mapping/slam-methods/lt-mapper-khronos-lifelong-mapping.md) for full method coverage.
 
 **Lifelong 3D Map Version Control (RA-L 2024 / arXiv 2501.18110)** — Yang et al. Adds a cloud-native map lifecycle architecture around dynamic point removal, PCA-SHOT/NDT multi-session alignment, positive/negative change detection, and a base-map/diff/boundary store. It is especially relevant when the map product must reconstruct prior clean session maps or query changes between arbitrary sessions without keeping every raw session map online. ([arXiv 2501.18110](https://arxiv.org/abs/2501.18110); see [Lifelong 3D Map Version Control](../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md))
+
+**Uni-Mapper (IEEE T-IV 2025 / arXiv 2507.20538)** — Kang et al. Targets dynamic-aware heterogeneous LiDAR map merging. It is not a full static-but-transient policy, but its free-space dynamic filtering and DynaSTD loop retrieval prevent dynamic residuals from becoming inter-map loop evidence when maps are collected by different LiDAR types or rigs. Use it before lifecycle governance when a fleet merges handheld, robot-mounted, vehicle, or infrastructure LiDAR maps. ([arXiv 2507.20538](https://arxiv.org/abs/2507.20538); see [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../../localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md))
 
 **ELite — Ephemerality meets LiDAR-based Lifelong Mapping (ICRA 2025)** — Gil, Lee, Kim, Kim. Current SOTA for LiDAR lifelong mapping. Introduces a two-stage ephemerality score ε ∈ [0, 1] where higher ε indicates greater transience. Local ephemerality εₗ is propagated within a single session via Bayesian ray-casting:
 
@@ -543,6 +545,7 @@ The clean permanent layer then consists only of truly permanent, repeatedly conf
 - [LiDAR Map Cleaning and Dynamic Removal](../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md) — intra-scan dynamic removal methods (ERASOR, Removert, FreeDOM)
 - [LT-Mapper and Khronos Lifelong Mapping](../../localization-mapping/slam-methods/lt-mapper-khronos-lifelong-mapping.md) — full coverage of LT-Mapper and Khronos
 - [Lifelong 3D Map Version Control](../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md) — base-map/diff/boundary lifecycle architecture for reconstructable clean maps
+- [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../../localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md) — heterogeneous-LiDAR map merging with dynamic-aware loop evidence
 - [Potentially Dynamic Object Removal by Ground Projection](../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md) — detector-based single-survey quarantine for parked/movable-class objects
 - [HD-Map Change Detection and Maintenance](../../localization-mapping/maps/hd-map-change-detection-maintenance.md) — broader HD-map update context
 - [ExelMap — Element-Based HD Map Change and Update](../../localization-mapping/maps/exelmap-element-based-hd-map-change-update.md)
@@ -559,6 +562,8 @@ The clean permanent layer then consists only of truly permanent, repeatedly conf
 - ELite — Ephemerality meets LiDAR Lifelong Mapping (ICRA 2025): https://arxiv.org/abs/2502.13452
 - ELite GitHub: https://github.com/dongjae0107/elite
 - Lifelong 3D Mapping Framework for Hand-held & Robot-mounted LiDAR Mapping Systems: https://arxiv.org/abs/2501.18110
+- Uni-Mapper: https://arxiv.org/abs/2507.20538
+- Uni-Mapper project page: https://sparolab.github.io/research/uni_mapper/
 - No More Potentially Dynamic Objects: https://arxiv.org/abs/2407.01073
 - Khronos (RSS 2024): https://arxiv.org/abs/2402.13817
 - POCD semi-static scenes (RSS 2022): https://arxiv.org/abs/2205.01202

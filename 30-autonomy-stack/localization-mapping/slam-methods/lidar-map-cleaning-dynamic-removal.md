@@ -17,7 +17,7 @@ LiDAR map cleaning removes transient, dynamic, ghost, and artifact points from a
 
 Dynamic removal is also a hard **prerequisite** before semantic segmentation of any aggregated map: ghost trails left by moving objects pollute static classes and corrupt the back-projected auto-labels that drive MOS and semantic-segmentation training pipelines. The pipeline order is fixed — **clean → condition → segment** — and cannot safely be reversed without a pre-existing class-specific detector.
 
-Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, BeautyMap, OTD, Raymoval, detector-based potentially dynamic object removal, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
+Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, BeautyMap, OTD, Raymoval, detector-based potentially dynamic object removal, dynamic-aware map merging through Uni-Mapper, lifelong map version control, and MOS-style evaluation such as LiDAR-MOS and HeLiMOS. The safest map lifecycle separates four layers:
 
 - **Static persistent map**: surveyed structure used for localization.
 - **Movable-static layer**: aircraft, GSE, cones, barriers, and staged equipment.
@@ -60,6 +60,7 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Online MOS | LiDAR-MOS, 4DMOS, MambaMOS, HeLiMOS-style | Moving/static point labels over time | Runtime masking and dataset evaluation. |
 | Instance-level and semantic removal | ERASOR2, Potentially Dynamic Object Removal by Ground Projection | 3D detection, ground segmentation, projection, and geometry fallback | Handles parked-but-movable objects when the detector/taxonomy covers them. |
 | Learning / scene flow | DeFlow | GRU-refined scene flow; dynamics from predicted motion | Research/evaluation; degrades under domain shift. |
+| Dynamic-aware map merging | Uni-Mapper / DynaSTD | Free-space hash dynamic removal feeding place descriptors and anchor-node graph optimization | Merging heterogeneous LiDAR maps without trusting dynamic objects as loop-closure evidence. |
 | Multi-session consensus and version control | Fleet map lifecycle, Lifelong 3D Map Version Control | Persistence across days / shifts, PD/ND diffs, reconstructable map versions | Production promotion, rejection, rollback, and queryable map-change history. |
 
 ---
@@ -461,6 +462,7 @@ Metrics to report:
 - Compare ERASOR and Removert as complementary baselines before adopting a single default.
 - Use DUFOMap or BeautyMap as the conditioning pass before segmentation where conservative, repeatable cleaning over large multi-pass surveys matters more than per-frame latency.
 - Use MapCleaner/ERASOR++/FreeDOM as evaluation candidates where their assumptions match the data.
+- Use [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) when the site must merge heterogeneous LiDAR sessions or maps. Treat its dynamic-aware descriptors as loop-candidate hygiene and map-alignment support, not as a complete static-but-transient policy for parked movable objects.
 - Treat 4dNDF and DeFlow as offline research/QA until runtime, uncertainty, and maintainability are proven.
 - Use HeLiMOS-style labels to evaluate multi-LiDAR rigs separately and after sensor fusion.
 - The movable-static layer definition and the segmentation taxonomy's "staged GSE / permitted-static" class must stay aligned across the map lifecycle. Route detector-based single-survey quarantine through [Potentially Dynamic Object Removal by Ground Projection](potentially-dynamic-object-removal-ground-projection.md) and multi-session PD/ND governance through [Lifelong 3D Map Version Control](lifelong-3d-map-version-control.md).
@@ -482,6 +484,9 @@ Metrics to report:
 - Dynamic Points Removal Benchmark repository: https://github.com/KTH-RPL/DynamicMap_Benchmark
 - Potentially Dynamic Object Removal by Ground Projection: https://arxiv.org/abs/2407.01073
 - Lifelong 3D Mapping Framework for Hand-held & Robot-mounted LiDAR Mapping Systems: https://arxiv.org/abs/2501.18110
+- Uni-Mapper paper: https://arxiv.org/abs/2507.20538
+- Uni-Mapper project page: https://sparolab.github.io/research/uni_mapper/
+- Uni-Mapper / OpenLMM repository: https://github.com/sparolab/uni-mapper
 - DUFOMap paper: https://arxiv.org/abs/2403.01449
 - DUFOMap paper (extended): https://arxiv.org/html/2403.01449v1
 - BeautyMap paper: https://arxiv.org/abs/2405.07283

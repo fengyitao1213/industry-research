@@ -286,6 +286,7 @@ For static-but-wrong objects, K-of-N voting is not enough. A tug or parked aircr
 
 - **Single-survey semantic quarantine:** detector-based movable-class removal/projection such as [Potentially Dynamic Object Removal by Ground Projection](../slam-methods/potentially-dynamic-object-removal-ground-projection.md), with original object points retained as rejected evidence.
 - **Multi-session lifecycle governance:** a base-map/diff/boundary store such as [Lifelong 3D Map Version Control](../slam-methods/lifelong-3d-map-version-control.md), so positive/negative changes can be reviewed, reconstructed, and rolled back instead of silently overwritten.
+- **Heterogeneous LiDAR map merging:** when survey laps, re-surveys, or infrastructure maps come from multiple LiDAR rigs, run [Uni-Mapper Dynamic-Aware LiDAR Map Merging](../slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md) before semantic segmentation and publication so dynamic residuals do not become loop-closure or inter-map alignment evidence.
 
 The publishable output should therefore be a static candidate map plus a quarantine/rejected-object layer and a change manifest, not only a filtered point cloud.
 

@@ -62,6 +62,7 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 | Autoware NDT | 3D LiDAR, map, EKF/GNSS inputs | NDT scan matching, Monte Carlo initial pose | Apache-2.0 ecosystem | ROS 2/Autoware | Production-oriented diagnostics, dynamic map loading, covariance, services | Localization stack, not full SLAM; tied to Autoware interfaces | Road/yard/airside localization reference |
 | MOLA | LiDAR/LO/LIO/GNSS/kinematics/maps | Modular localization and mapping, metric maps, particle filters | BSD-family/MRPT ecosystem; verify modules | ROS 2 and standalone | Strong modularity, localization-only modes, georeferenced workflows | Smaller ecosystem than Autoware/ROS Nav2 | Research-to-product mapping/localization bridge |
 | gtsam_points | LiDAR/range factors | GICP/VGICP/colored ICP factors, CPU/GPU options | MIT | Library with GLIM integration | Direct bridge from scan matching to GTSAM graphs | Library, not a complete robot stack | Custom factor-graph SLAM/localization |
+| [Uni-Mapper](uni-mapper-dynamic-aware-lidar-map-merging.md) | Heterogeneous 3D LiDAR maps | Dynamic-aware loop closure and anchor-node map merging | GPL-3.0 repo; review before product use | Research repo / OpenLMM release | Explicitly handles dynamic residuals and multi-modal LiDAR map merging | Limited official release; research artifact, not production stack | Multi-session or multi-rig map-merging research |
 
 ## Backend and Toolkit Comparison
 
@@ -145,6 +146,7 @@ This comparison is for engineering selection, not leaderboard admiration. A SLAM
 - CT-ICP official repo and paper: https://github.com/jedeschaud/ct_icp and https://arxiv.org/abs/2109.12979
 - GLIM official repo and documentation: https://github.com/koide3/glim and https://koide3.github.io/glim/
 - gtsam_points official documentation: https://koide3.github.io/gtsam_points/index.html
+- Uni-Mapper / OpenLMM official repo and project: https://github.com/sparolab/uni-mapper and https://sparolab.github.io/research/uni_mapper/
 - GTSAM official docs and repo: https://gtsam.org/docs/ and https://github.com/borglab/gtsam
 - g2o official repo: https://github.com/RainerKuemmerle/g2o
 - Ceres Solver official docs: https://ceres-solver.org/
