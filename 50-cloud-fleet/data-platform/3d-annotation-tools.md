@@ -2,6 +2,8 @@
 
 ## Practical Guide for Creating Airside Driving Datasets
 
+**Last updated:** 2026-05-24
+
 ---
 
 ## 1. The Annotation Challenge for Airside
@@ -205,6 +207,21 @@ This reduces annotation from:
 ### 4.4 Map-Scale Semantic Candidate Review
 
 For aggregated LiDAR maps, do not route open-vocabulary outputs through the same confidence tiers as closed-set 3D boxes. VESPA, ZOPP, SALT, SAM4D, OpenUrban3D, UniLiPs, and [LOSC](../../30-autonomy-stack/perception/methods/losc.md) can pre-fill tiles, superpoints, object proposals, or back-projected scan labels, but annotation tasks should show them as read-only pre-annotations with `candidate_concept`, prompt, model, calibration, consolidation, and tile provenance. Reviewers map candidates to the controlled taxonomy, request a taxonomy change, retain `unknown`, or reject. Export only `qa_passed` semantic patches and approved back-projected labels; prompt strings must not become class IDs directly.
+
+### 4.5 Annotation Workflow by MLOps Scale
+
+Tool choice should follow the maturity of the label workflow. A small research batch can use a local point-cloud tool, but S3-S5 operations need reviewer assignment, schema locks, QA sampling, audit trails, vendor metrics, and promotion states that downstream MLOps can enforce.
+
+| MLOps scale | Tooling posture | Required workflow controls | Main risk |
+|---|---|---|---|
+| S0 notebook research | Local SUSTechPOINTS, CVAT project, or scripted pseudo-label viewer | Save data pointer, schema, and examples that explain the result | Labels cannot be reconstructed |
+| S1 repeatable prototype | Shared CVAT/Scalabel project with fixed instructions | Dataset snapshot, class schema, reviewer notes, export format | Annotators silently change conventions |
+| S2 production product | Team annotation platform integrated with dataset manifests and model registry | Pre-label provenance, task status, QA sampling, rejected-label tracking | Pre-labels leak into training as ground truth |
+| S3 fleet and multi-site | Multi-site task queues, active-learning scores, and local holdout protection | Site/ODD tags, reviewer agreement, duplicate control, budget ledger | Common sites consume budget while rare local hazards remain unlabeled |
+| S4 regulated safety-critical | Evidence-grade workflow for hazards, FOD, personnel, protected zones, and map-release states | Expert review, immutable audit, approval identity, replay/safety-case links | Evidence labels cannot support an audit or incident review |
+| S5 platform scale | Shared annotation service with vendor management, privacy tiers, and policy APIs | Cross-team schemas, cost attribution, role-based approvals, retention/export policy | Teams fork taxonomies and cannot reuse labels safely |
+
+For airside LiDAR and image labeling, the annotation interface should always show enough context to prevent false static labels: temporal frames, ego pose, calibration/projection quality, map tile state, reviewer disposition, and whether an object is permanent, movable, dynamic, transient, FOD, artifact, or unknown.
 
 ---
 

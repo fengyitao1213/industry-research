@@ -18,6 +18,21 @@ This page covers budgeted labeling operations for perception, prediction, planni
 6. Promote labels by state: `candidate`, `pre_labeled`, `human_labeled`, `qa_passed`, `approved_for_training`, `approved_for_safety_evidence`, `rejected`.
 7. For aggregated-map semantic labels, keep open-vocabulary/offboard outputs in a separate review lane. ZOPP, VESPA, UniLiPs, [LOSC](../../30-autonomy-stack/perception/methods/losc.md), SALT, OpenUrban3D, SAM4D, or Grounded-SAM-style predictions can propose `candidate_concept` and `pseudo_labeled` regions, but they stay read-only pre-annotations until a reviewer maps them to the controlled taxonomy, requests a taxonomy change, or rejects them.
 
+## Label Operations by MLOps Scale
+
+Label operations scale from a research convenience into a governed production system. The main transition is S2 to S3: annotation stops being a model-team task and becomes a fleet budget, site-coverage, reviewer-quality, and safety-evidence function.
+
+| MLOps scale | Selection policy | Label QA expectation | Promotion boundary |
+|---|---|---|---|
+| S0 notebook research | Hand-picked examples and small exploratory batches | Manual spot review by the researcher | Labels support exploration only |
+| S1 repeatable prototype | Fixed seed set plus diversity/uncertainty samples | Versioned instructions, schema, and reviewer notes | Labels can define a baseline dataset |
+| S2 production product | Budgeted active-learning queue with dedupe and data-quality filters | QA sampling by class, source, reviewer, and model-disagreement slice | `qa_passed` labels can enter training; safety evidence needs extra approval |
+| S3 fleet and multi-site | Per-site and per-ODD budgets for rare classes, drift, incidents, and local holdouts | Reviewer agreement, rework rate, defect taxonomy, and local slice coverage are tracked | Promotion is scoped by site/ODD cell and downstream release packet |
+| S4 regulated safety-critical | Safety-weighted labeling for hazards, unknowns, false-free-space, FOD, and incident replay | Expert review and immutable audit trail for evidence-bearing labels | `approved_for_safety_evidence` requires named data steward and safety owner approval |
+| S5 platform scale | Shared labeling marketplace across products with quotas, policy, privacy, and cost controls | Platform-level quality dashboards, calibration sets, vendor scorecards, and audit APIs | Promotion states are enforced by workflow policy, not convention |
+
+Auto-accept thresholds should be conservative and scale-aware. A high-confidence pre-label can reduce reviewer effort at S2, but at S4 it still needs evidence that the auto-labeler, prompt pack, taxonomy, calibration, and reviewer workflow were all the approved versions for the release claim.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |

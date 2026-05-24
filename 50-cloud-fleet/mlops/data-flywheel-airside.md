@@ -121,6 +121,20 @@ A data flywheel needs a cadence that matches its MLOps scale. Running every step
 
 The operating cadence should make three queues visible: candidate data, candidate models, and candidate releases. Data can enter automatically, but promotion between queues requires evidence. That separation prevents the flywheel from becoming an uncontrolled continuous-deployment loop.
 
+### 1.7 Label Budget and QA by Scale
+
+The label budget is a release-control budget, not only a cost budget. A fleet can collect useful clips faster than humans can validate them, so the flywheel needs explicit rules for what earns upload, auto-labeling, human correction, expert review, and safety-evidence promotion.
+
+| Scale | Label budget posture | Auto-label use | QA and promotion gate |
+|---|---|---|---|
+| S0-S1 research/prototype | Small fixed splits and manually selected hard cases | Optional pre-labels for speed | Researcher review; no safety claim |
+| S2 single production model | Budgeted annotation batches tied to release candidates | Pre-labels reduce effort but remain visually distinct from ground truth | QA-passed labels can train a product model after leakage and class-slice checks |
+| S3 multi-site fleet | Per-site budgets for local holdouts, drift, incidents, and rare airside classes | Auto-labelers run as versioned services with reviewer correction metrics | Promotion records state site, ODD cell, allowed use, expiry, and downstream model impact |
+| S4 regulated safety-critical | Safety-weighted budget protects false-free-space, FOD, personnel, aircraft-proximity, and protected-zone slices | Auto-labels are candidates only until expert-reviewed or backed by validated evidence | Evidence-bearing labels require audit trail, reviewer identity, safety owner approval, and replay linkage |
+| S5 platform scale | Organization-level labeling marketplace with quotas, vendor controls, privacy tiers, and cost attribution | Foundation-model labelers, prompts, and thresholds are governed artifacts | Workflow policy enforces promotion state, retention, audit export, and cross-team reuse limits |
+
+The flywheel should report cost per accepted label, not only cost per submitted task. Useful KPIs include candidate-to-accepted rate, reviewer correction rate, rework rate, duplicate rate, rare-class coverage, safety-slice coverage, and model/replay impact per labeling dollar.
+
 ---
 
 ## 2. Trigger-Based Data Collection
