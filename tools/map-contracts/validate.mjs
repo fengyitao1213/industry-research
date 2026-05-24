@@ -33,9 +33,29 @@ function pathLabel(pathSegments) {
   return pathSegments.length === 0 ? '$' : `$${pathSegments.join('')}`
 }
 
-function validateValue(value, schema, pathSegments = []) {
+function resolveRef(ref, rootSchema) {
+  if (!ref.startsWith('#/')) {
+    throw new Error(`Unsupported schema ref: ${ref}`)
+  }
+
+  return ref
+    .slice(2)
+    .split('/')
+    .reduce((current, segment) => current?.[segment], rootSchema)
+}
+
+function validateValue(value, schema, pathSegments = [], rootSchema = schema) {
   const errors = []
   const here = pathLabel(pathSegments)
+
+  if (schema.$ref) {
+    const resolved = resolveRef(schema.$ref, rootSchema)
+    if (!resolved) {
+      errors.push(`${here} references unknown schema ${schema.$ref}`)
+      return errors
+    }
+    return validateValue(value, resolved, pathSegments, rootSchema)
+  }
 
   if (schema.const !== undefined && value !== schema.const) {
     errors.push(`${here} should equal ${JSON.stringify(schema.const)}`)
@@ -80,7 +100,7 @@ function validateValue(value, schema, pathSegments = []) {
     }
     if (schema.items) {
       value.forEach((item, index) => {
-        errors.push(...validateValue(item, schema.items, [...pathSegments, `[${index}]`]))
+        errors.push(...validateValue(item, schema.items, [...pathSegments, `[${index}]`], rootSchema))
       })
     }
   }
@@ -104,7 +124,7 @@ function validateValue(value, schema, pathSegments = []) {
 
     for (const [key, propertySchema] of Object.entries(properties)) {
       if (Object.prototype.hasOwnProperty.call(value, key)) {
-        errors.push(...validateValue(value[key], propertySchema, [...pathSegments, `.${key}`]))
+        errors.push(...validateValue(value[key], propertySchema, [...pathSegments, `.${key}`], rootSchema))
       }
     }
   }

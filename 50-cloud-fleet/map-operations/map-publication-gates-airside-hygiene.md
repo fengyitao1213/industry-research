@@ -57,7 +57,7 @@ The export manifest should include semantic class, release-state label, confiden
 
 ## Semantic-Map Product Mode Gate
 
-Semantic-map releases can produce multiple products from the same source run. The publication record must declare which product modes are enabled so vehicle runtime, training, monitoring, and digital-twin consumers do not inherit each other's assumptions.
+Semantic-map releases can produce multiple products from the same source run. The publication record must declare which product modes are enabled so vehicle runtime, training, monitoring, and digital-twin consumers do not inherit each other's assumptions. In the schema-backed semantic-map manifest, this is the `product_modes` block.
 
 | Product mode | Required evidence | Primary blocker |
 |---|---|---|

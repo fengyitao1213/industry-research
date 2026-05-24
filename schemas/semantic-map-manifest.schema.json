@@ -5,6 +5,27 @@
   "description": "Machine-readable contract for an offline semantic layer produced from an aggregated LiDAR map.",
   "type": "object",
   "additionalProperties": false,
+  "$defs": {
+    "product_mode_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "gate_status",
+        "evidence_id",
+        "downstream_permission_policy_id"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "gate_status": {
+          "type": "string",
+          "enum": ["pass", "warn", "fail", "blocked", "not_requested"]
+        },
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "downstream_permission_policy_id": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
   "required": [
     "schema_version",
     "semantic_layer_id",
@@ -19,6 +40,7 @@
     "outputs",
     "prior_inputs",
     "metrics_evidence",
+    "product_modes",
     "training_export",
     "runtime_export_adapter",
     "signatures_provenance",
@@ -417,6 +439,24 @@
             ]
           }
         }
+      }
+    },
+    "product_modes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime_semantic_map",
+        "training_export",
+        "hygiene_monitoring",
+        "digital_twin_transfer",
+        "benchmark_acceptance"
+      ],
+      "properties": {
+        "runtime_semantic_map": { "$ref": "#/$defs/product_mode_gate" },
+        "training_export": { "$ref": "#/$defs/product_mode_gate" },
+        "hygiene_monitoring": { "$ref": "#/$defs/product_mode_gate" },
+        "digital_twin_transfer": { "$ref": "#/$defs/product_mode_gate" },
+        "benchmark_acceptance": { "$ref": "#/$defs/product_mode_gate" }
       }
     },
     "runtime_export_adapter": {

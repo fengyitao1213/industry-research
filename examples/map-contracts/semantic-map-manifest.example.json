@@ -178,6 +178,38 @@
       "reason_code"
     ]
   },
+  "product_modes": {
+    "runtime_semantic_map": {
+      "enabled": true,
+      "gate_status": "pass",
+      "evidence_id": "runtime-semantic-map-gate-20260524-001",
+      "downstream_permission_policy_id": "runtime-semantic-map-policy/v1"
+    },
+    "training_export": {
+      "enabled": true,
+      "gate_status": "pass",
+      "evidence_id": "training-export-gate-20260524-001",
+      "downstream_permission_policy_id": "semantic-map-training-export-policy/v1"
+    },
+    "hygiene_monitoring": {
+      "enabled": true,
+      "gate_status": "pass",
+      "evidence_id": "hygiene-monitoring-gate-20260524-001",
+      "downstream_permission_policy_id": "hygiene-monitoring-policy/v1"
+    },
+    "digital_twin_transfer": {
+      "enabled": false,
+      "gate_status": "not_requested",
+      "evidence_id": "digital-twin-transfer-not-requested-20260524-001",
+      "downstream_permission_policy_id": "digital-twin-transfer-policy/v1"
+    },
+    "benchmark_acceptance": {
+      "enabled": true,
+      "gate_status": "warn",
+      "evidence_id": "benchmark-acceptance-gate-20260524-001",
+      "downstream_permission_policy_id": "benchmark-acceptance-policy/v1"
+    }
+  },
   "runtime_export_adapter": {
     "autoware_exported": true,
     "runtime_map_contract_id": "runtime-map-contract-SIN-v2.3.1",

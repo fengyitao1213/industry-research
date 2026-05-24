@@ -90,6 +90,22 @@ test('semantic map manifest requires training export release-state evidence', ()
   assert.match(validateDocument(wrongPositiveState, schema).join('\n'), /should equal "permanent_static"/)
 })
 
+test('semantic map manifest requires product mode gates', () => {
+  const schema = readJson('schemas/semantic-map-manifest.schema.json')
+
+  const missingProductModes = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingProductModes.product_modes
+  assert.match(validateDocument(missingProductModes, schema).join('\n'), /product_modes is required/)
+
+  const missingMode = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingMode.product_modes.hygiene_monitoring
+  assert.match(validateDocument(missingMode, schema).join('\n'), /hygiene_monitoring is required/)
+
+  const invalidStatus = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  invalidStatus.product_modes.runtime_semantic_map.gate_status = 'approved'
+  assert.match(validateDocument(invalidStatus, schema).join('\n'), /should be one of/)
+})
+
 test('runtime map contract rejects missing loader evidence', () => {
   const schema = readJson('schemas/runtime-map-contract.schema.json')
   const example = readJson('examples/map-contracts/runtime-map-contract.example.json')
