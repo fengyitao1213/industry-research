@@ -18,6 +18,8 @@
 
 For photoreal 4D reconstruction, Gaussian maps, dynamic neural scene assets, and feed-forward splatting, start with [Photoreal City-Scale 4D Reconstruction](photoreal-city-scale-4d-reconstruction.md). That page separates SLAM pose sources from reconstruction assets and links into the relevant knowledge-base, simulation, perception, and world-model pages.
 
+For ML-related SLAM that contributes to semantic aggregated maps, start with [ML-Related SLAM Research Scope for Semantic Aggregated Maps](ml-related-slam-research-scope.md). That page routes learned registration, learned place recognition, semantic/dynamic SLAM, neural/Gaussian maps, point-cloud removal, multi-session map merging, and map-scale segmentation into one research architecture.
+
 For GLIM, GTSAM, factor-graph SLAM, Bayes-tree updates, Hessian diagnostics, and sparse backend behavior, start with [GLIM and GTSAM Pipeline Hub](../slam-methods/glim-gtsam-pipeline-hub.md).
 
 ---

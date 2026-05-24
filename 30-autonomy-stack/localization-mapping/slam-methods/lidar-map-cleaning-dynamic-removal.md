@@ -24,6 +24,35 @@ Core methods include ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, DUFOMap, [
 - **Dynamic layer**: moving objects observed during a run.
 - **Artifact layer**: weather, ghost, multipath, saturation, and sensor contamination.
 
+## Point-Cloud Removal Problem Decomposition
+
+The phrase "remove dynamic points" is too narrow for an aggregated-map pipeline. A production map cleaner must decide which points are **valid permanent map evidence**, which points are **valid observations but not permanent map truth**, and which points are **sensor or reconstruction artifacts**. The distinction is operationally important because the permanent layer feeds localization, map-change detection, semantic segmentation, and auto-label generation.
+
+| Removal target | Typical examples | Why classical dynamic removal misses it | Required evidence | Correct map action |
+|---|---|---|---|---|
+| Dynamic residual points | Moving vehicles, pedestrians, GSE ghost trails, moving aircraft sweeps | It catches these only when later scans provide free-space contradiction or time-distribution evidence | Free-space ray evidence, pseudo-occupancy drop, timestamp distribution, MOS label, scene flow, Doppler | Remove from permanent map; preserve in dynamic/rejected evidence layer |
+| Stationary-but-transient objects | Stationary people, parked aircraft, parked belt loader, staged baggage carts, temporary barriers | No free-space contradiction occurs during the survey because the object never moves in the observation window | Semantic class, operational zone, K-of-N persistence, later absence, permit/flight/stand schedule | Quarantine in movable-static or transient-candidate layer; do not back-project as permanent training truth |
+| Static points that do not belong in the map | FOD, snow pile, construction material, puddle reflection, de-icing residue, moved chock, temporary cone | It is genuinely static in the scan sequence, so geometry alone cannot know it is non-permanent | Class policy, TTL, future absence, FOD rule, operations log, human review | Route to FOD-candidate, artifact, or change-review layer |
+| True permanent thin structure | Poles, signs, kerbs, fences, drains, painted markings, apron edge lights | Aggressive cleaners can delete these while chasing dynamic points | Multi-pass persistence, stable class, geometry QA, localization utility | Preserve; false deletion is often worse than residual clutter |
+| Real infrastructure change | New fence, removed bollard, changed stand marking, construction completion | Looks like a contradiction between map versions, not a moving object | Multi-session positive/negative change evidence, map authority, reviewer decision | Promote through map-change workflow, not through dynamic cleaner alone |
+
+This decomposition aligns the dynamic-cleaning page with the [ML-related SLAM research scope](../overview/ml-related-slam-research-scope.md), [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), and the [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) hub. It also clarifies why a single published benchmark score is insufficient: a method with excellent dynamic rejection can still be unsafe if it erases permanent thin structures or bakes stationary GSE into the localization map.
+
+### Non-Road Urban and Managed-Site Implications
+
+Road AV datasets under-represent the exact removal cases that matter in managed districts. Airports have stationary aircraft and GSE. Ports have staged containers, chassis, reach stackers, and cranes. Warehouses have pallets, forklifts, and people that can stand still for long periods. Campuses and pedestrian districts have benches, temporary signs, stationary crowds, vegetation changes, and construction material. Utility corridors have poles, cables, insulators, vegetation, trenches, and maintenance equipment.
+
+The cleaner therefore needs a **map-layer policy** rather than a binary static/dynamic classifier:
+
+- permanent: repeatedly confirmed infrastructure that supports localization and semantic map publication;
+- movable-static: objects that can be static during the survey but should not be permanent map truth;
+- dynamic: objects with motion or free-space contradiction evidence;
+- artifact: sensor/weather/reconstruction noise;
+- FOD-candidate or hazard-candidate: small ground-level objects that require a safety workflow rather than map promotion;
+- change-review: candidate infrastructure changes that may become permanent after review.
+
+For non-road urban districts, the safest default is conservative deletion plus explicit quarantine. Under-removal can be reviewed and removed later; over-removal of thin permanent structure directly weakens localization and rare-class semantic segmentation.
+
 ---
 
 ## Why Dynamic Removal is a Hard Prerequisite for Segmentation

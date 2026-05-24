@@ -11,6 +11,8 @@ For production AVs, the practical answer is usually not "run SLAM online forever
 
 For a compact cross-section route through GLIM, GTSAM, Bayes trees, Hessians, sparse linear algebra, and failure diagnostics, start with [GLIM and GTSAM Pipeline Hub](glim-gtsam-pipeline-hub.md).
 
+For the ML-related SLAM research scope that feeds semantic aggregated maps, start with [ML-Related SLAM Research Scope for Semantic Aggregated Maps](../overview/ml-related-slam-research-scope.md). It connects learned registration, learned loop retrieval, semantic/dynamic SLAM, neural/Gaussian SLAM, dynamic residual removal, static-but-transient point quarantine, multi-session map merging, and the downstream aggregated-map semantic segmentation pipeline.
+
 ## Priority Ratings
 
 Priority ratings are editorial reading and deployment triage signals. `Learning` answers what to read early for SLAM/localization understanding. `Deployment` answers what to evaluate early for AV deployment in the tagged context; it is not a certification, product-readiness, or all-domain average claim. If a method's deployment score is driven by a specific domain or stack role, the reason text should name that context.

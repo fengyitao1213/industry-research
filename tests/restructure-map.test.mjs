@@ -138,6 +138,19 @@ test('rewrites links correctly through staged migration batches', () => {
   execFileSync(process.execPath, [checkLinksScript], { cwd: fixtureDir })
 })
 
+test('link checker ignores local loop scratch notes', () => {
+  const fixtureDir = makeFixture({
+    'README.md': '# Readme\n',
+    '.loop-scratch/draft.md': [
+      '# Scratch',
+      '',
+      '[Broken local link](../missing-target.md)'
+    ].join('\n')
+  })
+
+  execFileSync(process.execPath, [checkLinksScript], { cwd: fixtureDir })
+})
+
 test('does not double-rewrite company links inside already rewritten Markdown destinations', () => {
   const fixtureDir = makeFixture({
     'companies/comma-ai/production-world-model.md': '# Comma world model\n',

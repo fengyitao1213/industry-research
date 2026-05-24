@@ -61,6 +61,45 @@ The two signals are complementary: semantics provides early quarantine before a 
 
 ---
 
+## Non-Road Urban District Transfer
+
+Static-but-transient removal is not an airside-only corner case. It is the default map-governance problem for any **managed urban district** where the map is repeatedly used for localization, inspection, safety monitoring, and data labeling. The object classes change by domain, but the permanence problem is the same: something can be stationary during survey and still be invalid as permanent map truth.
+
+| Domain | Stationary-but-transient examples | Permanent classes that must be protected | Policy implication |
+|---|---|---|---|
+| Airport apron | Parked aircraft, stationary crew, belt loaders, baggage carts, GPU carts, chocks, cones, temporary FOD bins | Stand markings, lights, drains, terminal facade, jet bridge anchor geometry, blast screens | Gate-zone overlays and class hard-exclusions are mandatory; aircraft and GSE never become permanent from one survey. |
+| Port terminal | Parked tractors, containers in temporary stacks, chassis, reach stackers, crane spreaders, construction barriers | Curbs, crane rails, bollards, lane markings, fixed buildings, permanent container-slot markings | Container-stack persistence must be separated from infrastructure persistence; false loops on repeated containers need rejection. |
+| Logistics yard | Trailers, pallets, temporary fences, parked yard trucks, workers | Dock doors, kerbs, signs, yard lane markings, fixed racks | Movable-static layer should be first-class because parked trailers may persist for days but still move. |
+| Warehouse / indoor facility | Pallets, forklifts, lift tables, carts, stationary people, temporary stock | Walls, columns, racks, dock plates, safety lines, reflectors | GNSS is absent, so over-removal of localization landmarks is costly; use object-level persistence and fiducial/rack priors. |
+| Campus / pedestrian district | Stationary people, benches under maintenance, event barriers, temporary signs, seasonal vegetation, parked scooters | Building facades, lamp posts, curbs, trees marked as stable landmarks, fixed furniture | Seasonal envelopes and event-calendar overlays matter more than road-style vehicle classes. |
+| Construction / utility corridor | Machinery, trench shields, temporary fencing, spoil piles, cable drums, cones | Utility poles, cables, cabinets, permanent barriers, survey monuments | Positive/negative change review is as important as removal because true infrastructure changes are frequent. |
+
+The cross-domain rule is: **do not encode operational convenience as permanence**. A parked object can be useful as a short-term obstacle observation, but if it is allowed into the permanent layer it will degrade future localization, hide FOD/hazards, and poison auto-labels. The [ML-related SLAM research scope](../../localization-mapping/overview/ml-related-slam-research-scope.md) routes this problem through learned dynamic evidence, semantic labels, lifelong map version control, and downstream segmentation QA.
+
+### Research Questions for Learned Removal
+
+The open research frontier is not simply "better dynamic segmentation." The needed capability is a learned or hybrid **permanence estimator** that predicts whether a cluster belongs in the permanent map, given geometry, class, time, operational zone, and multi-pass evidence.
+
+| Research question | Practical test |
+|---|---|
+| Can a model learn permanence independent of motion? | Hold out stationary movable objects that never move within a survey but disappear in future passes. |
+| Can semantic labels reduce false promotion without increasing false deletion? | Compare permanent thin-structure recall before and after semantic hard-exclusion policies. |
+| Can cleaner disagreement predict review burden? | Measure whether ERASOR/FreeDOM/BeautyMap/Raymoval disagreement regions correlate with human corrections. |
+| Can future absence be used without leaking evaluation labels? | Define time-ordered train/validation/test splits where future passes are allowed only for map governance, not model evaluation. |
+| Can open-vocabulary labels propose new transient classes safely? | Route open-vocabulary candidates into review, then promote only to a closed versioned taxonomy. |
+
+The desired output is a three-layer decision, not a binary mask:
+
+```
+permanent
+transient-candidate
+confirmed-transient
+```
+
+This preserves useful short-term observations while preventing unverified objects from entering the permanent map or the auto-labeling corpus.
+
+---
+
 ## Method Families
 
 The method families below span the full spectrum from geometry-only multi-pass differencing to semantic-class filtering to learned change detection. For an airside deployment, all families are typically combined in a single layered pipeline rather than used in isolation. The table below summarises the primary options before the per-family detail:

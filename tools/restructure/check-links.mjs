@@ -6,6 +6,7 @@ import path from 'node:path'
 const SKIP_PREFIXES = [
   'node_modules/',
   '.git/',
+  '.loop-scratch/',
   '.vitepress/dist/',
   'docs/superpowers/'
 ]

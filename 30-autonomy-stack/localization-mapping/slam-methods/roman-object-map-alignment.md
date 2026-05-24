@@ -7,8 +7,8 @@ priority:
   type: "method"
   stage: "modern-core"
   maturity: "prototype"
-  tags: ["slam", "mapping", "validation", "multi-robot", "open-set", "place-recognition"]
-  reason: "ROMAN is rated for multi-session and multi-robot loop closure workflows — particularly relevant for airside aggregated mapping where viewpoint-invariant object-level alignment is required."
+  tags: ["slam", "mapping", "validation", "runtime-localization", "outdoor", "airside"]
+  reason: "ROMAN is rated for object-map alignment and loop-candidate support in multi-session mapping workflows."
 method-priority:end -->
 
 Related docs: [Object-Level SLAM](object-level-slam.md) · [Semantic SLAM](semantic-slam.md) · [Loop Closure and Place Recognition](loop-closure-place-recognition.md) · [Distributed Multi-Robot PGO](distributed-multi-robot-pgo.md) · [Kimera-Multi](kimera-multi.md) · [Kimera-RPGO / PCM](kimera-rpgo-pcm.md) · [Kimera-VIO](kimera-vio.md) · [Learned LiDAR Place Recognition](learned-lidar-place-recognition.md) · [Scan Context Family](scan-context-family.md) · [KISS-Matcher](kiss-matcher.md) · [Certifiable Pose Graph Optimization](certifiable-pose-graph-optimization.md) · [LT-Mapper / Khronos Lifelong Mapping](lt-mapper-khronos-lifelong-mapping.md) · [Removert](removert.md) · [PIN-SLAM Neural LiDAR Mapping](pin-slam-neural-lidar-mapping.md) · [MASt3R-SLAM](mast3r-slam.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [Lie Groups — SE(3), SO(3), Jacobians](../../../10-knowledge-base/geometry-3d/lie-groups-se3-so3-jacobians.md) · [Foundation Model Training First Principles](../../../10-knowledge-base/machine-learning/foundation-model-training-first-principles.md)
