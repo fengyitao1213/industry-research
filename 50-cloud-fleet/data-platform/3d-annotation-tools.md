@@ -208,6 +208,8 @@ This reduces annotation from:
 
 For aggregated LiDAR maps, do not route open-vocabulary outputs through the same confidence tiers as closed-set 3D boxes. VESPA, ZOPP, SALT, SAM4D, OpenUrban3D, UniLiPs, and [LOSC](../../30-autonomy-stack/perception/methods/losc.md) can pre-fill tiles, superpoints, object proposals, or back-projected scan labels, but annotation tasks should show them as read-only pre-annotations with `candidate_concept`, prompt, model, calibration, consolidation, and tile provenance. Reviewers map candidates to the controlled taxonomy, request a taxonomy change, retain `unknown`, or reject. Export only `qa_passed` semantic patches and approved back-projected labels; prompt strings must not become class IDs directly.
 
+For S2+ use, the pre-labeler should resolve to an offboard labeler registry record (`../mlops/offboard-labeler-registry-by-scale.md`) that names the prompt pack, model/checkpoint, thresholds, retrieval corpus, projection code, allowed-use state, reviewer workflow, QA report, and rollback bundle. Annotation tools can accelerate review, but they should not hide which machine generated the pre-label.
+
 ### 4.5 Annotation Workflow by MLOps Scale
 
 Tool choice should follow the maturity of the label workflow. A small research batch can use a local point-cloud tool, but S3-S5 operations need reviewer assignment, schema locks, QA sampling, audit trails, vendor metrics, and promotion states that downstream MLOps can enforce.

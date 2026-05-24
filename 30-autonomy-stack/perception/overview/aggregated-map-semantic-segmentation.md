@@ -1093,7 +1093,7 @@ Open-vocabulary and offboard systems are most valuable as **candidate-label gene
 3. `taxonomy_action`: the candidate is mapped to an existing class, folded into an alias or parent class, retained as `unknown`, or escalated as a taxonomy-change request.
 4. `release_label`: only QA-passed labels with taxonomy, confidence, source-map, reviewer, and evidence IDs enter the signed `semantic_map_manifest.json`.
 
-The minimum handoff record for this lane is: `candidate_label_batch_id`, `prompt_set_id`, model/checkpoint ID, source map or sequence hash, projection/calibration hash, consolidation or voting policy, confidence or proposal score, unknown/abstention policy, reviewer decision, taxonomy action, QA report ID, and back-projection export ID. This makes the offboard bridge useful for rare airside/non-road objects and urban-district transfer without letting an unconstrained text label silently become a runtime semantic class.
+The minimum handoff record for this lane is: `candidate_label_batch_id`, `prompt_set_id`, model/checkpoint ID, source map or sequence hash, projection/calibration hash, consolidation or voting policy, confidence or proposal score, unknown/abstention policy, reviewer decision, taxonomy action, QA report ID, and back-projection export ID. For S2+ use, the labeler and prompt bundle should also resolve to `../../../50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`. This makes the offboard bridge useful for rare airside/non-road objects and urban-district transfer without letting an unconstrained text label silently become a runtime semantic class.
 
 #### Commercial survey/GIS point-cloud classification software
 

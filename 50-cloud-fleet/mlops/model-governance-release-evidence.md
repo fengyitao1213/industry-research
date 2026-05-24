@@ -16,7 +16,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 4. Require named approval from the model owner, data owner, runtime owner, safety owner, and fleet operations owner before moving the `champion` alias.
 5. Move through gates: offline metrics, scenario replay, shadow execution, limited canary, fleet expansion. Each gate either promotes, holds, or rejects the exact model version.
 6. Keep rollback executable. The rollback model must be compatible with the active runtime, map schema, calibration schema, and config bundle.
-7. Govern offboard labeler models and prompt sets as release-relevant artifacts when they influence semantic maps or training labels. A ZOPP/SALT/OpenUrban3D-style labeler may be offline-only, but its candidates can change the dataset, taxonomy, replay suite, and signed semantic-map bundle.
+7. Govern offboard labeler models and prompt sets as release-relevant artifacts when they influence semantic maps or training labels. A ZOPP/SALT/OpenUrban3D-style labeler may be offline-only, but its candidates can change the dataset, taxonomy, replay suite, and signed semantic-map bundle. The registry pattern is `offboard-labeler-registry-by-scale.md`.
 
 ## Governance by MLOps Scale
 
@@ -115,6 +115,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - The model can be loaded by registry alias and by immutable version.
 - The model version has dataset, code, config, and runtime provenance sufficient to rebuild or explain the release.
 - Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
+- Any offboard labeler promoted beyond research has a registry record with model/prompt/retrieval/threshold/config identity, evaluation scope, allowed-use state, and rollback bundle.
 - Any map-derived pseudo-label batch has semantic class, confidence, release-state label, source-map acceptance ID, split ID, and reviewer state; non-`permanent_static` labels cannot appear as supervised static positives without an explicit auxiliary-task declaration.
 - Any suspect or quarantined map-derived pseudo-label batch has an invalidation record and cannot feed training, release evaluation, or safety evidence until rebuilt, reapproved, or waived.
 - Any feature materialization or embedding/vector index used for training, replay, evaluation, RAG, or safety evidence resolves to a snapshot with point-in-time join proof, corpus/index version, deletion state, and stale-index/backfill status.
@@ -148,6 +149,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
+- `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`

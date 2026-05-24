@@ -430,6 +430,8 @@ class FoundationModelLabeler:
 
 The output of this stage is a `candidate_label`, not training truth. For open-vocabulary or semantic-map labels, the quality gate cannot auto-accept directly into training, replay, safety evidence, or a signed map bundle. It can only route candidates to review. Promotion requires controlled-taxonomy mapping, QA evidence, dataset/catalog manifest IDs, and semantic-map manifest or back-projection export IDs.
 
+The labeler itself is a governed artifact. Register the prompt pack, model/checkpoint, retrieval corpus, thresholds, projection code, reviewer workflow, allowed-use state, and rollback bundle using `offboard-labeler-registry-by-scale.md` before foundation-model labels feed an S2+ training snapshot, replay assertion, semantic map, or release packet.
+
 ### 3.5 Quality Gate and Human Review
 
 ```python

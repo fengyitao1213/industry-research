@@ -147,7 +147,7 @@ At S0, a manifest file can answer these questions. At S3-S5, the answers need a 
 
 ### 3. Labeling and Auto-Label Governance
 
-Auto-labeling is a production system. Its model versions, prompts, thresholds, calibration inputs, acceptance rates, reviewer corrections, and failure slices must be versioned. Offboard labelers can change a dataset even when the deployed vehicle model does not change.
+Auto-labeling is a production system. Its model versions, prompts, thresholds, calibration inputs, acceptance rates, reviewer corrections, and failure slices must be versioned. Offboard labelers can change a dataset even when the deployed vehicle model does not change. Use `offboard-labeler-registry-by-scale.md` once a labeler, prompt pack, evaluator, retrieval corpus, or threshold can affect training, replay, semantic-map publication, or safety evidence.
 
 For map-derived labels, the source map, semantic-map manifest, source-map acceptance package, map-hygiene layer, and pose back-projection must be part of the label lineage.
 
@@ -442,7 +442,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | GPU cost and queueing model for training and replay | Determines when to move from rented GPUs to owned or reserved capacity |
-| P1 | Offboard labeler registry | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
+| P1 | Offboard labeler registry (`offboard-labeler-registry-by-scale.md`) | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
 | P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
 | P1 | GPU FinOps unit-cost model | Tracks cost per label, training run, replay hour, released model, released map, and site so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
@@ -460,6 +460,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
+- `offboard-labeler-registry-by-scale.md` - prompt packs, foundation-model labelers, evaluator models, thresholds, and reviewer workflows as governed artifacts.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

@@ -78,6 +78,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Missing immutable dataset or label snapshot | S1 for baselines, S2 for release | Candidate points to mutable bucket prefix or unlabeled local files |
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
 | Suspect feature or embedding snapshot | S2-S5 | Training, eval, replay, or safety evidence consumes a feature materialization or vector index whose source map, calibration, corpus, embedding model, deletion state, or backfill has been invalidated |
+| Unregistered offboard labeler | S2-S5 | Training labels, semantic maps, replay assertions, or safety evidence consume outputs from a labeler, prompt pack, evaluator, threshold set, or retrieval corpus without registry evidence |
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
 | Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
@@ -160,6 +161,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
+- `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.
 - `../observability/fleet-anomaly-root-cause-attribution.md` - fleet anomaly attribution and MTTR reduction.
