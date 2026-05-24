@@ -33,6 +33,18 @@ The companion scale hub (`mlops-scale-research-scope.md`) separates MLOps maturi
 
 For airside autonomy, model governance should usually reach S2 before the first shadow deployment and S4 before a model controls or materially influences a safety-critical behavior. That includes offline models when their outputs become semantic-map labels, training positives, route restrictions, or release evidence.
 
+### Where Governance Lives in the Architecture
+
+Governance should attach to architecture boundaries, not meeting rituals. The companion `mlops-reference-architectures-by-scale.md` page defines which components are local versus shared; the release rule is that any artifact crossing from local experimentation into shared release authority must gain immutable identity, ownership, allowed use, evidence, and rollback metadata.
+
+| Scale boundary | Governance anchor | What must be blocked |
+|---|---|---|
+| S0 -> S1 baseline | Dataset snapshot, run manifest, validation script | Reusing a notebook result as a hidden baseline |
+| S1 -> S2 production | Model registry version and release packet | Moving `candidate`, `shadow`, or `champion` aliases without data/runtime/eval evidence |
+| S2 -> S3 fleet | Site/ODD rollout manifest and telemetry IDs | Expanding one model to new sites, routes, weather, maps, or vehicle kits without local evidence |
+| S3 -> S4 safety-critical | Safety-case claim/evidence record | Behavior authority changing while waivers, incident scenarios, or rollback proof are unresolved |
+| S4 -> S5 platform | Policy-as-code and audit API | Shared services allowing tenant bypass, unsupported data reuse, or untracked evaluator/prompt changes |
+
 ## Incident and Rollback Evidence by Scale
 
 Post-release failures should update the model record, not only an operations ticket. The model registry is the anchor for finding which model, dataset, map, calibration, runtime, prompt, and evaluator artifacts were active when the failure occurred.
@@ -125,6 +137,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
 - `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
+- `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`

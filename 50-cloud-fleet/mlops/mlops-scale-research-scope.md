@@ -76,6 +76,8 @@ This is the key distinction from web CI/CD: the pipeline can generate evidence a
 
 Managed cloud platforms are useful at S2 when the team needs repeatability faster than it can build platform engineering. Open-source stacks become attractive when deployment targets, data gravity, cost, air-gapped sites, or custom vehicle constraints require more control.
 
+For a concrete component-level blueprint, use `mlops-reference-architectures-by-scale.md`. The split is intentional: this page defines the maturity model and research scope; the reference-architecture page defines which components are local, shared, centralized, delayed, or policy-gated at S0-S5.
+
 ---
 
 ## Operating Model and Toolchain by Scale
@@ -442,6 +444,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
 | P1 | GPU FinOps unit-cost model | Tracks cost per label, training run, replay hour, released model, released map, and site so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide | Clarifies when online feature stores matter versus when offline manifests are enough |
+| P1 | Reference architecture migration checklist | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
 | P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
 | P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
 
@@ -451,6 +454,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
+- `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.
 - `../../20-av-platform/compute/training-infrastructure.md` - GPU training infrastructure and experiment management.

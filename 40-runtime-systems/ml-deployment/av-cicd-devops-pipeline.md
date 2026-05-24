@@ -120,6 +120,8 @@ The MLOps scale ladder defines how much pipeline machinery is justified. The rig
 
 Each lane should fail closed at its own boundary. A training DAG may produce a candidate checkpoint automatically, but it should not move the deployment alias. A packaging lane may build a TensorRT engine, but it should not prove ODD coverage. A fleet canary may collect evidence automatically, but the promotion decision must still know which model, map, calibration, runtime, data snapshot, and scenario suite were active.
 
+Use `../../50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md` when deciding which lanes should remain scripts, which should become shared services, and which promotion decisions need policy gates. The CI/CD pipeline should preserve the same interfaces at every scale: dataset manifest, training run manifest, model package manifest, evaluation report, deployment manifest, monitoring event schema, and incident evidence link.
+
 ---
 
 ## 2. Repository Architecture
