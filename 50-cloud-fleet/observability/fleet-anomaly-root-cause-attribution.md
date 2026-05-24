@@ -84,7 +84,7 @@ Fleet anomaly attribution should mature with MLOps scale. At S0-S1 the goal is t
 
 The attribution system should always emit an evidence artifact, not only a dashboard. Minimum fields are anomaly ID, affected cohorts, active artifacts, candidate root causes, confidence, evidence links, owner, mitigation, downstream data-mining tasks, and whether release gates or safety-case claims changed.
 
-The KPI companion for this MLOps scope is `../mlops/mlops-scorecards-and-kpis-by-scale.md`. Use it to decide when an attribution signal is only informational versus release-blocking: target ODD slice regression, rollback not executable, missing evidence retention, alert suppression without audit, and platform-policy bypass all change the release state.
+The KPI companion for this MLOps scope is `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and the response companion is `../mlops/model-monitoring-drift-response-by-scale.md`. Use them to decide when an attribution signal is only informational versus release-blocking: target ODD slice regression, rollback not executable, missing evidence retention, alert suppression without audit, unsupported automatic retraining, and platform-policy bypass all change the release state.
 
 ### 1.4 Why Manual Triage Does Not Scale Past 20 Vehicles
 
@@ -165,6 +165,7 @@ This document covers fleet-level anomaly attribution -- the "why" layer that sit
 | Runtime verification | `runtime-verification-monitoring.md` | STL violation events, OOD detection scores, safety envelope status |
 | Predictive maintenance | `../fleet-management/fleet-predictive-maintenance.md` | Component RUL predictions, failure probability estimates |
 | Data flywheel | `data-flywheel-airside.md` | Trigger events, retraining status, model performance metrics |
+| MLOps monitoring response | `../mlops/model-monitoring-drift-response-by-scale.md` | Monitoring event contract, action state, suppression expiry, retraining trigger policy |
 | Cloud backend | `cloud-backend-infrastructure.md` | Telemetry pipeline, data lake, Airflow orchestration |
 | Causal reasoning | `causal-reasoning-counterfactual.md` | SCM methodology for planning decisions (this doc extends to fleet operations) |
 

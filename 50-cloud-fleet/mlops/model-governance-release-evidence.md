@@ -6,7 +6,7 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, or the safety case; it is the MLOps evidence packet that those systems consume. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
@@ -90,6 +90,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
 | Site-sliced release record | ODD-cell manifest, local holdout, shadow/canary exposure, delayed-label review, rollout decision, expiry, waiver state | Release manager |
+| Monitoring and drift-response record | Monitoring event IDs, active artifact set, affected ODD slice, signal family, containment action, owner, suppression/waiver expiry, delayed-label or replay follow-up | Fleet operations + MLOps |
 | Safety case link | Claim IDs supported by this release and evidence IDs attached to each claim | Safety owner |
 | Compatibility manifest | Active model/map/calibration/runtime/telemetry/semantic-taxonomy artifact set, compatibility hash, MLOps scale, rollback set, labeler/prompt/evaluator dependencies | Release manager |
 | Artifact attestation bundle | Subject digests, signatures, SBOM/provenance, trusted-builder record, vulnerability disposition, model/export/map/labeler/eval policy results | Security + MLOps |
@@ -123,6 +124,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Any feature materialization or embedding/vector index used for training, replay, evaluation, RAG, or safety evidence resolves to a snapshot with point-in-time join proof, corpus/index version, deletion state, and stale-index/backfill status.
 - Any federated, hybrid, or privacy-preserving training output has trigger-policy justification, client/site manifests, aggregation-round evidence, privacy controls, local holdouts, and release scope before it can move beyond `candidate`.
 - Any GenAI, RAG, judge, VLM/VLA, or tool-agent output that affects labels, maps, release evidence, incidents, or operations has prompt/model/corpus/tool identity, eval-pack evidence, trace retention, reviewer disposition, policy result, and rollback bundle before it can move beyond candidate use.
+- Any drift, monitoring, delayed-label, replay, or incident signal tied to the candidate has a response record that names the active artifacts, affected ODD slice, containment action, owner, expiry, and required follow-up before release expansion.
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
@@ -142,6 +144,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 | Dataset split or leakage report missing | Release metrics may use examples, map tiles, feature corpora, labeler outputs, or replay scenarios that influenced training | Require split manifest, grouping keys, leakage report, and allowed-use state before candidate review |
 | Map-derived labels lack release-state evidence | Model learns transient or quarantined map points as permanent static classes | Require release-state masks, source-map acceptance, split IDs, and pseudo-label batch invalidation controls |
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
+| Drift alert ignored or auto-retrains | Release state changes without evidence, or a local regression remains uncontained | Route monitoring events through response states, owner, containment action, and retraining trigger policy |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
 | Artifact digest or provenance missing | Release packet cannot prove the deployed package is the evaluated package | Require signed artifacts, SBOM/provenance, policy result, and trusted-builder evidence before alias movement |
 | Offline labeler changes without governance | Training labels or semantic maps shift while the deployed model appears unchanged | Version prompt sets, labeler models, thresholds, accepted/rejected statistics, and rollback impact |
@@ -156,6 +159,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
 - `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
+- `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`
@@ -176,6 +180,8 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
 - SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
 - OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842
+- AWS, "Data and model quality monitoring with Amazon SageMaker Model Monitor." https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html
+- Microsoft Learn, "Model monitoring in production - Azure Machine Learning." https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
 - Google Cloud, "Prompt management." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes
 - Google Cloud, "Gen AI evaluation service overview." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview
 - Microsoft Learn, "Advance your maturity level for GenAIOps." https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2

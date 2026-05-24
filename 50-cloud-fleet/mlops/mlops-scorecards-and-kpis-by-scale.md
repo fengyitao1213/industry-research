@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `model-monitoring-drift-response-by-scale.md` for drift-response evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -23,6 +23,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 | Artifact trust and provenance | Whether release-affecting artifacts are digest-pinned, signed, attested, and policy-verified | Prevents unsigned models, stale engines, mutable datasets, and untrusted prompt/eval packs from reaching release |
 | Release reliability | Whether candidate, shadow, canary, champion, and rollback transitions are controlled | Prevents training completion from becoming deployment approval |
 | Observability and incident response | Whether anomalies become evidence-backed action | Prevents dashboards from replacing mitigation, rollback, or learning loops |
+| Drift response quality | Whether drift, delayed-label, replay, and incident signals route to controlled actions | Prevents automatic retraining, ignored local regressions, and unaudited alert suppression |
 | Governance and compliance | Whether approvals, evidence, retention, and policy states are auditable | Prevents release claims from failing during incident review or audit |
 | Cost and platform efficiency | Whether data, labeling, GPUs, storage, and platform services are economically controlled | Prevents scale from hiding waste or starving safety-critical work |
 
@@ -67,6 +68,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Deployment | Promotion lead time | Time from result to baseline | Time from candidate to shadow/canary/champion with evidence | Time from claim approval to controlled rollout with audit trail |
 | Release reliability | Change failure rate | Regression count | Candidate hold/reject/rollback rate by cause | Safety-relevant change failure and corrective-action closure |
 | Monitoring | Alert actionability | Failure notes become issues | Alerts produce label batch, replay case, rollback check, or ODD quarantine | Alert suppression audit, reportability, safety-case delta |
+| Drift response | Signal-to-action closure | Manual failure list is triaged | Drift events have artifact IDs, owner, affected ODD slice, and action state | Evidence freeze, suppression expiry, containment latency, and safety-case delta |
 | Incident response | MTTR / containment time | Time to explain regression | Time to isolate artifact and affected cohort | Time to evidence freeze, rollback, and reportability decision |
 | Cost | Unit cost | Cost per run | Cost per accepted label, training run, replay hour, released model/map, queue wait time | Cost per evidence pack, platform tenant, reserved incident lane, and ODD-cell approval |
 | Platform | Adoption and bypass rate | Not applicable | Shared registry/eval use by product team | Tenant compliance, bypass attempts, service SLOs, GPU queue wait time |
@@ -97,6 +99,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Safety monitor regression | S4-S5 | New model increases false-free-space, protected-zone violation, unsafe speed, or intervention correlation |
 | Rollback not executable | S2-S5 | Previous model cannot load under active runtime, schema, calibration, or map package |
 | Assurance capacity unavailable | S4-S5 | Incident replay, release replay, rollback proof, or safety evidence job cannot run within the required response window because routine jobs consumed reserved capacity |
+| Unsupported drift response | S2-S5 | Drift, delayed-label, replay, or incident signal triggers automatic retraining, has no owner/runbook, lacks artifact IDs, or suppresses safety-relevant evidence without expiry |
 | Missing evidence retention | S4-S5 | Raw logs, replay package, release packet, approval, or incident evidence can be garbage-collected |
 | Platform policy bypass | S5 | Team moves artifact outside shared registry/eval/policy controls |
 | Premature scale migration | S1-S5 | Team adds shared platform tooling before run/data/release contracts exist, or moves an artifact to higher authority without the migration checklist evidence packet |
@@ -174,6 +177,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
 - `mlops-migration-checklist-by-scale.md` - migration readiness gates, workstream matrix, and adoption evidence packets.
 - `dataset-split-leakage-controls-by-scale.md` - split-firewall KPIs, leakage modes, holdout controls, and split architecture tradeoffs.
+- `model-monitoring-drift-response-by-scale.md` - drift-response KPIs, monitoring event contracts, alert-quality controls, and retraining trigger policy.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
@@ -197,6 +201,9 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
 - TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
+- AWS, "Data and model quality monitoring with Amazon SageMaker Model Monitor." https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html
+- Microsoft Learn, "Model monitoring in production - Azure Machine Learning." https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
+- Evidently AI, "Monitoring overview." https://docs.evidentlyai.com/docs/platform/monitoring_overview
 - ISO/IEC 5259-5:2025, "Artificial intelligence - Data quality for analytics and machine learning (ML) - Part 5: Data quality governance framework." https://www.iso.org/standard/84150.html
 - NIST, "Artificial Intelligence Risk Management Framework." https://www.nist.gov/itl/ai-risk-management-framework
 - FinOps Foundation, "FinOps Framework." https://www.finops.org/framework/

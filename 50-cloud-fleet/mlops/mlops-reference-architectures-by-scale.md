@@ -6,7 +6,7 @@ This page turns the MLOps scale ladder into concrete architecture choices. Use i
 
 The architecture should grow by contract first, platform second. A small team can run on scripts, manifests, and a lightweight tracker if the artifact boundaries are disciplined. A large platform still fails if it centralizes dashboards while leaving labels, dataset snapshots, registry aliases, evaluation packs, and rollback evidence ambiguous.
 
-Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Use `mlops-migration-checklist-by-scale.md` before moving an artifact family from one scale to the next. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
+Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Use `mlops-migration-checklist-by-scale.md` before moving an artifact family from one scale to the next. Pair monitoring decisions with `model-monitoring-drift-response-by-scale.md` so drift, delayed-label, replay, and incident signals produce controlled actions instead of automatic retraining or dashboard noise. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
 
 ---
 
@@ -36,7 +36,7 @@ The same fleet can occupy multiple scales at once. A perception research branch 
 | Model registry | Checkpoint path plus release note | Immutable version, aliases, approval metadata, rollback target, artifact digest | Registry integrated with policy, signing, SBOM, SLSA/in-toto provenance, tenant isolation, and audit logs |
 | Evaluation | Validation script and frozen split | Slice metrics, replay, calibration, runtime smoke, shadow/canary report | Safety-case-linked claim/evidence table, scenario catalog, waiver expiry |
 | Deployment | Manual batch or offline artifact | ONNX/TensorRT/container bundle, compatibility manifest, canary channel | OTA/SUMS integration, policy gates, rollback drill, reportability evidence |
-| Monitoring | Manual plots and failure notes | Runtime health, drift proxies, delayed labels, incident hooks | Fleet SLOs, causal attribution, alert quality, suppression audit, compliance export |
+| Monitoring | Manual plots and failure notes | Runtime health, drift proxies, delayed labels, incident hooks, monitoring event contract | Fleet SLOs, causal attribution, alert quality, suppression audit, compliance export, platform drift-response policy |
 | Cost and capacity | Per-run note | Job owner, GPU queue, timeout, cost tag | FinOps allocation, reserved incident capacity, utilization SLO, chargeback |
 
 Minimum viable does not mean minimal governance. At S2+, the smallest acceptable production stack is one that can answer: what changed, what data justified it, where is it allowed to run, how will we know it failed, and how do we roll back?
@@ -72,7 +72,7 @@ These interfaces should exist before the platform becomes large. They can begin 
 | Compatibility manifest | model, map, calibration, runtime, telemetry, semantic taxonomy, labeler/prompt/evaluator dependencies, MLOps scale, rollback set | OTA/SUMS, release review, safety case, incident response |
 | Evaluation report | metric version, aggregate and slice metrics, confidence intervals, replay package IDs, known failures, waiver state | release review, safety validation, monitoring thresholds |
 | Deployment manifest | model alias, runtime container, map bundle, calibration package, vehicle/site/ODD scope, rollout cohort, rollback artifact | fleet deployment, operations, incident response |
-| Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields | fleet observability, active learning, incident triage |
+| Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields, action state, owner, suppression expiry | fleet observability, active learning, incident triage, drift-response policy |
 | Incident evidence link | event ID, active artifacts, logs/clips, replay scenario, safety monitor state, containment action, corrective action | governance, safety case, post-release learning |
 | Foundation-model artifact manifest | prompt/model/checkpoint, retrieval corpus, tool permissions, decoding policy, agent graph, eval pack, trace bundle, reviewer disposition | label operations, evaluator governance, agent review, safety review |
 | Artifact attestation manifest | subject digest, artifact type, producer identity, build provenance, SBOM/eval/map-QA predicate, policy result, allowed scope, rollback target | registry, OTA/SUMS, Kubernetes/admission policy, safety case, audit |
@@ -201,6 +201,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `mlops-scale-research-scope.md` - scale ladder and lifecycle controls.
 - `mlops-migration-checklist-by-scale.md` - transition gates, tooling triggers, and migration evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
+- `model-monitoring-drift-response-by-scale.md` - monitoring event contract, drift-response architecture, alert routing, and retraining trigger policy.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, and rollout state machine.
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
 - `gpu-queueing-finops-by-scale.md` - GPU scheduler, queueing, quota, and FinOps architecture by scale.
@@ -219,6 +220,9 @@ The minimum architecture should therefore include registry-backed release packet
 ## Sources
 
 - Google Cloud, "MLOps: Continuous delivery and automation pipelines in machine learning." https://docs.cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning
+- AWS, "Data and model quality monitoring with Amazon SageMaker Model Monitor." https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html
+- OpenTelemetry, "What is OpenTelemetry?" https://opentelemetry.io/docs/what-is-opentelemetry/
+- Prometheus, "Alerting rules." https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/

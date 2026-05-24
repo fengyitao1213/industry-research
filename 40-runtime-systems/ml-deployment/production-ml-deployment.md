@@ -26,7 +26,7 @@ This document covers the hard engineering problems of deploying ML models -- par
 
 ## Deployment Scale Boundary
 
-The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training.
+The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training. The companion MLOps guide `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` defines how runtime monitoring events become release holds, label batches, replay cases, ODD-cell quarantine, rollback, retraining proposals, or safety-case deltas.
 
 | MLOps scale | Runtime deployment posture | Required runtime evidence |
 |---|---|---|
@@ -255,7 +255,7 @@ Off-vehicle (fleet level):
 
 ### Monitoring by MLOps Scale
 
-The monitoring burden grows with deployment risk. At S0-S1, monitoring is mostly experiment hygiene. At S3-S4, the same signal can block a canary, quarantine a site, or update the safety case. The scale ladder in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md` should therefore be reflected in alert thresholds, evidence retention, and release reviews.
+The monitoring burden grows with deployment risk. At S0-S1, monitoring is mostly experiment hygiene. At S3-S4, the same signal can block a canary, quarantine a site, or update the safety case. The scale ladder in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md` and the response state machine in `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` should therefore be reflected in alert thresholds, evidence retention, event contracts, and release reviews.
 
 | MLOps scale | Monitoring goal | Minimum signals | Action |
 |---|---|---|---|
@@ -266,7 +266,7 @@ The monitoring burden grows with deployment risk. At S0-S1, monitoring is mostly
 | S4 regulated safety-critical | Preserve audit and safety evidence | All S3 signals plus incident linkage, safety monitor activations, waiver/suppression audit, rollback proof | Trigger safety review, update assurance case, or stop autonomous use |
 | S5 platform scale | Run monitoring as a shared service | Standard telemetry schema, model SLOs, tenant ownership, policy-as-code, cost and alert quality metrics | Enforce platform policy and prevent bespoke silent monitors |
 
-Do not let monitoring become an automatic retraining switch. For autonomy, monitoring should create evidence: a candidate data batch, a regression scenario, a rollback trigger, or a safety-case update. Training remains gated by dataset lineage, evaluation, shadow/canary evidence, and release approval.
+Do not let monitoring become an automatic retraining switch. For autonomy, monitoring should create evidence: a candidate data batch, a regression scenario, a rollback trigger, an ODD-cell quarantine, or a safety-case update. Training remains gated by dataset lineage, split integrity, evaluation, shadow/canary evidence, and release approval.
 
 ### Drift Evidence Contract by Scale
 
