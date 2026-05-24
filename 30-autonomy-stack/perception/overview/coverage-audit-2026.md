@@ -183,6 +183,15 @@ Five read-only scouts checked the aggregated-map segmentation queue after the Un
 | Point-cloud Mamba / SSM segmentation backbones | [Point-Cloud Mamba / SSM Backbones](../methods/point-cloud-mamba-ssm-backbones.md) |
 | Aggregated-map routing | [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md), [LiDAR Semantic Segmentation](lidar-semantic-segmentation.md), and [Large-Scale 3D Segmentation Tiling and Throughput](large-scale-3d-segmentation-tiling-and-throughput.md) now treat SSMs as a research-stage efficiency branch, not a P1 production default. |
 
+## Recurring Aggregated-Map Architecture Routing (2026-05-24)
+
+This bounded pass kept existing method pages as the atomic deep dives and added an architecture reading path in the method library, because the aggregated-map hub already compares the families but readers still needed a product-oriented route across the individual method pages.
+
+| Cluster | Refreshed coverage |
+|---|---|
+| Method-library routing | [Perception Method Library Overview](../methods/overview.md) now groups aggregated-map segmentation methods into sparse-voxel production anchors, point-conv geometry baselines, superpoint graph map-scale context, serialized transformer/foundation-model ceilings, projection and standard-op deployment lanes, image-distilled/open-vocabulary label lanes, and SSM/Mamba experiments. |
+| Bake-off controls | The method-library route now requires shared source-map acceptance packages, taxonomy, release-state labels, tile manifests, halo policy, optimizer budget, modality lanes, and semantic plus hygiene metrics before claiming one architecture beats another. |
+
 ## Recurring LOSC Consolidation Promotion (2026-05-23)
 
 Five read-only scouts checked LOSC source maturity, page schema, cross-links, count updates, and active queue priority. This bounded pass promoted LOSC as an atomic method page because the arXiv, OpenReview, Valeo project page, and official repository are public, while existing repo coverage only mentioned it inside overview/data-engine paragraphs.
