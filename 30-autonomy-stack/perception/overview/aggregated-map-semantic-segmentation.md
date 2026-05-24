@@ -196,7 +196,7 @@ This topic should be treated as a **cross-corpus architecture**, not as one stan
 | Map construction and alignment | `../../localization-mapping/maps/map-construction-pipeline.md`, `../../localization-mapping/slam-methods/lamm-multi-session-point-cloud-map-merging.md`, `../../localization-mapping/slam-methods/uni-mapper-dynamic-aware-lidar-map-merging.md`, `../../localization-mapping/slam-methods/mapeval-point-cloud-map-quality-evaluation.md` | Produces the registered, multi-session, georeferenced map substrate and decides whether geometry is clean enough to segment. |
 | Point-cloud removal and quarantine | `../../localization-mapping/slam-methods/lidar-map-cleaning-dynamic-removal.md`, `static-but-transient-point-removal.md`, `../../localization-mapping/slam-methods/potentially-dynamic-object-removal-ground-projection.md`, `../../localization-mapping/slam-methods/lifelong-3d-map-version-control.md` | Removes dynamic residual points, quarantines stationary-but-temporary objects, and separates permanent map truth from movable, dynamic, artifact, and FOD-candidate layers. |
 | Datasets and proxy domains | `../datasets-benchmarks/large-scale-3d-segmentation-benchmarks.md`, `../datasets-benchmarks/gridnet-hd-power-line-lidar-image-segmentation.md`, `../datasets-benchmarks/moving-static-separation-mos-datasets.md` | Provides the non-road urban, utility-infrastructure, facade, campus, aerial, mobile-scanning, MOS proxy landscape, and release-oriented dataset-selection protocol for training and evaluation. |
-| Taxonomy and training architecture | `3d-segmentation-class-taxonomy-design.md`, `3d-segmentation-training-paradigms.md`, `../methods/point-cloud-mamba-ssm-backbones.md`, `../methods/losc.md` | Defines class hierarchies, safety-critical class weighting, supervision regimes, backbone-by-training-route decisions, open-vocabulary consolidation, and architecture trade-offs. |
+| Taxonomy and training architecture | `3d-segmentation-class-taxonomy-design.md`, `3d-segmentation-training-paradigms.md`, `../methods/point-cloud-mamba-ssm-backbones.md`, `../methods/losc.md` | Defines class hierarchies, the semantic-class vs map-hygiene/permanence layer split, safety-critical class weighting, supervision regimes, backbone-by-training-route decisions, open-vocabulary consolidation, and architecture trade-offs. |
 | Tiling, refinement, and release | `large-scale-3d-segmentation-tiling-and-throughput.md`, `segmentation-post-processing-label-refinement.md`, `../../../schemas/semantic-map-manifest.schema.json`, `../../../schemas/runtime-map-contract.schema.json` | Turns model logits into a reproducible map artifact with tile provenance, stitched logits, post-processing evidence, map-hygiene layer digests, schema validation, and runtime compatibility. |
 | Validation and safety case | `../../localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md`, `../../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md`, `../../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md` | Defines the acceptance evidence for map hygiene, false deletion, false retention, FOD exclusion, semantic integrity, and publication. |
 
@@ -548,7 +548,7 @@ In single-scan driving segmentation, "things" (cars, pedestrians) dominate the s
 
 Note the convergent core across MLS/ALS taxonomies — **ground, building, vegetation, pole, fence/barrier, wire, vehicle** — which is exactly the transferable backbone for an airside taxonomy.
 
-### 6.3 Proposed Airside Aggregated-Map Taxonomy (Initial 11-Class)
+### 6.3 Proposed Airside Aggregated-Map Taxonomy (Compact 11-Class Release View)
 
 | ID | Class | Group | Permanence | Notes |
 |---|---|---|---|---|
@@ -564,7 +564,9 @@ Note the convergent core across MLS/ALS taxonomies — **ground, building, veget
 | 9 | Staged GSE / parked equipment | Permitted static | **Transient** | Static now, *not* map structure — quarantine class |
 | 10 | Unknown / unlabeled | Catch-all | — | Explicit; drives active learning |
 
-This taxonomy maps cleanly onto the 18-class single-scan airside taxonomy in `lidar-semantic-segmentation.md` §8 — the map taxonomy is its *static subset* plus the "staged GSE" quarantine class. Keeping the two taxonomies aligned is what makes auto-label back-projection consistent.
+This compact view is the hub-level release taxonomy. The detailed companion page, [Semantic Class Taxonomy Design](3d-segmentation-class-taxonomy-design.md), expands it into a 14-class airside proposal and makes the critical publication distinction explicit: semantic class IDs describe what a point is, while map-hygiene/permanence layers decide whether that point is `permanent_static`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, or `unknown_review`.
+
+This taxonomy maps cleanly onto the 18-class single-scan airside taxonomy in `lidar-semantic-segmentation.md` §8 — the map taxonomy is its *static subset* plus the "staged GSE" quarantine class. Keeping the two taxonomies aligned is what makes auto-label back-projection consistent. Keeping semantic IDs separate from hygiene layers is what prevents a correctly labeled parked aircraft, staged GSE unit, worker, pallet, cone, or temporary cable from becoming permanent map truth.
 
 ### 6.4 Class Imbalance
 

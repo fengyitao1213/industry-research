@@ -352,6 +352,40 @@ Aggregated map taxonomy (static subset) ──► back-project ──► map lab
 
 This requires: (a) the single-scan taxonomy includes all map classes as a proper subset; (b) moving-class labels and unlabeled labels from single-scan annotation map cleanly to "unknown" or "dynamic-removed" in the map taxonomy. Violating (a) means some map classes have no single-scan labels to back-project from, requiring separate annotation passes — a significant cost increase.
 
+### Semantic class vs permanence layer
+
+For aggregated-map publication, **semantic class** and **map permanence** must be separate axes. The semantic class answers "what is this point?" The permanence or hygiene layer answers "should this point become permanent map truth, be retained only as soft context, or be excluded from the released map?" A class ID alone is therefore not a publication decision.
+
+This separation prevents the common failure where a semantically correct label still corrupts the map. A parked belt loader may be correctly labeled as `staged GSE`, a waiting person may be correctly labeled as `person`, and a cable left during maintenance may be correctly labeled as `cable/tooling`; none of those facts imply the points belong in the permanent aggregate map.
+
+| Semantic evidence | Default map-hygiene layer | Release policy |
+|---|---|---|
+| Pavement, pavement marking, kerb, fixed building, fixed fence, surveyed pole/mast/light | `permanent_static` | Eligible for released geometry and localization priors after geometric QA and semantic-confidence gates |
+| Person, crew, passenger, cyclist, animal | `static_transient` or hard exclusion | Never released as permanent geometry; may appear only in residual-review evidence or training negatives |
+| Parked vehicle, parked GSE, parked aircraft, movable barrier, pallet, container | `movable_static` or `static_transient` | Keep out of permanent map; may be published as a soft occupancy/context layer only if consumers explicitly request it |
+| FOD, chock, cone, temporary cable, tool, maintenance material | `fod_candidate` | Candidate hazard/review layer, not map structure; route to operational inspection and FOD datasets |
+| Rain/snow returns, multipath ghosts, registration doubles, scan-shadow streaks | `artifact` | Exclude from release and count against map-conditioning quality |
+| Unknown high-confidence object, low-confidence semantic region, open-vocabulary candidate not yet promoted | `unknown_review` | Human review or active-learning queue; cannot silently collapse into the nearest permanent class |
+
+The release contract should carry both products: per-point or per-voxel semantic labels, and per-point or per-voxel hygiene-layer labels. In this repository that requirement is encoded in the semantic-map manifest: `outputs.map_hygiene_layer_digests` hash-addresses the published hygiene layers, while `metrics_evidence.map_hygiene_metrics` records false-permanent, false-deletion, residual-dynamic, static-transient, FOD-exclusion, and artifact metrics. The taxonomy document defines the meaning of labels; the manifest proves the release bundle carried the hygiene evidence.
+
+**Release rule:** a point can be semantically correct and still be wrong for the permanent map. Publication gates must evaluate semantic class, permanence layer, confidence, change history, and consumer contract together.
+
+### Non-road urban-district permanence mapping
+
+Non-road managed districts — airport aprons, campuses, ports, yards, utility corridors, and industrial sites — have more static-but-movable structure than public-road AV datasets. Their taxonomies should therefore define permanence policy at the superclass level before fine class IDs are promoted.
+
+| Domain slice | Typical semantic superclasses | Permanence policy |
+|---|---|---|
+| Airport apron / terminal frontage | Pavement, markings, kerbs, terminal facade, fences, poles, VDGS, fixed plant, staged GSE, parked aircraft | Fixed civil infrastructure can be permanent; staged GSE and parked aircraft are movable-static quarantine layers |
+| Campus / pedestrian district | Walkways, plazas, buildings, vegetation, benches, bollards, bike racks, people, delivery carts | Benches/bollards may be permanent if bolted/surveyed; people, bikes, carts, and event furniture are static-transient |
+| Port / logistics yard | Asphalt, rails, quay edges, cranes, containers, trailers, signs, lighting, fences | Civil structure and fixed cranes can be permanent; containers/trailers/pallets are movable-static and stale quickly |
+| Industrial yard / substation | Ground, cable trays, ducts, pipes, tanks, pumps, fences, cabinets, temporary tools | Fixed plant may need fine classes; tools, cables laid for work, and mobile equipment are review or transient layers |
+| Utility corridor / overhead infrastructure | Pylons, poles, conductor cables, insulators, vegetation, roads/soil, water, buildings | Grid assets can be permanent; vegetation needs freshness policy; maintenance vehicles and temporary works are excluded |
+| Building frontage / managed facade | Wall, door, window, sign, balcony, awning, HVAC, rain shed, advertisement | Structural facade can be permanent; advertisements, movable signs, scaffolds, and construction wraps require review or versioned soft layers |
+
+This is why GridNet-HD, S.MID, City-Facade, ZAHA, Point Cloud City, YUTO, and ECLAIR are valuable even when their taxonomies are not copied directly: they reveal which non-road classes are stable infrastructure, which are movable assets, and which are sensor/viewpoint artefacts. A production taxonomy should encode those distinctions explicitly rather than forcing everything into a road-style `static object` bucket.
+
 ### Taxonomy promotion from open-vocabulary candidates
 
 Open-vocabulary labelers can suggest names that the controlled taxonomy does not yet contain. Treat those names as taxonomy evidence, not as new class IDs. The promotion path should be:
@@ -437,6 +471,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 - **Encode the label_map explicitly in a config file.** Follow SemanticKITTI's YAML pattern: declare raw classes, the learning_map remapping, and the evaluation subset in one versioned file. This makes taxonomy changes auditable.
 - **Align single-scan and map taxonomies before annotation starts.** The map taxonomy must be a proper subset of the single-scan taxonomy (see back-projection pattern above). Discovering misalignment after annotation requires relabeling.
 - **Keep open-vocabulary names outside the release taxonomy until promoted.** Store prompt/model/reviewer provenance for candidate names, but require alias mapping, parent-class fallback, or a versioned taxonomy-change request before any new name receives a class ID.
+- **Keep semantic IDs separate from hygiene layers.** A semantic class config should not encode whether a point is permanent map truth. Carry that in the release layer taxonomy (`permanent_static`, `movable_static`, `static_transient`, `dynamic_residual`, `fod_candidate`, `artifact`, `unknown_review`) and require both products in the semantic-map manifest.
 - **Plan for class splits.** When designing a new class, document the conditions under which it might be split later (e.g., "pavement-apron may split into apron-hard-stand and apron-service-road if operational data reveals sufficient point-count"). This allows forward-compatible ontology design.
 - **Track class-frequency distributions** in a held-out validation set before finalising the taxonomy. If any evaluated class has fewer than 100 instances in the training set, seriously consider merging it into a parent. Point count alone is misleading; instance count drives object-level evaluation quality.
 
@@ -455,6 +490,7 @@ Sources: arXiv 2407.15797; DigitalDivideData annotation blog; arXiv 2310.20293.
 | Kerb / pavement boundary mislabeled at high rate | Boundary rule ambiguous; annotators unsure where class changes | Add explicit break-of-slope rule with visual examples; conduct targeted inter-annotator test on kerb sections |
 | mIoU inflated by catch-all class counting | Catch-all class included in mIoU denominator even though it is an annotation artefact | Exclude catch-all and ignore-label classes from mIoU computation, following SemanticKITTI convention |
 | Staged GSE objects reappear as permanent static structure across map versions | Staged GSE not distinguished from fixed infrastructure in taxonomy | Maintain separate class ID 12 (staged GSE) and flag as "potentially stale" in map versioning |
+| Correctly labeled people, pallets, containers, or staged vehicles enter the released base map | Semantic class ID is being treated as the release decision; no separate permanence/hygiene layer | Require `map_hygiene_layer_digests` and reject releases where movable-static or static-transient points are fused into `permanent_static` |
 | Rare infrastructure class (e.g., VDGS) never segmented correctly | Insufficient training instances; class not split from pole/sign catch-all early enough | Report per-instance recall; augment with copy-paste or synthetic objects; consider merging to parent until data volume justifies split |
 
 ---
