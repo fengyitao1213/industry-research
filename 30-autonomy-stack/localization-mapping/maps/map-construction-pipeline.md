@@ -940,6 +940,20 @@ The semantic segmenter should not consume "the latest merged cloud" directly. It
 | `prior_inputs_summary` | Records OpenLiDARMap/FlexCloud/AMDB/facility-prior influence without treating priors as labels |
 | `entry_decision` | `accepted`, `accepted_with_quarantine`, `needs_resurvey`, or `blocked` before segmentation starts |
 
+#### Learned-SLAM Evidence Lanes in Source Acceptance
+
+ML-related SLAM outputs should enter the source-map package as named evidence lanes, not as untyped confidence annotations. This preserves the boundary between "a learned model helped build or inspect the map" and "the map is accepted as release evidence."
+
+| Evidence lane | Examples | Where it helps | Required acceptance record |
+|---|---|---|---|
+| Alignment proposal | learned registration, overlap networks, learned place recognition | Candidate loop closures, cross-session matching, weak-GNSS district alignment | Top-K proposal log, geometric verification result, before/after MapEval deltas, rejected-loop digest |
+| Dynamic and transient cleaning | semantic/dynamic SLAM masks, MOS, scene flow, radar Doppler cues, permanence scoring | Dynamic residual removal, stationary-person exclusion, parked-asset quarantine | Removed-point digest, release-state label, reason code, temporal support, reviewer override trail |
+| Semantic prior | semantic-SLAM class histograms, learned map priors, neural spatial memory | CRF unaries, active-learning queues, low-confidence review routing | Prior version, staleness score, taxonomy mapping, calibration slice metrics, downstream-use permission |
+| Dense inspection asset | neural implicit map, 3D Gaussian map, semantic Gaussian overlay | Visual QA, simulation transfer, facade/asset inspection, digital-twin publication | Modality/source list, scale source, renderer/model digest, dynamic artifact policy, explicit-geometry conversion status |
+| Training export support | back-projected map labels, pseudo-label confidence, disagreement maps | Single-scan segmentation, MOS training, open-vocabulary consolidation | Pose lookup, projection QA, release-state mask, source-map acceptance hash, label-age policy |
+
+For implementation, keep these lanes in the same bundle as `source_map_acceptance_package.json` but do not merge them into one pass/fail score. The construction lead should be able to answer: which learned artifact proposed the change, which geometric or reviewer evidence accepted it, which product modes may consume it, and which rejected evidence remains available for audit.
+
 For airport airside, the package should block on failed GCP/MapEval geometry around hold-short lines, stands, service roads, and geofence boundaries. For non-road urban districts, it should additionally preserve plazas, campus furniture, building frontages, ramps, stairs, utility corridors, service alleys, parked bicycles/scooters, temporary barriers, and work-zone assets as reviewable regions rather than forcing them into road-style map classes.
 
 The key rule is simple: semantic segmentation is allowed to improve labels, not to repair unaccepted geometry. If the source-map acceptance package is `blocked`, the next step is re-SLAM, re-merge, re-survey, or quarantine — not a higher-capacity segmenter.

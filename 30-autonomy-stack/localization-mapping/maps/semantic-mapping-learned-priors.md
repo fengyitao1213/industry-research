@@ -1217,6 +1217,20 @@ Learned priors are powerful because they amortize fleet experience, but they are
 | Fleet change statistics | Detect staleness, propose review tiles, adjust update cadence | Repeated operational clutter can look permanent in busy managed sites | Cross-check against map-hygiene layers and zone policy before updating the permanent layer |
 | NOTAM/A-CDM/AIRAC/AMDB feeds | Dynamic constraints, route restrictions, authoritative base geometry | Feed latency, schema mismatch, and local operations overrides can desynchronize the map | Keep feed identity, timestamp, authority, and expiry in the release package |
 
+#### Product-Mode Routing for Learned Priors
+
+Learned priors should declare which semantic-map product modes they are allowed to influence. This is a stricter contract than "prior used" because runtime navigation, training export, hygiene monitoring, digital-twin rendering, and local benchmark construction have different failure costs.
+
+| Product mode | Acceptable prior influence | Required counter-evidence | Unsafe shortcut |
+|---|---|---|---|
+| Runtime semantic map | Suggest missing markings, smooth class probabilities, rank changed tiles for review | Current survey geometry, MapEval/GCP acceptance, map-hygiene digests, reviewer approval for critical classes | Publishing prior-only geometry or old markings into the runtime layer |
+| Map-derived training export | Select high-confidence permanent-static tiles and hard negatives | Release-state mask, label provenance, projection QA, pose back-projection confidence | Training on prior-imputed labels or on transient/movable/static clutter |
+| Hygiene monitoring | Detect stale regions, repeated movable assets, and unusual permanence shifts | Temporal absence/presence evidence, zone policy, rejected-point sidecars | Treating repeated operational clutter as permanent infrastructure without review |
+| Digital twin and simulation | Fill visual context, texture surfaces, attach candidate semantic attributes | Explicit source modality, scale and alignment proof, dynamic-artifact filter | Letting photoreal plausibility stand in for metric map acceptance |
+| Local benchmark and acceptance set | Mine difficult tiles, domain slices, prior-failure cases, and open-vocabulary candidates | Frozen source map, independent labels, release-state overlay, split isolation | Evaluating a prior on labels it generated or cleaned itself |
+
+The practical rule is that a prior can increase review efficiency and improve recall, but it should not erase uncertainty. In an airport, campus, port, or facade-rich district, the same object class may be permanent in one zone and transient in another. A parked tug near a stand, a pallet in a warehouse aisle, a scooter on a campus path, and a temporary barrier in a plaza need zone policy plus current evidence before they become map truth.
+
 The acceptance rule is deliberately conservative: a prior may **propose**, **rank**, **smooth**, or **route to review**, but publication needs observed source-map evidence, map-quality checks, semantic-confidence evidence, and map-hygiene layer digests. This mirrors the ML-SLAM handoff contract in `../overview/ml-related-slam-research-scope.md` and prevents a learned prior from silently overwriting the physical map.
 
 ---
