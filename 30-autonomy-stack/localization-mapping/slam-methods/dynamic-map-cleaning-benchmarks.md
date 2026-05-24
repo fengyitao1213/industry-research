@@ -637,6 +637,7 @@ This benchmark page is the **evaluation reference** for the following repo pages
 - Ground-truth label derivation: §2.4
 - The two incompatible lineages: §3
 - Static-but-transient gap: §10 and `../../perception/overview/static-but-transient-point-removal.md`
+- Release-state benchmark extension: `../../perception/datasets-benchmarks/moving-static-separation-mos-datasets.md`
 
 ---
 
@@ -652,6 +653,24 @@ This benchmark page is the **evaluation reference** for the following repo pages
 
 ---
 
+## Release-State Evaluation Extension
+
+Existing dynamic-map benchmarks answer whether a point is static or dynamic. Semantic-map publication needs a stricter question: which points may enter the permanent map, which points must be quarantined, and which points need review. Add a release-state confusion matrix on top of PR/RR/F1 or SA/DA/AA whenever a cleaned map feeds localization, semantic segmentation, or a map-release package.
+
+| Ground-truth release state | False positive risk | False negative risk | Required benchmark metric |
+|---|---|---|---|
+| `permanent_static` | Over-cleaning deletes real localization structure | Under-counting permanent structure hides map erosion | Permanent retention recall, thin-structure retention, localization regression delta |
+| `dynamic_residual` | Static structure near moving objects gets deleted | Ghost trails enter the semantic map and auto-labels | Dynamic residual rejection recall and ghost rate per tile |
+| `movable_static` | Parked assets become permanent geometry | Useful current-context objects get erased without trace | Movable-static false-promotion rate and quarantine recall |
+| `static_transient` | Stationary people or temporary objects become map truth | Permanent fixtures in temporary zones are over-quarantined | Hard-exclusion recall, zone-policy precision, reviewer yield |
+| `fod_candidate` | Pavement texture or rain is sent to hazard review | Small safety-critical objects are erased as noise | FOD recall, false alarm per square meter, minimum-size slice |
+| `artifact` | Real thin structures are classified as artifacts | Sensor artifacts degrade segmentation and source-map QA | Artifact precision/recall and source-quality correlation |
+| `unknown_review` | Review queue overload | Unknown hazards or taxonomy gaps bypass review | Review-yield precision and unresolved-tile rate |
+
+This extension should be scored at tile level and point/cluster level. Tile-level scoring catches operational release risk; point/cluster scoring preserves comparability with KTH, ERASOR, HeLiMOS, and MOS-style metrics. The output should include a reason-code confusion matrix so a method is not rewarded for "cleaning" a parked tug, stationary person, or FOD candidate without preserving the required evidence layer.
+
+---
+
 ## Validation Guidance
 
 1. Benchmark at least ERASOR, Removert, and MapCleaner on the same input maps before selecting a default cleaner.
@@ -662,7 +681,8 @@ This benchmark page is the **evaluation reference** for the following repo pages
 6. Compare localization on raw, cleaned, and over-cleaned maps. Reject a cleaner if the map looks cleaner but localization residuals, degeneracy, or relocalization failures worsen.
 7. Keep movable-static objects in a separate quarantine layer until cross-session evidence decides whether they are persistent infrastructure, temporary equipment, or dynamic clutter.
 8. For airside deployment: report results on your local multi-session dataset with explicit transient-object annotation. No published benchmark covers this regime (§10).
-9. Add [MapEval](mapeval-point-cloud-map-quality-evaluation.md) or an equivalent cloud-to-reference QA suite after dynamic cleaning when the output feeds semantic segmentation or localization. Dynamic-cleaning PR/RR/F1 says whether moving points were removed; MapEval-style AC/COM/CD/MME/AWD/SCS says whether the cleaned map geometry is still consistent and complete.
+9. Add the release-state confusion matrix above before any cleaned output is used as semantic-map release truth or auto-label training data.
+10. Add [MapEval](mapeval-point-cloud-map-quality-evaluation.md) or an equivalent cloud-to-reference QA suite after dynamic cleaning when the output feeds semantic segmentation or localization. Dynamic-cleaning PR/RR/F1 says whether moving points were removed; MapEval-style AC/COM/CD/MME/AWD/SCS says whether the cleaned map geometry is still consistent and complete.
 
 ---
 

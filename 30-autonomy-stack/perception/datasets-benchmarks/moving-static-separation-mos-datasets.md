@@ -1,6 +1,6 @@
 # Moving/Static Separation and MOS Datasets
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -30,6 +30,22 @@ The public benchmarks below are useful for screening algorithms, but none is a c
 | Ego-motion sensitivity | Score under pose noise, timestamp offsets, and per-LiDAR extrinsic perturbations | Temporal residual MOS can degrade when localization is imperfect |
 | Sensor-pattern robustness | Per-sensor scores before and after multi-LiDAR fusion | HeLiMOS shows why spinning and solid-state LiDAR cannot be assumed equivalent |
 
+## Release-State Benchmark Extension
+
+For aggregated-map publication, binary moving/static labels are necessary but incomplete. A benchmark slice should add release-state labels that map directly to the semantic-map hygiene layers used by the map manifest.
+
+| Release-state label | Positive examples | Negative / confusion examples | Metric to report |
+|---|---|---|---|
+| `permanent_static` | Pavement, curbs, poles, fixed signs, fixed railings, terminal walls, fixed utility assets | Parked vehicles, parked GSE, temporary barriers, stationary people, staged pallets | Permanent precision/recall and thin-structure preservation |
+| `dynamic_residual` | Motion trails, rolling luggage, moving people, moving carts, moving vehicles, moving aircraft or GSE returns | Static poles and markings near moving actors | Dynamic leakage into the permanent map |
+| `movable_static` | Parked aircraft, parked tugs, dollies, carts, containers, cones, movable barricades | Fixed equipment cabinets, fixed bollards, permanent crash barriers | False promotion rate into `permanent_static` |
+| `static_transient` | Stationary people, temporary work-zone objects, event equipment, staged construction material | Permanent furniture or fixed infrastructure in the same zone | Hard-exclusion recall and review precision |
+| `fod_candidate` | Small unknown ground objects, dropped tools, debris-like clusters, chocks if not asset-linked | Rain speckle, pavement texture, painted markings, gravel patches | FOD recall and false alarm per square meter |
+| `artifact` | Multipath, rain/snow speckle, scan shadows, impossible height/intensity combinations, registration doubles | True small objects and thin structures | Artifact false deletion and source-quality correlation |
+| `unknown_review` | Low-confidence open-vocabulary candidates, taxonomy-missing equipment, conflicting temporal evidence | Easy permanent or easy transient cases | Reviewer yield and promotion/demotion outcome |
+
+The benchmark unit should be a **tile plus source-frame bundle**, not a single scan. Store the contributing scans, poses, calibration, semantic class, release-state label, reason code, point digest, reviewer disposition, and future-observation evidence. Without this bundle, a method can score well on MOS IoU while still promoting a stationary person or parked tug into the permanent map.
+
 ## Airside/Indoor/Outdoor Transfer
 
 | Transfer path | Use public data for | Do not claim until validated locally |
@@ -46,7 +62,8 @@ The public benchmarks below are useful for screening algorithms, but none is a c
 3. Add MOE and Dynablox to expose dense dynamic scenes and non-vehicle motion before tuning on private airside data.
 4. For airside acceptance, label at least parked, starting-to-move, moving, and stopped-again states for GSE and aircraft-adjacent equipment. A single moving/static binary label is not enough for map lifecycle decisions.
 5. Keep false-positive static erosion and false-negative dynamic leakage separate. False positives reduce map density; false negatives can put moving objects into maps or occupancy history.
-6. Report MOS results alongside downstream effects: SLAM residuals, static-map ghost rate, tracker false tracks, and planner hard-brake events.
+6. Report release-state metrics alongside MOS metrics. In particular, track movable-static false promotion, static-transient hard-exclusion recall, FOD false deletion, artifact false deletion, and unknown-review yield.
+7. Report MOS results alongside downstream effects: SLAM residuals, static-map ghost rate, tracker false tracks, and planner hard-brake events.
 
 ## Sources
 
