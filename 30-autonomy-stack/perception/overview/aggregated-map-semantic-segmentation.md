@@ -591,6 +591,8 @@ The taxonomy and its imbalance (§6.4) make the *training objective* a first-cla
 
 **Loss is not a substitute for sampling.** The loss reshapes gradients but cannot recover a class that never appears in a training batch — pair it with rare-class-aware tile/sphere seeding (§8.3) and, where labels allow, point-repeat resampling. Loss, sampling, and the per-class-IoU metric (§13) must be designed together.
 
+**Map-derived labels need a release-state-aware objective.** The semantic head should learn the class taxonomy only from exportable `permanent_static` positives, while a separate release-state or hygiene head learns `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review` decisions. Treating these states as ordinary semantic classes hides the publication decision and can make mIoU improve while false-permanent training leakage worsens. The detailed objective contract lives in [3D Segmentation Training Paradigms](3d-segmentation-training-paradigms.md), and the loss math is grounded in [Point-Cloud Segmentation Losses and Metrics](../../../10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md).
+
 ---
 
 ## 7. Model Families and SOTA Methods

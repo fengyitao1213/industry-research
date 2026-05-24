@@ -22,6 +22,7 @@ that care about rare classes as much as common ones.
 - [Detection Theory: ROC, PR, and Operating Points](../probability-statistics/detection-theory-roc-pr-operating-points.md)
 - [LiDAR Semantic Segmentation — methods overview](../../30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md)
 - [Aggregated-Map Semantic Segmentation — §6.5 losses and §13 evaluation](../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md)
+- [3D Segmentation Training Paradigms — map-derived label eligibility](../../30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md)
 
 ---
 
@@ -295,6 +296,53 @@ Normalize both to comparable scales before setting lambda — CE values are
 ~0.5–2.0 nats; Lovász is bounded in [0, 1]. Starting point: lambda = 1.0.
 Some implementations ramp lambda up during training (CE-dominated early, then
 increasing Lovász weight) for stability.
+
+### Release-State-Aware Map Objective
+
+Aggregated-map labels are not just semantic labels. A map-derived training point
+also carries a hygiene or release-state label such as `permanent_static`,
+`dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`,
+`artifact`, or `unknown_review`. The loss must therefore answer two questions:
+what class is the point, and is that point eligible to supervise permanent map
+truth?
+
+```text
+L_total =
+  L_semantic(mask_semantic_positive)
+  + alpha * L_release_state(mask_release_labeled)
+  + beta  * L_hard_negative(mask_dynamic_or_transient)
+  + gamma * L_calibration(mask_exportable)
+
+mask_semantic_positive =
+  release_state == permanent_static
+  and source_map_acceptance == pass
+  and confidence >= tau_semantic
+  and split_id not in validation/test
+```
+
+The semantic head predicts the controlled class taxonomy. The release-state head
+predicts or audits permanence and hygiene. The two heads may share the same
+backbone, but their targets must not be collapsed into one class ID. A correctly
+classified stationary person is still a negative for the permanent map; a
+correctly classified FOD-like point may be a hazard-review target rather than
+background; an artifact-like cluster should not teach the model that thin wires
+or poles are noise unless source-quality evidence proves it.
+
+| Release state | Semantic loss treatment | Auxiliary target | Evaluation guard |
+|---|---|---|---|
+| `permanent_static` | Positive class target | Optional permanence-positive label | Per-class IoU, boundary F1, calibration |
+| `dynamic_residual` | Ignore for static semantics or hard negative near permanent classes | Dynamic-removal / MOS target | Residual-dynamic rate, false-deletion rate |
+| `movable_static` | Ignore for permanent-map positives unless consumer requests context | Movable-context or soft-occupancy target | False-permanent rate, TTL expiry accuracy |
+| `static_transient` | Hard negative for permanent-map training | Transient-object target | Stationary-person / temporary-asset leakage |
+| `fod_candidate` | Active-learning target after review, otherwise ignore | Hazard-candidate target | FOD exclusion and reviewer disposition |
+| `artifact` | Ignore or artifact auxiliary target | Artifact/noise target | Artifact-vs-thin-structure confusion |
+| `unknown_review` | No supervised positive | Unknown / abstention target | Review yield and promotion/demotion outcome |
+
+This is a multi-task objective, not a larger semantic taxonomy. Adding
+`dynamic_residual` as a semantic class would let the model optimize mIoU while
+hiding the release decision. Keeping release state as a separate head or mask
+lets the same point cloud support three products: a publishable semantic layer,
+a rejected-evidence layer, and a training-export manifest with clean loss masks.
 
 ### What State-of-the-Art Models Use
 
@@ -620,6 +668,10 @@ aggregated-map pipeline.
 
 - Apply ignore masks before both loss and metrics; unlabeled points must not
   become background.
+- For map-derived labels, compute the semantic loss mask from release state,
+  source-map acceptance, confidence, and split assignment before the first
+  training step; never let transient, artifact, or review-only points default to
+  background.
 - Preserve original point indices through voxelization or range projection so
   metrics can be computed on the benchmark point set.
 - Track class frequency before and after augmentation, sampling, and cropping.

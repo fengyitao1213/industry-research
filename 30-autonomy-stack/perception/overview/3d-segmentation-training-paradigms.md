@@ -265,6 +265,19 @@ Map-derived labels are useful only when the training manifest carries two indepe
 
 Practical rule: the loss mask for a map-derived training point should be a function of `(semantic_class, release_state, confidence, source_map_acceptance, pose_quality, split_id)`, not just `semantic_class`. Validation and test scans must be selected before pseudo-label generation, and their timestamps must be excluded from the map back-projection pool to prevent optimistic leakage. If images are used for distillation or review, store camera/LiDAR projection residuals and image-quality flags with the exported labels; RGB evidence can improve semantics, but it does not override a failed LiDAR map-hygiene decision.
 
+### Training-Objective Contract for Release-State-Aware Labels
+
+For map-derived labels, the training architecture should expose at least two supervised products: a semantic head for the class taxonomy and a release-state or hygiene head for permanence. A single semantic softmax is not enough because the same semantic class can have different training eligibility depending on whether it is permanent infrastructure, movable context, a dynamic residual, a FOD candidate, an artifact, or review-only evidence.
+
+| Objective component | Positive examples | Masked or negative examples | Why it belongs in the training contract |
+|---|---|---|---|
+| Semantic class CE/Lovasz | `permanent_static` points with accepted source-map evidence | `dynamic_residual`, `artifact`, `unknown_review`, validation/test timestamps | Keeps map-derived pseudo-labels from teaching transient clutter as permanent structure |
+| Release-state auxiliary CE | Reviewed points for `permanent_static`, `movable_static`, `static_transient`, `dynamic_residual`, `fod_candidate`, `artifact`, `unknown_review` | Unreviewed candidate labels | Lets the model learn quarantine and rejection cues without polluting the semantic taxonomy |
+| Hard-negative loss | Dynamic residuals near permanent classes, stationary people, staged assets, ghost trails | Fixed thin infrastructure, wires, poles, markings | Teaches the model not to promote wrong-map points while protecting do-not-delete structures |
+| Calibration / abstention loss | Exportable labels with confidence thresholds and reviewer outcomes | Low-quality projection, low-pose-quality, or waiver-only regions | Makes confidence useful for auto-label export, unknown routing, and active learning |
+
+The first-principles loss mechanics are in [Point-Cloud Segmentation Losses and Metrics](../../../10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md). The implementation rule is that every exported pseudo-label batch must include the semantic target, release-state target, loss-mask policy ID, split manifest digest, source-map QA digest, and projection-quality evidence when RGB was used. Without those fields, the training run is not reproducible enough to support a map-derived label flywheel.
+
 ---
 
 ## Comparison Table
