@@ -41,6 +41,21 @@
 
 **Recommendation:** Start with Lambda Labs or RunPod for cloud training. Move to on-prem if training becomes continuous (Phase 2+).
 
+### 1.4 Training Infrastructure by MLOps Scale
+
+The full scale taxonomy is in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. Training infrastructure should scale with release risk, not with ambition. A single workstation is fine for S0-S1 exploration; a safety-critical fleet model needs reproducible containers, dataset snapshots, registry linkage, replay evaluation, and cost visibility even if the fleet is still small.
+
+| MLOps scale | Compute pattern | Required controls | Upgrade trigger |
+|---|---|---|---|
+| S0 notebook research | Local GPU, rented single GPU, or short cloud session | Saved config, random seed, data pointer, exported metrics | Result influences a design decision or benchmark claim |
+| S1 repeatable prototype | Shared workstation or small rented multi-GPU job | Docker image, experiment tracking, DVC snapshot, smoke test | Another engineer must rerun or compare the result |
+| S2 production product | Scheduled cloud/on-prem GPU runners | Registry handoff, immutable dataset ID, full eval report, TensorRT/ONNX export check | Candidate enters shadow, canary, or customer demo |
+| S3 fleet and multi-site | GPU pool with queues, quotas, cache, and site-sliced datasets | Per-site metrics, active-learning batch lineage, cost attribution, rollback target | Training jobs compete with replay, simulation, or label generation |
+| S4 regulated safety-critical | Controlled training environment with evidence retention | Dependency lock, hardware class, seed policy, audit logs, safety-case links | Release evidence must survive incident review or certification audit |
+| S5 platform scale | Multi-tenant GPU platform with scheduler and eval service | Resource quotas, lineage automation, artifact policy, platform SLOs | Many teams or model families share data and compute |
+
+For autonomy, the expensive mistake is under-instrumented training, not merely underpowered GPUs. If a run cannot prove exactly which logs, maps, labels, calibration packages, augmentation policy, and evaluation code produced the checkpoint, adding more H100s only makes bad evidence faster.
+
 ---
 
 ## 2. Training Pipeline Architecture

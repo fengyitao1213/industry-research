@@ -60,6 +60,20 @@ Without documented backend infrastructure, each new airport deployment reinvents
 | OTA deployment | `ota-fleet-management.md` | Artifact registry, CI/CD integration |
 | **Cloud architecture** | **Not covered** | **Full stack: ingestion → lake → processing → training → deployment** |
 
+### 1.4 Backend Scope by MLOps Scale
+
+Use `../mlops/mlops-scale-research-scope.md` to decide how much backend infrastructure is justified. The backend should expand when evidence, reproducibility, or multi-consumer pressure demands it, not because a platform diagram looks mature.
+
+| MLOps scale | Backend pattern | Required services | Scale failure if skipped |
+|---|---|---|---|
+| S0-S1 research/prototype | Object store plus DVC/manifest discipline | Raw bucket, processed dataset folder, experiment tracker | Nobody can reconstruct which data produced a result |
+| S2 production product | Governed data lake and registry handoff | Immutable raw zone, curated training snapshot, model registry, CI export job | Candidate model points to mutable data or untracked labels |
+| S3 fleet and multi-site | Multi-airport lakehouse and trigger queues | Site partitions, active-learning queue, telemetry stream, cost tags, local holdout tables | One airport's failures are hidden by another airport's easy data |
+| S4 regulated safety-critical | Evidence-preserving backend | Audit log, retention policy, incident legal hold, safety-case evidence IDs, approval workflow | Release or incident evidence cannot survive audit |
+| S5 platform scale | Multi-tenant ML platform | Data catalog, feature/embedding store, GPU job scheduler, policy-as-code, quota/cost allocation | Teams bypass central controls with incompatible pipelines |
+
+For a 5-20 vehicle airside fleet, S2-S3 is the correct target: immutable raw data, curated training snapshots, site-aware slices, registry integration, and fleet telemetry. S4 evidence retention is still required for safety-critical model and map releases even before the infrastructure reaches full platform scale.
+
 ---
 
 ## 2. End-to-End Data Architecture

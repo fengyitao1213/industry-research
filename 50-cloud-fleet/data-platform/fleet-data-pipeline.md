@@ -135,6 +135,21 @@ Every bag and event is enriched with contextual metadata:
 
 These are raw recording volumes. With selective recording (section 3.2), actual stored volumes are 30-50% of these figures.
 
+### 2.7 Data Platform Scale Ladder
+
+The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, and site-sliced training exports.
+
+| MLOps scale | Data platform posture | Required upgrade trigger | Avoid this mistake |
+|---|---|---|---|
+| S0 notebook research | Raw files plus manifest JSON | More than one person needs to reproduce a dataset | Treating local file paths as lineage |
+| S1 repeatable prototype | DVC or object-store snapshots, fixed splits, basic metadata | Demo result becomes a baseline or customer-facing claim | Reusing validation clips in later training without split history |
+| S2 production product | Curated training tables, label QA, dataset release notes, model-to-data trace | A model reaches shadow/canary or controls a production workflow | Releasing a model from a mutable bucket prefix |
+| S3 fleet and multi-site | Fleet triggers, site/ODD slices, data catalog, retention tiers, active-learning queues | Multiple airports, yards, warehouses, or vehicle configs produce different failures | Training one global model without local holdouts and domain tags |
+| S4 regulated safety-critical | Immutable evidence bundles, privacy policy, safety-case links, incident retention | Model decisions affect people, aircraft, high-value assets, or compliance claims | Deleting raw evidence before audit, incident, or rollback windows expire |
+| S5 platform scale | Lakehouse governance, feature/embedding store, lineage graph, multi-tenant quotas | Many teams share data, compute, labels, and evaluations | Every team invents its own schema, retention rules, and label states |
+
+The key scaling variable is not only terabytes per day. It is the number of independent consumers that need trustworthy answers from the same data: perception training, SLAM/map construction, semantic-map label export, simulation replay, safety validation, operations analytics, and incident investigation. Once those consumers exist, the data pipeline must preserve provenance even for data that is never used for training.
+
 ---
 
 ## 3. On-Vehicle Data Management
