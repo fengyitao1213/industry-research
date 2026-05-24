@@ -38,6 +38,22 @@ The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-res
 
 For autonomous vehicles, runtime deployment cannot be separated from maps, calibration, sensor health, and OTA/SUMS controls. A model can be correctly trained and still be undeployable if its TensorRT engine targets the wrong GPU, its class order mismatches the semantic map, its calibration assumptions are stale, or the rollback model cannot load under the active runtime.
 
+### Evaluation Evidence Before Runtime Promotion
+
+Runtime promotion should be the last step in an evidence ladder, not a direct consequence of an offline metric. The same artifact that enters shadow mode or canary deployment must be the signed model/container/engine bundle that passed evaluation.
+
+| Gate | What it proves | Minimum scale |
+|---|---|---|
+| Offline holdout and slice evaluation | The model improved or held steady on independent data and safety-relevant classes | S1 |
+| Package smoke and compatibility test | The deployable artifact loads with the intended runtime, class order, schema, calibration, and map bundle | S2 |
+| Deterministic replay | Known incidents, rare classes, map-change cases, and regression-required scenarios still pass | S2-S3 |
+| Shadow mode | The runtime artifact behaves acceptably on live inputs without control authority | S3 |
+| Canary by ODD cell | Latency, health, disagreement, interventions, and delayed labels are acceptable in the intended site/route/weather envelope | S3 |
+| Safety-case release review | Residual risks, monitor changes, rollback proof, waivers, and evidence expiry are approved | S4 |
+| Platform policy check | Shared registry, telemetry, quota, provenance, and audit controls are enforced automatically | S5 |
+
+At S3+, do not promote by fleet percentage alone. Promote by ODD cell: airport, terminal zone, vehicle type, sensor kit, weather/lighting band, map release state, and operational task. A low-percentage canary that only covers easy daytime service roads does not validate night operations, stand entry, jetblast zones, or crowded baggage areas.
+
 ---
 
 ## 1. TensorRT Production Deployment

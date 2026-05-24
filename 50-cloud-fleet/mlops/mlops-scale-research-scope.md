@@ -151,6 +151,21 @@ Promotion should be claims-based:
 
 Metric-only promotion is not enough for autonomy. A new model can improve average mAP while creating an unacceptable regression near aircraft stands, terminal frontages, utility corridors, or rare FOD classes.
 
+### 5.1 Evaluation Evidence by Scale
+
+Evaluation depth should grow with operational authority. The boundary from S2 to S3 is especially important: a product model can sometimes be released from a controlled offline gate, but a fleet model needs replay, shadow, canary, and delayed-label evidence before it is trusted across sites.
+
+| MLOps scale | Evaluation baseline | Promotion evidence | Release anti-pattern to block |
+|---|---|---|---|
+| S0 notebook research | Train/validation split, sample visualization, run note | Metric table, limitations, representative failure examples | Claiming deployment readiness from exploratory runs |
+| S1 repeatable prototype | Frozen dataset snapshot and deterministic evaluation script | Baseline comparison, confidence interval, basic class/slice table | Reusing the development set as the release gate |
+| S2 production product | Independent holdout, calibration/OOD checks, and replay for known incidents | Release packet with model card, dataset manifest, container/engine smoke test, rollback artifact | Promoting a model whose runtime package was not evaluated |
+| S3 fleet and multi-site | Site, route, weather, object, and map-state holdouts | Mined regression scenarios, deterministic replay, shadow disagreement, canary by ODD cell, delayed-label review | Treating a global aggregate score as approval for every site |
+| S4 regulated safety-critical | Hazard-class scenario suite and safety-case-linked thresholds | Claim/evidence table, stress tests, monitor impact analysis, rollback drill, waiver owner and expiry | Shipping with unresolved safety regressions hidden behind average metrics |
+| S5 platform scale | Standard evaluation service with shared schemas and policy checks | Organization-wide model/data inventory, automated evidence capture, cross-team scorecard, audit trail | Letting each team invent incompatible release gates |
+
+Training data, tuning data, leaderboard data, and release-gate data must be treated as separate assets. At S3+, mined replay scenarios should be promoted into regression gates when they expose a credible field failure, not only when they improve an offline benchmark score.
+
 ### 6. Deployment and Rollback
 
 Deployment modes should map to risk:

@@ -1,6 +1,6 @@
 # Replay and Scenario Mining Operations
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -18,6 +18,21 @@ This page covers the operational loop from mined fleet event to replayable scena
 6. Represent object and scene annotations using ASAM OpenLABEL-compatible fields where practical: object identity, class, 2D/3D geometry, segmentation, relations, actions, intentions, and taxonomy references.
 7. When a scenario is mined from semantic-map drift or open-vocabulary/offboard labeling, preserve whether the label is a reviewed map class, a candidate concept, or a deliberate `unknown` region. A replay can assert "this must remain unknown" just as legitimately as "this should be promoted to class X".
 8. Promote scenarios by state: `candidate`, `triaged`, `replay_ready`, `regression_required`, `retired`.
+
+## Replay Suite by MLOps Scale
+
+Replay is not only a simulator asset; it is an MLOps release gate. The suite should start lightweight, then become a governed regression product as the model gains operational authority.
+
+| MLOps scale | Replay scope | Promotion rule | Suite-management risk |
+|---|---|---|---|
+| S0 notebook research | Optional clips used for qualitative debugging | Store interesting failures as candidate events when they may recur | Losing high-value examples in local notebooks |
+| S1 repeatable prototype | Small fixed smoke suite for representative routes, classes, and sensor states | A new baseline should pass the same clips as the previous baseline | Overfitting to a tiny hand-picked suite |
+| S2 production product | Regression suite for known incidents, label-edge cases, and runtime packaging checks | A candidate must pass replay with the same artifact package that will be deployed | Evaluating the model checkpoint but not the container, map, taxonomy, or runtime config |
+| S3 fleet and multi-site | Site/ODD-sliced suites from mined logs, shadow disagreements, operator notes, and intervention clusters | Promotion is per ODD cell; failed cells remain blocked or canaried separately | One airport or route dominates the suite and hides local regressions elsewhere |
+| S4 regulated safety-critical | Hazard-linked scenarios tied to the safety case, monitor activations, and waiver records | A release cannot proceed with unresolved regression-required scenarios unless risk acceptance is explicit and time-limited | Waivers becoming permanent substitutes for fixes |
+| S5 platform scale | Shared scenario catalog, common schemas, automated coverage reports, and cross-team replay infrastructure | Suites are versioned products with ownership, retention policy, deprecation rules, and platform observability | Teams fork incompatible scenario formats and cannot compare evidence |
+
+The state machine should be stricter at higher scale. At S0-S1, `candidate` and `triaged` states are enough to preserve learning. At S2, `replay_ready` becomes part of product release hygiene. At S3-S4, `regression_required` scenarios are blocking evidence unless a named release authority accepts the residual risk. At S5, suite health itself becomes a platform SLO: run time, flake rate, coverage, stale scenario age, duplicate rate, and cost per replay hour.
 
 ## Evidence Artifacts
 

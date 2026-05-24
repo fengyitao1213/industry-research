@@ -35,6 +35,21 @@ The MLOps scale ladder in `../../50-cloud-fleet/mlops/mlops-scale-research-scope
 | S4 regulated safety-critical | Safety-case-backed release | Risk register, claim/evidence traceability, approver record, scenario replay, incident retention, rollback drill |
 | S5 platform scale | Organization-wide AI management system | Policy-as-code, audit trails, model/data inventory, retention controls, role-based approval, periodic management review |
 
+## Evaluation Evidence by MLOps Scale
+
+Assurance evidence should explain why a model is acceptable for its intended authority level, not merely that a metric improved. The same release should trace from data sources to training run, evaluation suite, runtime artifact, monitoring trigger, and rollback target.
+
+| MLOps scale | Dataset independence | Evaluation evidence | Governance control |
+|---|---|---|---|
+| S0 notebook research | Best-effort split hygiene | Run notes, sampled predictions, known limitations | Mark output as research-only |
+| S1 repeatable prototype | Frozen validation snapshot separate from training | Re-runnable metric script, baseline comparison, confidence interval | Require comparable baseline before adoption |
+| S2 production product | Independent release holdout and regression clips | Slice metrics, calibration/OOD checks, model card, package compatibility test | Release owner signs model/data/runtime packet |
+| S3 fleet and multi-site | Local holdouts by site, route, weather, map release state, and vehicle configuration | Replay suite, shadow report, canary report, delayed-label QA, drift review | Approve or block per ODD cell, not globally |
+| S4 regulated safety-critical | Safety-case release gates protected from training influence | Hazard-class tests, stress tests, monitor impact analysis, rollback drill, waiver expiry | Named risk authority accepts residual risk |
+| S5 platform scale | Organization-wide inventory with retention and access policy | Automated evidence capture, standardized scorecards, audit trails, policy-as-code checks | AI management system reviews controls periodically |
+
+Evidence should expire. A release packet that passed before a taxonomy migration, sensor calibration change, map publication, runtime upgrade, or airport-layout change should be re-evaluated or explicitly scoped out of the affected ODD cells.
+
 For airside autonomy, S4 controls can be required before S3 fleet size exists. A model that influences aircraft proximity, free-space, FOD response, semantic map publication, or protected-zone behavior needs release evidence, monitoring, and rollback authority even if it runs at one airport on a small fleet.
 
 ## Acceptance Checks
