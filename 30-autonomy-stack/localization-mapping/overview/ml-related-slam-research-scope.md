@@ -139,6 +139,8 @@ Point-cloud removal for aggregated maps has three distinct objectives:
 
 The open research problem is not just removal accuracy. It is **map-layer governance**: how to keep localization useful while preventing stale or unsafe objects from becoming permanent map truth. See [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md), [LiDAR Map Cleaning and Dynamic Removal](../slam-methods/lidar-map-cleaning-dynamic-removal.md), and [Airside Map Hygiene Ground Truth Protocol](../maps/airside-map-hygiene-ground-truth-protocol.md).
 
+For semantic-map production, the removal output should be evaluated as a layered decision: `permanent_static`, `dynamic_residual`, `static_transient`, `movable_static_allowed`, `fod_candidate`, `artifact`, and `unknown_review`. This keeps ML-related SLAM tied to the downstream release contract: learned dynamic masks, scene-flow cues, semantic exclusions, and multi-session persistence scores are only useful if their decisions survive audit and can be traced into the published map artifact.
+
 ---
 
 ## Validation and Safety Evidence

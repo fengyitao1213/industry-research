@@ -384,6 +384,22 @@ These objects accumulate as dense, geometrically consistent clusters. Every clas
 
 **Cross-reference:** `../../perception/overview/static-but-transient-point-removal.md` is the dedicated deep dive on this problem and its candidate solutions. The hub page `aggregated-map-semantic-segmentation.md` §9.1 treats this gap as an unresolved prerequisite.
 
+### Proposed Static-But-Transient Benchmark Schema
+
+Until a public benchmark exists, every production or research claim should define the missing task explicitly instead of borrowing dynamic-removal F1 as a proxy. The minimum benchmark unit is a **registered multi-session map tile** with raw scans, poses, timestamps, cleaner decisions, and a reviewer-approved layer label for each evaluated point or voxel.
+
+| Label | Meaning | Example | Required metric |
+|---|---|---|---|
+| `permanent_static` | Belongs in the long-lived localization/change-detection map | Pavement, walls, poles, fixed lights, permanent markings | Static preservation / false deletion |
+| `dynamic_residual` | Moving during the survey and should be removed from permanent layer | Ghost trails from vehicles, people, aircraft taxiing | Dynamic rejection / residual ghost rate |
+| `static_transient` | Stationary during survey but not permanent over operational time | Stationary people, parked GSE, pallets, aircraft at gate | Transient rejection / false permanent rate |
+| `movable_static_allowed` | Non-permanent object retained only as soft or operational layer evidence | Staged equipment in a known staging zone | Layer assignment accuracy |
+| `fod_candidate` | Small ground object requiring detection workflow, not map promotion | Debris, tools, cables, chocks when not registered as assets | FOD retention and false promotion |
+| `artifact` | Sensor/weather/multipath point that should not train semantic classes | Rain streaks, snow spray, glass ghosts | Artifact rejection |
+| `unknown_review` | Ambiguous point requiring human decision | Unclassified low cluster near stand | Review burden per tile |
+
+Core metrics should be reported as a vector rather than one scalar: `(dynamic_rejection, static_preservation, transient_rejection, false_permanent_rate, false_deletion_rate, fod_retention, localization_delta, review_minutes_per_tile)`. The metric vector prevents a cleaner from winning by simply deleting everything, or from keeping stationary equipment because it improves short-term localization. It also aligns benchmark evidence with the semantic-map release contract: the output is a layered map, not just a visually cleaner point cloud.
+
 ---
 
 ## 11. Reported Numbers Across Methods

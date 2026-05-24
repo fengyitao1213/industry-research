@@ -355,6 +355,21 @@ The recommended processing order is:
 
 The clean-then-segment order gives the segmenter cleaner input than segment-then-clean. The exception is that the segmenter sometimes catches slowly-moving objects that ERASOR misses; running segmentation before and after dynamic removal is architecturally defensible for safety-critical applications at the cost of doubled segmentation compute.
 
+### Hard-Exclusion and Static-Wrong Gate Policy
+
+Static-but-transient handling needs policy gates in addition to model predictions. Some semantic classes can never become permanent map truth from survey evidence alone. A person standing still for an entire scan session is not a permanent asset; neither is a belt loader, aircraft, road cone, pallet, or maintenance tool. Persistence is evidence, not authorization.
+
+| Gate | Trigger | Action | Why |
+|---|---|---|---|
+| Human hard exclusion | `person`, crew detector, thermal human cue, or reviewer human label | Exclude from permanent layer with no K-of-N override | Human geometry in a map creates safety, privacy, and auto-label contamination risk |
+| Movable asset quarantine | Vehicle/GSE/aircraft/container/forklift/pallet class or detector box | Store as movable-static with TTL and source scans | May help localization only as low-weight soft evidence; not a permanent reference |
+| Zone override | Gate stand, loading bay, construction zone, temporary storage, event area | Raise promotion threshold or disable automatic promotion | Operational zones can keep temporary objects in the same place for many passes |
+| Asset-inventory exception | Object ID exists in authoritative permanent-asset registry | Permit promotion after geometry and reviewer checks | Some equipment-like geometry is actually fixed infrastructure |
+| Static-wrong demotion | Previously permanent point contradicted by repeated future free-space evidence | Demote through change-control, not immediate deletion | Protects against registration errors and one bad survey pass |
+| FOD-candidate guard | Small unknown ground cluster, recent appearance, no asset support | Keep in FOD-candidate layer with short TTL | FOD must remain detectable; promotion into permanent map suppresses future alerts |
+
+For map publication, the release artifact should expose the gate that decided each non-permanent point: `dynamic_residual`, `human_exclusion`, `movable_static`, `zone_quarantine`, `fod_candidate`, `artifact`, or `static_wrong_demotion`. This makes later QA tractable: a reviewer can ask "why was this cluster removed?" or "why did this stationary object not become permanent?" without replaying the entire pipeline.
+
 ### Multi-Pass Survey Protocol
 
 Practical parameters derived from LT-Mapper, ELite, and HD-map update literature:

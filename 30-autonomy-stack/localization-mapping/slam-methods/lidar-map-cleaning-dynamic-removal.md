@@ -94,6 +94,23 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Post-cleaning map-quality evaluation | [MapEval](mapeval-point-cloud-map-quality-evaluation.md) | AC, COM, CD, MME, AWD, SCS over estimated and reference point-cloud maps | Verifying that cleaned or merged maps are geometrically consistent before semantic segmentation, localization regression, or publication. |
 | Multi-session consensus and version control | Fleet map lifecycle, Lifelong 3D Map Version Control | Persistence across days / shifts, PD/ND diffs, reconstructable map versions | Production promotion, rejection, rollback, and queryable map-change history. |
 
+### Removal Gate Matrix for Semantic Map Production
+
+The cleaning output should not be a binary "kept vs removed" point cloud. A releaseable semantic map needs a gate matrix that explains **why** each point was retained, removed, or quarantined, because downstream segmentation, localization, FOD detection, and auto-labeling use the same map differently.
+
+| Point category | Typical evidence | Default action | Why | Release validation |
+|---|---|---|---|---|
+| Permanent static infrastructure | Repeated observations, stable geometry, permanent semantic class, low cleaner disagreement | Keep in permanent layer | Localization and change detection need these points | Per-class static preservation, localization residual, MapEval completeness, reviewer sampling |
+| In-session dynamic residual | Free-space contradiction, range-image/raycast mismatch, MOS/scene-flow motion, timestamp spread | Remove from permanent; preserve in rejected/dynamic layer | Ghost trails corrupt segmentation labels and scan matching | Dynamic rejection rate, residual ghost clusters per tile, raw-vs-cleaned localization comparison |
+| Stationary person | Semantic `person` or human detector/thermal evidence, even if no motion | Hard exclude from permanent; quarantine or discard according to privacy policy | A person is never map truth; persistence within one survey is irrelevant | 100% reviewed exclusion on human-labeled validation tiles; no K-of-N override |
+| Parked vehicle / staged GSE / aircraft | Movable-object class, detector box, operational zone, or multi-session absence | Quarantine as movable-static unless explicitly registered as permanent infrastructure | Can be useful soft localization evidence but must not define the permanent map | Movable-static precision/recall; cross-session absence checks; class-list version audit |
+| Temporary works or construction material | Work-zone metadata, cone/barrier/material class, low permanence confidence | Quarantine with TTL and work-order link | May persist for weeks but is not permanent without authority | TTL expiry audit; permit/work-order reconciliation; false-permanent review |
+| FOD candidate / small unknown ground object | Small cluster, ground-level unknown label, no prior map support | Route to FOD-candidate layer, not permanent | Promoting debris into the map suppresses future FOD alarms | FOD retention test; false-deletion review; short TTL enforcement |
+| Sensor/weather artifact | Ghost/multipath pattern, rain/spray/snow signature, low multi-view support | Artifact layer or discard | Should not train semantic classes or affect localization | Artifact-rate monitoring; weather-stratified QA |
+| Static-but-wrong map point | Present in current release but absent in repeated future passes, or contradicted by surveyed permanent asset inventory | Demote through change-control, not one-pass deletion | Avoid erasing real infrastructure due to a bad pass or registration error | Negative-change review, registration covariance check, rollback-ready map version |
+
+This matrix is deliberately conservative about promotion. Dynamic residual removal is an *evidence-removal* problem; static-but-transient handling is a *map-governance* problem. The first can be solved within a survey pass by ERASOR/FreeDOM/BeautyMap/Raymoval-style evidence; the second needs semantic policy, multi-session history, or operator authority.
+
 ---
 
 ## Method Families — Detailed
@@ -406,10 +423,11 @@ Moving Object Segmentation on SemanticKITTI-MOS is a recognized benchmark task. 
 4. Apply runtime dynamic masks if available, but do not trust them as final map truth.
 5. Run offline cleaning with ERASOR, Removert, MapCleaner, ERASOR++, FreeDOM, [BeautyMap](beautymap.md), [Raymoval](raymoval.md), or DUFOMap — compare at least two methods and inspect disagreement.
 6. Assign map points to static, movable-static, dynamic, artifact, or unknown layers.
-7. Validate localization on the cleaned map and on the raw-map baseline.
-8. Segment the cleaned map; use segmentation confidence as a downstream cleaning QA signal.
-9. Publish a map package with cleaner configuration, diagnostics, and QA evidence.
-10. Update production maps only through change-control and multi-session evidence.
+7. Apply semantic hard-exclusion and quarantine gates for stationary people, staged movable assets, construction material, FOD candidates, and artifacts.
+8. Validate localization on the cleaned map and on the raw-map baseline.
+9. Segment the cleaned map; use segmentation confidence as a downstream cleaning QA signal.
+10. Publish a map package with cleaner configuration, diagnostics, layer membership, and QA evidence.
+11. Update production maps only through change-control and multi-session evidence.
 
 ---
 
