@@ -21,6 +21,9 @@ sensors, and across submaps without losing uncertainty or provenance.
 - [Point Cloud Segmentation Losses and Metrics](../geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md)
 - [Coordinate Frames, Projections, and SE(3)](../geometry-3d/coordinate-frames-projections-se3.md)
 - [Fusion with Unknown Correlations and Covariance Intersection](../state-estimation/fusion-unknown-correlations-covariance-intersection.md)
+- [Aggregated-Map Semantic Segmentation](../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md)
+- [ML-Related SLAM Research Scope](../../30-autonomy-stack/localization-mapping/overview/ml-related-slam-research-scope.md)
+- [Static-But-Transient Point Removal](../../30-autonomy-stack/perception/overview/static-but-transient-point-removal.md)
 
 ---
 
@@ -96,6 +99,36 @@ Airport and road environments need a "movable but currently static" category
 for carts, cones, signs, barriers, and service equipment. Those objects may be
 real obstacles now but should not automatically become immutable HD map facts.
 
+### Permanence Is a Separate State Variable
+
+Do not infer permanence from a single observation. A map element has at least
+three logically separate questions:
+
+```text
+occupied?      geometric evidence: hit / miss / unknown
+what class?    semantic evidence: class distribution
+permanent?     temporal and policy evidence: persistence, class, zone, TTL
+```
+
+This distinction is the first-principles reason that dynamic-object removal,
+static-but-transient quarantine, FOD handling, and semantic segmentation cannot
+be collapsed into one binary static/dynamic label. A parked aircraft, stationary
+person, staged pallet, or temporary construction barrier may be occupied and
+classified correctly, while still being invalid as permanent map truth.
+
+One practical state factorization is:
+
+```text
+P(map_state | evidence) =
+  P(occupied | geometry)
+  P(class | sensor features, context)
+  P(permanence | class, zone, time, multi-pass history)
+```
+
+The factors are not independent in a strict probabilistic sense, but keeping
+them separate in the map schema prevents a common engineering error: using a
+high-confidence semantic label as an implicit permanence decision.
+
 ---
 
 ## Map Fusion Across Time and Submaps
@@ -114,6 +147,42 @@ To fuse map elements from submap `a` into map `b`:
 If two submaps share raw observations or a previous global map, their errors are
 correlated. Treating them as independent can make the fused map overconfident.
 For map-level products, provenance is a safety feature, not paperwork.
+
+---
+
+## Aggregated-Map Semantic Layer Production
+
+An aggregated-map semantic layer is produced after SLAM, map cleaning, and map
+QA. The semantic map consumes a registered point-cloud map and emits per-point,
+per-voxel, or per-element labels with confidence and provenance:
+
+```text
+source scans + poses + calibration
+        -> SLAM / multi-session alignment
+        -> dynamic residual removal
+        -> static-but-transient quarantine
+        -> map quality gate
+        -> semantic segmentation
+        -> semantic map layer + confidence + lineage
+```
+
+The segmentation model answers "what is this point or region?" The map fusion
+system answers "is this label stable enough to publish, and which consumers may
+use it?" That separation matters for downstream consumers:
+
+| Consumer | Wants | Must not receive |
+|---|---|---|
+| Localization | stable geometry and stable semantic weights | parked vehicles, aircraft, staged equipment, stale dynamic residuals |
+| Planning | drivable surfaces, hazards, constraints, uncertainty | unreviewed permanent changes or stale closure zones |
+| FOD / anomaly detection | clean empty-surface baseline | FOD candidates baked into the permanent map |
+| Auto-labeling | high-confidence permanent labels and source poses | transient and artifact layers used as ground truth |
+| Digital twin / simulation | full geometry plus semantic/material attributes | unversioned edits with no source-scan provenance |
+
+For this reason, a semantic map release should carry more than labels. It needs
+the source-map hash, pose-graph digest, map-cleaning manifest, taxonomy version,
+confidence calibration, tile IDs, and reviewer or gate status. The applied
+pipeline is documented in the aggregated-map segmentation hub; this page states
+the underlying representation principle.
 
 ---
 

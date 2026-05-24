@@ -1355,6 +1355,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `10-knowledge-base/geometry-3d/point-cloud-segmentation-losses-metrics-first-principles.md` — losses and metrics first-principles KB
 - `10-knowledge-base/geometry-3d/point-cloud-representations-voxelization-first-principles.md` — representations and voxelization first-principles KB
 - `10-knowledge-base/geometry-3d/correspondence-search-data-structures.md` — neighbor-search and data-structure fundamentals behind the point-based backbones
+- `10-knowledge-base/mapping/semantic-mapping-and-map-fusion-first-principles.md` — semantic map state, permanence as a separate state variable, map fusion, and planner-facing layer fundamentals
 - `10-knowledge-base/machine-learning/foundation-model-training-first-principles.md` — foundation-model training fundamentals
 - `10-knowledge-base/machine-learning/sparse-attention-3d-perception.md` — attention-mechanics fundamentals behind the transformer backbones (PTv3, OctFormer)
 - `30-autonomy-stack/perception/methods/minkowskinet.md` — MinkowskiNet deep-dive (sparse-voxel convolution U-Net baseline)

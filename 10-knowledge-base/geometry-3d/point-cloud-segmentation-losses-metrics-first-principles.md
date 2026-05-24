@@ -571,6 +571,49 @@ model does not achieve ≥ 3% mIoU gain on held-out tiles, the added complexity
 is unjustified — investigate whether the model learned sensor-make artifacts
 rather than generalizable geometric features.
 
+### Map-Hygiene Metrics for Removal and Quarantine
+
+Aggregated-map segmentation is only valid if the map substrate is clean enough
+to label. Report semantic metrics together with map-hygiene metrics so a high
+mIoU score cannot hide dynamic residuals, false deletion, or transient-object
+leakage.
+
+```text
+dynamic_residual_rate =
+  points labeled dynamic-residual or no-class-possible / total map points
+
+false_permanent_rate =
+  transient GT points published in permanent layer / transient GT points
+
+false_deletion_rate =
+  permanent GT points removed or quarantined / permanent GT points
+
+transient_leakage_rate =
+  transient-layer points used for auto-label training / transient-layer points
+```
+
+For safety-critical map products, these rates should be stratified by class and
+zone. A low global false-permanent rate is not enough if gate zones, dock doors,
+pedestrian corridors, or FOD-critical pavement have higher leakage.
+
+| Metric | What it catches | Why mIoU misses it |
+|---|---|---|
+| Dynamic residual rate | Ghost trails or motion smears left in the map | Residual points may be labeled as plausible nearby classes |
+| False permanent rate | Stationary people, parked GSE, aircraft, pallets, or barriers baked into permanent map | Semantic class can be correct while permanence is wrong |
+| False deletion rate | Poles, signs, kerbs, markings, drains, fences removed by aggressive cleaning | Deleted points are absent from the segmentation denominator unless explicitly audited |
+| Transient leakage rate | Quarantined points reused as pseudo-label ground truth | Training data quality can degrade while map metrics still look acceptable |
+| Review burden per area | Human QA cost in low-confidence or disagreement regions | Accuracy metrics do not measure operational cost |
+
+The correct evaluation object is therefore a tuple:
+
+```text
+(semantic labels, confidence, map layer, provenance, reviewer/gate decision)
+```
+
+not just a per-point class ID. This tuple is the bridge between point-cloud
+segmentation metrics and the map-publication evidence expected by the
+aggregated-map pipeline.
+
 ---
 
 ## Implementation Notes
