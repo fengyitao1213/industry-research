@@ -69,6 +69,20 @@ Semantic-map releases can produce multiple products from the same source run. Th
 
 A bundle may pass one product mode and fail another. For example, a map can be acceptable for `runtime_semantic_map` while its `training_export` is blocked because transient or unknown-review regions have not been masked. Conversely, a candidate can be useful for `benchmark_acceptance` analysis while still blocked from runtime because loader compatibility or operational approval is missing.
 
+## Change-Driven Semantic Release Gate
+
+Map maintenance creates partial releases: a changed tile, overlay, or route restriction may need to move faster than a full re-survey. The publication gate should still evaluate each product mode independently, using the change-disposition record from `../../30-autonomy-stack/localization-mapping/maps/hd-map-change-detection-maintenance.md`.
+
+| Change-driven artifact | May publish to | Must not publish to | Gate evidence |
+|---|---|---|---|
+| Emergency no-go or FOD/hazard overlay | `runtime_semantic_map`, `hygiene_monitoring` | `training_export` as background or permanent class | Hazard evidence, owner, expiry/review SLA, route restriction, rollback/canary monitor |
+| Confirmed permanent geometry patch | `runtime_semantic_map`, `benchmark_acceptance` after validation | `training_export` until labels are regenerated against the accepted source map | Source-map QA delta, localization replay, semantic re-run, changed-footprint manifest |
+| Confirmed semantic reclassification | Runtime/vector layer after review, benchmark hard case | Old and new labels in the same training split without lineage fork | Taxonomy action, reviewer state, class metrics, label-age and split update |
+| Movable-static or static-transient cluster | `hygiene_monitoring`, review overlay, optional hard-negative set | Runtime permanent layer or supervised static positive | Release-state label, TTL/zone policy, rejected-object sidecar, downstream permission |
+| Prior-only or low-confidence change | Active-learning queue, benchmark candidate only | Any release-truth product mode | Prior/model version, staleness score, current-survey requirement, blocked publication status |
+
+This gate is deliberately stricter for training export than for runtime overlays. A temporary no-go overlay can be operationally correct within minutes, but it should not become supervised ground truth until the source map, semantic label, release state, and split lineage are rebuilt.
+
 ## Map Hygiene Checks
 
 | Check | Pass signal | Blocker |

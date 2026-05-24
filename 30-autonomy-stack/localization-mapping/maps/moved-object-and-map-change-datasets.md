@@ -31,6 +31,21 @@ The datasets below cover outdoor HD-map changes, indoor object rearrangement, st
 | Localization impact | Map operations | Scan-to-map residual, false relocalization, covariance, and route-level acceptance before and after a change |
 | Time-to-detect | Fleet operations | Number of passes, frames, or hours before a persistent map change is flagged |
 
+## Semantic-Map Maintenance Benchmark Overlay
+
+Public change datasets rarely encode whether a changed point is allowed to update a runtime map, become a training label, or stay as review evidence. For aggregated LiDAR-map segmentation, add a local overlay to any proxy benchmark before using it as acceptance evidence.
+
+| Overlay field | Why it is needed |
+|---|---|
+| `change_type` | Separates added, removed, moved, deformed, semantic-reclassified, artifact, and no-change regions |
+| `release_state_before` / `release_state_after` | Distinguishes permanent infrastructure from `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review` |
+| `product_mode_eligibility` | Records whether the changed region may affect runtime maps, training exports, hygiene monitoring, digital twins, or benchmark splits |
+| `source_map_quality_delta` | Captures whether the change is real or caused by SLAM drift, poor alignment, sparse coverage, or projection error |
+| `persistence_evidence` | Counts independent passes, vehicles, weather states, and time windows before promotion |
+| `review_disposition` | Preserves human/ops acceptance, rejection, waiver, owner, expiry, and route restriction state |
+
+Evaluation should report two confusion matrices: a geometric/semantic change matrix and a release-action matrix. A detector that finds every parked cart but promotes those carts into the permanent map has high change recall and poor map-governance quality. Conversely, a conservative detector can be valuable if it routes ambiguous changes to hygiene monitoring without contaminating runtime maps or training exports.
+
 ## Airside/Indoor/Outdoor Transfer
 
 | Source domain | Useful transfer | Airside gap |

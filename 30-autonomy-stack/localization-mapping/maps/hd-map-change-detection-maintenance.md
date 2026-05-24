@@ -336,6 +336,21 @@ Detection → Accumulation → Validation → Integration → Distribution → V
 | **Distributed** | All vehicles receive update | Vehicles confirm receipt | Minutes |
 | **Verified** | Vehicles confirm change matches their observations | Change archived | Hours |
 
+### 3.2.1 Semantic-Map Change Disposition Matrix
+
+For an aggregated-map semantic product, "change detected" is not specific enough. Each confirmed change must say whether it updates the runtime map, invalidates training labels, creates a hygiene ticket, refreshes a digital-twin asset, or only becomes a benchmark case. This prevents a fleet-observed anomaly from silently rewriting every downstream artifact.
+
+| Change class | Runtime semantic map action | Training export action | Hygiene / monitoring action | Required evidence before promotion |
+|---|---|---|---|---|
+| Permanent geometry changed | Patch or re-survey affected tile; run source-map QA and route validation | Expire old labels in changed footprint; export only after new source-map acceptance | Track as map-staleness event until active bundle is updated | Multi-pass geometry, pose quality, MapEval/GCP or control residuals, reviewer approval for safety-critical regions |
+| Permanent semantic class changed | Update L3/Lanelet/vector layer after semantic QA | Fork label lineage and block mixed old/new labels from the same split | Monitor label churn and class-specific confusion | Re-segmentation output, taxonomy mapping, held-out tile metrics, changed-region reviewer decision |
+| Movable static asset appeared | Keep as operational overlay or quarantine, not permanent infrastructure | Mask as non-positive or hard negative | Open `movable_static` or `static_transient` ticket with TTL | Zone policy, temporal persistence, object class, rejected-point sidecar, owner/expiry if known |
+| FOD or hazard candidate appeared | Block or restrict affected route if safety-critical | Active-learning/reviewer queue only | Preserve candidate and reviewer disposition | Raw point/image evidence, size/material estimate if available, human or certified detector disposition |
+| Weather/artifact surface changed | Do not publish permanent map edit | Exclude from supervised positives unless artifact task is explicit | Track sensor/weather condition and false-positive rate | Weather/ODD tag, cross-sensor contradiction, artifact digest, re-observation after condition clears |
+| Prior-only or low-confidence change | No runtime edit | No training label export | Route to active learning or next survey plan | Prior version, staleness score, disagreement tiles, current-survey confirmation requirement |
+
+Non-road urban districts need the same matrix but with different examples: benches, planters, scooters, temporary market stalls, facade scaffolding, utility works, and campus event assets are often static during a survey but should not become permanent map truth without zone policy and persistence evidence.
+
 ### 3.3 Temporal Decay Model
 
 Not all map features decay at the same rate. Model feature reliability as a function of time since last confirmation:
