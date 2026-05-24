@@ -113,7 +113,7 @@ This document covers the construction of layers L0-L3 and L5 — the static laye
 | 3. Point cloud post-processing | Raw SLAM clouds | Clean, merged 3D map | 1-2 hours | Open3D, PCL |
 | 4. Geodetic alignment | SLAM map + GCPs | Geo-referenced map (EPSG) | 0.5-1 hour | GTSAM, CloudCompare |
 | 5. AMDB overlay | FAA AMDB + aligned map | Co-registered map + AMDB features | 1-2 hours | Custom scripts |
-| 6. Semantic annotation | Aligned map + images | Labeled features | 4-8 hours | SAM+CLIP, CVAT |
+| 6. Semantic annotation | Accepted source map + images | Source-map acceptance package + L3 semantic layer | 4-8 hours | SAM+CLIP, CVAT, aggregated-map segmenter |
 | 7. Lanelet2 generation | Semantic map | Lanelet2 .osm + occupancy grid | 2-4 hours | Custom + JOSM |
 | 8. QA validation | Complete map | Validated map + test report | 2-4 hours | Automated checks |
 | 9. Packaging + deploy | Validated map | Versioned map package | 0.5-1 hour | DVC, OTA system |
@@ -923,6 +923,27 @@ The transition is driven by the **auto-label flywheel**: the heuristic + SAM/CLI
 
 A note on **build order**: §8.1-8.4 effectively segment each surface and project labels — close to "segment-then-accumulate." The end-to-end pipeline favours "accumulate-then-segment" — build the geometric map first, then segment the dense whole. The two are complementary; `../../perception/overview/aggregated-map-semantic-segmentation.md` §2.4 covers using one as a prior for the other.
 
+### 8.6 Source-Map Acceptance Package for Semantic Segmentation
+
+The semantic segmenter should not consume "the latest merged cloud" directly. It should consume a **source-map acceptance package**: a signed, versioned bundle proving that the SLAM-built map is geometrically, temporally, and operationally fit to label. This package is the construction-pipeline handoff into `semantic_map_manifest.json`.
+
+| Acceptance field | Why the semantic pipeline needs it |
+|---|---|
+| `source_map_manifest_hash` | Binds semantic labels to one exact merged, georeferenced cloud |
+| `pose_graph_digest`, `submap_component_ids`, `retained_loop_digest`, `rejected_loop_digest` | Lets later failures trace back to SLAM or multi-session map-merging decisions |
+| `crs_epsg`, `datum`, `enu_origin`, `vertical_datum`, `alignment_transform_id` | Prevents semantic tiles, Lanelet2, AMDB overlays, and runtime maps from silently using different frames |
+| `calibration_package_id`, `time_sync_report_id`, `intensity_calibration_id` | Establishes that geometry, colorization, and reflectivity features are consistent across sensors |
+| `dynamic_residual_digest`, `static_transient_digest`, `fod_candidate_digest`, `artifact_digest`, `unknown_region_digest` | Carries the map-hygiene layers produced before semantic annotation |
+| `source_map_quality_report_id` | Dereferences to MapEval/GCP/coverage evidence before semantic metrics are trusted |
+| `tile_density_summary`, `coverage_gap_digest`, `failure_region_digest` | Tells the segmenter which areas need re-survey, larger halos, lower confidence, or quarantine |
+| `projection_qa_id` | Required when colorized points, image distillation, or candidate image labels are used |
+| `prior_inputs_summary` | Records OpenLiDARMap/FlexCloud/AMDB/facility-prior influence without treating priors as labels |
+| `entry_decision` | `accepted`, `accepted_with_quarantine`, `needs_resurvey`, or `blocked` before segmentation starts |
+
+For airport airside, the package should block on failed GCP/MapEval geometry around hold-short lines, stands, service roads, and geofence boundaries. For non-road urban districts, it should additionally preserve plazas, campus furniture, building frontages, ramps, stairs, utility corridors, service alleys, parked bicycles/scooters, temporary barriers, and work-zone assets as reviewable regions rather than forcing them into road-style map classes.
+
+The key rule is simple: semantic segmentation is allowed to improve labels, not to repair unaccepted geometry. If the source-map acceptance package is `blocked`, the next step is re-SLAM, re-merge, re-survey, or quarantine — not a higher-capacity segmenter.
+
 ---
 
 ## 9. Lanelet2 Map Generation
@@ -1078,6 +1099,7 @@ class MapValidator:
         ("global_accuracy", "GCP residuals < 10cm", "CRITICAL"),
         ("local_consistency", "Submap alignment < 5cm", "CRITICAL"),
         ("pointcloud_map_quality", "MapEval AWD/SCS and cloud-distance diagnostics within ODD thresholds", "CRITICAL"),
+        ("semantic_source_handoff", "source-map acceptance package present and accepted", "CRITICAL"),
         ("coverage", ">95% of AMDB features covered", "HIGH"),
         ("point_density", ">100 pts/m² in operational areas", "MEDIUM"),
         ("ground_flatness", "Ground height variation < 5cm per cell", "MEDIUM"),
@@ -1133,6 +1155,8 @@ The `pointcloud_map_quality` check is the source-map gate for the semantic pipel
 
 Store the release-facing summary behind the semantic manifest's `metrics_evidence.qa_report_id`, with a `source_map_quality` payload that names the method (`mapeval` or equivalent), metric set (`AC`, `COM`, `CD`, `MME`, `AWD`, `SCS` where available), config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and pass/warn/fail/waived status. Keep thresholds in a referenced policy rather than in the manifest itself, because acceptable residuals differ by ODD, map resolution, survey instrument, and whether the region is an apron, road corridor, campus frontage, or dense non-road urban district.
 
+The `semantic_source_handoff` check verifies that §8.6's source-map acceptance package exists, hashes to the same source map used by the semantic segmenter, and has an `accepted` or `accepted_with_quarantine` entry decision. It also verifies that any `accepted_with_quarantine` failure regions are propagated into the semantic tiling ledger and map-hygiene layers, so the segmenter cannot silently label quarantined geometry as permanent map truth.
+
 ### 10.2 Human Review Process
 
 Automated checks catch structural issues. Human review catches semantic issues:
@@ -1184,9 +1208,12 @@ airport-LHR-T5-v2.3.1/
 │   └── docking_templates/  — Per-stand high-res clouds (0.02m, ~5MB each)
 ├── semantics/
 │   ├── semantic_map_manifest.json — Contract for model/taxonomy/config/input/output hashes
+│   ├── source_map_acceptance_package.json — Geometry, hygiene, projection, and quarantine handoff into segmentation
 │   ├── semantic_cloud.copc.laz    — Per-point class, confidence, unknown flag
 │   ├── semantic_layer.geojson     — Polygonized/vectorized L3 semantic layer
 │   ├── confidence_unknown.copc.laz — Confidence and abstention layer
+│   ├── map_hygiene_layers/        — permanent/static-transient/movable/FOD/artifact/unknown layer exports
+│   ├── tile_release_ledger.json   — Per-tile logits, labels, hygiene candidates, seam metrics, and QA disposition
 │   ├── taxonomy.yaml              — Ordered class IDs and unknown policy
 │   ├── tile_metrics.json          — Per-tile mIoU, class recall, seam, churn metrics
 │   ├── qa_report.json             — Reviewer decisions, waivers, quarantine state
@@ -1294,12 +1321,24 @@ stages:
     outs:
       - data/aligned_map/merged.pcd
       - data/aligned_map/alignment_report.json
+
+  source_map_acceptance:
+    cmd: python scripts/build_source_map_acceptance.py --map data/aligned_map/merged.pcd --qa data/aligned_map/alignment_report.json
+    deps:
+      - scripts/build_source_map_acceptance.py
+      - data/aligned_map/merged.pcd
+      - data/aligned_map/alignment_report.json
+      - data/dynamic_removal/
+      - data/map_quality/
+    outs:
+      - data/aligned_map/source_map_acceptance_package.json
   
   annotate:
     cmd: python scripts/auto_annotate.py --amdb ${amdb_dir} --model ${semantic_model} --taxonomy ${semantic_taxonomy}
     deps:
       - scripts/auto_annotate.py
       - data/aligned_map/merged.pcd
+      - data/aligned_map/source_map_acceptance_package.json
       - data/dynamic_removal/removed_layer.pcd
       - ${amdb_dir}
       - ${semantic_model}
@@ -1309,6 +1348,8 @@ stages:
       - data/annotated/semantic_cloud.copc.laz
       - data/annotated/semantic_layer.geojson
       - data/annotated/confidence_unknown.copc.laz
+      - data/annotated/map_hygiene_layers/
+      - data/annotated/tile_release_ledger.json
       - data/annotated/backprojection_index.parquet
       - data/annotated/semantic_map_manifest.json
       - data/annotated/auto_labels.json

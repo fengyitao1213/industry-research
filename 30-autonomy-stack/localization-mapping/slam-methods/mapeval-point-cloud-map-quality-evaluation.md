@@ -135,6 +135,7 @@ For non-road urban districts, explicitly track plazas, sidewalks, courtyards, tr
 7. For dynamic-object removal outputs, pair map-quality metrics with static-preservation and false-deletion evidence; a cleaner map is not automatically a safer map.
 8. For LiDAR+image maps, require a separate projection/calibration QA record before using colorized points or image-derived pseudo-labels.
 9. In semantic-map manifests, keep the schema stable by storing the report identifier in `metrics_evidence.qa_report_id`; the dereferenced QA report should expose a `source_map_quality` block with method, metric set, config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and gate status. Promote that block into the manifest schema only if release automation must make pass/fail decisions without dereferencing the QA report.
+10. Feed the same QA payload into the map-construction pipeline's source-map acceptance package before aggregated-map semantic segmentation starts. That package should record the `source_map_quality` block, source-map hash, pose-graph digest, CRS/datum, calibration package, dynamic/static-transient/FOD/artifact/unknown layer digests, projection QA if used, quarantined failure regions, and an `accepted|accepted_with_quarantine|needs_resurvey|blocked` entry decision.
 
 ## Deployment Readiness
 

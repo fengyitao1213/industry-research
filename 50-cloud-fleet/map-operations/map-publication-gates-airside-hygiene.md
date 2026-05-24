@@ -20,7 +20,7 @@ Airside map publication must combine map quality, operational approval, safety e
 
 | Gate | Evidence | Required approver |
 |---|---|---|
-| source provenance | raw logs, survey dates, calibration, control points, coordinate frame | map owner |
+| source provenance | raw logs, survey dates, calibration, control points, coordinate frame, source-map acceptance package | map owner |
 | hygiene validation | dynamic rejection, static preservation, source-map geometry QA report, FOD retention, unknown/quarantine report | V&V lead |
 | semantic integrity | semantic-map manifest, taxonomy/class-order hash, source-map `qa_report_id`, safety-class metrics, unknown/confidence policy, Lanelet2/vector validation, route reachability, geofence, speed/no-go overlays | autonomy lead |
 | runtime map-load contract | Autoware projection, Lanelet2, pointcloud metadata, PCD cell split, and loader smoke-test evidence | autonomy lead |
@@ -32,6 +32,8 @@ Airside map publication must combine map quality, operational approval, safety e
 The **semantic-integrity** gate is evaluated against the semantic layer produced by the offline aggregated-map semantic segmentation pipeline (`../../30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`). That pipeline's own QA gates — held-out mIoU, per-class IoU on safety-relevant classes, cross-pass consistency, seam audit, version-to-version label churn (its §13.2-13.3) — are the upstream evidence this gate consumes; per-point confidence and provenance (its §8.6, §10.6) make the layer auditable for the safety-case-delta gate.
 
 The semantic manifest's `metrics_evidence.qa_report_id` must dereference to a QA bundle that includes source-map geometry quality before this gate can pass. For MapEval-style checks, require a `source_map_quality` block with method, metric set, config hash, reference-map hash or no-reference waiver, alignment transform, threshold policy, failure-region digest, and pass/warn/fail/waived status. If the QA report is missing or cannot be dereferenced, treat semantic metrics as provisional even when mIoU and class recall look acceptable.
+
+The source-map acceptance package from the map-construction pipeline must be present before semantic publication. It binds the source-map manifest hash, pose-graph digest, CRS/datum, calibration package, dynamic/static-transient/FOD/artifact/unknown layer digests, MapEval or equivalent source-map quality report, projection QA when imagery is used, and any quarantined failure regions. Publication is blocked when the package is `blocked` or missing; `accepted_with_quarantine` is allowed only if every quarantined region is reflected in the semantic tiling ledger, map-hygiene layers, route restrictions, or reviewer disposition.
 
 The manifest must also carry `outputs.map_hygiene_layer_digests` and `metrics_evidence.map_hygiene_metrics`. These bind the semantic layer to the removal governance decision: permanent static, dynamic residual, static transient, movable-static, FOD candidate, artifact, unknown/review, and reviewer-decision artifacts must all be hash-addressed. A map cannot pass publication on semantic mIoU alone if the false-permanent, false-deletion, FOD-retention, or localization-delta metrics are missing.
 
@@ -54,7 +56,7 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 1. Bundle point-cloud, semantic, projection, overlay, and validation artifacts atomically.
 2. Include map ID and active layer IDs in every vehicle mission log.
 3. Sign the bundle and record compatible software, sensor, calibration, model, taxonomy, telemetry schema, and map-runtime versions.
-4. Block publication if semantic provenance, taxonomy/class-order, confidence/unknown thresholds, safety-class metrics, map-hygiene layer digests, map-hygiene metrics, QA report, or reviewer disposition is missing.
+4. Block publication if source-map acceptance, semantic provenance, taxonomy/class-order, confidence/unknown thresholds, safety-class metrics, map-hygiene layer digests, map-hygiene metrics, QA report, or reviewer disposition is missing.
 5. Block publication if unknown regions intersect route/geofence/FOD-sensitive zones without an approved ODD restriction or quarantine decision.
 6. Block publication when the active ODD includes adverse-airside conditions but the bundle lacks signed local holdout results for do-not-delete hazards, or an explicit quarantine/ODD restriction.
 7. Confirm Autoware map loaders launch from the signed bundle and that projection, Lanelet2, pointcloud metadata, and PCD cells are mutually consistent; if dynamic map loading is enabled, replay a representative route that requests nearby cells without unhealthy diagnostics.
