@@ -15,6 +15,7 @@ Dynamic-object removal changes a map package that vehicles may use for localizat
 | FOD retention | prevent hazard erasure | FOD retained/reviewed evidence table | hazardous FOD candidate silently deleted |
 | Localization replay | prove vehicle can localize | NDT/ICP residuals, inliers, covariance, recovery | release-zone regression |
 | Semantic validation | prove topology and rules are intact | Lanelet2/vector map validation, route checks | disconnected route or shifted rule feature |
+| Manifest contract | make release evidence machine-checkable | semantic-map manifest with hygiene layer digests and metric vector | missing permanent/dynamic/transient/FOD/artifact/review layer hashes |
 | Safety release | connect to AGVS evidence | safety-case delta and operating limits | unapproved ODD or unresolved regulatory dependency |
 | Deployment | control rollout and rollback | signed manifest, canary plan, rollback bundle | no rollback or monitor coverage |
 
@@ -26,6 +27,7 @@ Dynamic-object removal changes a map package that vehicles may use for localizat
 | Cleaning configuration | algorithm, model, thresholds, input filters, runtime, operator, build ID |
 | Layer outputs | static, removed, restored, movable-static, FOD/hazard, unknown/review |
 | Validation results | PR/RR, static erosion, ghost rate, localization delta, semantic diff |
+| Semantic-map manifest fields | `outputs.map_hygiene_layer_digests`, `metrics_evidence.map_hygiene_metrics`, reviewer decision, waiver/quarantine state |
 | Review record | reviewer, decision, timestamp, comments, linked images/point-cloud views |
 | Release state | draft, quarantined, canary, active, rolled back, retired |
 

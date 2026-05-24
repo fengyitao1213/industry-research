@@ -163,6 +163,7 @@
         "labeled_cloud_digest",
         "semantic_layer_digest",
         "confidence_unknown_layer_digest",
+        "map_hygiene_layer_digests",
         "per_tile_prediction_digests",
         "back_projection_index_id"
       ],
@@ -170,6 +171,30 @@
         "labeled_cloud_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
         "semantic_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
         "confidence_unknown_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "map_hygiene_layer_digests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "permanent_static_layer_digest",
+            "dynamic_residual_layer_digest",
+            "static_transient_layer_digest",
+            "movable_static_layer_digest",
+            "fod_candidate_layer_digest",
+            "artifact_layer_digest",
+            "unknown_review_layer_digest",
+            "review_decision_manifest_digest"
+          ],
+          "properties": {
+            "permanent_static_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "dynamic_residual_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "static_transient_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "movable_static_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "fod_candidate_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "artifact_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "unknown_review_layer_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+            "review_decision_manifest_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+          }
+        },
         "per_tile_prediction_digests": {
           "type": "array",
           "minItems": 1,
@@ -264,6 +289,7 @@
         "unknown_rate",
         "seam_metric",
         "label_churn_unchanged_regions",
+        "map_hygiene_metrics",
         "qa_report_id",
         "reviewer_decision",
         "waiver_or_quarantine_state",
@@ -277,6 +303,30 @@
         "unknown_rate": { "type": "number", "minimum": 0, "maximum": 1 },
         "seam_metric": { "type": "number", "minimum": 0 },
         "label_churn_unchanged_regions": { "type": "number", "minimum": 0, "maximum": 1 },
+        "map_hygiene_metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dynamic_rejection",
+            "static_preservation",
+            "transient_rejection",
+            "false_permanent_rate",
+            "false_deletion_rate",
+            "fod_retention",
+            "localization_delta_median_abs_m",
+            "review_minutes_per_tile"
+          ],
+          "properties": {
+            "dynamic_rejection": { "type": "number", "minimum": 0, "maximum": 1 },
+            "static_preservation": { "type": "number", "minimum": 0, "maximum": 1 },
+            "transient_rejection": { "type": "number", "minimum": 0, "maximum": 1 },
+            "false_permanent_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "false_deletion_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "fod_retention": { "type": "number", "minimum": 0, "maximum": 1 },
+            "localization_delta_median_abs_m": { "type": "number", "minimum": 0 },
+            "review_minutes_per_tile": { "type": "number", "minimum": 0 }
+          }
+        },
         "qa_report_id": { "type": "string", "minLength": 1 },
         "reviewer_decision": { "type": "string", "enum": ["approved", "approved_with_waiver", "quarantined", "rejected"] },
         "waiver_or_quarantine_state": { "type": "string", "enum": ["none", "waiver", "quarantine"] },

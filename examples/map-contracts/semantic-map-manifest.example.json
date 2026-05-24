@@ -50,6 +50,16 @@
     "labeled_cloud_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
     "semantic_layer_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     "confidence_unknown_layer_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "map_hygiene_layer_digests": {
+      "permanent_static_layer_digest": "sha256:1111222211112222111122221111222211112222111122221111222211112222",
+      "dynamic_residual_layer_digest": "sha256:2222333322223333222233332222333322223333222233332222333322223333",
+      "static_transient_layer_digest": "sha256:3333444433334444333344443333444433334444333344443333444433334444",
+      "movable_static_layer_digest": "sha256:4444555544445555444455554444555544445555444455554444555544445555",
+      "fod_candidate_layer_digest": "sha256:5555666655556666555566665555666655556666555566665555666655556666",
+      "artifact_layer_digest": "sha256:6666777766667777666677776666777766667777666677776666777766667777",
+      "unknown_review_layer_digest": "sha256:7777888877778888777788887777888877778888777788887777888877778888",
+      "review_decision_manifest_digest": "sha256:8888999988889999888899998888999988889999888899998888999988889999"
+    },
     "per_tile_prediction_digests": [
       {
         "tile_id": "SIN-A42-001@v17",
@@ -118,6 +128,16 @@
     "unknown_rate": 0.027,
     "seam_metric": 0.018,
     "label_churn_unchanged_regions": 0.006,
+    "map_hygiene_metrics": {
+      "dynamic_rejection": 0.982,
+      "static_preservation": 0.996,
+      "transient_rejection": 0.941,
+      "false_permanent_rate": 0.006,
+      "false_deletion_rate": 0.003,
+      "fod_retention": 0.997,
+      "localization_delta_median_abs_m": 0.012,
+      "review_minutes_per_tile": 18.5
+    },
     "qa_report_id": "mapqa-20260524-001",
     "reviewer_decision": "approved",
     "waiver_or_quarantine_state": "none",

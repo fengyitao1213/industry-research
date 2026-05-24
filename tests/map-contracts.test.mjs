@@ -48,6 +48,32 @@ test('semantic map manifest requires prior input provenance fields', () => {
   }
 })
 
+test('semantic map manifest requires map hygiene layer and metric evidence', () => {
+  const schema = readJson('schemas/semantic-map-manifest.schema.json')
+
+  for (const field of [
+    'map_hygiene_layer_digests',
+    'map_hygiene_metrics'
+  ]) {
+    const example = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+    if (field === 'map_hygiene_layer_digests') {
+      delete example.outputs[field]
+    } else {
+      delete example.metrics_evidence[field]
+    }
+
+    assert.match(validateDocument(example, schema).join('\n'), new RegExp(`${field} is required`))
+  }
+
+  const missingLayerDigest = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingLayerDigest.outputs.map_hygiene_layer_digests.static_transient_layer_digest
+  assert.match(validateDocument(missingLayerDigest, schema).join('\n'), /static_transient_layer_digest is required/)
+
+  const missingMetric = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingMetric.metrics_evidence.map_hygiene_metrics.false_permanent_rate
+  assert.match(validateDocument(missingMetric, schema).join('\n'), /false_permanent_rate is required/)
+})
+
 test('runtime map contract rejects missing loader evidence', () => {
   const schema = readJson('schemas/runtime-map-contract.schema.json')
   const example = readJson('examples/map-contracts/runtime-map-contract.example.json')
