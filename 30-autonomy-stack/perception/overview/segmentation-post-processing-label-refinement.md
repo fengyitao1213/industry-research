@@ -417,6 +417,21 @@ For aggregated maps, post-processing must emit more than one label array. The se
 
 This layer split is the post-processing counterpart to [Semantic Class Taxonomy Design](3d-segmentation-class-taxonomy-design.md): a correctly labeled `person`, `staged GSE`, or `cable` can still be a wrong base-map point. The release bundle should therefore package semantic labels, calibrated confidence, and hygiene labels together, with digests recorded in `semantic_map_manifest.json`.
 
+### Release-State-Preserving Refinement
+
+Most post-processing algorithms were designed to improve semantic smoothness. They should not be allowed to overwrite publication state unless the rule is explicit and auditable. Run kNN, CRF, TTA, and ensemble fusion on semantic logits or candidate labels; then apply release-state policy with guard masks, source evidence, and reviewer state. If a refinement step changes a release-state label, record the rule trigger and before/after digest in the tile ledger.
+
+| Refinement step | Safe use | Unsafe use |
+|---|---|---|
+| kNN / CRF smoothing | Smooth semantic labels inside a trusted `permanent_static` region | Smoothing `fod_candidate`, `static_transient`, or `unknown_review` into surrounding pavement |
+| Connected-component cleanup | Remove tiny low-confidence semantic islands after checking class-specific minimum sizes | Deleting FOD-like or artifact-like clusters before global tile merge and reviewer evidence retention |
+| Superpoint smoothing | Harmonize labels inside geometry-homogeneous surfaces | Letting one superpoint span movable-static equipment and fixed infrastructure |
+| Height/intensity sanity rules | Flag impossible labels to `unknown_review` or `artifact` with a reason code | Promoting an uncertain object to `permanent_static` only because it fits a height band |
+| TTA / ensemble fusion | Average logits and confidence for semantic class selection | Treating ensemble agreement as proof of permanence without map-hygiene evidence |
+| Open-vocabulary relabeling | Produce `candidate_label` metadata and active-learning candidates | Creating new release labels or permanent classes without taxonomy promotion |
+
+Post-processing should be fail-closed for release state: ambiguity moves points to `unknown_review`, not to the nearest high-frequency class. This is especially important in non-road urban districts where movable assets and temporary operational objects sit directly on top of permanent surfaces.
+
 ### Auto-Label Back-Projection to Single Scans
 
 Once the aggregated map is labeled (typically with higher accuracy due to dense context), those labels can be back-projected to individual raw scans for training-data generation:
@@ -465,6 +480,7 @@ For **production HD-map labeling** (airside or urban AV), the industry-aligned s
 8. Emit semantic, confidence, and map-hygiene layers.
    - `permanent_static` may feed base-map publication.
    - `movable_static`, `static_transient`, `dynamic_residual`, `fod_candidate`, `artifact`, and `unknown_review` remain separate quarantine/review layers.
+   - Smoothing rules may change semantic IDs only inside allowed release-state masks; release-state changes require reason codes.
    - Record layer digests and map-hygiene metrics in the semantic-map manifest.
 
 9. Back-projection of map labels to individual raw scans for data flywheel.

@@ -1,6 +1,6 @@
 # Map Hygiene Operational Monitoring
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 Map hygiene needs runtime monitoring after publication. A map that passed offline validation can still fail in operation because the site changed, a temporary overlay expired, a vehicle received the wrong bundle, or perception disagrees with static assumptions.
 
@@ -51,6 +51,11 @@ The dashboard interprets those signals against the canonical [Airside Map Hygien
 | `map.hygiene.ghost_rate` | double | residual dynamic clutter per tile or route |
 | `map.hygiene.fod_candidates` | int | retained/reviewed FOD-like objects |
 | `map.hygiene.unknown_area_m2` | double | unknown or quarantined area |
+| `map.hygiene.false_permanent_rate` | double | movable/static-transient/FOD/artifact/unknown points promoted to permanent per tile |
+| `map.hygiene.static_transient_exclusion_recall` | double | stationary people and temporary objects excluded from permanent map |
+| `map.hygiene.release_state_confusion_id` | string | QA report or ledger block for permanent/dynamic/movable/transient/FOD/artifact/unknown confusion |
+| `map.training_export.eligible_point_fraction` | double | fraction of map-derived labels eligible for supervised export after release-state masks |
+| `map.training_export.blocked_reason` | string | missing split, release-state label, source evidence, reviewer state, or pose-quality evidence |
 | `localization.ndt_score` | double | align with Autoware NDT debug/diagnostic outputs |
 | `localization.covariance_xy` | double array | covariance or derived error ellipse |
 | `localization.inlier_ratio` | double | scan-to-map health |
@@ -72,6 +77,8 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 | unknown growth | unknown/quarantine area exceeds route threshold | block publication or data collection |
 | semantic contract mismatch | semantic layer, taxonomy, manifest, or compatibility hash differs from signed bundle | stop dispatch/canary and force approved reload |
 | semantic QA drift | unknown rate, coverage at threshold, safety-class gate, seam score, or label churn leaves validation envelope | quarantine tile, open label/map review, and preserve evidence |
+| release-state drift | false-permanent rate, static-transient exclusion recall, or release-state seam confusion leaves validation envelope | quarantine tile, block training export, open map-hygiene review |
+| training export contamination | non-`permanent_static` labels appear in supervised-positive export | stop export job, invalidate affected pseudo-label batch, preserve evidence for retraining audit |
 | intervention cluster | remote assist/manual takeover by map tile | incident triage |
 
 ## Dashboard Views
@@ -81,7 +88,9 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 | release health | map bundle, release state, cohort, rollback readiness |
 | localization by tile | NDT score, covariance, residuals, relocalization failures |
 | hygiene by asset | static preservation, ghost rate, movable-static decisions |
+| release-state health | false-permanent rate, static-transient exclusion recall, FOD retention, artifact rate, release-state seam confusion |
 | semantic layer health | active semantic layer, taxonomy, coverage, unknown rate, safety-class gate, seam score, label churn, review state |
+| training export health | eligible point fraction, blocked reasons, pseudo-label batch ID, split leakage checks |
 | FOD and hazards | retained candidates, inspection status, false alarms, closures |
 | overlays | owner, expiry, affected routes, active vehicles |
 | incidents | active/prior map ID, logs, reviewer records, source evidence |
@@ -95,6 +104,7 @@ Use OpenTelemetry semantic conventions where they fit, and publish a map-specifi
 5. Map schema changes must be versioned so older dashboards do not silently misread fields.
 6. Semantic QA drift must be interpreted against the signed threshold file; do not tune dashboard thresholds outside the release process.
 7. Retain telemetry, raw evidence, semantic manifests, QA reports, and map bundles for any incident or safety event.
+8. Training-export alerts are release-critical when the exported labels feed a deployed perception model; quarantine the pseudo-label batch even if the vehicle-facing map remains active.
 
 ## Sources
 

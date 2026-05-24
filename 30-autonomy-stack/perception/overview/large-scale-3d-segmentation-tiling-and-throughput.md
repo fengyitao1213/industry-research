@@ -236,6 +236,22 @@ The ZoR / halo split is the clean solution to double-counting: each tile owns ex
 - **Train/eval disparity:** `1 - Dice(P_train_global, P_eval_tiled)` — the gap between predictions generated in a single large forward pass versus tiled inference. A large disparity indicates normalization-induced shift (see below).
 - **Boundary IoU:** compute IoU restricted to the ±halo strip around each tile boundary, reported per class. Surfaces classes (pavement, terrain) and thin linear classes (kerb, fence) will typically show the largest boundary IoU drop.
 
+### Release-State Seam Acceptance
+
+Semantic seam quality and release-state seam quality are related but not identical. A logit-averaged seam can look clean in semantic mIoU while still hiding a publication failure: a `fod_candidate` cluster split across two tiles is smoothed into pavement, a parked GSE cluster becomes `permanent_static` on one side of the boundary, or an `unknown_review` region disappears because each half falls below the component-size threshold.
+
+| Seam object/state | Required seam check | Blocker |
+|---|---|---|
+| `permanent_static` thin structure | Boundary IoU and retention recall in seam strip | Kerb, marking, pole, fence, or sign disappears after stitching |
+| `movable_static` cluster crossing boundary | Same release-state label on both tile sides or explicit quarantine merge | One side promoted to `permanent_static` while the other is quarantined |
+| `static_transient` cluster crossing boundary | Hard-exclusion consistency and source-frame evidence retained | Stationary person or temporary work object becomes background/permanent on one side |
+| `dynamic_residual` trail | Residual-dynamic rejection recall in seam strip | Ghost trail survives because no single tile contains enough of it |
+| `fod_candidate` small object | Minimum-size evaluation after global merge, not per tile only | Candidate is deleted before global component merge because each tile fragment is small |
+| `artifact` streak or registration double | Artifact reason code survives seam merge | Artifact points are averaged into a confident semantic class |
+| `unknown_review` region | Unknown/review component ID merged across adjacent tiles | Review region vanishes due to independent per-tile confidence thresholding |
+
+The tile release ledger should therefore store a release-state seam confusion block in addition to semantic Dice/IoU. Accept a tile pair only when both the semantic seam metrics and the release-state seam metrics pass, or when a reviewer waiver explains why the seam is operationally safe.
+
 ---
 
 ## Normalization-Layer Tile Artifacts
@@ -444,7 +460,8 @@ For a semantic map release, the tile manifest should graduate from a scheduler c
 | `model_id`, `weights_digest`, `taxonomy_digest`, `calibration_digest` | Ties predictions to the exact model, taxonomy, and confidence stack |
 | `logit_digest`, `semantic_label_digest`, `confidence_layer_digest` | Makes stitched semantic outputs content-addressable before packaging |
 | `hygiene_candidate_digest` | Records per-tile permanent/static-transient/movable/FOD/artifact/unknown candidates before global post-processing |
-| `seam_metric_block`, `boundary_metric_block`, `unknown_rate` | Carries the evidence used to accept or re-run the tile |
+| `seam_metric_block`, `boundary_metric_block`, `unknown_rate` | Carries the semantic evidence used to accept or re-run the tile |
+| `release_state_seam_confusion_block` | Records permanent/static-transient/movable/FOD/artifact/unknown seam agreement and waiver decisions |
 | `postprocess_config_hash`, `rule_trigger_counts` | Shows which smoothing, calibration, abstention, and physical-rule passes changed the tile |
 | `qa_disposition`, `reviewer_or_policy_id`, `waiver_id` | Distinguishes accepted, quarantined, waived, and human-reviewed tiles |
 | `runtime_export_digest` | Links the release tile to downstream map formats or runtime adapters |
