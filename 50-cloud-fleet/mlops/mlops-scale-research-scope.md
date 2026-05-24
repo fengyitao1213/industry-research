@@ -281,6 +281,34 @@ For airside autonomy, cost and safety interact. Incident replay, retained raw da
 
 ---
 
+## Data Product, Feature, and Embedding Stores by Scale
+
+Most autonomy programs do not need an online feature store early. They do need disciplined data products: immutable raw logs, decoded clips, labels, map-derived training exports, replay scenarios, evaluation sets, and model-ready tables. Feature and embedding stores become useful when many consumers reuse the same derived representation and need consistent lookup, lineage, access control, and expiry.
+
+| Scale | Data product pattern | Feature/embedding stance | Promotion gate |
+|---|---|---|---|
+| S0 notebook research | Local files plus manifest | Avoid; precompute files if needed | Fixed split and run note |
+| S1 repeatable prototype | DVC/object snapshots and small metadata table | Avoid online store; use offline feature cache | Dataset snapshot and validation script |
+| S2 production product | Curated training/eval tables with release notes | Offline feature store only if multiple models reuse features | Data contract, quality report, label QA, registry link |
+| S3 fleet and multi-site | Cataloged site/ODD data products, active-learning queues, replay sets | Offline feature/embedding store for mining, retrieval, and auto-labeling | Site slices, lineage graph, access class, retention tier |
+| S4 regulated safety-critical | Evidence-locked datasets and replay packages | Feature/embedding snapshots must be immutable and evidence-linked | Safety-case claim link, deletion/retention review, waiver expiry |
+| S5 platform scale | Shared lakehouse, catalog, feature/embedding service, lineage automation | Multi-tenant store with quotas, freshness, ACLs, and reproducibility controls | Policy-as-code, ownership, SLOs, audit trail |
+
+### Store Selection Rules
+
+| Need | Use manifests/files | Use offline feature store | Use online feature store | Use embedding/vector store |
+|---|---|---|---|---|
+| Reproduce a training set | Yes | Sometimes | No | No |
+| Share expensive precomputed LiDAR/map features | No | Yes | No | Sometimes |
+| Serve real-time model features | No | No | Yes, only if latency and consistency justify it | Rare for vehicle runtime |
+| Mine similar incidents or rare scenes | No | Sometimes | No | Yes |
+| Retrieve SOP/NOTAM/map documents for VLM tools | No | No | No | Yes, with corpus snapshots |
+| Support safety evidence | Yes | Yes if immutable | Only with strict audit/freshness proof | Only as supporting search evidence |
+
+For aggregated-map semantic segmentation, the most important data store is still the manifest-backed training export, not a generic feature platform. A back-projected label set must preserve source map, semantic layer, taxonomy, release-state label, split ID, reviewer state, and invalidation policy before it can enter training.
+
+---
+
 ## Scale Transition Triggers
 
 | Trigger | Indicates | Required upgrade |

@@ -1,6 +1,6 @@
 # Fleet Data Privacy Governance
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 Autonomous vehicle fleets collect sensitive operational data by default: precise location, facility layouts, worker movements, passenger/rider behavior, faces, license plates, aircraft and cargo activity, operator actions, telemetry, and incident video. Privacy governance is therefore part of fleet safety and operational readiness. It determines what the fleet may collect, why it may collect it, how long it may retain it, who may access it, and how deletion or restriction propagates into training datasets and incident archives.
 
@@ -75,6 +75,21 @@ Fleet logs often move from operations into ML training. That transition needs it
 | Split integrity | No privacy-deleted or legally restricted clips in train/val/test |
 | Vendor controls | Annotation and labeling processors have approved DPAs and security controls |
 | Retention | Dataset and derived model retention are defined |
+
+### 4.1 MLOps Scale and Deletion Propagation
+
+Privacy governance becomes harder as MLOps scale increases because derived artifacts multiply. A deletion, contract expiry, site offboarding, or purpose restriction must reach more than raw clips.
+
+| MLOps scale | Privacy control | Derived artifacts to check |
+|---|---|---|
+| S0 notebook research | No personal/customer data in local experiments unless approved | Local exports and notebooks |
+| S1 repeatable prototype | Dataset manifest records access class and retention | DVC snapshots, labels, metrics, shared artifacts |
+| S2 production product | Training/eval reuse gate before registry release | Splits, model cards, release packets, annotation exports |
+| S3 fleet and multi-site | Site/customer partitions and deletion workflow | Active-learning queues, embeddings, replay packages, local holdouts |
+| S4 regulated safety-critical | Legal hold separation from training reuse | Incident evidence, safety-case bundles, regulator reports, waivers |
+| S5 platform scale | Automated lineage-driven deletion and restriction propagation | Catalog, feature store, embedding store, eval warehouse, model registry |
+
+Do not delete safety/legal-hold evidence merely because routine training data expires. Instead, move the evidence into a restricted retention class, block non-forensic use, and record the legal/safety owner. Conversely, do not let legal-hold status become a blanket permission to reuse personal data for model improvement.
 
 ### 5. Monitor platform changes
 

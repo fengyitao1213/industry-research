@@ -1,6 +1,6 @@
 # Data Catalog, Lineage, and Quality Operations
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -16,6 +16,35 @@ This page covers operational controls for curated fleet data products: raw logs,
 4. Attach quality rules to the catalog entry, not only to the pipeline code. Rules should cover completeness, timestamp monotonicity, frame drops, calibration presence, label validity, class balance, schema compatibility, and privacy filters.
 5. Promote data by state: `raw`, `decoded`, `validated`, `curated`, `approved_for_training`, `approved_for_safety_evidence`, `deprecated`.
 6. Review quality exceptions weekly with data owners and release blockers daily during model-release windows.
+
+## MLOps Scale Ladder for Data Products
+
+The data catalog should mature with the MLOps scale. The goal is not to catalog everything immediately; the goal is to make every dataset that can influence a release reproducible, governed, and reviewable.
+
+| MLOps scale | Catalog requirement | Lineage requirement | Quality requirement | Feature/embedding requirement |
+|---|---|---|---|---|
+| S0 notebook research | Manifest next to files | Source path and collection date | Manual sample review | None |
+| S1 repeatable prototype | Snapshot ID and fixed split | Preprocess script, config, and output digest | Validation script and basic schema checks | Optional offline cache |
+| S2 production product | Curated dataset entry with owner and approved use | Raw -> decoded -> labels -> train/eval materialization chain | Scheduled rules, failure samples, waiver owner | Offline features only if reused by multiple models |
+| S3 fleet and multi-site | Site/ODD partitions, access class, retention tier | Fleet trigger, site, vehicle, sensor, calibration, map, and label lineage | Slice coverage, class balance, drift, privacy/redaction QA | Embedding store for mining and retrieval with snapshot IDs |
+| S4 regulated safety-critical | Evidence-locked catalog states and legal hold | Full graph from release artifact back to raw logs and reviewer decisions | Quality report tied to safety-case claim and expiry | Immutable feature/embedding snapshots only |
+| S5 platform scale | Organization-wide catalog with policy-as-code | Automated lineage from ingestion, labels, training, replay, and serving | Quality SLOs, owner dashboards, exception workflow | Multi-tenant feature/embedding service with ACLs and quotas |
+
+### Promotion States
+
+Use explicit states so downstream consumers know what a dataset may do:
+
+| State | Allowed use | Required next gate |
+|---|---|---|
+| `raw_registered` | Forensics, replay extraction, controlled inspection | Decode and schema validation |
+| `decoded_validated` | Scenario mining, labeling intake | Sensor/time/calibration quality report |
+| `labeled_candidate` | Reviewer workflow, active learning | Label QA and taxonomy compatibility |
+| `curated_training` | Model training experiments | Split integrity, leakage check, privacy/access review |
+| `approved_for_release_eval` | Release metrics and regression gates | Frozen snapshot, quality report, owner approval |
+| `approved_for_safety_evidence` | Safety-case evidence and audit | Evidence lock, retention hold, waiver expiry |
+| `deprecated_or_invalidated` | Historical reference only | Downstream invalidation and consumer notification |
+
+Deletion, taxonomy changes, source-map corrections, and calibration fixes must propagate through the same states. If a source dataset is invalidated, derived clips, labels, features, embeddings, splits, replay packages, and model cards need either rebuild evidence or a documented containment waiver.
 
 ## Evidence Artifacts
 
@@ -74,4 +103,5 @@ This page covers operational controls for curated fleet data products: raw logs,
 - OpenTelemetry telemetry schemas. https://opentelemetry.io/docs/specs/otel/schemas/
 - Apache Iceberg, "Spec." https://iceberg.apache.org/spec/
 - Apache Iceberg, "Evolution." https://iceberg.apache.org/docs/1.4.2/evolution/
+- Feast, "Introduction." https://docs.feast.dev/
 - Regulation (EU) 2024/1689, Artificial Intelligence Act, Articles 10-12 and Annex IV. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689

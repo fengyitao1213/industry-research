@@ -150,6 +150,21 @@ The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes th
 
 The key scaling variable is not only terabytes per day. It is the number of independent consumers that need trustworthy answers from the same data: perception training, SLAM/map construction, semantic-map label export, simulation replay, safety validation, operations analytics, and incident investigation. Once those consumers exist, the data pipeline must preserve provenance even for data that is never used for training.
 
+### 2.8 Data Product Promotion Interface
+
+The fleet pipeline should expose promotion states to MLOps, not just files in buckets. Each state changes what downstream systems may do:
+
+| Pipeline state | MLOps consumer | Required metadata before promotion |
+|---|---|---|
+| Raw upload registered | Forensics, data catalog | Vehicle, site, time window, trigger, sensor list, retention class, access class |
+| Decoded clip | Scenario mining, labeling | Decode version, schema version, frame counts, timestamp quality, calibration package |
+| Labeling package | Annotation and auto-labeling | Taxonomy version, source-map/semantic-layer IDs if map-derived, reviewer queue |
+| Curated training table | Training pipeline | Split ID, leakage check, label QA score, redaction state, data-use approval |
+| Replay/eval package | Validation and release gate | Scenario ID, map/runtime compatibility hash, expected metrics, waiver state |
+| Evidence bundle | Safety case and audit | Immutable snapshot, source lineage, quality report, approval, retention hold |
+
+Feature caches and embedding indexes should be registered as derived data products, not invisible acceleration artifacts. They need source snapshot IDs, build code, embedding/feature model version, dimensionality/schema, access class, expiry, and invalidation rule. Otherwise a retrieval or active-learning result cannot be traced back to the fleet logs that generated it.
+
 ---
 
 ## 3. On-Vehicle Data Management
