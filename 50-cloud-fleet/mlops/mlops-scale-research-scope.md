@@ -439,7 +439,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | Priority | Research item | Why it matters |
 |---|---|---|
 | P0 | Unified model/data/map/calibration compatibility manifest | Prevents a model from deploying against the wrong semantic map, calibration, or runtime container |
-| P0 | Map-derived pseudo-label invalidation protocol | Handles source-map corrections without contaminating future training sets |
+| P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
 | P0 | Site-sliced model release evidence | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | GPU cost and queueing model for training and replay | Determines when to move from rented GPUs to owned or reserved capacity |
 | P1 | Offboard labeler registry | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
@@ -458,6 +458,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
+- `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.
 - `../../20-av-platform/compute/training-infrastructure.md` - GPU training infrastructure and experiment management.

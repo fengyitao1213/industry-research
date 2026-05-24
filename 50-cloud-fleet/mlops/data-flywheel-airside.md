@@ -93,6 +93,8 @@ The aggregated-map semantic segmentation pipeline adds a second flywheel branch 
 
 The advantage is label efficiency: one reviewed map can produce millions of scan-level labels. The risk is label leakage: if a stationary person, parked GSE unit, ghost trail, FOD candidate, or artifact survives into the `permanent_static` export, the next model learns the wrong map as truth. The flywheel should therefore treat semantic-map exports as governed data products, not as generic auto-labels.
 
+When the source map, calibration, taxonomy, reviewer decision, cleaner policy, or release-state mask changes, the exported labels must follow `map-derived-pseudo-label-invalidation-protocol.md`: move the batch to `suspect`, query downstream consumers, quarantine affected training/eval/replay sets, rebuild the projection, and reapprove before new training or release evidence consumes it.
+
 ### 1.5 MLOps Scale Fit
 
 The full MLOps scale taxonomy is maintained in `mlops-scale-research-scope.md`. This flywheel page is primarily an S2-S3 operating design: it assumes at least one production model, a model registry, reproducible datasets, shadow/canary deployment, and a fleet that can mine new data. It also borrows S4 controls whenever a model or semantic-map export can affect safety-critical vehicle behavior.

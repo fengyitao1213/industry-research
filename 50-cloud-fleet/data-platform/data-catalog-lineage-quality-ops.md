@@ -46,6 +46,8 @@ Use explicit states so downstream consumers know what a dataset may do:
 
 Deletion, taxonomy changes, source-map corrections, and calibration fixes must propagate through the same states. If a source dataset is invalidated, derived clips, labels, features, embeddings, splits, replay packages, and model cards need either rebuild evidence or a documented containment waiver.
 
+For map-derived pseudo-labels, use `../mlops/map-derived-pseudo-label-invalidation-protocol.md` as the required propagation pattern. The catalog entry should be able to answer which source map, semantic layer, release-state mask, calibration package, projection code, split ID, labeler/prompt artifact, model version, and release packet consumed the affected labels before a batch returns from `suspect` or `quarantined` to `active`.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |
