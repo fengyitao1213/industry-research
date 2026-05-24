@@ -4,7 +4,7 @@
 
 Pipeline orchestration is where MLOps discipline becomes enforceable. A workflow engine can run preprocessing, labeling, training, evaluation, export, replay, packaging, attestation, and deployment tasks, but the important design question is not "which orchestrator should we buy?" It is which state transitions must be automated, which must be gated, which artifacts must be immutable, and which failures should block release.
 
-Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
+Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifests and replay/runtime/shadow evidence, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
 
 The core rule is simple: orchestration may produce evidence automatically, but it must not silently create release authority. A green DAG can create a candidate. It cannot move a model, semantic map, labeler, prompt pack, or runtime artifact into production without the required evidence and approval state.
 
@@ -84,7 +84,7 @@ Every task boundary should pass typed artifacts, not path strings.
 | Split manifest | split ID, grouping keys, leakage report, holdout policy, access log | Dataset workflow | Training/eval/release |
 | Label batch record | taxonomy, labeler/prompt/evaluator IDs, reviewer workflow, QA state, allowed use | Label workflow | Training, semantic maps, safety evidence |
 | Training run manifest | code/config/environment/data/split/metric/output lineage | Training workflow | Registry, governance |
-| Evaluation report | metric spec, evaluator version, aggregate and slice metrics, replay IDs, failures, waivers | Eval workflow | Release packet |
+| Evaluation manifest/report | eval authority, metric spec, evaluator version, artifact-set hash, aggregate and slice metrics, replay IDs, runtime smoke, failures, waivers | Eval workflow | Release packet |
 | Runtime package manifest | ONNX/TensorRT/container digests, class order, hardware target, compatibility IDs | Export workflow | Deployment, OTA/SUMS |
 | Attestation bundle | subject digest, builder identity, workflow ID, SBOM/provenance, policy result | Build/sign workflow | Registry, deployment policy |
 | Release packet | claim, evidence links, approvers, scope, rollback, expiry | Release workflow | Governance, OTA, safety case |
@@ -254,6 +254,7 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - `mlops-migration-checklist-by-scale.md` - transition triggers for adding orchestrators and policy gates.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority, reproducibility levels, and run manifest contract.
 - `mlops-scorecards-and-kpis-by-scale.md` - scorecards and release-blocking metrics.
+- `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and evaluation-service SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage reports.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `secure-artifact-attestation-profile.md` - signed artifacts, SBOM/provenance, and policy verification.
@@ -268,6 +269,8 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - Argo Workflows, "What is Argo Workflows?" https://argo-workflows.readthedocs.io/en/latest/
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - TensorFlow, "Understanding TFX Pipelines." https://www.tensorflow.org/tfx/guide/understanding_tfx_pipelines
+- MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
+- TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
 - GitHub Docs, "Workflows." https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows
 - DVC, "Pipelines." https://doc.dvc.org/user-guide/pipelines
 - Ray, "Ray Train: Scalable Model Training." https://docs.ray.io/en/latest/train/train.html

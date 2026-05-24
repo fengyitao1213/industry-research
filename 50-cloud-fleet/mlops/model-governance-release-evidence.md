@@ -6,7 +6,7 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `pipeline-orchestration-release-workflows-by-scale.md` to keep build, eval, export, register, release, incident, and evidence workflows separated so a successful training DAG cannot silently approve a release. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `pipeline-orchestration-release-workflows-by-scale.md` to keep build, eval, export, register, release, incident, and evidence workflows separated so a successful training DAG cannot silently approve a release. Use `evaluation-platform-replay-gates-by-scale.md` for the metric spec, evaluator identity, replay/runtime checks, shadow/canary evidence, ODD-cell evaluation manifest, and platform evaluation SLOs that decide whether the release packet has enough evidence. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
@@ -86,8 +86,8 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Feature or embedding snapshot | Feature definition IDs, event-time join proof, materialization snapshot, embedding model, corpus/index build, parity/recall checks, deletion state | Data platform |
 | Pseudo-label invalidation record | Batch ID, invalidation trigger, affected source map/calibration/taxonomy/release-state scope, downstream consumers, rebuild or waiver decision | Data owner |
 | Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
-| Evaluation report | Primary metrics, calibration, uncertainty, class slices, airport and weather slices | Model owner |
-| Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
+| Evaluation manifest/report | Eval authority, evaluator identity, metric spec, artifact-set hash, primary metrics, calibration, uncertainty, class/site/weather/map-state slices, runtime smoke, comparable-baseline proof | Model owner |
+| Scenario replay report | Required scenario suite, replay package IDs, new mined scenarios, changed-map tiles, failures, flake state, waiver owner/expiry | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
 | Site-sliced release record | ODD-cell manifest, local holdout, shadow/canary exposure, delayed-label review, rollout decision, expiry, waiver state | Release manager |
 | Monitoring and drift-response record | Monitoring event IDs, active artifact set, affected ODD slice, signal family, containment action, owner, suppression/waiver expiry, delayed-label or replay follow-up | Fleet operations + MLOps |
@@ -116,6 +116,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 
 - The model can be loaded by registry alias and by immutable version.
 - The model version has run authority, reproducibility level, dataset, split, code, config, environment, evaluator, output digest, and runtime provenance sufficient to rebuild, compare, or explain the release.
+- The evaluation evidence has an eval authority state, evaluator version, metric spec, slice set, artifact-set hash, comparable baseline, runtime package smoke, replay IDs, decision state, and waiver disposition.
 - The model version names the split manifest and leakage report for training, validation, release test, replay, local holdout, feature/embedding snapshots, and any map-derived pseudo-label batch it consumes.
 - Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
 - Any offboard labeler promoted beyond research has a registry record with model/prompt/retrieval/threshold/config identity, evaluation scope, allowed-use state, and rollback bundle.
@@ -161,6 +162,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md`
 - `50-cloud-fleet/mlops/pipeline-orchestration-release-workflows-by-scale.md`
+- `50-cloud-fleet/mlops/evaluation-platform-replay-gates-by-scale.md`
 - `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
@@ -186,6 +188,10 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Apache Airflow, "Dags." https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
 - Argo Workflows, "What is Argo Workflows?" https://argo-workflows.readthedocs.io/en/latest/
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
+- MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
+- TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
+- Evidently AI, "Evaluations." https://docs.evidentlyai.com/metrics/introduction
+- ASAM OpenSCENARIO. https://www.asam.net/standards/detail/openscenario/
 - ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
 - SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
 - OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842

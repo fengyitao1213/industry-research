@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -80,6 +80,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Freeze datasets and labels | Dataset manifest, label QA, leakage check, allowed-use state |
 | Package runtime artifact | ONNX/TensorRT/container package, load test, latency/memory report |
 | Add replay/offline gates | Holdout metrics, scenario replay smoke, calibration/OOD checks |
+| Add evaluation manifest | Eval authority state, evaluator version, metric spec, slice set, artifact-set hash, runtime package smoke, waiver state |
 | Add controlled aliases | `candidate`, `shadow`, `champion`, `rollback`, `quarantined` semantics |
 | Add secure artifact chain | Signatures, SBOM/provenance, trusted-builder or CI identity, policy result |
 | Add rollback proof | Previous compatible artifact set and cache state |
@@ -138,7 +139,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 
 | Checklist item | Required output |
 |---|---|
-| Standardize durable interfaces | Dataset, training-run, model, compatibility, eval, deployment, incident, and attestation manifests |
+| Standardize durable interfaces | Dataset, training-run, model, compatibility, evaluation, replay, deployment, incident, and attestation manifests |
 | Add tenant isolation | IAM, data partitions, registry namespaces, quota and cost allocation |
 | Add policy-as-code | Release blockers for registry aliases, data access, attestation, eval, and deployment |
 | Add platform SLOs | Queue wait, registry availability, eval lead time, incident lane, support response |
@@ -161,7 +162,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Labels | Instructions and examples | QA states and allowed-use | Site-sliced reviewer metrics | Expert review for hazard labels | Shared label platform with policy |
 | Compute | Workstation or rented GPU | Scheduled jobs and owner tags | Shared queue and priority lanes | Reserved assurance capacity | Multi-tenant scheduler and FinOps |
 | Registry | Checkpoint folder | Versioned registry and aliases | Site/channel metadata | Immutable approval and retention | Registry policy and audit API |
-| Evaluation | Validation script | Holdout/replay/runtime smoke | Local holdouts and canaries | Safety-case claim evidence | Shared eval service with adapters |
+| Evaluation | Validation script | Evaluation manifest, holdout/replay/runtime smoke | Local holdouts, replay suites, shadow/canary evidence | Safety-case claim evidence, hazard replay, waiver expiry | Shared eval service with adapters, scenario catalog, and SLOs |
 | Deployment | Manual artifact | Shadow/canary/rollback | ODD-cell rollout | Controlled safety release | Progressive rollout platform |
 | Monitoring | Failure notes | Drift/runtime/latency metrics | Fleet anomaly and delayed labels | Reportability and evidence freeze | Platform observability SLOs |
 | Governance | Peer review | Release owners | Site/ODD release owners | Safety authority and approvers | Policy-as-code plus exception board |
@@ -182,7 +183,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | GPU scheduler | Jobs compete for accelerators or incidents need priority | One user rents occasional GPUs |
 | Policy engine | Manual gates miss required fields or many teams share release paths | Requirements are still changing daily |
 | Attestation service | Artifacts cross release, runtime, OTA, map, or safety boundaries | Checksums are enough for local prototype |
-| Eval service | Multiple teams duplicate replay/eval infrastructure | One product has a small local script |
+| Eval service | Multiple teams duplicate replay/eval infrastructure, release candidates need ODD-cell manifests, or replay/runtime/shadow evidence must be policy-checked | One product has a small local script and no release authority |
 | Platform team | Shared services need SLOs and support | Tool ownership is still part-time and local |
 
 ---
@@ -220,6 +221,7 @@ Before declaring a migration complete, attach:
 | Current-state audit | Shows which controls already exist and which are missing |
 | Artifact inventory | Lists models, maps, prompts, evals, datasets, replay packs, and runtime packages by authority level |
 | Interface manifest set | Proves durable contracts exist before platform migration |
+| Evaluation manifest sample | Proves the new path can compare candidate and baseline artifacts with evaluator, metric, split, replay, runtime, waiver, and decision identity |
 | Scorecard baseline | Measures reproducibility, data quality, release readiness, observability, cost, and governance |
 | Risk register | Names failure modes, owner, mitigation, and accepted residual risk |
 | Rollback plan | Defines previous scale fallback and known-good artifacts |
@@ -251,6 +253,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `mlops-scorecards-and-kpis-by-scale.md` - migration scorecards and release blockers.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
 - `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator choices, workflow state machines, artifact handoff contracts, and release/evidence gates.
+- `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and platform service SLOs.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and local rollout gates.
 - `feature-embedding-store-ops-by-scale.md` - store migration triggers.
@@ -276,5 +279,9 @@ The migration is not complete when the tool is installed. It is complete when a 
 - DVC, "Pipelines." https://doc.dvc.org/user-guide/pipelines
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - TensorFlow, "Understanding TFX Pipelines." https://www.tensorflow.org/tfx/guide/understanding_tfx_pipelines
+- MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
+- TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
+- Evidently AI, "Tests." https://docs.evidentlyai.com/docs/library/tests
+- Google Cloud, "Model evaluation in Vertex AI." https://cloud.google.com/vertex-ai/docs/evaluation/introduction
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - SLSA specification v1.2. https://slsa.dev/spec/latest/

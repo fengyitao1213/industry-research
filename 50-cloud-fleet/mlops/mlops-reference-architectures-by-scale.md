@@ -6,7 +6,7 @@ This page turns the MLOps scale ladder into concrete architecture choices. Use i
 
 The architecture should grow by contract first, platform second. A small team can run on scripts, manifests, and a lightweight tracker if the artifact boundaries are disciplined. A large platform still fails if it centralizes dashboards while leaving labels, dataset snapshots, registry aliases, evaluation packs, and rollback evidence ambiguous.
 
-Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Use `experiment-tracking-reproducibility-by-scale.md` to decide which runs need tracker-only notes, baseline authority, candidate output digests, release evidence, or evidence-locked audit records. Use `pipeline-orchestration-release-workflows-by-scale.md` to decide which workflow states belong in scripts, DVC, GitHub Actions, Airflow, Argo, Kubeflow, TFX, Ray, Slurm, or managed platforms, and which transitions must remain explicit release or safety gates. Use `mlops-migration-checklist-by-scale.md` before moving an artifact family from one scale to the next. Pair monitoring decisions with `model-monitoring-drift-response-by-scale.md` so drift, delayed-label, replay, and incident signals produce controlled actions instead of automatic retraining or dashboard noise. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
+Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Use `experiment-tracking-reproducibility-by-scale.md` to decide which runs need tracker-only notes, baseline authority, candidate output digests, release evidence, or evidence-locked audit records. Use `pipeline-orchestration-release-workflows-by-scale.md` to decide which workflow states belong in scripts, DVC, GitHub Actions, Airflow, Argo, Kubeflow, TFX, Ray, Slurm, or managed platforms, and which transitions must remain explicit release or safety gates. Use `evaluation-platform-replay-gates-by-scale.md` to decide when evaluation remains a local script, when replay/runtime/shadow evidence needs a production lane, and when S5 needs a shared evaluation service with scenario catalogs, policy templates, and service SLOs. Use `mlops-migration-checklist-by-scale.md` before moving an artifact family from one scale to the next. Pair monitoring decisions with `model-monitoring-drift-response-by-scale.md` so drift, delayed-label, replay, and incident signals produce controlled actions instead of automatic retraining or dashboard noise. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
 
 ---
 
@@ -34,7 +34,7 @@ The same fleet can occupy multiple scales at once. A perception research branch 
 | Label operations | Manual labels and instructions | Versioned annotation workflow, QA sampling, allowed-use state | Policy-enforced promotion states, expert review, vendor/privacy controls |
 | Orchestration | Script, Makefile, DVC, or CI job | Airflow/Argo/Kubeflow/Ray/managed pipeline for data-train-eval-export-register with explicit release workflow gates | Multi-tenant pipeline with quotas, lineage, policy checks, evidence capture, incident lanes, and audit export |
 | Model registry | Checkpoint path plus release note | Immutable version, aliases, approval metadata, rollback target, artifact digest | Registry integrated with policy, signing, SBOM, SLSA/in-toto provenance, tenant isolation, and audit logs |
-| Evaluation | Validation script and frozen split | Slice metrics, replay, calibration, runtime smoke, shadow/canary report | Safety-case-linked claim/evidence table, scenario catalog, waiver expiry |
+| Evaluation | Validation script, frozen split, and metric spec | Evaluation manifest, slice metrics, replay, calibration, runtime smoke, shadow/canary report | Shared eval service, safety-case-linked claim/evidence table, scenario catalog, waiver expiry, platform SLOs |
 | Deployment | Manual batch or offline artifact | ONNX/TensorRT/container bundle, compatibility manifest, canary channel | OTA/SUMS integration, policy gates, rollback drill, reportability evidence |
 | Monitoring | Manual plots and failure notes | Runtime health, drift proxies, delayed labels, incident hooks, monitoring event contract | Fleet SLOs, causal attribution, alert quality, suppression audit, compliance export, platform drift-response policy |
 | Cost and capacity | Per-run note | Job owner, GPU queue, timeout, cost tag | FinOps allocation, reserved incident capacity, utilization SLO, chargeback |
@@ -71,7 +71,7 @@ These interfaces should exist before the platform becomes large. They can begin 
 | Training run manifest | run authority, reproducibility level, code commit, dependency lock, config, seed policy, hardware class, dataset snapshot, split/leakage report, augmentation policy, metric spec, output model hash, registry/release links | model registry, experiment tracking, reproducibility review, release packet, audit export |
 | Model package manifest | model version, ONNX/TensorRT/container hashes, class order, calibration dependencies, map/schema compatibility, hardware target | runtime deployment, OTA/SUMS, rollback |
 | Compatibility manifest | model, map, calibration, runtime, telemetry, semantic taxonomy, labeler/prompt/evaluator dependencies, MLOps scale, rollback set | OTA/SUMS, release review, safety case, incident response |
-| Evaluation report | metric version, aggregate and slice metrics, confidence intervals, replay package IDs, known failures, waiver state | release review, safety validation, monitoring thresholds |
+| Evaluation manifest/report | eval ID, authority state, evaluator version, artifact-set hash, metric version, aggregate and slice metrics, confidence intervals, replay package IDs, runtime smoke, known failures, waiver state | release review, safety validation, monitoring thresholds, platform audit |
 | Deployment manifest | model alias, runtime container, map bundle, calibration package, vehicle/site/ODD scope, rollout cohort, rollback artifact | fleet deployment, operations, incident response |
 | Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields, action state, owner, suppression expiry | fleet observability, active learning, incident triage, drift-response policy |
 | Incident evidence link | event ID, active artifacts, logs/clips, replay scenario, safety monitor state, containment action, corrective action | governance, safety case, post-release learning |
@@ -158,6 +158,7 @@ Avoid: platform mandates that ignore autonomy-specific metadata, centralized que
 | A result must be rerun by another engineer | Experiment tracker, dataset snapshot, container, validation script | Kubernetes or shared GPU platform |
 | A model reaches an operator, customer, vehicle, or map release | Registry aliases, release packet, runtime compatibility, rollback artifact | Automated continuous deployment |
 | Multiple sites show different failures | Site/ODD slices, local holdouts, canary channels, trigger budgets | One global model gate |
+| Multiple products duplicate evaluation logic | Evaluation manifest contract, shared metric specs, replay service, scenario catalog, platform eval SLOs | One-off dashboards without release authority |
 | Incidents need root-cause across model/map/runtime/calibration | Common artifact IDs in telemetry and incident evidence link | New dashboards without schema fixes |
 | Label volume exceeds reviewer capacity | Label workflow states, QA sampling, auto-label provenance, budget metrics | More auto-labeling without allowed-use controls |
 | Many teams contend for GPUs | Shared queue, image cache, quotas, owner tags, unit-cost metrics | Multi-cloud abstraction before capacity policy |
@@ -202,6 +203,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `mlops-scale-research-scope.md` - scale ladder and lifecycle controls.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, tracker options, and run manifest contract.
 - `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator selection, workflow state machines, and release/evidence gate placement.
+- `evaluation-platform-replay-gates-by-scale.md` - metric specs, evaluation manifests, replay/runtime gates, shadow/canary evidence, and evaluation-service SLOs.
 - `mlops-migration-checklist-by-scale.md` - transition gates, tooling triggers, and migration evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
 - `model-monitoring-drift-response-by-scale.md` - monitoring event contract, drift-response architecture, alert routing, and retraining trigger policy.
@@ -238,6 +240,10 @@ The minimum architecture should therefore include registry-backed release packet
 - Slurm, "Overview." https://slurm.schedmd.com/overview.html
 - TensorFlow, "ML Metadata." https://www.tensorflow.org/tfx/guide/mlmd
 - OpenLineage, "Object Model." https://openlineage.io/docs/spec/object-model/
+- MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
+- TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
+- Evidently AI, "Evaluations." https://docs.evidentlyai.com/metrics/introduction
+- Google Cloud, "Model evaluation in Vertex AI." https://cloud.google.com/vertex-ai/docs/evaluation/introduction
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - TensorFlow, "TFX: ML Production Pipelines." https://www.tensorflow.org/tfx

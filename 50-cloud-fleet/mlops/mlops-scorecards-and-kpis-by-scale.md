@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `experiment-tracking-reproducibility-by-scale.md` for run authority and reproducibility levels, `pipeline-orchestration-release-workflows-by-scale.md` for workflow gates and orchestrator health, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `model-monitoring-drift-response-by-scale.md` for drift-response evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `experiment-tracking-reproducibility-by-scale.md` for run authority and reproducibility levels, `pipeline-orchestration-release-workflows-by-scale.md` for workflow gates and orchestrator health, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifest coverage, replay/runtime gates, shadow/canary evidence, flake rate, and evaluation-service SLOs, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `model-monitoring-drift-response-by-scale.md` for drift-response evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -18,6 +18,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 | Feature and embedding store health | Whether feature materializations and vector indices are fresh, reproducible, governed, and traceable | Prevents point-in-time leakage, stale retrieval, and unsupported reuse of derived representations |
 | Label quality | Whether labels are correct, reviewed, and allowed for the intended use | Prevents auto-labels, map-derived labels, and prompt outputs from becoming false truth |
 | Model quality | Whether offline metrics, calibration, uncertainty, and slices support the claim | Prevents aggregate improvements from hiding class, site, or ODD regressions |
+| Evaluation platform health | Whether evaluator identity, metric specs, replay packages, runtime checks, shadow/canary evidence, and platform SLOs are complete | Prevents dashboards or green training jobs from becoming unsupported release approval |
 | Runtime quality | Whether the deployable artifact meets latency, memory, determinism, and compatibility needs | Prevents a model that passes offline tests from failing on vehicle hardware |
 | Artifact compatibility | Whether model, map, calibration, runtime, telemetry, semantic taxonomy, labeler, prompt, and replay artifacts are mutually valid | Prevents release from activating an artifact set that was never evaluated together |
 | Artifact trust and provenance | Whether release-affecting artifacts are digest-pinned, signed, attested, and policy-verified | Prevents unsigned models, stale engines, mutable datasets, and untrusted prompt/eval packs from reaching release |
@@ -60,7 +61,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Pipeline/workflow | Manifest coverage, artifact handoff completeness, retry/failure quality, and gate effectiveness | Script or CI job preserves inputs/outputs | Orchestrator writes workflow/run IDs to tracker, catalog, registry, and release packet | Workflow evidence, policy hooks, audit export, and incident/evidence lanes are tested |
 | Model quality | Primary metric and uncertainty | Basic metric with confidence interval | Aggregate plus class/site/weather/map-state slices | Hazard-slice thresholds and safety-case-linked claims |
 | Calibration | ECE / reliability / abstention | Diagnostic plot | Threshold selection and unknown routing | Conformal or calibrated coverage evidence where required |
-| Evaluation | Replay pass rate | Small smoke replay | Incident, rare-class, and map-change replay packages | Scenario catalog coverage, waiver expiry, and residual-risk record |
+| Evaluation | Manifest coverage, comparable baseline, slice coverage, replay pass/flake rate, and evaluation lead time | Small smoke replay and metric spec | Incident, rare-class, map-change replay packages, runtime smoke, shadow/canary denominator | Scenario catalog coverage, platform SLO, waiver expiry, and residual-risk record |
 | Runtime | Package load and latency | Smoke test | p50/p95/p99 latency, memory, queue time, TensorRT/ONNX compatibility | Hardware cohort SLO, deterministic replay, degradation policy |
 | Compatibility | Artifact-set compatibility | Manual note of model/map/calibration assumptions | Compatibility manifest with hash over model, map, calibration, runtime, telemetry, taxonomy, and rollback | Policy-enforced manifest with safety-case links, expiry, and incident retention |
 | Artifact trust | Signature/provenance coverage | Checksum manifest for preserved baselines | Signed containers/models/maps/prompts, SBOM, provenance, registry policy result | SLSA/in-toto provenance, trusted builder evidence, admission verification, immutable audit record |
@@ -87,6 +88,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 |---|---|---|
 | Missing immutable dataset or label snapshot | S1 for baselines, S2 for release | Candidate points to mutable bucket prefix or unlabeled local files |
 | Missing run authority or reproducibility manifest | S1-S5 | Baseline, candidate, release, evidence, or platform benchmark run lacks authority state, reproducibility level, code/data/config/environment/evaluator/output lineage, or dirty-state disposition |
+| Missing or incomparable evaluation manifest | S1-S5 | Candidate lacks eval authority, evaluator version, metric spec, slice set, artifact-set hash, runtime smoke, replay IDs, waiver state, or comparable-baseline proof |
 | Unsupported workflow transition | S2-S5 | Training completion moves a registry alias, release scope, semantic-map publication, label state, or evidence state without required workflow manifest, gate result, approval, or rollback proof |
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
 | Suspect feature or embedding snapshot | S2-S5 | Training, eval, replay, or safety evidence consumes a feature materialization or vector index whose source map, calibration, corpus, embedding model, deletion state, or backfill has been invalidated |
@@ -181,6 +183,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `mlops-migration-checklist-by-scale.md` - migration readiness gates, workstream matrix, and adoption evidence packets.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest contract, tracker options, and comparison rules.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow state machines, orchestrator choices, artifact handoffs, release/evidence gates, and platform workflow KPIs.
+- `evaluation-platform-replay-gates-by-scale.md` - evaluation manifest KPIs, replay pass/flake rates, runtime package gates, shadow/canary evidence, and platform evaluation SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split-firewall KPIs, leakage modes, holdout controls, and split architecture tradeoffs.
 - `model-monitoring-drift-response-by-scale.md` - drift-response KPIs, monitoring event contracts, alert-quality controls, and retraining trigger policy.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
@@ -214,6 +217,11 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
 - TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
+- MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
+- TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
+- Evidently AI, "Evaluations." https://docs.evidentlyai.com/metrics/introduction
+- Evidently AI, "Tests." https://docs.evidentlyai.com/docs/library/tests
+- Google Cloud, "Model evaluation in Vertex AI." https://cloud.google.com/vertex-ai/docs/evaluation/introduction
 - AWS, "Data and model quality monitoring with Amazon SageMaker Model Monitor." https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html
 - Microsoft Learn, "Model monitoring in production - Azure Machine Learning." https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
 - Evidently AI, "Monitoring overview." https://docs.evidentlyai.com/docs/platform/monitoring_overview

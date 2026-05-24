@@ -6,7 +6,7 @@
 
 Autonomous fleet logs contain many routine miles and a small number of high-value moments. Scenario mining turns uncurated logs into replayable evidence: near conflicts, strange object interactions, failed localization, blocked routes, rare weather, confusing ground markings, and other long-tail cases that should become regression tests.
 
-This page covers the operational loop from mined fleet event to replayable scenario asset. It does not define simulator physics or the full safety validation strategy.
+This page covers the operational loop from mined fleet event to replayable scenario asset. It does not define simulator physics or the full safety validation strategy. Use `../mlops/evaluation-platform-replay-gates-by-scale.md` to turn replay packages into release-blocking evaluation manifests, runtime package checks, shadow/canary evidence, waiver records, and platform evaluation SLOs.
 
 ## Operating Model
 
@@ -79,6 +79,7 @@ The state machine should be stricter at higher scale. At S0-S1, `candidate` and 
 ## Related Repository Docs
 
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/mlops/evaluation-platform-replay-gates-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/data-platform/fleet-data-pipeline.md`
 - `30-autonomy-stack/simulation/simulators-for-airside.md`

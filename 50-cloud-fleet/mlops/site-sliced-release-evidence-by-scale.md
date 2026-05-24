@@ -6,6 +6,8 @@ Site-sliced release evidence prevents a common autonomy failure mode: a model im
 
 The rule for S3+ autonomy is direct: **promotion is by ODD cell, not by fleet percentage.** A 5% canary on easy daytime service roads does not validate night stand entry, terminal frontage, jetblast zones, public pedestrian plazas, warehouse aisles, port quays, mine haul roads, campus crossings, or utility corridors.
 
+Use `evaluation-platform-replay-gates-by-scale.md` for the underlying evaluation manifest, metric spec, replay package, runtime package smoke, shadow/canary denominator, and waiver fields that make an ODD-cell release decision comparable and auditable.
+
 ---
 
 ## Release Unit
@@ -72,7 +74,7 @@ The gates are cumulative. A canary does not replace replay; replay does not repl
 | `environment_scope` | Weather, lighting, surface state, de-icing, jetblast, dust, GNSS state, construction |
 | `vehicle_scope` | Vehicle type, sensor kit, compute hardware, firmware, maintenance/calibration status |
 | `data_evidence` | Training snapshot, split manifest, local holdout, leakage check, label QA, source-map acceptance if map-derived |
-| `evaluation_evidence` | Offline metrics, confidence intervals, replay suite, hazard-slice metrics, known failures |
+| `evaluation_evidence` | Evaluation manifest, evaluator version, offline metrics, confidence intervals, replay suite, runtime smoke, hazard-slice metrics, known failures |
 | `shadow_evidence` | Exposure hours, denominator, disagreement taxonomy, interventions, operator notes, trigger yield |
 | `canary_evidence` | Cohort, start/end time, exposure denominator, monitor thresholds, rollback triggers |
 | `delayed_label_evidence` | Reviewer samples, incident review, false positive/negative estimates, map-change review |
@@ -205,6 +207,7 @@ A segmentation model trained from Airport A map-derived labels may be a strong p
 - `model-governance-release-evidence.md` - registry aliases, release packets, approval, and rollback evidence.
 - `mlops-scorecards-and-kpis-by-scale.md` - release-blocking metrics and operating cadence.
 - `mlops-reference-architectures-by-scale.md` - S2-S5 release lanes and artifact interfaces.
+- `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay/runtime gates, shadow/canary evidence, and waiver controls.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests, local holdout leakage controls, and training/evaluation split architectures.
 - `data-flywheel-airside.md` - active learning, local holdouts, shadow/canary validation, and data mining.
 - `../data-platform/replay-scenario-mining-ops.md` - scenario mining and replay package promotion.

@@ -137,7 +137,7 @@ These are raw recording volumes. With selective recording (section 3.2), actual 
 
 ### 2.7 Data Platform Scale Ladder
 
-The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone, use `../mlops/pipeline-orchestration-release-workflows-by-scale.md` before moving bag decode, QA, label export, replay, training export, or evidence-freeze steps into a shared orchestrator, and use `../mlops/dataset-split-leakage-controls-by-scale.md` before promoting any split that can affect release, replay, or safety evidence. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, split-firewall evidence, and site-sliced training exports.
+The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone, use `../mlops/pipeline-orchestration-release-workflows-by-scale.md` before moving bag decode, QA, label export, replay, training export, or evidence-freeze steps into a shared orchestrator, use `../mlops/evaluation-platform-replay-gates-by-scale.md` before promoting replay/eval packages into release-blocking evidence, and use `../mlops/dataset-split-leakage-controls-by-scale.md` before promoting any split that can affect release, replay, or safety evidence. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, split-firewall evidence, and site-sliced training exports.
 
 | MLOps scale | Data platform posture | Required upgrade trigger | Avoid this mistake |
 |---|---|---|---|
@@ -175,7 +175,7 @@ The fleet pipeline should expose promotion states to MLOps, not just files in bu
 | Decoded clip | Scenario mining, labeling | Decode version, schema version, frame counts, timestamp quality, calibration package |
 | Labeling package | Annotation and auto-labeling | Taxonomy version, source-map/semantic-layer IDs if map-derived, reviewer queue |
 | Curated training table | Training pipeline | Split ID, grouping keys, leakage report, label QA score, redaction state, data-use approval |
-| Replay/eval package | Validation and release gate | Scenario ID, map/runtime compatibility hash, expected metrics, waiver state |
+| Replay/eval package | Validation and release gate | Scenario ID, evaluation manifest ID, evaluator version, map/runtime compatibility hash, expected metrics, waiver state |
 | Evidence bundle | Safety case and audit | Immutable snapshot, source lineage, quality report, approval, retention hold |
 
 Feature caches and embedding indexes should be registered as derived data products, not invisible acceleration artifacts. They need source snapshot IDs, build code, embedding/feature model version, dimensionality/schema, access class, expiry, and invalidation rule. Otherwise a retrieval or active-learning result cannot be traced back to the fleet logs that generated it.
@@ -2345,3 +2345,4 @@ model-registry/
 40. `20-av-platform/networking-connectivity/airport-5g-cbrs.md` — Airport 5G/CBRS network deployment and costs.
 41. `30-autonomy-stack/perception/datasets-benchmarks/nuscenes-waymo-practical-guide.md` — Working with standard AV datasets.
 42. `50-cloud-fleet/mlops/transfer-learning.md` — Domain adaptation for airside from road datasets.
+43. `50-cloud-fleet/mlops/evaluation-platform-replay-gates-by-scale.md` — Evaluation manifests, replay/runtime gates, shadow/canary evidence, and S0-S5 evaluation-service controls.
