@@ -63,6 +63,19 @@ This page is the V&V and benchmark-exchange companion to the canonical [Airside 
 | confidence | label confidence and reason for unknown/review |
 | disposition | retain, remove, overlay, hazard alert, quarantine, or ignore |
 
+### Removal-Handoff Evidence Fields
+
+Benchmark exchange should preserve the same handoff fields required by the canonical map protocol so validation can score not only whether a point was removed, but why it was removed and which downstream consumers may use it.
+
+| Field | Validation use |
+|---|---|
+| `release_state_alias` | Scores `permanent_static`, `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review` confusion separately from semantic mIoU |
+| `reason_code` | Separates moving ghosts, stationary people, movable assets, FOD candidates, artifacts, and static-wrong demotions in failure analysis |
+| `source_evidence_ref` | Lets auditors replay raw frames, pose quality, calibration, and reviewer evidence for safety-critical removals |
+| `temporal_evidence` | Supports K-of-N, first/last-seen, absence-vote, and TTL acceptance tests |
+| `policy_evidence` | Preserves zone, work-order, asset-registry, inspection-ticket, and waiver context |
+| `downstream_permission` | Verifies that review-only, soft-context, training-positive, training-negative, and ignore-mask states are not mixed |
+
 ASAM OpenLABEL is a good exchange format because it supports multi-sensor labels, coordinate systems, object annotations, scenario tags, and extensible taxonomies. Use an airport-specific ontology for classes that public road datasets do not cover.
 
 ## QA And Split Rules

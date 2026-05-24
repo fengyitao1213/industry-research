@@ -113,6 +113,23 @@ This matrix is deliberately conservative about promotion. Dynamic residual remov
 
 For release packaging, route the matrix through the reason-coded decision table in [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md): every non-permanent point should land in `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, or `unknown_review` with a reason code. A binary cleaned cloud is insufficient for semantic-map publication because it cannot explain whether a removed point was a moving ghost, a stationary person, a parked aircraft, a FOD candidate, or an artifact.
 
+### Minimum Removal Sidecar for Semantic Maps
+
+Every cleaner that contributes to a releaseable aggregated map should emit a sidecar table or parquet/JSONL record keyed by point digest, voxel digest, or cluster ID. The sidecar is the bridge between algorithm output and map publication: it lets downstream segmentation, localization, FOD detection, and training-export tools know whether a point was deleted, quarantined, retained, or sent to review.
+
+| Field | Meaning | Why it is required |
+|---|---|---|
+| `source_point_or_cluster_id` | Stable point, voxel, component, or cluster key | Lets QA trace a release decision back to the raw cloud |
+| `proposed_release_state` | One of `permanent_static`, `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, `unknown_review` | Prevents binary keep/remove outputs from hiding the map-hygiene state |
+| `reason_code` | `free_space_contradiction`, `mos_scene_flow`, `human_exclusion`, `movable_asset_quarantine`, `small_ground_unknown`, `sensor_or_registration_artifact`, etc. | Makes the decision explainable without replaying the full pipeline |
+| `semantic_evidence` | Class logits, detector box ID, open-vocabulary candidate, or reviewer class | Separates semantic class from permanence decision |
+| `geometric_evidence` | Ray/free-space votes, view count, timestamp distribution, pose residual, MapEval region ID | Shows whether the point is unsupported, stale, or geometrically risky |
+| `policy_evidence` | Zone polygon, TTL policy, asset registry match, work-order or inspection ticket | Captures non-ML reasons why stationary objects are not permanent |
+| `downstream_permissions` | Allowed uses: localization reference, soft context, training positive, training negative, review only, publish blocked | Stops a point that is useful for one consumer from contaminating another |
+| `review_state` | Auto accepted, reviewer accepted, reviewer rejected, waiver, pending | Supports audit and safety-case traceability |
+
+The sidecar does not need to be point-level when clusters are the decision unit, but it must be reproducible: same source map, cleaner config, policy file, and reviewer state should regenerate the same release-state layers and reason-code counts.
+
 ---
 
 ## Method Families — Detailed

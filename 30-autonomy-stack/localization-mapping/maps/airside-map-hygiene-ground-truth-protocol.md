@@ -74,6 +74,22 @@ Do not infer the release-state alias from semantic class alone. A cone can be a 
 | Tile | map version, capture set, QA status, localization regression result |
 | Hazard ticket | object class, location, image/point evidence, response status, clearance time |
 
+## Removal-Handoff Fields
+
+The annotation package should include the fields needed to regenerate the cleaner's map-hygiene sidecar, not just the final label. This keeps dynamic residual removal, static-transient quarantine, FOD handling, and artifact rejection compatible with semantic-map training exports.
+
+| Field | Applies to | Required content |
+|---|---|---|
+| `source_evidence_ref` | every point/voxel/object decision | raw capture IDs, source-frame timestamps, pose-quality flag, calibration package |
+| `release_state_alias` | every publication/training-export decision | one of `permanent_static`, `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, `unknown_review` |
+| `reason_code` | every non-permanent or changed decision | e.g. `human_exclusion`, `movable_asset_quarantine`, `small_ground_unknown`, `free_space_contradiction`, `sensor_or_registration_artifact`, `static_wrong_demotion` |
+| `semantic_evidence` | class-driven decisions | semantic class, detector/VFM candidate, confidence, reviewer override |
+| `temporal_evidence` | dynamic, movable, and stale-map decisions | pass count, K-of-N window, absence votes, first_seen, last_seen, TTL |
+| `policy_evidence` | zone and asset decisions | zone polygon, work order, asset registry ID, inspection ticket, waiver ID |
+| `downstream_permission` | map publication and training export | permanent reference, soft localization context, review only, training positive, training negative, ignore mask, publish blocked |
+
+Reviewer tools should show these fields together. If a reviewer can see only the final keep/remove result, the dataset cannot support a professional safety case or a reproducible map-derived training corpus.
+
 ## Labeling Workflow
 
 1. Register all captures into the airport ENU map frame and record pose-quality flags.

@@ -888,6 +888,8 @@ Moving objects captured during the survey leave ghost trails that no static clas
 
 Treat point-cloud removal as three problems, not one filter: **dynamic residual removal** (ghost trails and moving-object smears), **static-but-transient quarantine** (stationary people, parked aircraft, staged GSE, temporary barriers), and **static-but-wrong map exclusion** (FOD, snow piles, construction material, wet-reflection artifacts, or stale moved objects). Only the first is a classical dynamic-removal problem. The second and third require semantic class policy, operational zones, TTL, K-of-N multi-pass persistence, or future absence evidence. The research-scope routing for this split is `../../localization-mapping/overview/ml-related-slam-research-scope.md` plus `static-but-transient-point-removal.md`.
 
+The handoff from removal to segmentation should be a reason-coded sidecar, not only a cleaned point cloud. At minimum, each removed or quarantined cluster needs a release-state alias, reason code, semantic evidence, geometric/temporal evidence, policy evidence, review state, and downstream permissions. This lets the segmenter ignore an artifact, learn a dynamic-removal negative, preserve a FOD candidate for review, or consume a permanent-static point as a supervised positive without guessing why the cleaner touched it.
+
 ### 9.2 Deskew, Outlier Removal, Normal Estimation
 
 - **Statistical outlier removal** — drop isolated noise (k≈30 neighbors, std-ratio ≈2.0).

@@ -388,6 +388,22 @@ The release decision should be deterministic and auditable. Treat semantic class
 
 The matrix output should be materialized as layer digests in the semantic-map manifest: permanent-static, movable-static, static-transient, dynamic-residual, FOD-candidate, artifact, and unknown-review. The same point can carry a semantic class and a hygiene decision, but publication consumes the hygiene layer. This is what prevents a semantically correct `person`, `parked aircraft`, `pallet`, or `cone` from becoming wrong permanent geometry.
 
+### Decision Precedence for Wrong-Map Points
+
+When multiple signals fire on the same cluster, use a fixed precedence order so reviewers and automated jobs reach the same release-state decision:
+
+1. **Invalid sensor/reconstruction evidence first:** if the cluster is a registration duplicate, multipath ghost, weather speckle, impossible height/intensity return, or low-pose-quality artifact, emit `artifact` with source-quality reason code.
+2. **Human hard exclusion:** any person/crew/passenger cue, including stationary people, thermal human evidence, or reviewer human label, emits `static_transient` with `human_exclusion`; no persistence or K-of-N rule can promote it.
+3. **Hazard/FOD guard:** small unknown ground objects on operational surfaces emit `fod_candidate` until inspected or expired; do not erase them as noise and do not promote them into permanent pavement.
+4. **Dynamic residual evidence:** free-space contradiction, MOS, scene flow, timestamp-distribution motion, or Doppler support emits `dynamic_residual` unless a higher-precedence artifact or human/FOD rule already matched.
+5. **Movable asset quarantine:** aircraft, GSE, vehicles, carts, pallets, containers, bikes, trailers, temporary barriers, and similar movable assets emit `movable_static` unless an authoritative fixed-asset registry and reviewer evidence promote them.
+6. **Zone policy override:** gate stands, loading bays, event areas, construction zones, storage lanes, and temporary-work polygons raise promotion thresholds or emit `static_transient` / `movable_static` until operations evidence resolves ownership.
+7. **Permanent promotion:** only fixed infrastructure with source-map QA, semantic confidence, and K-of-N or asset-registry support emits `permanent_static`.
+8. **Stale permanent demotion:** existing permanent points contradicted by repeated future free-space evidence emit `unknown_review` or `static_transient` through change control, not immediate deletion.
+9. **No decisive evidence:** emit `unknown_review` with candidate label, confidence, and reviewer task ID.
+
+This precedence order intentionally favors review/quarantine over permanent promotion. It protects rare thin infrastructure by requiring source-quality checks before artifact deletion, and it protects safety workflows by keeping stationary people, FOD candidates, and parked movable assets out of the permanent layer even when they are geometrically stable during one survey.
+
 ### Multi-Pass Survey Protocol
 
 Practical parameters derived from LT-Mapper, ELite, and HD-map update literature:
