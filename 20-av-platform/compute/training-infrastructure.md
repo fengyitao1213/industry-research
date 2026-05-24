@@ -81,6 +81,21 @@ Minimum per-run metadata at S2+:
 
 This metadata turns training infrastructure from a GPU rental habit into an auditable ML production system.
 
+### 1.6 Training Pipeline Orchestration by Scale
+
+Training orchestration should start as a reproducibility tool and mature into a release-evidence system. The practical split is between experiment runs that create knowledge, candidate runs that create artifacts, and release runs that create deployable evidence.
+
+| MLOps scale | Orchestration pattern | Required pipeline contract | Queueing and failure policy |
+|---|---|---|---|
+| S0 notebook research | Manual command, notebook, or one script | Config, data pointer, seed, and output metric are saved | Failure is a research note, not an incident |
+| S1 repeatable prototype | Makefile/GitHub Actions/DVC stage | Same command recreates preprocessing, training, and evaluation | Failed baseline blocks comparison until rerun |
+| S2 production product | Scheduled training job with export and evaluation stages | Dataset snapshot, label schema, code commit, container digest, checkpoint, ONNX/TensorRT export, and evaluation report are linked | Failed export/eval prevents candidate registration |
+| S3 fleet and multi-site | Airflow/Argo/Kubeflow/Ray/Slurm queue with site and ODD tags | Active-learning batch, local holdouts, replay suite, cost center, and rollback target are captured | Failed site slice blocks only the affected ODD cell |
+| S4 regulated safety-critical | Controlled release-training lane with evidence retention | Trusted worker, immutable logs, dependency lock, safety-case claim IDs, approver handoff, and incident replay are retained | Any missing evidence fails closed until risk authority signs a waiver |
+| S5 platform scale | Multi-tenant training and evaluation platform | Standard artifact schema, provenance, quotas, policy checks, cost attribution, and audit API | Policy blocks alias movement across teams when required evidence is absent |
+
+Do not let orchestration hide weak contracts. A DAG is useful only if every edge has an input artifact, output artifact, owner, retry rule, and downstream consumer. Otherwise the team has automated an undocumented process.
+
 ---
 
 ## 2. Training Pipeline Architecture

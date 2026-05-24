@@ -150,7 +150,22 @@ The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes th
 
 The key scaling variable is not only terabytes per day. It is the number of independent consumers that need trustworthy answers from the same data: perception training, SLAM/map construction, semantic-map label export, simulation replay, safety validation, operations analytics, and incident investigation. Once those consumers exist, the data pipeline must preserve provenance even for data that is never used for training.
 
-### 2.8 Data Product Promotion Interface
+### 2.8 Pipeline Orchestration by MLOps Scale
+
+Fleet data pipelines should expose durable states to MLOps. A bag moving through upload, decode, QA, labeling, training export, replay, and retention should have state transitions that are machine-readable and auditable.
+
+| MLOps scale | Data pipeline orchestration | Required state boundary | Failure mode to avoid |
+|---|---|---|---|
+| S0 notebook research | Manual copy plus manifest file | Raw data pointer and processing script are recorded | Local folders become undocumented datasets |
+| S1 repeatable prototype | DVC/object-store snapshot with fixed split job | Snapshot ID and split manifest exist before training | Validation leakage from reused clips |
+| S2 production product | Scheduled decode/QA/label/export jobs | Curated dataset release note and label QA pass before candidate training | Mutable bucket prefix feeds a release model |
+| S3 fleet and multi-site | Airflow/Argo DAGs with site, route, weather, vehicle, and map-state tags | Site holdouts, active-learning queues, and replay candidates are separated from training exports | One high-volume site dominates the training distribution |
+| S4 regulated safety-critical | Evidence-preserving pipeline with legal hold, incident joins, and safety-case references | Incident/release evidence snapshots cannot be garbage-collected without approval | Raw evidence is deleted before audit or rollback review |
+| S5 platform scale | Shared data platform with lineage graph, retention policy, privacy tiers, quotas, and audit APIs | Every promoted dataset has owner, consumer, retention, access class, and downstream artifact links | Teams fork schemas and cannot join data across products |
+
+The data pipeline should fail closed when quality state is unknown. Timing, calibration, schema, source-map acceptance, privacy class, or label promotion gaps should block training export even when raw data was uploaded successfully.
+
+### 2.9 Data Product Promotion Interface
 
 The fleet pipeline should expose promotion states to MLOps, not just files in buckets. Each state changes what downstream systems may do:
 

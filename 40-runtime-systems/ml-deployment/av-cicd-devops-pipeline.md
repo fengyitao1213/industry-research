@@ -105,6 +105,21 @@ Unlike web CI where tests run on commodity x86 servers, AV CI requires:
 
 This creates a tension: fast CI (cloud x86) vs accurate CI (on-target Orin). The solution is a tiered pipeline.
 
+### 1.5 MLOps Pipeline Architecture by Scale
+
+The MLOps scale ladder defines how much pipeline machinery is justified. The right architecture is not "one giant pipeline"; it is a set of lanes with clear promotion contracts: code CI, data processing, training, evaluation, packaging, deployment, and post-release evidence.
+
+| MLOps scale | Pipeline shape | Required promotion gate | Do not overbuild |
+|---|---|---|---|
+| S0 notebook research | Local script or notebook with saved config and output artifact | Peer can rerun the core result from a data pointer | Kubernetes, feature store, or automated deployment |
+| S1 repeatable prototype | GitHub/GitLab CI plus Docker/DVC/MLflow-style tracking | Baseline job records code, data snapshot, metrics, and environment | Multi-tenant orchestration before reproducible runs exist |
+| S2 production product | CI builds model/container/engine and runs offline eval, replay smoke, export, and package checks | Candidate release packet links model, data, runtime, map/calibration, and rollback artifact | Continuous deployment to users from training completion |
+| S3 fleet and multi-site | Release train with Airflow/Argo/Kubeflow DAGs, site slices, shadow, canary, and fleet telemetry joins | ODD-cell promotion decision with canary evidence and blast-radius metadata | One global gate for every site and vehicle configuration |
+| S4 regulated safety-critical | Change-control pipeline with immutable evidence, safety-case links, waiver/expiry controls, and rollback drill | Safety owner accepts claim/evidence packet before behavior authority changes | Treating CI green as safety approval |
+| S5 platform scale | Shared pipeline platform with policy-as-code, reusable templates, quota/cost controls, and audit APIs | Platform policy enforces required artifacts before registry aliases or OTA channels move | Per-team bespoke release DAGs that cannot be audited together |
+
+Each lane should fail closed at its own boundary. A training DAG may produce a candidate checkpoint automatically, but it should not move the deployment alias. A packaging lane may build a TensorRT engine, but it should not prove ODD coverage. A fleet canary may collect evidence automatically, but the promotion decision must still know which model, map, calibration, runtime, data snapshot, and scenario suite were active.
+
 ---
 
 ## 2. Repository Architecture

@@ -59,6 +59,21 @@ The common mistake is jumping from S0 to S5 tools before S1-S2 discipline exists
 | Serving | Local script or batch job | Triton/TensorRT, KServe, BentoML, managed endpoints, OTA artifacts | Multi-region serving, edge/cloud routing, progressive rollout, automated rollback |
 | Monitoring | Logs and manual review | Latency, error rate, drift proxies, delayed-label metrics | Fleet-wide SLOs, incident response, root-cause attribution, compliance evidence |
 
+### Pipeline Promotion Gates by Scale
+
+The architecture should make promotion states explicit. A pipeline stage can automate artifact production, but promotion to the next authority level should require the evidence appropriate to that scale.
+
+| Scale | Pipeline stages that may be automated | Promotion gate that must remain explicit | Evidence output |
+|---|---|---|---|
+| S0 | Preprocessing, training, local evaluation | Reusing the result outside the experiment | Run note and data pointer |
+| S1 | Baseline rebuild, validation script, container build | Declaring a comparable baseline | Frozen split, metrics, environment |
+| S2 | Training DAG, export, offline eval, replay smoke, package build | Moving candidate/shadow/champion/rollback aliases | Release packet and deployable artifact hash |
+| S3 | Site-sliced training, replay, shadow, canary metrics, delayed-label joins | Expanding rollout to a new ODD cell | Canary report, local holdout metrics, blast-radius metadata |
+| S4 | Evidence capture, safety-case linking, waiver expiry checks, rollback drill | Behavior-changing safety release | Claim/evidence table, approver record, incident-ready audit trail |
+| S5 | Shared templates, policy-as-code, quotas, lineage capture, scorecard generation | Cross-product policy exception or platform change | Platform audit record, tenant impact, cost/SLO report |
+
+This is the key distinction from web CI/CD: the pipeline can generate evidence automatically, but it should not silently create safety approval. Approval is a controlled state transition over artifacts, not a side effect of a green job.
+
 Managed cloud platforms are useful at S2 when the team needs repeatability faster than it can build platform engineering. Open-source stacks become attractive when deployment targets, data gravity, cost, air-gapped sites, or custom vehicle constraints require more control.
 
 ---
