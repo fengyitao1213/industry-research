@@ -1,6 +1,6 @@
 # Map Publication Gates for Dynamic Object Removal
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 Dynamic-object removal changes a map package that vehicles may use for localization, route planning, geofencing, simulation, annotation, and incident review. Publication therefore needs explicit gates, not an informal "map looks cleaner" approval.
 
@@ -40,6 +40,21 @@ Dynamic-object removal changes a map package that vehicles may use for localizat
 | Quarantine | uncertainty affects route, stand, FOD, or localization feature | block tile and create review ticket |
 | Rerun | cleaner parameter or source-data issue is correctable | rerun with locked change note |
 | Reject | false deletion, coordinate error, semantic break, or unsafe FOD handling | keep prior map active and open corrective action |
+
+## Evidence Conflict Checks
+
+The gate must check conflicts between motion, semantics, persistence, operations, and reviewer policy. A cleaner can pass "dynamic removal" while still publishing a bad map if a stationary movable object is promoted, a fixed object is deleted, or a hazard is converted into free space.
+
+| Conflict | Example | Required gate behavior |
+|---|---|---|
+| Motion says dynamic; semantics says fixed infrastructure | High flow on pole, curb, marking, wall, gate edge, or fixed sign | Block deletion until pose, de-skew, timestamp, correspondence, and occlusion evidence are reviewed |
+| Motion says static; semantics says movable | Parked aircraft, GSE, bus, pallet, cone, barrier, or worker standing still | Quarantine as movable-static/static-transient; do not export as permanent map label |
+| Persistent across sessions; operations says temporary | Long-running construction barrier, work-zone equipment, staged storage line | Publish as temporary overlay with owner, expiry, and rollback rule; do not merge into base map |
+| Cleaner says noise/artifact; safety zone says hazard-sensitive | Small unknown cluster on stand, route, pedestrian path, or FOD-prone area | Route to FOD/hazard or unknown-review layer; reviewer must approve removal |
+| Semantic class changed; localization improves | Removed clutter made NDT residual better but erased a fixed feature class | Require class-preservation evidence before accepting localization-only improvement |
+| Reviewer approves; manifest lacks layer digest | Decision exists in ticket but not in release artifact | Fail manifest contract; release cannot be reproduced or audited |
+
+Accepted map tiles should carry a per-cluster or per-region decision chain: `motion_state`, `semantic_mobility`, `persistence_state`, `ops_state`, `map_eligibility`, reviewer decision, and release state. This is the publication-side counterpart to the segmentation pipeline's permanence decision layer.
 
 ## Release Checklist
 

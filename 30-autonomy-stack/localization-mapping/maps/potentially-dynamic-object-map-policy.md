@@ -1,6 +1,6 @@
 # Potentially Dynamic Object Map Policy
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -42,6 +42,22 @@ The policy goal is not simply "remove dynamic objects." It is to prevent movable
 | Persistence tracking | Count sightings by tile, object class, and pose quality | Promoting one-pass observations |
 | QA gate | Review candidate static changes before publication | Automatic deletion under occlusion |
 | Regression | Run localization and route tests on updated tile | Cleaner improves appearance but harms localization |
+
+## Permanence Evidence Ladder
+
+Potentially dynamic classes need an evidence ladder because "stationary in the survey" is weaker than "belongs in the permanent map." The same object cluster can move through different release states as evidence accumulates:
+
+| Evidence stage | Typical evidence | Allowed layer | Promotion rule |
+|---|---|---|---|
+| Observed once | One pass, one source session, no operational record | Candidate or unknown-review | Never promote to permanent static |
+| Stationary in capture window | Low scene flow/MOS, no free-space contradiction | Movable-static or static-transient | Use for current occupancy only; block training export as permanent truth |
+| Recurrent but movable class | K-of-N sightings of aircraft, GSE, pallet, barrier, cone line, or parked vehicle | Movable-static, temporary overlay, or ops-review | Requires operations approval and expiry if it affects routing; default remains non-permanent |
+| Recurrent fixed class | Multi-session fixed class with pose stability and localization utility | Permanent-static candidate | Promote only after class-preservation and localization replay pass |
+| Operations-confirmed temporary | Work order, closure, construction plan, stand state, or maintenance schedule | Temporary overlay | Must include owner, start/end time, affected routes, and rollback rule |
+| Safety/hazard candidate | Small object or debris in FOD-sensitive, stand, route, or pedestrian area | FOD/hazard or unknown-review | Never delete silently; reviewer or inspection workflow resolves |
+| Artifact confirmed | Reflection, snow/rain spray, sensor bloom, stale duplicate, or map-registration error | Artifact/rejected evidence | Delete from base map but retain reason-coded evidence for audit |
+
+This ladder is also a training-data rule. Only permanent-static and reviewer-approved fixed-class points should become positive labels for base-map segmentation. Movable-static, temporary, FOD, artifact, and unknown-review points are valid supervision for quarantine and rejection heads, but they should not teach the model that a transient object is infrastructure.
 
 ## Airside Class Policy
 

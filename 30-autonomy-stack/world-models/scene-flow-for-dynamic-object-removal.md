@@ -37,6 +37,21 @@
 - Route high-motion points to trackers, occupancy-flow prediction, or dynamic obstacle layers.
 - Keep confidence and audit logs so removed points can be reviewed when map quality or safety behavior changes.
 
+## Flow-to-Map Hygiene Decision Layer
+
+Scene flow is a motion estimator, not a permanence oracle. A point with near-zero residual flow may still be a stationary person, parked GSE, aircraft, pallet, cone line, or temporary construction barrier. A point with high residual flow may be a true actor, a timestamp/de-skew error, a newly revealed static surface, or a reflective artifact. Production map hygiene should therefore convert flow into an evidence layer that a semantic and policy gate can interpret.
+
+| Flow evidence | Semantic or policy cross-check | Map-hygiene decision |
+|---|---|---|
+| High coherent residual flow on movable class | Person, vehicle, aircraft, cart, or mobile equipment class agrees | Remove from permanent map; retain dynamic evidence for replay and training |
+| High residual flow on fixed infrastructure class | Pole, wall, marking, curb, gate, or facade class disagrees | Review pose, timestamp, de-skew, correspondence, and occlusion before deleting |
+| Zero or low residual flow on movable class | Class can move even if it did not move in this window | Quarantine as `movable_static` or `static_transient`; block permanent auto-label export |
+| Recurrent zero-flow fixed-class surface | K-of-N persistence and localization replay agree | Promote to permanent static candidate |
+| Small unknown cluster in FOD-sensitive zone | Safety zone, route, stand, or inspection rule applies | Route to `fod_candidate` or `unknown_review`, not silent denoising |
+| Flow disagreement across sensors or passes | LiDAR rig calibration, weather, reflection, or sparse range may be unstable | Keep uncertainty and schedule review or re-capture |
+
+The practical output is a sidecar with per-cluster flow statistics, dynamic probability, semantic class, persistence count, reason code, and allowed downstream uses. The static map consumes only decisions that pass this sidecar and the publication gate; trackers and occupancy models can still consume high-motion evidence even when the base map rejects it.
+
 ## Evaluation
 
 - Argoverse 2 scene flow uses 0.1 s LiDAR sweeps and object tracks to derive piecewise-rigid flow labels.

@@ -173,6 +173,20 @@ The open research problem is not just removal accuracy. It is **map-layer govern
 
 For semantic-map production, the removal output should be evaluated as a layered decision: `permanent_static`, `dynamic_residual`, `static_transient`, `movable_static_allowed`, `fod_candidate`, `artifact`, and `unknown_review`. This keeps ML-related SLAM tied to the downstream release contract: learned dynamic masks, scene-flow cues, semantic exclusions, and multi-session persistence scores are only useful if their decisions survive audit and can be traced into the published map artifact.
 
+### Motion, Permanence, and Map Eligibility Are Separate Decisions
+
+ML-related SLAM systems often expose a binary "dynamic" mask, but aggregated semantic maps need a richer decision graph. Motion evidence answers "did this point move relative to ego motion?" Permanence evidence answers "should this object become base-map truth?" Release evidence answers "is this decision allowed to ship to vehicles, labeling pipelines, and downstream simulation?"
+
+| Decision axis | Main cues | Output field | Failure if collapsed |
+|---|---|---|---|
+| Motion state | scene flow, MOS, Doppler, free-space contradiction, timestamp spread | `motion_state = moving/static/unknown` | Slow movers and de-skew errors become false map edits |
+| Semantic mobility | class taxonomy, open-vocabulary proposal, object detector, panoptic instance | `semantic_mobility = fixed/movable/hazard/artifact/unknown` | Parked aircraft, people, GSE, and pallets become walls or localization anchors |
+| Persistence | K-of-N sessions, day/shift diversity, pose stability, future absence | `persistence_state = one_pass/recurrent/absent_changed` | One survey pass promotes temporary clutter; long-staged clutter becomes permanent by accident |
+| Operational authority | stand state, work order, construction schedule, asset registry, closure notice | `ops_state = approved/temporary/expired/unrecorded` | Temporary barriers and work zones leak into the base layer with no owner or expiry |
+| Map eligibility | policy matrix, reviewer decision, safety gate, regression result | `map_eligibility = permanent_static/temporary_overlay/movable_static/dynamic_residual/fod_candidate/artifact/unknown_review` | Training export, localization, planning, and release manifests disagree about the same points |
+
+This split matters most in non-road managed districts: airport aprons, ports, campuses, pedestrian plazas, warehouses, rail yards, and construction corridors. These environments have many objects that are static during a capture window but operationally transient. A learned SLAM module should therefore publish evidence and uncertainty, not just a cleaned cloud, so semantic segmentation, map QA, and release tooling can make the final permanence decision.
+
 ---
 
 ## Validation and Safety Evidence

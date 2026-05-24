@@ -904,6 +904,21 @@ Treat point-cloud removal as three problems, not one filter: **dynamic residual 
 
 The handoff from removal to segmentation should be a reason-coded sidecar, not only a cleaned point cloud. At minimum, each removed or quarantined cluster needs a release-state alias, reason code, semantic evidence, geometric/temporal evidence, policy evidence, review state, and downstream permissions. This lets the segmenter ignore an artifact, learn a dynamic-removal negative, preserve a FOD candidate for review, or consume a permanent-static point as a supervised positive without guessing why the cleaner touched it.
 
+#### Permanence Decision Layer
+
+Do not collapse motion estimation into map publication. Scene flow, MOS, free-space contradiction, and temporal occupancy say whether points moved or contradicted the map; they do not prove that a zero-motion cluster belongs in the permanent aggregated map. The segmentation pipeline therefore needs a dedicated permanence layer between cleaning and label export:
+
+| Evidence signal | What it proves | What it cannot prove | Map action |
+|---|---|---|---|
+| Residual flow / MOS / Doppler motion | Object or surface moved during the observation window | Whether the class is safety-critical, temporary, or useful as a current obstacle | Route to `dynamic_residual` or current dynamic layer; preserve evidence |
+| Zero residual motion in one pass | Object was stationary for that pass | Permanent membership; parked aircraft, people, pallets, GSE, and barriers can all be stationary | Keep as candidate only; block auto-label export as permanent static |
+| K-of-N persistence across days, shifts, or source sessions | Object or surface repeatedly reappears with pose consistency | Operational authority; persistent staging can still be movable or temporary | Promote only fixed-class candidates; keep movable classes quarantined |
+| Semantic class policy | Whether the object family can ever be permanent | Whether this instance is approved, installed, temporary, or hazardous | Apply class route: permanent, movable-static, FOD/hazard, artifact, or review |
+| Operational record / work order / stand state | Whether an object or restriction is authorized for a time window | Geometric correctness or localization value | Publish as temporary overlay with owner and expiry, not as base-map truth |
+| Reviewer and release-state evidence | Whether the decision is audited and compatible with the safety case | Future validity after site change | Freeze into release manifest, canary, rollback, or quarantine |
+
+The production label assignment should therefore emit **map eligibility** alongside semantic class: `permanent_static`, `temporary_overlay`, `movable_static`, `dynamic_residual`, `fod_candidate`, `artifact`, and `unknown_review`. This prevents stationary people, parked aircraft, staged GSE, temporary barriers, snow piles, construction material, and wet-reflection artifacts from becoming permanent training truth just because they survived a dynamic-removal filter.
+
 ### 9.2 Deskew, Outlier Removal, Normal Estimation
 
 - **Statistical outlier removal** — drop isolated noise (k≈30 neighbors, std-ratio ≈2.0).
