@@ -16,6 +16,7 @@ For road vehicles subject to type approval, UNECE Regulation No. 156 requires a 
 | Classification record | Safety-related, cybersecurity-related, compliance/type-approval-related, ODD-changing, data-only, emergency | Approval path selection |
 | Change impact analysis | Safety case claims, HARA/STPA/SOTIF items, cybersecurity TARA, privacy, operations, training/procedures | Release approval |
 | Validation bundle | CI results, SIL/HIL, vehicle tests, simulation, replay, shadow/canary metrics, cybersecurity checks | Release gate |
+| Artifact attestation bundle | Digest-bound signatures, SBOM/provenance, vulnerability disposition, trusted-builder record, model/map/labeler/eval attestations | Security gate and audit |
 | Release approval | Safety, security, operations, product/site owner, regulatory if needed | Promotion to production |
 | Deployment manifest | Cohorts, windows, prerequisites, package signatures, vehicle eligibility, abort criteria | OTA/fleet ops |
 | Rollback plan | Known-good version set, rollback tests, data migration reversibility, cache state | Every non-trivial update |
@@ -69,6 +70,7 @@ Every update starts with an update request. The first decision is not "can OTA d
 - Use release channels: lab, simulation, shadow, internal vehicle, site canary, production.
 - Freeze the dependency set for the release candidate.
 - Generate SBOM and vulnerability disposition for code and containers.
+- Attach digest-bound provenance and policy results for models, maps, prompts, labelers, replay packs, and release packets using `../mlops/secure-artifact-attestation-profile.md`.
 - Attach model cards or map validation reports for ML/map artifacts.
 - Define activation conditions: vehicle parked, brake set, battery threshold, network quality, mission complete, operator acknowledgement if needed.
 
@@ -135,6 +137,7 @@ The release is not closed at activation. It closes after:
 - `50-cloud-fleet/ota/ota-fleet-management.md`
 - `40-runtime-systems/software-operations/on-vehicle-supply-chain-runtime-security.md`
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
+- `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/map-operations/hd-map-lifecycle-operations.md`
 - `50-cloud-fleet/observability/fleet-anomaly-root-cause-attribution.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`

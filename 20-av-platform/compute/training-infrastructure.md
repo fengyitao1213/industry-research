@@ -58,13 +58,13 @@ For autonomy, the expensive mistake is under-instrumented training, not merely u
 
 ### 1.5 GPU FinOps and Secure Training Controls
 
-Training infrastructure becomes a shared platform before it becomes technically elegant. The practical controls are queueing, quotas, cost attribution, signed artifacts, and data access boundaries. These controls should be lightweight at S0-S1 and enforced by policy at S3-S5. The companion MLOps control page is `../../50-cloud-fleet/mlops/gpu-queueing-finops-by-scale.md`.
+Training infrastructure becomes a shared platform before it becomes technically elegant. The practical controls are queueing, quotas, cost attribution, signed artifacts, and data access boundaries. These controls should be lightweight at S0-S1 and enforced by policy at S3-S5. The companion MLOps control pages are `../../50-cloud-fleet/mlops/gpu-queueing-finops-by-scale.md` for compute economics and `../../50-cloud-fleet/mlops/secure-artifact-attestation-profile.md` for artifact signing, SBOM, provenance, and trusted-builder evidence.
 
 | Scale | Capacity model | Cost control | Security control |
 |---|---|---|---|
 | S0 notebook research | Local or rented single GPU | Manual run-cost note | No secrets in notebooks; no production data on personal storage |
 | S1 repeatable prototype | Shared workstation or short cloud jobs | Project budget and owner tag | Locked dependencies, container image digest, private credentials |
-| S2 production product | Scheduled runners for training and export | Max runtime, idle cleanup, cost per training run | Signed container/model artifact, SBOM, registry ACL |
+| S2 production product | Scheduled runners for training and export | Max runtime, idle cleanup, cost per training run | Signed container/model artifact, SBOM, provenance, registry ACL |
 | S3 fleet and multi-site | GPU pool with queues and cache | Chargeback/showback by site, replay, labeling, and training queue | Site-scoped data permissions, short-lived credentials, audit logs |
 | S4 regulated safety-critical | Reserved capacity for release replay and incident retraining | Budget exceptions tied to release or incident ID | Secure build worker, dual approval, immutable evidence retention |
 | S5 platform scale | Multi-tenant scheduler and eval service | Quotas, forecasting, utilization SLO, unit cost dashboard | Policy-as-code, required provenance attestation, centralized secrets |

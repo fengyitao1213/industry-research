@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention. Use `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests and `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
 
 ---
 
@@ -56,7 +56,7 @@ The common mistake is jumping from S0 to S5 tools before S1-S2 discipline exists
 | Orchestration | Makefile, scripts, GitHub Actions | Airflow, Argo, Kubeflow Pipelines, managed cloud pipelines | Multi-tenant orchestration with quotas, SLAs, lineage, audit logs |
 | Training compute | Workstation, rented GPU, small cloud batch | Kubernetes/Ray/Slurm GPU pool, reproducible containers | Dedicated GPU fleet, scheduler, cache, cost attribution, capacity planning |
 | Experiment tracking | MLflow/W&B run tracking | Run registry linked to dataset and code commits | Organization-wide experiment/eval warehouse |
-| Registry | File path and release note | MLflow or managed registry with aliases | Registry integrated with policy, approvals, software bill of materials, rollback |
+| Registry | File path and release note | MLflow or managed registry with aliases | Registry integrated with policy, approvals, software bill of materials, secure artifact attestations, rollback |
 | Evaluation | Single validation split and smoke tests | Slice metrics, replay, calibration, regression suite | Eval service with scenario mining, red-team cases, safety-case claims |
 | Serving | Local script or batch job | Triton/TensorRT, KServe, BentoML, managed endpoints, OTA artifacts | Multi-region serving, edge/cloud routing, progressive rollout, automated rollback |
 | Monitoring | Logs and manual review | Latency, error rate, drift proxies, delayed-label metrics | Fleet-wide SLOs, incident response, root-cause attribution, compliance evidence |
@@ -342,7 +342,7 @@ Every promoted artifact should answer four questions:
 | Was it tampered with? | Hash, signature, SBOM/provenance attestation, registry verification result |
 | Where may it run? | ODD/site scope, runtime image, hardware target, data tier, deployment alias |
 
-This applies to TensorRT engines, ONNX exports, map tiles, semantic-map manifests, prompt packs, evaluation packs, Docker images, and batch-labeling outputs. The rule for S2+ is that an artifact not signed, versioned, and tied to evidence cannot be promoted by alias.
+This applies to TensorRT engines, ONNX exports, map tiles, semantic-map manifests, prompt packs, evaluation packs, Docker images, and batch-labeling outputs. The rule for S2+ is that an artifact not signed, versioned, and tied to evidence cannot be promoted by alias. The detailed trust-chain pattern is `secure-artifact-attestation-profile.md`.
 
 ### GPU FinOps for ML Systems
 
@@ -443,7 +443,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | GPU cost and queueing model for training and replay (`gpu-queueing-finops-by-scale.md`) | Determines when to move from rented GPUs to owned, reserved, or queued capacity |
 | P1 | Offboard labeler registry (`offboard-labeler-registry-by-scale.md`) | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
-| P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
+| P1 | Secure artifact attestation profile (`secure-artifact-attestation-profile.md`) | Defines signing, SBOM, SLSA/provenance, registry-verification, alias-policy, and admission requirements for models, maps, prompts, labels, eval packs, and containers |
 | P1 | GPU FinOps unit-cost model (`gpu-queueing-finops-by-scale.md`) | Tracks cost per label, training run, replay hour, released model, released map, ODD-cell approval, and safety evidence pack so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
 | P1 | Reference architecture migration checklist | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
@@ -462,6 +462,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
 - `offboard-labeler-registry-by-scale.md` - prompt packs, foundation-model labelers, evaluator models, thresholds, and reviewer workflows as governed artifacts.
 - `gpu-queueing-finops-by-scale.md` - GPU queueing, quotas, priority lanes, unit economics, and assurance capacity controls.
+- `secure-artifact-attestation-profile.md` - digest-bound signing, SBOMs, SLSA/in-toto provenance, registry alias policy, and runtime verification by scale.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

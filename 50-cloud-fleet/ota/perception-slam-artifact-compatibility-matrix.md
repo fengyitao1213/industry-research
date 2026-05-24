@@ -21,7 +21,7 @@ Compatibility evidence should grow with MLOps authority. A research checkpoint c
 | S4 regulated safety-critical | Evidence-locked compatibility | Signed compatibility manifest linked to safety-case claims, replay packs, incident retention, and rollback drill | Behavior authority changes while compatibility evidence is ticket-only, expired, or mutable |
 | S5 platform scale | Policy-enforced compatibility | Policy-as-code checks over registry, map, calibration, prompt/evaluator, telemetry, feature/embedding, and deployment services | Shared platform permits a tenant to bypass compatibility or reuse unsupported artifacts |
 
-This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md` and `../mlops/mlops-scorecards-and-kpis-by-scale.md`: architecture defines where artifacts live, the scorecard defines what blocks release, and this matrix defines whether the artifact set can safely activate.
+This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md`, `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and `../mlops/secure-artifact-attestation-profile.md`: architecture defines where artifacts live, the scorecard defines what blocks release, the attestation profile defines artifact trust, and this matrix defines whether the artifact set can safely activate.
 
 ## Compatibility Axes
 
@@ -35,6 +35,7 @@ This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-s
 | Calibration | Intrinsics, extrinsics, time offsets, sensor-to-base transform, verification state | Fusion and map alignment fail silently with stale calibration |
 | Configuration | ODD limits, monitor thresholds, planner margins, feature flags, diagnostics graph | Config can change behavior as much as code |
 | Telemetry schema | OTel schema URL, robotics custom schema, event IDs, units | Dashboards and release gates must not misread fields |
+| Artifact trust | Subject digests, signatures, SBOM/provenance, policy result, trusted builder, alias approval | Activation must use the same trusted artifact set that was evaluated |
 | Evidence | Test partition, benchmark manifest, shadow/canary results, safety-case claim IDs | SUMS and safety case need reproducible approval evidence |
 
 ## Matrix
@@ -70,6 +71,7 @@ Use the checked JSON Schema contracts as the narrow machine-readable surface for
 | `activation_preconditions` | Parked/mission-complete state, battery, network, operator acknowledgement if required |
 | `rollback_set` | Previous compatible artifact set and cache state |
 | `evidence_ids` | CI, replay, calibration, map QA, safety-case, security, and canary evidence |
+| `attestation_ids` | Digest-bound signatures, SBOMs, SLSA/in-toto provenance, vulnerability disposition, model/export/map-QA attestations, and policy results as defined in `../mlops/secure-artifact-attestation-profile.md` |
 | `mlops_scale` | S0-S5 authority level for the artifact set, because the required evidence and approvers differ by scale |
 | `labeler_artifacts` | Offboard labeler, prompt, evaluator, retrieval, and candidate-label bundle IDs when any of them affected training, semantic maps, or release evidence |
 | `expiry` | Maximum activation window and sunset date for temporary overlays/configs |
@@ -111,6 +113,7 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md`
+- `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/mlops/model-governance-release-evidence.md`
 - `50-cloud-fleet/observability/slam-timing-health-dashboard.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`

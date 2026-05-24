@@ -6,7 +6,7 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, or the safety case; it is the MLOps evidence packet that those systems consume.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, or the safety case; it is the MLOps evidence packet that those systems consume. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
@@ -92,6 +92,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Site-sliced release record | ODD-cell manifest, local holdout, shadow/canary exposure, delayed-label review, rollout decision, expiry, waiver state | Release manager |
 | Safety case link | Claim IDs supported by this release and evidence IDs attached to each claim | Safety owner |
 | Compatibility manifest | Active model/map/calibration/runtime/telemetry/semantic-taxonomy artifact set, compatibility hash, MLOps scale, rollback set, labeler/prompt/evaluator dependencies | Release manager |
+| Artifact attestation bundle | Subject digests, signatures, SBOM/provenance, trusted-builder record, vulnerability disposition, model/export/map/labeler/eval policy results | Security + MLOps |
 | Release decision record | Approvers, residual risks, rollout plan, rollback trigger, expiry date | Release manager |
 
 ## Foundation-Model and Prompt Evidence
@@ -125,6 +126,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Site-sliced release evidence is present before expanding a model to a new site, route, task, vehicle kit, weather band, or map release state.
 - The release packet states which previous model version is the rollback target and verifies runtime compatibility.
 - The release packet includes the compatibility manifest when the model depends on a specific map, calibration package, runtime container, semantic taxonomy, prompt/labeler, telemetry schema, or replay package.
+- The release packet includes required artifact attestations for every release-affecting model, container, ONNX/TensorRT engine, semantic map, dataset, labeler/prompt pack, replay pack, and evaluation pack.
 - The deployment decision references the relevant safety case claims and technical documentation record.
 
 ## Failure Modes
@@ -137,6 +139,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 | Map-derived labels lack release-state evidence | Model learns transient or quarantined map points as permanent static classes | Require release-state masks, source-map acceptance, split IDs, and pseudo-label batch invalidation controls |
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
+| Artifact digest or provenance missing | Release packet cannot prove the deployed package is the evaluated package | Require signed artifacts, SBOM/provenance, policy result, and trusted-builder evidence before alias movement |
 | Offline labeler changes without governance | Training labels or semantic maps shift while the deployed model appears unchanged | Version prompt sets, labeler models, thresholds, accepted/rejected statistics, and rollback impact |
 | Rollback model not executable | Recovery depends on a manual hotfix | Keep `rollback` alias and compatible artifact bundle current |
 | Approval expires silently | Old evidence is reused after data or ODD drift | Require evidence expiry and periodic revalidation |
@@ -150,6 +153,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`
+- `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`

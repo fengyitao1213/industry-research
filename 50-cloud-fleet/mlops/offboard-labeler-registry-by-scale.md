@@ -4,7 +4,7 @@
 
 Offboard labelers are models, prompts, rules, tools, and human workflows that create labels outside the runtime vehicle stack. They include classical auto-labelers, heavy offline 3D detectors, foundation-model segmenters, VLM scene reviewers, LLM QA assistants, open-vocabulary point-cloud labelers, retrieval-augmented label search, and model-as-judge evaluators. They may never control a vehicle directly, but they can still change training data, semantic maps, replay assertions, safety reports, and release evidence.
 
-The registry rule is simple: **if a labeler output can enter training, replay, evaluation, a signed map, a taxonomy, or a safety case, the labeler is a release-affecting artifact.** It needs identity, scope, evaluation, rollback, owner, and allowed-use controls.
+The registry rule is simple: **if a labeler output can enter training, replay, evaluation, a signed map, a taxonomy, or a safety case, the labeler is a release-affecting artifact.** It needs identity, scope, evaluation, rollback, owner, allowed-use controls, and the digest-bound trust-chain evidence defined in `secure-artifact-attestation-profile.md`.
 
 ---
 
@@ -47,6 +47,7 @@ The critical transition is S2. Once an offboard labeler output can change a mode
 | `labeler_id` | Stable name, version, owner, intended task |
 | `labeler_type` | Detector, segmenter, prompt pack, rule, map exporter, LLM/VLM, evaluator, human workflow |
 | `model_artifacts` | Checkpoint, provider/API model ID, container, dependency lock, hardware class |
+| `attestation_refs` | Subject digests, signatures, provenance, SBOM where relevant, policy result, trusted-builder or provider identity |
 | `prompt_pack` | System instructions, user templates, variables, examples, local terminology, prompt owner |
 | `retrieval_context` | Corpus snapshot, embedding model, index build, filters, citation/trace policy |
 | `input_contract` | Sensor streams, map tiles, calibration, source-map state, image coverage, data-quality gates |
@@ -188,6 +189,7 @@ Labeler scorecards should be reviewed before training data freezes, map publicat
 - `model-governance-release-evidence.md` - release packet evidence for offboard labelers and prompt packs.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation for map-derived training exports.
 - `feature-embedding-store-ops-by-scale.md` - retrieval corpus and vector-index controls.
+- `secure-artifact-attestation-profile.md` - signatures, SBOM/provenance, and policy verification for release-affecting labeler artifacts.
 - `data-flywheel-airside.md` - auto-labeling pipeline, quality gate, and closed-loop training.
 - `../data-platform/active-labeling-budget-ops.md` - label-budget states and promotion boundaries.
 - `../data-platform/3d-annotation-tools.md` - annotation tooling, pre-labels, and reviewer workflows.

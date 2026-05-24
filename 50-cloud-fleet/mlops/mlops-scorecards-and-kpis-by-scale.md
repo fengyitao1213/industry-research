@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -19,6 +19,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 | Model quality | Whether offline metrics, calibration, uncertainty, and slices support the claim | Prevents aggregate improvements from hiding class, site, or ODD regressions |
 | Runtime quality | Whether the deployable artifact meets latency, memory, determinism, and compatibility needs | Prevents a model that passes offline tests from failing on vehicle hardware |
 | Artifact compatibility | Whether model, map, calibration, runtime, telemetry, semantic taxonomy, labeler, prompt, and replay artifacts are mutually valid | Prevents release from activating an artifact set that was never evaluated together |
+| Artifact trust and provenance | Whether release-affecting artifacts are digest-pinned, signed, attested, and policy-verified | Prevents unsigned models, stale engines, mutable datasets, and untrusted prompt/eval packs from reaching release |
 | Release reliability | Whether candidate, shadow, canary, champion, and rollback transitions are controlled | Prevents training completion from becoming deployment approval |
 | Observability and incident response | Whether anomalies become evidence-backed action | Prevents dashboards from replacing mitigation, rollback, or learning loops |
 | Governance and compliance | Whether approvals, evidence, retention, and policy states are auditable | Prevents release claims from failing during incident review or audit |
@@ -58,6 +59,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Evaluation | Replay pass rate | Small smoke replay | Incident, rare-class, and map-change replay packages | Scenario catalog coverage, waiver expiry, and residual-risk record |
 | Runtime | Package load and latency | Smoke test | p50/p95/p99 latency, memory, queue time, TensorRT/ONNX compatibility | Hardware cohort SLO, deterministic replay, degradation policy |
 | Compatibility | Artifact-set compatibility | Manual note of model/map/calibration assumptions | Compatibility manifest with hash over model, map, calibration, runtime, telemetry, taxonomy, and rollback | Policy-enforced manifest with safety-case links, expiry, and incident retention |
+| Artifact trust | Signature/provenance coverage | Checksum manifest for preserved baselines | Signed containers/models/maps/prompts, SBOM, provenance, registry policy result | SLSA/in-toto provenance, trusted builder evidence, admission verification, immutable audit record |
 | Deployment | Promotion lead time | Time from result to baseline | Time from candidate to shadow/canary/champion with evidence | Time from claim approval to controlled rollout with audit trail |
 | Release reliability | Change failure rate | Regression count | Candidate hold/reject/rollback rate by cause | Safety-relevant change failure and corrective-action closure |
 | Monitoring | Alert actionability | Failure notes become issues | Alerts produce label batch, replay case, rollback check, or ODD quarantine | Alert suppression audit, reportability, safety-case delta |
@@ -82,6 +84,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
 | Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
+| Missing artifact attestation | S2-S5 | Model, ONNX/TensorRT engine, container, map layer, labeler/prompt pack, eval pack, or release packet lacks required digest-bound signature, SBOM, provenance, or policy result |
 | Compatibility manifest mismatch | S2-S5 | Model, map, calibration, runtime, semantic taxonomy, prompt/labeler, telemetry schema, or replay pack differs from the evaluated artifact set |
 | Target ODD slice regression | S3-S5 | Aggregate score improves but target site, night, rain, stand-entry, FOD, or personnel slice regresses |
 | Safety monitor regression | S4-S5 | New model increases false-free-space, protected-zone violation, unsafe speed, or intervention correlation |
@@ -164,6 +167,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
 - `gpu-queueing-finops-by-scale.md` - queue wait, utilization, unit economics, priority lanes, and assurance capacity controls.
+- `secure-artifact-attestation-profile.md` - artifact signing, SBOM/provenance, registry alias policy, and verification gates.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.
 - `../observability/fleet-anomaly-root-cause-attribution.md` - fleet anomaly attribution and MTTR reduction.

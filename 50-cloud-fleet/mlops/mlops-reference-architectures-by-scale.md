@@ -6,7 +6,7 @@ This page turns the MLOps scale ladder into concrete architecture choices. Use i
 
 The architecture should grow by contract first, platform second. A small team can run on scripts, manifests, and a lightweight tracker if the artifact boundaries are disciplined. A large platform still fails if it centralizes dashboards while leaving labels, dataset snapshots, registry aliases, evaluation packs, and rollback evidence ambiguous.
 
-Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist.
+Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
 
 ---
 
@@ -33,7 +33,7 @@ The same fleet can occupy multiple scales at once. A perception research branch 
 | Experiment tracking | Run note plus commit/config | Tracker run linked to dataset, code, seed, hardware, and metric report | Organization eval warehouse with audit export |
 | Label operations | Manual labels and instructions | Versioned annotation workflow, QA sampling, allowed-use state | Policy-enforced promotion states, expert review, vendor/privacy controls |
 | Orchestration | Script, Makefile, or CI job | Airflow/Argo/Kubeflow/managed pipeline for train-eval-package | Multi-tenant pipeline with quotas, lineage, policy checks, and evidence capture |
-| Model registry | Checkpoint path plus release note | Immutable version, aliases, approval metadata, rollback target | Registry integrated with policy, signing, SBOM, tenant isolation, and audit logs |
+| Model registry | Checkpoint path plus release note | Immutable version, aliases, approval metadata, rollback target, artifact digest | Registry integrated with policy, signing, SBOM, SLSA/in-toto provenance, tenant isolation, and audit logs |
 | Evaluation | Validation script and frozen split | Slice metrics, replay, calibration, runtime smoke, shadow/canary report | Safety-case-linked claim/evidence table, scenario catalog, waiver expiry |
 | Deployment | Manual batch or offline artifact | ONNX/TensorRT/container bundle, compatibility manifest, canary channel | OTA/SUMS integration, policy gates, rollback drill, reportability evidence |
 | Monitoring | Manual plots and failure notes | Runtime health, drift proxies, delayed labels, incident hooks | Fleet SLOs, causal attribution, alert quality, suppression audit, compliance export |
@@ -75,6 +75,7 @@ These interfaces should exist before the platform becomes large. They can begin 
 | Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields | fleet observability, active learning, incident triage |
 | Incident evidence link | event ID, active artifacts, logs/clips, replay scenario, safety monitor state, containment action, corrective action | governance, safety case, post-release learning |
 | Foundation-model artifact manifest | prompt/model/checkpoint, retrieval corpus, tool permissions, decoding policy, trace bundle, reviewer disposition | label operations, evaluator governance, safety review |
+| Artifact attestation manifest | subject digest, artifact type, producer identity, build provenance, SBOM/eval/map-QA predicate, policy result, allowed scope, rollback target | registry, OTA/SUMS, Kubernetes/admission policy, safety case, audit |
 
 If any of these interfaces are missing at S2+, scale will produce hidden coupling. The symptom is familiar: a model passes offline tests, but nobody can prove which data, labeler, map, calibration, runtime, or prompt artifact produced the behavior.
 
@@ -140,7 +141,7 @@ Avoid: metric-only approval, expired evidence, ticket-only approval records, unv
 - Shared GPU scheduler with quotas, priority lanes, cache policy, cost attribution, and `gpu-queueing-finops-by-scale.md` unit economics.
 - Standardized feature/embedding service only where reuse justifies it.
 - Shared evaluation platform with product-specific adapters.
-- Audit API for model, data, prompt, evaluator, map, calibration, and deployment artifacts.
+- Audit API for model, data, prompt, evaluator, map, calibration, deployment artifacts, and digest-bound attestations.
 - Platform SLOs covering usability, latency, queue time, cost, evidence completeness, and alert quality.
 
 Best use: many teams, products, sites, model families, and foundation-model tools sharing data and compute.
@@ -200,6 +201,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, and rollout state machine.
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
 - `gpu-queueing-finops-by-scale.md` - GPU scheduler, queueing, quota, and FinOps architecture by scale.
+- `secure-artifact-attestation-profile.md` - signing, SBOM, provenance, registry alias policy, and policy-enforced verification by scale.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, data product states, and retention.

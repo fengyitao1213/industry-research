@@ -6,7 +6,7 @@
 
 Fleet data becomes useful only when engineers can answer three questions quickly: what does this dataset contain, where did it come from, and is it fit for the model or safety decision being made? A catalog without lineage is a search index. Lineage without quality checks is an audit trail for bad data. Quality checks without ownership decay into dashboards nobody trusts.
 
-This page covers operational controls for curated fleet data products: raw logs, processed events, labels, features, replay sets, training splits, and evaluation datasets.
+This page covers operational controls for curated fleet data products: raw logs, processed events, labels, features, replay sets, training splits, and evaluation datasets. When a data product can affect release, the catalog entry should also point to the digest-bound attestation pattern in `../mlops/secure-artifact-attestation-profile.md`.
 
 ## Operating Model
 
@@ -61,12 +61,14 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 | Data contract | Required fields, units, coordinate frames, timing assumptions, valid ranges | Producer and consumer |
 | Label-schema record | Taxonomy, label versions, ontology references, compatibility notes | Label operations |
 | Semantic-map catalog record | Semantic layer ID, manifest ID, compatibility hash, source map snapshot, map tile IDs, taxonomy ID/hash, schema URL/version, QA/evidence IDs, retention hold | Mapping + data platform |
+| Data-product attestation | Dataset/label/replay/feature manifest digest, producer identity, lineage predicate, quality policy result, allowed-use scope | Data platform |
 | Approval decision | Accepted use, restrictions, expiry, approvers, downstream consumers | Data steward |
 
 ## Acceptance Checks
 
 - Every training and evaluation dataset resolves to immutable source snapshots.
 - Every derived dataset has machine-readable lineage back to raw logs, labels, and processing code.
+- Every release-affecting dataset, label batch, feature snapshot, embedding index, or replay pack has an immutable manifest digest and attestation link.
 - Quality checks run before promotion and store both pass/fail status and failure samples.
 - Schema changes are reviewed for downstream model, feature, replay, and safety evidence impact.
 - Catalog entries identify the data owner, business purpose, access restrictions, retention class, and approved uses.
@@ -81,6 +83,7 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 | Failure mode | Consequence | Control |
 |---|---|---|
 | Dataset name reused for mutable contents | Model release cannot be reproduced | Require snapshot IDs in manifests |
+| Data product lacks digest-bound attestation | Registry or release gate cannot prove the dataset evaluated is the dataset deployed or reused | Attach manifest digest, lineage predicate, quality policy result, and allowed-use scope |
 | Pipeline lineage stops at a staging table | Root cause analysis cannot trace bad labels or corrupted logs | Emit lineage at every materialization boundary |
 | Quality checks live only in notebooks | Failures are not enforced in production | Move checks into scheduled pipeline gates |
 | Schema evolution breaks consumers | Training jobs silently drop or misread fields | Data contract review before schema promotion |
@@ -96,6 +99,7 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 - `50-cloud-fleet/data-platform/data-engine-from-bags.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
+- `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/data-governance/fleet-data-privacy-governance.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`
 - `60-safety-validation/verification-validation/perception-slam-statistical-validity-protocol.md`
