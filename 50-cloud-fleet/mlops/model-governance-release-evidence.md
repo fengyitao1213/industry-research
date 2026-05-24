@@ -33,6 +33,22 @@ The companion scale hub (`mlops-scale-research-scope.md`) separates MLOps maturi
 
 For airside autonomy, model governance should usually reach S2 before the first shadow deployment and S4 before a model controls or materially influences a safety-critical behavior. That includes offline models when their outputs become semantic-map labels, training positives, route restrictions, or release evidence.
 
+## Release Ownership Matrix
+
+Release governance fails when "the model team approved it" means nobody checked data, runtime, maps, or safety evidence. Use explicit ownership:
+
+| Decision | Accountable owner | Must approve when safety-relevant | Evidence to attach |
+|---|---|---|---|
+| Candidate model is reviewable | Model owner | Data owner | Training provenance, dataset manifest, evaluation report |
+| Dataset snapshot is eligible | Data owner | Privacy/security owner, map owner for map-derived labels | Lineage, split policy, label QA, retention/data-use class |
+| Runtime artifact is deployable | Runtime owner | OTA/SUMS owner | ONNX/TensorRT/container compatibility, load test, rollback artifact |
+| ODD/site scope is valid | Fleet operations owner | Safety owner, site operations | Site slices, shadow coverage, local holdout metrics |
+| Release claim is defensible | Safety owner | Model owner, data owner, runtime owner, release manager | Scenario replay, safety-case claim IDs, residual-risk decision |
+| Champion alias can move | Release manager | Model, data, runtime, safety, fleet operations | Signed release decision, rollback trigger, expiry date |
+| Rollback can execute | Runtime owner | Fleet operations owner | Rollback alias, cached artifact, compatibility proof, drill result |
+
+Scale changes the ceremony, not the ownership. S0 may record the owner in a run note. S2 needs registry metadata. S4 needs immutable approval records and evidence expiry. S5 should automate ownership checks but should not remove named accountability.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |

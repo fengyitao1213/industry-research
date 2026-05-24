@@ -63,6 +63,49 @@ Managed cloud platforms are useful at S2 when the team needs repeatability faste
 
 ---
 
+## Operating Model and Toolchain by Scale
+
+MLOps maturity is also an ownership model. The same tool can be appropriate or wasteful depending on who owns it, who must approve changes, and whether it is tied to release evidence. A small team should keep the stack boring and explicit; a platform team should standardize interfaces so product teams do not reinvent data formats, labels, evals, and deployment scripts.
+
+| Scale | Operating model | Toolchain stance | Review cadence | Failure mode |
+|---|---|---|---|---|
+| S0 notebook research | One owner per experiment | Git, notebook/script, fixed split, local artifact folder | Peer review only when result is reused | Nobody can reconstruct the result |
+| S1 repeatable prototype | Research lead plus one reviewer | Experiment tracker, DVC/object snapshot, Docker, basic CI | Weekly baseline review | Demo becomes a hidden baseline |
+| S2 production product | Model owner, data owner, runtime owner, release owner | Managed MLOps or lightweight OSS stack with registry and release packet | Candidate review before shadow/canary | Model ships without data/runtime/safety owner agreement |
+| S3 fleet and multi-site | Product MLOps owner plus site operations and data platform owners | Lakehouse, orchestration, active-learning queue, site slices, fleet telemetry | Release train plus incident-driven review | Global process hides local ODD regressions |
+| S4 regulated safety-critical | Cross-functional change-control board | Evidence system, immutable registry, safety-case traceability, rollback drills | Formal release review and periodic evidence expiry | Approval cannot be defended in audit or incident review |
+| S5 platform scale | Central platform team with product-team consumers | Standardized data/model/eval/feature/embedding services, policy-as-code, self-service templates | Platform SLO review and product release review | Platform becomes bypassed because it is slower than bespoke pipelines |
+
+### Build, Buy, or Borrow
+
+| Decision | Prefer managed/cloud | Prefer open-source/self-hosted | Prefer simple scripts |
+|---|---|---|---|
+| Data versioning | Team needs quick lineage and cloud integration | Air-gapped, cost-sensitive, or custom map/log formats dominate | S0 fixed split and manifest are enough |
+| Orchestration | Pipeline reliability matters more than platform flexibility | Custom GPU, on-prem, vehicle data gravity, or regulated isolation matters | One-off preprocessing or training |
+| Model registry | Product releases need aliases and approvals | Artifact formats, offline operation, or custom metadata need control | Research checkpoint folder with release note |
+| Evaluation service | Many teams share scenarios and judge/eval packs | Safety case requires bespoke scenario replay and evidence IDs | Local validation script for S0-S1 |
+| Feature/embedding store | Online features or cross-product embeddings are reused | Offline-only autonomy logs with custom indexing dominate | Dataset manifests and precomputed files |
+| Observability | Fleet/service metrics need standard SLO dashboards | Vehicle-specific telemetry and robotics traces need custom schemas | Manual logs and plots |
+
+The anti-pattern is buying an S5 platform to compensate for S1 discipline gaps. Tooling should remove friction from an already defined contract; it should not define the labels, ODD, release criteria, or safety claim by itself.
+
+### Responsibility Map
+
+| Artifact or decision | Primary owner | Required collaborators |
+|---|---|---|
+| Label schema and taxonomy | Data owner | Model owner, safety owner, map owner |
+| Dataset snapshot and splits | Data owner | Model owner, privacy/security owner |
+| Training run and checkpoint | Model owner | Compute/MLOps owner |
+| Evaluation suite and thresholds | Model owner | Safety validation, site operations |
+| Runtime package | Runtime owner | Model owner, OTA/SUMS owner |
+| Semantic map or map-derived labels | Map owner | Localization/SLAM owner, data owner, safety owner |
+| Release approval | Release owner | Model, data, runtime, safety, fleet operations |
+| Monitoring and rollback trigger | Fleet operations owner | Runtime owner, safety owner, MLOps owner |
+
+At S2 and above, every promoted artifact should have a named owner and a named consumer. Unowned artifacts decay into stale data, stale thresholds, or stale assumptions.
+
+---
+
 ## Lifecycle Controls
 
 ### 1. Problem and Label Contract

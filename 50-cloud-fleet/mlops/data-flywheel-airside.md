@@ -107,6 +107,20 @@ The full MLOps scale taxonomy is maintained in `mlops-scale-research-scope.md`. 
 
 The practical target for the reference airside AV stack is not "continuous training pushes directly to vehicles." It is continuous data mining and repeatable candidate generation, followed by evidence-gated release. The release gate remains manual or policy-controlled until shadow/canary evidence and safety-case traceability prove the candidate is suitable for the requested ODD.
 
+### 1.6 Operating Cadence by Scale
+
+A data flywheel needs a cadence that matches its MLOps scale. Running every step continuously is usually wrong for autonomy: collection can be continuous, but label QA, training, evaluation, release, and safety review should remain gated.
+
+| Scale | Collection cadence | Training cadence | Release cadence | Review owner |
+|---|---|---|---|---|
+| S0-S1 research/prototype | Manual pulls or small fixed samples | Ad hoc reruns | No deployment release | Research owner |
+| S2 single production model | Trigger queue plus fixed validation set | Candidate batch when enough new evidence accumulates | Shadow/canary only after release packet | Model and release owners |
+| S3 multi-site fleet | Continuous trigger mining with site budgets | Scheduled release train plus incident-driven candidates | Per-site or ODD-cell canaries | Fleet operations and site owner |
+| S4 regulated safety-critical | Continuous capture of safety and incident evidence | Candidate generation allowed; promotion requires safety review | Formal release board, rollback drill, evidence expiry | Safety owner and release manager |
+| S5 platform scale | Shared mining service across products | Platform-managed queues and eval service | Product teams consume standardized gates | Platform MLOps owner plus product owners |
+
+The operating cadence should make three queues visible: candidate data, candidate models, and candidate releases. Data can enter automatically, but promotion between queues requires evidence. That separation prevents the flywheel from becoming an uncontrolled continuous-deployment loop.
+
 ---
 
 ## 2. Trigger-Based Data Collection
