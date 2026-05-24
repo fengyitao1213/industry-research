@@ -2,7 +2,7 @@
 
 ## Threat Models, Standards, Defenses, and Incident Response for Autonomous GSE
 
-**Last updated:** 2026-03-23
+**Last updated:** 2026-05-24
 
 ---
 
@@ -635,6 +635,34 @@ ML model weights are a unique supply chain risk. A tampered model could pass sta
 - **Model behavioral monitoring**: Continuously monitor model outputs in production for distribution shifts that could indicate tampering. Compare production inference distributions against validated reference distributions.
 - **Reproducible training**: Maintain deterministic training pipelines so that models can be independently reproduced from source data and code. Any discrepancy between reproduced and deployed model weights indicates potential tampering.
 
+### 7.4.1 MLOps Security Controls by Scale
+
+Secure MLOps extends software supply-chain controls to data, model, map, prompt, and evaluation artifacts. The controls scale with release risk:
+
+| MLOps scale | Security posture | Required evidence |
+|---|---|---|
+| S0 notebook research | No secrets in notebooks, no production data on personal devices, dependency list saved | Git commit, data pointer, local environment export |
+| S1 repeatable prototype | Locked dependencies, containerized run, private artifact store, basic CVE scan | Lockfile, image digest, dataset manifest, scan report |
+| S2 production product | Signed model/container artifacts, SBOM, registry ACLs, CI vulnerability gate | Model hash, image signature, SBOM, release alias approval |
+| S3 fleet and multi-site | Site/tenant IAM boundaries, per-site data keys, audit logs, prompt/model/map provenance | Access review, lineage graph, site-scoped artifact manifests |
+| S4 regulated safety-critical | Secure build workers, dual approval, immutable evidence retention, SLSA-style provenance | Build attestation, approver identities, legal-hold evidence, rollback proof |
+| S5 platform scale | Policy-as-code, mandatory attestation verification, centralized secrets, quota and access automation | Platform policy logs, attestation verifier output, organization-wide inventory |
+
+The artifact boundary is broader than software. A semantic-map tile, TensorRT engine, prompt pack, judge-model configuration, auto-label batch, or replay dataset can all affect safety evidence. Treat them like deployable artifacts: record source commit, dataset snapshot, dependency lock, builder identity, cryptographic hash, signature, SBOM/provenance where applicable, approval decision, and permitted ODD/site scope.
+
+### 7.4.2 Model, Data, and Prompt Threats
+
+| Threat | Example | Control |
+|---|---|---|
+| Model backdoor | Trigger pattern causes a detector to ignore personnel or FOD | Backdoor testing, slice replay, signed model hash, independent reproduction |
+| Dataset poisoning | Bad labels teach staged GSE as permanent static map structure | Dataset lineage, reviewer QA, release-state label gates, poisoning checks |
+| Prompt injection | Retrieved SOP or ticket text instructs an assistant to bypass route restrictions | Retrieval source allowlist, prompt-injection tests, tool allowlist, human approval |
+| Judge-model drift | New evaluator prompt approves weaker VLM incident summaries | Versioned judge prompt/model, human calibration set, regression thresholds |
+| Artifact substitution | A registry serves a different ONNX/TensorRT/model file under the same alias | Immutable versions, signed blobs, alias mutation audit, on-vehicle hash verification |
+| Credential overreach | Training job can read every airport's raw data | Least privilege IAM, site partitions, short-lived credentials, access review |
+
+For S4 releases, a model or map should not be considered deployable unless the release packet proves both behavior and provenance. Passing replay tests is not enough if the artifact chain cannot prove what was built, by whom, from which data, and under which approval.
+
 ### 7.5 Code Signing and Secure Boot
 
 **Secure boot chain:**
@@ -1091,6 +1119,9 @@ For any autonomous GSE operating airside, the following are non-negotiable basel
 - Singapore TR68 -- Technical Reference for Autonomous Vehicles
 - ISO 3691-4:2023 -- Driverless Industrial Trucks
 - AUTOSAR Secure Onboard Communication (SecOC) -- AUTOSAR SWS SecOC R22-11
+- NIST SP 800-218 -- Secure Software Development Framework (SSDF) -- https://csrc.nist.gov/pubs/sp/800/218/final
+- SLSA -- Supply-chain Levels for Software Artifacts -- https://slsa.dev/spec/v1.1/levels
+- Sigstore Cosign -- artifact signing and transparency -- https://docs.sigstore.dev/cosign/signing/overview/
 
 ### Published Research
 

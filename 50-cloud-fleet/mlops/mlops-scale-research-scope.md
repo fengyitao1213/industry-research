@@ -196,6 +196,48 @@ For airside and non-road urban mapping, foundation-model operations must respect
 
 ---
 
+## Security, Privacy, and Cost Guardrails by Scale
+
+MLOps scale is constrained by trust boundaries as much as by fleet size. The same pipeline that trains a detector also handles credentials, third-party packages, cloud GPUs, raw sensor logs, map evidence, labels, model weights, prompt packs, and deployment artifacts. At S0 the main control is not losing provenance. At S4-S5 the main control is preventing an untrusted artifact, over-permissioned pipeline, or runaway GPU job from changing safety evidence or fleet behavior.
+
+| Scale | Security minimum | Privacy/data minimum | Cost and capacity minimum | Failure mode to prevent |
+|---|---|---|---|---|
+| S0 notebook research | Private data excluded or redacted, secrets outside notebooks, package versions recorded | Do not copy customer/airport data into personal storage | Manual GPU cost note per run | Sensitive data leaks through an exploratory notebook |
+| S1 repeatable prototype | Locked dependencies, container image, secret manager, basic vulnerability scan | Dataset manifest names data sensitivity and retention class | Per-project budget, spot GPU limit, run owner tag | Prototype uses production data without retention or access policy |
+| S2 production product | Signed containers/model artifacts, SBOM, registry ACLs, CI vulnerability gates | Access-controlled raw/curated zones, approved export path, DPIA where required | GPU job queue, cost tags, maximum job duration, idle cleanup | Candidate model is built from untrusted code, mutable data, or an unbounded GPU job |
+| S3 fleet and multi-site | Site/tenant IAM boundaries, provenance for data/model/map/prompt artifacts, incident audit logs | Regional residency, airline/customer partitions, local retention overrides | Chargeback/showback by site, queue priorities for incidents and replay | One site can access another site's data or consume all training capacity |
+| S4 regulated safety-critical | SLSA-style provenance, dual approval for release artifacts, secure build workers, evidence legal hold | Immutable incident and safety evidence, privacy review linked to safety case | Reserved capacity for replay and incident re-training, budget exceptions logged | Security or cost pressure deletes evidence needed for audit or incident review |
+| S5 platform scale | Policy-as-code, multi-tenant artifact registry, attestation verification, platform-wide secrets and access reviews | Data catalog with sensitivity tiers, automated retention, cross-border controls | FinOps allocation, quotas, forecasting, unit cost metrics, GPU utilization SLOs | Teams bypass platform controls with shadow data lakes, models, or compute clusters |
+
+### Secure Artifact Chain
+
+Every promoted artifact should answer four questions:
+
+| Question | Required evidence |
+|---|---|
+| Who built it? | CI identity, build worker, approver, service account, key/certificate identity |
+| What was it built from? | Source commit, dependency lock, dataset snapshot, prompt pack, config, base image |
+| Was it tampered with? | Hash, signature, SBOM/provenance attestation, registry verification result |
+| Where may it run? | ODD/site scope, runtime image, hardware target, data tier, deployment alias |
+
+This applies to TensorRT engines, ONNX exports, map tiles, semantic-map manifests, prompt packs, evaluation packs, Docker images, and batch-labeling outputs. The rule for S2+ is that an artifact not signed, versioned, and tied to evidence cannot be promoted by alias.
+
+### GPU FinOps for ML Systems
+
+GPU capacity becomes a shared product resource at S3+. Cost control should not mean blocking safety-critical learning; it should mean making priority, ownership, and waste visible.
+
+| Control | S0-S1 | S2-S3 | S4-S5 |
+|---|---|---|---|
+| Ownership | Run notes | Mandatory owner/project/site tags | Cost allocation and approval workflow |
+| Queueing | Manual scheduling | Shared queue with max duration and preemption | Priority lanes for incidents, release replay, and regulated evidence |
+| Utilization | Manual review | Idle GPU cleanup, cache policy, spot/on-demand mix | Utilization SLO, reserved capacity plan, forecasting |
+| Unit economics | Total run cost | Cost per labeled frame, scenario, training run, replay hour | Cost per released model/map/site and per safety-case evidence pack |
+| Guardrails | Spending alert | Budget caps, quota, egress warning | Policy-as-code, exceptions logged, finance/engineering review |
+
+For airside autonomy, cost and safety interact. Incident replay, retained raw data, and release evidence may be expensive, but deleting or skipping them can invalidate the safety case. The cost model must distinguish waste from required assurance capacity.
+
+---
+
 ## Scale Transition Triggers
 
 | Trigger | Indicates | Required upgrade |
@@ -251,6 +293,8 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Site-sliced model release evidence | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | GPU cost and queueing model for training and replay | Determines when to move from rented GPUs to owned or reserved capacity |
 | P1 | Offboard labeler registry | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
+| P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
+| P1 | GPU FinOps unit-cost model | Tracks cost per label, training run, replay hour, released model, released map, and site so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide | Clarifies when online feature stores matter versus when offline manifests are enough |
 | P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
 | P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
@@ -283,3 +327,8 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - Microsoft Learn, "Advance your maturity level for GenAIOps." https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2
 - AWS Machine Learning Blog, "FMOps/LLMOps: Operationalize generative AI and differences with MLOps." https://aws.amazon.com/blogs/machine-learning/fmops-llmops-operationalize-generative-ai-and-differences-with-mlops/
 - NIST, "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile." https://www.nist.gov/itl/ai-risk-management-framework
+- NIST, "SP 800-218 Secure Software Development Framework." https://csrc.nist.gov/pubs/sp/800/218/final
+- SLSA, "Security levels." https://slsa.dev/spec/v1.1/levels
+- Sigstore, "Cosign signing overview." https://docs.sigstore.dev/cosign/signing/overview/
+- Kubernetes, "Resource Quotas." https://kubernetes.io/docs/concepts/policy/resource-quotas/
+- FinOps Foundation, "FinOps Framework." https://www.finops.org/framework/

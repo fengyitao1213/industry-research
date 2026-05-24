@@ -56,6 +56,31 @@ The full scale taxonomy is in `../../50-cloud-fleet/mlops/mlops-scale-research-s
 
 For autonomy, the expensive mistake is under-instrumented training, not merely underpowered GPUs. If a run cannot prove exactly which logs, maps, labels, calibration packages, augmentation policy, and evaluation code produced the checkpoint, adding more H100s only makes bad evidence faster.
 
+### 1.5 GPU FinOps and Secure Training Controls
+
+Training infrastructure becomes a shared platform before it becomes technically elegant. The practical controls are queueing, quotas, cost attribution, signed artifacts, and data access boundaries. These controls should be lightweight at S0-S1 and enforced by policy at S3-S5.
+
+| Scale | Capacity model | Cost control | Security control |
+|---|---|---|---|
+| S0 notebook research | Local or rented single GPU | Manual run-cost note | No secrets in notebooks; no production data on personal storage |
+| S1 repeatable prototype | Shared workstation or short cloud jobs | Project budget and owner tag | Locked dependencies, container image digest, private credentials |
+| S2 production product | Scheduled runners for training and export | Max runtime, idle cleanup, cost per training run | Signed container/model artifact, SBOM, registry ACL |
+| S3 fleet and multi-site | GPU pool with queues and cache | Chargeback/showback by site, replay, labeling, and training queue | Site-scoped data permissions, short-lived credentials, audit logs |
+| S4 regulated safety-critical | Reserved capacity for release replay and incident retraining | Budget exceptions tied to release or incident ID | Secure build worker, dual approval, immutable evidence retention |
+| S5 platform scale | Multi-tenant scheduler and eval service | Quotas, forecasting, utilization SLO, unit cost dashboard | Policy-as-code, required provenance attestation, centralized secrets |
+
+Use cost as an operating signal, not as the release gate. A replay suite, retained raw incident data, or post-incident retraining job can be expensive and still mandatory. The control objective is to expose who spent capacity, for which model/map/site, against which evidence ID, and whether cheaper scheduling would have preserved the same assurance value.
+
+Minimum per-run metadata at S2+:
+
+- owner, project, site/ODD, model family, and cost center;
+- source commit, container digest, dataset snapshot, label schema, and map/calibration input IDs;
+- GPU type/count, wall time, utilization, storage/egress cost, and queue wait time;
+- output artifact IDs, hashes, registry aliases, evaluation report IDs, and release decision link;
+- secrets policy, data-access scope, and whether the worker was trusted for release artifacts.
+
+This metadata turns training infrastructure from a GPU rental habit into an auditable ML production system.
+
 ---
 
 ## 2. Training Pipeline Architecture
@@ -464,3 +489,7 @@ jobs:
 - [TensorRT Developer Guide](https://docs.nvidia.com/deeplearning/tensorrt/)
 - [PyTorch Distributed Training](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
 - [NVIDIA NGC Catalog](https://catalog.ngc.nvidia.com/)
+- [Kubernetes Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
+- [FinOps Foundation Framework](https://www.finops.org/framework/)
+- [SLSA Security Levels](https://slsa.dev/spec/v1.1/levels)
+- [Sigstore Cosign Signing Overview](https://docs.sigstore.dev/cosign/signing/overview/)
