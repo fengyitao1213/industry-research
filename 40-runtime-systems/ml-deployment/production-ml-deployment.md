@@ -24,6 +24,22 @@ This document covers the hard engineering problems of deploying ML models -- par
 
 ---
 
+## Deployment Scale Boundary
+
+The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training.
+
+| MLOps scale | Runtime deployment posture | Required runtime evidence |
+|---|---|---|
+| S0-S1 research/prototype | Local script, batch inference, or developer workstation | Reproducible environment and basic output smoke test |
+| S2 production product | Versioned container or TensorRT engine with registry alias | Load test, latency/memory budget, rollback artifact, compatibility manifest |
+| S3 fleet and multi-site | Site/channel canaries with fleet telemetry | Per-site latency, health, disagreement, intervention, and ODD coverage metrics |
+| S4 regulated safety-critical | Evidence-linked release and rollback | Safety-case claim linkage, scenario replay, shadow/canary report, incident trigger policy |
+| S5 platform scale | Shared serving platform and policy-as-code | Multi-tenant isolation, quota/cost tracking, automated evidence collection, standardized observability |
+
+For autonomous vehicles, runtime deployment cannot be separated from maps, calibration, sensor health, and OTA/SUMS controls. A model can be correctly trained and still be undeployable if its TensorRT engine targets the wrong GPU, its class order mismatches the semantic map, its calibration assumptions are stale, or the rollback model cannot load under the active runtime.
+
+---
+
 ## 1. TensorRT Production Deployment
 
 ### What TensorRT Does

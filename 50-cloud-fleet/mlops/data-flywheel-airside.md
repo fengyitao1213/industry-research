@@ -93,6 +93,20 @@ The aggregated-map semantic segmentation pipeline adds a second flywheel branch 
 
 The advantage is label efficiency: one reviewed map can produce millions of scan-level labels. The risk is label leakage: if a stationary person, parked GSE unit, ghost trail, FOD candidate, or artifact survives into the `permanent_static` export, the next model learns the wrong map as truth. The flywheel should therefore treat semantic-map exports as governed data products, not as generic auto-labels.
 
+### 1.5 MLOps Scale Fit
+
+The full MLOps scale taxonomy is maintained in `mlops-scale-research-scope.md`. This flywheel page is primarily an S2-S3 operating design: it assumes at least one production model, a model registry, reproducible datasets, shadow/canary deployment, and a fleet that can mine new data. It also borrows S4 controls whenever a model or semantic-map export can affect safety-critical vehicle behavior.
+
+| Scale | Flywheel posture | What changes |
+|---|---|---|
+| S0-S1 research/prototype | Manual data pulls and experiment tracking are enough | Use a small fixed split, record configs, and avoid automated retraining claims |
+| S2 single production model | Governed release loop | Add registry aliases, dataset manifests, offline/replay gates, shadow mode, and rollback |
+| S3 multi-site fleet | Active data engine | Add trigger budgets, site slices, active learning queues, map-derived label eligibility, and canary channels |
+| S4 regulated safety-critical | Evidence loop | Attach model, data, map, calibration, runtime, scenario, and safety-case evidence before promotion |
+| S5 platform scale | Shared MLOps service | Standardize data catalogs, GPU scheduling, evaluation services, feature/embedding stores, and cost attribution |
+
+The practical target for the reference airside AV stack is not "continuous training pushes directly to vehicles." It is continuous data mining and repeatable candidate generation, followed by evidence-gated release. The release gate remains manual or policy-controlled until shadow/canary evidence and safety-case traceability prove the candidate is suitable for the requested ODD.
+
 ---
 
 ## 2. Trigger-Based Data Collection

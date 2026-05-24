@@ -18,6 +18,21 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 6. Keep rollback executable. The rollback model must be compatible with the active runtime, map schema, calibration schema, and config bundle.
 7. Govern offboard labeler models and prompt sets as release-relevant artifacts when they influence semantic maps or training labels. A ZOPP/SALT/OpenUrban3D-style labeler may be offline-only, but its candidates can change the dataset, taxonomy, replay suite, and signed semantic-map bundle.
 
+## Governance by MLOps Scale
+
+The companion scale hub (`mlops-scale-research-scope.md`) separates MLOps maturity from fleet size alone. A small safety-critical deployment can need S4 evidence, while a large offline research program may still be S1 if no model reaches users.
+
+| Scale | Governance minimum | Release risk to control |
+|---|---|---|
+| S0 notebook research | Run notes, code commit, data pointer, fixed split | Result cannot be reproduced |
+| S1 repeatable prototype | Experiment tracker, dataset snapshot, Docker image, validation script | Demo model becomes an undocumented baseline |
+| S2 production product | Registry version, candidate/shadow/champion/rollback aliases, release packet, canary plan | Unreviewed model reaches an operational system |
+| S3 fleet and multi-site | Site/ODD slices, release channels, local holdouts, fleet monitoring, data-mining triggers | One global metric hides site-specific regressions |
+| S4 regulated safety-critical | Named approvers, safety-case claim links, immutable evidence, incident/rollback drill | Behavior change cannot be justified after an incident or audit |
+| S5 platform scale | Policy-as-code, multi-tenant registry, evidence automation, cost and access controls | Teams bypass shared governance with bespoke pipelines |
+
+For airside autonomy, model governance should usually reach S2 before the first shadow deployment and S4 before a model controls or materially influences a safety-critical behavior. That includes offline models when their outputs become semantic-map labels, training positives, route restrictions, or release evidence.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |
@@ -62,6 +77,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
+- `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
