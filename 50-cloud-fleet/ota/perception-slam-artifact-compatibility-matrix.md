@@ -21,7 +21,7 @@ Compatibility evidence should grow with MLOps authority. A research checkpoint c
 | S4 regulated safety-critical | Evidence-locked compatibility | Signed compatibility manifest linked to safety-case claims, replay packs, incident retention, and rollback drill | Behavior authority changes while compatibility evidence is ticket-only, expired, or mutable |
 | S5 platform scale | Policy-enforced compatibility | Policy-as-code checks over registry, map, calibration, prompt/evaluator, telemetry, feature/embedding, and deployment services | Shared platform permits a tenant to bypass compatibility or reuse unsupported artifacts |
 
-This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md`, `../mlops/model-registry-artifact-lifecycle-by-scale.md`, `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and `../mlops/secure-artifact-attestation-profile.md`: architecture defines where artifacts live, the registry lifecycle guide defines immutable artifact identity and alias authority, the scorecard defines what blocks release, the attestation profile defines artifact trust, and this matrix defines whether the artifact set can safely activate.
+This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md`, `../mlops/model-registry-artifact-lifecycle-by-scale.md`, `../mlops/serving-inference-operations-by-scale.md`, `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and `../mlops/secure-artifact-attestation-profile.md`: architecture defines where artifacts live, the registry lifecycle guide defines immutable artifact identity and alias authority, the serving guide defines endpoint, batch, traffic, scaling, and rollback controls, the scorecard defines what blocks release, the attestation profile defines artifact trust, and this matrix defines whether the artifact set can safely activate.
 
 ## Compatibility Axes
 
@@ -30,6 +30,7 @@ This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-s
 | Vehicle platform | Vehicle type, wheelbase, sensor kit, brake/steer interface, safety controller version | Geometry and actuation assumptions affect free-space and MRC behavior |
 | Sensor hardware | Sensor model, serial, firmware, timestamp mode, mounting position, health limits | Models and calibration are sensor-specific |
 | Compute/runtime | GPU/accelerator, driver, CUDA, TensorRT, ROS distro, kernel, DDS profile | Engines and latency behavior can change across runtime versions |
+| Serving route | Endpoint or batch service ID, serving manifest, traffic policy, shadow/canary/champion state, autoscaling policy | A valid artifact set can still be unsafe if served to the wrong cohort or under untested routing |
 | Model | Model ID, training data ID, input/output schema, class ontology, precision, calibration file | Consumers must understand tensors, classes, uncertainty, and thresholds |
 | Map | Site, bundle ID, tile IDs, datum, layers, overlays, route graph, expiry | Pose, route, and geofence depend on exact map bundle |
 | Calibration | Intrinsics, extrinsics, time offsets, sensor-to-base transform, verification state | Fusion and map alignment fail silently with stale calibration |
@@ -45,6 +46,7 @@ This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-s
 | Perception container | ROS distro, message definitions, GPU driver, model runtime, diagnostics graph | Topic/schema mismatch, unresolved dependency, untested DDS/QoS change | CI, SIL replay, interface contract check, SBOM/VEX |
 | SLAM/localization container | Map format, TF tree, sensor drivers, calibration, timing stack | Frame/datum change without migration test, timing policy mismatch | Replay ATE/RPE, timing stress, map compatibility test |
 | TensorRT engine | GPU architecture, TensorRT/CUDA versions, model hash, precision calibration | Engine built on different accelerator/runtime or stale calibration cache | Engine build attestation, deserialization test, latency report |
+| Serving manifest | Model server, endpoint, batch job, traffic split, autoscaling, input/output schema, telemetry, rollback route | Candidate served outside approved ODD cell, or endpoint behavior differs from evaluated package | Serving manifest, endpoint readiness, traffic policy review, rollback load test |
 | Neural model | Input preprocessing, ontology, uncertainty calibration, runtime thresholds | Class/order/schema change not reflected in consumers | Model card, dataset lineage, calibration and slice metrics |
 | Occupancy/free-space model | Grid resolution, unknown semantics, planner contract, protected-zone policy | Unknown/free encoding change or false-free-space gate failure | False-free-space report, OOD/unknown object evaluation |
 | Map bundle | Site/route, localization algorithm, calibration, vehicle geometry, overlays | Wrong active map, expired overlay, tile frame mismatch | Map QA report, source traversal provenance, canary metrics |
@@ -68,6 +70,7 @@ Use the checked JSON Schema contracts as the narrow machine-readable surface for
 | `compatibility_hash` | Hash over the full version set, not only individual artifacts |
 | `semantic_map_contract` | Semantic layer ID, taxonomy ID/hash, model/weights digest, calibration ID, confidence threshold file, QA report ID, source-map hash, tile-manifest hash, runtime export contract version |
 | `runtime_map_contract` | Autoware map contract version, `map_projector_info.yaml` hash, `pointcloud_map_metadata.yaml` hash, Lanelet2 loader evidence ID, pointcloud loader evidence ID, dynamic-load replay evidence ID if enabled |
+| `serving_contract` | Service ID, endpoint or batch job, model server/runtime, input/output contract, traffic policy, autoscaling policy, telemetry fields, rollback route |
 | `activation_preconditions` | Parked/mission-complete state, battery, network, operator acknowledgement if required |
 | `rollback_set` | Previous compatible artifact set and cache state |
 | `evidence_ids` | CI, replay, calibration, map QA, safety-case, security, and canary evidence |
@@ -113,6 +116,7 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md`
+- `50-cloud-fleet/mlops/serving-inference-operations-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md`
 - `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/mlops/model-governance-release-evidence.md`
@@ -127,6 +131,8 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - SLSA specification v1.2: https://slsa.dev/spec/latest/
 - MLflow Model Registry workflows: https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - Amazon SageMaker AI Model Registry: https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
+- KServe Serving Runtime: https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- NVIDIA Triton Inference Server Architecture: https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
 - ISO 24089:2023, Road vehicles - Software update engineering: https://www.iso.org/standard/77796.html
 - Autoware perception component interfaces: https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture-v1/interfaces/components/perception/
 - OpenTelemetry telemetry schemas: https://opentelemetry.io/docs/specs/otel/schemas/

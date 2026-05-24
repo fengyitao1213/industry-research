@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, serving platform, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, and ODD-cell canaries, use `serving-inference-operations-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -78,7 +78,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Introduce registry identity | Immutable model/map/labeler/eval/runtime artifact version, digest, authority state, aliases, and artifact-set membership |
 | Add release packet | Claim, evidence, limitations, rollback, approvers |
 | Freeze datasets and labels | Dataset manifest, label QA, leakage check, allowed-use state |
-| Package runtime artifact | ONNX/TensorRT/container package, load test, latency/memory report |
+| Package runtime artifact | ONNX/TensorRT/container package, serving manifest, load test, latency/memory report |
 | Add replay/offline gates | Holdout metrics, scenario replay smoke, calibration/OOD checks |
 | Add evaluation manifest | Eval authority state, evaluator version, metric spec, slice set, artifact-set hash, runtime package smoke, waiver state |
 | Add controlled aliases | `candidate`, `shadow`, `champion`, `rollback`, `quarantined` semantics |
@@ -163,7 +163,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Compute | Workstation or rented GPU | Scheduled jobs and owner tags | Shared queue and priority lanes | Reserved assurance capacity | Multi-tenant scheduler and FinOps |
 | Registry | Checkpoint folder | Versioned registry and aliases | Site/channel metadata | Immutable approval and retention | Registry policy and audit API |
 | Evaluation | Validation script | Evaluation manifest, holdout/replay/runtime smoke | Local holdouts, replay suites, shadow/canary evidence | Safety-case claim evidence, hazard replay, waiver expiry | Shared eval service with adapters, scenario catalog, and SLOs |
-| Deployment | Manual artifact | Shadow/canary/rollback | ODD-cell rollout | Controlled safety release | Progressive rollout platform |
+| Deployment and serving | Manual artifact or local batch job | Serving manifest, shadow/canary/rollback | ODD-cell rollout and site-scoped routing | Controlled safety release and rollback drill | Progressive rollout platform with endpoint SLOs |
 | Monitoring | Failure notes | Drift/runtime/latency metrics | Fleet anomaly and delayed labels | Reportability and evidence freeze | Platform observability SLOs |
 | Governance | Peer review | Release owners | Site/ODD release owners | Safety authority and approvers | Policy-as-code plus exception board |
 | Security | Secrets outside notebooks | Signed artifacts and SBOM | Site/tenant IAM | Trusted builders and retention | Attestation service and admission policy |
@@ -179,6 +179,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Data versioning/catalog | Datasets influence baselines or release evidence | Raw samples are exploratory only |
 | Pipeline orchestrator | Steps repeat across candidates, artifacts need lineage, or release/evidence workflows need explicit states | One-off preprocessing dominates |
 | Model/artifact registry | A model, runtime package, map, labeler, evaluator, replay pack, or adapter can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
+| Serving platform | Batch jobs, endpoints, shadows, canaries, or edge packages need a shared service contract, rollout policy, autoscaling, telemetry, and rollback | Local inference has no production client and no release authority |
 | Feature/embedding store | Derived representations are reused across teams, retrieval, mining, or evidence | One model owns a local feature file |
 | GPU scheduler | Jobs compete for accelerators or incidents need priority | One user rents occasional GPUs |
 | Policy engine | Manual gates miss required fields or many teams share release paths | Requirements are still changing daily |
@@ -254,6 +255,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `mlops-scorecards-and-kpis-by-scale.md` - migration scorecards and release blockers.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry records, alias authority, lifecycle states, artifact-set membership, and rollback retention.
+- `serving-inference-operations-by-scale.md` - serving modes, service manifests, platform selection, traffic routing, autoscaling, ODD-cell canary, and rollback controls.
 - `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator choices, workflow state machines, artifact handoff contracts, and release/evidence gates.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and platform service SLOs.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
@@ -290,4 +292,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
 - Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
+- NVIDIA, "NVIDIA Triton Inference Server Architecture." https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- Microsoft Learn, "Online endpoints for real-time inference." https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints-online
 - SLSA specification v1.2. https://slsa.dev/spec/latest/

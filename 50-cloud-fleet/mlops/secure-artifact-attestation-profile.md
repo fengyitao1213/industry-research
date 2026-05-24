@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page defines the secure artifact chain for MLOps systems that train, label, evaluate, package, and release autonomy artifacts. It extends software supply-chain controls into ML-specific assets: model weights, ONNX exports, TensorRT engines, semantic-map layers, map-hygiene sidecars, dataset manifests, prompt packs, evaluator models, replay packs, containers, and release packets.
+This page defines the secure artifact chain for MLOps systems that train, label, evaluate, package, serve, and release autonomy artifacts. It extends software supply-chain controls into ML-specific assets: model weights, ONNX exports, TensorRT engines, serving manifests, semantic-map layers, map-hygiene sidecars, dataset manifests, prompt packs, evaluator models, replay packs, containers, and release packets.
 
 The core rule is that signing proves integrity only after the organization defines what identity, builder, inputs, evidence, and policy are trusted. A signed but unreviewed artifact is not release evidence. A model registry entry without digest-bound provenance is not enough for a vehicle, map publication, or safety case. Use `model-registry-artifact-lifecycle-by-scale.md` to define which registry records, lifecycle states, aliases, artifact-set memberships, and rollback retention policies the attestations must bind to.
 
@@ -16,7 +16,7 @@ Autonomy releases combine software, data, learned parameters, maps, runtime conf
 - which code, dependency lock, container base, builder, GPU class, and workflow produced the artifact;
 - whether the artifact was scanned, reviewed, approved, and promoted under the right authority;
 - whether the digest deployed at runtime is the same digest that passed evaluation and safety review;
-- whether a registry alias, OTA manifest, map bundle, or runtime contract can be rolled back to a previous trusted set.
+- whether a registry alias, serving manifest, OTA manifest, map bundle, or runtime contract can be rolled back to a previous trusted set.
 
 The failure mode is not only a malicious image. It is also a stale TensorRT engine, a changed class order, an unsigned prompt pack, a dataset snapshot with wrong allowed-use state, a semantic map built from an unaccepted source map, or a release packet whose evidence cannot be reconstructed after an incident.
 
@@ -207,6 +207,7 @@ This metadata can begin as a checked manifest and later move into a registry or 
 - `mlops-scale-research-scope.md` - maturity ladder and research backlog.
 - `mlops-reference-architectures-by-scale.md` - where artifact trust belongs in S0-S5 architectures.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry identity, alias authority, lifecycle states, and rollback retention for signed artifacts.
+- `serving-inference-operations-by-scale.md` - serving manifests, endpoint/batch/edge traffic policy, package parity, endpoint security, and rollback verification.
 - `mlops-scorecards-and-kpis-by-scale.md` - attestation metrics and release blockers.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, and retrieval artifacts.
@@ -236,3 +237,4 @@ This metadata can begin as a checked manifest and later move into a registry or 
 - Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
 - Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime

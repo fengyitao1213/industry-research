@@ -4,7 +4,7 @@
 
 Pipeline orchestration is where MLOps discipline becomes enforceable. A workflow engine can run preprocessing, labeling, training, evaluation, export, replay, packaging, attestation, and deployment tasks, but the important design question is not "which orchestrator should we buy?" It is which state transitions must be automated, which must be gated, which artifacts must be immutable, and which failures should block release.
 
-Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `model-registry-artifact-lifecycle-by-scale.md` for registry lifecycle and alias authority, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifests and replay/runtime/shadow evidence, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
+Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `model-registry-artifact-lifecycle-by-scale.md` for registry lifecycle and alias authority, `serving-inference-operations-by-scale.md` for serving manifests, package/export readiness, endpoint traffic policy, canary rollout, autoscaling, and rollback load paths, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifests and replay/runtime/shadow evidence, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
 
 The core rule is simple: orchestration may produce evidence automatically, but it must not silently create release authority. A green DAG can create a candidate. It cannot move a model, semantic map, labeler, prompt pack, or runtime artifact into production without the required evidence and approval state.
 
@@ -86,6 +86,7 @@ Every task boundary should pass typed artifacts, not path strings.
 | Training run manifest | code/config/environment/data/split/metric/output lineage | Training workflow | Registry, governance |
 | Evaluation manifest/report | eval authority, metric spec, evaluator version, artifact-set hash, aggregate and slice metrics, replay IDs, runtime smoke, failures, waivers | Eval workflow | Release packet |
 | Runtime package manifest | ONNX/TensorRT/container digests, class order, hardware target, compatibility IDs | Export workflow | Deployment, OTA/SUMS |
+| Serving manifest | service ID, artifact set, registry alias, input/output contract, runtime target, traffic policy, scaling policy, observability, rollback path | Export/deploy workflow | Serving platform, monitoring, incident response |
 | Attestation bundle | subject digest, builder identity, workflow ID, SBOM/provenance, policy result | Build/sign workflow | Registry, deployment policy |
 | Release packet | claim, evidence links, approvers, scope, rollback, expiry | Release workflow | Governance, OTA, safety case |
 | Incident evidence record | active artifacts, logs/clips, replay, containment, corrective action | Incident workflow | Safety case, post-release learning |
@@ -254,6 +255,7 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - `mlops-migration-checklist-by-scale.md` - transition triggers for adding orchestrators and policy gates.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority, reproducibility levels, and run manifest contract.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry records, alias authority, lifecycle states, artifact-set membership, and rollback retention.
+- `serving-inference-operations-by-scale.md` - serving manifest, endpoint/batch/edge rollout policy, autoscaling, telemetry, and rollback.
 - `mlops-scorecards-and-kpis-by-scale.md` - scorecards and release-blocking metrics.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and evaluation-service SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage reports.
@@ -272,6 +274,8 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - TensorFlow, "Understanding TFX Pipelines." https://www.tensorflow.org/tfx/guide/understanding_tfx_pipelines
 - MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/
 - TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- Seldon, "Seldon Core 2 Architecture." https://docs.seldon.ai/seldon-core-2/v2.9/about/architecture
 - GitHub Docs, "Workflows." https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows
 - DVC, "Pipelines." https://doc.dvc.org/user-guide/pipelines
 - Ray, "Ray Train: Scalable Model Training." https://docs.ray.io/en/latest/train/train.html

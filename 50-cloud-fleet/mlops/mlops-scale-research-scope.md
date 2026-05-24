@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, split/leakage contamination, drift response gaps, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `experiment-tracking-reproducibility-by-scale.md` to decide whether a run is scratch, exploratory, baseline, candidate, release, evidence, or platform-benchmark authority, and whether the run meets the reproducibility level required for that authority. Use `model-registry-artifact-lifecycle-by-scale.md` to design registry records, lifecycle states, alias authority, artifact-set membership, rollback retention, and S0-S5 registry platform boundaries. Use `pipeline-orchestration-release-workflows-by-scale.md` to separate data, training, evaluation, export, release, and incident workflows so automated DAGs produce evidence without silently creating release authority. Use `evaluation-platform-replay-gates-by-scale.md` to design metric specs, evaluation manifests, replay gates, runtime package checks, shadow/canary evidence, and platform-scale evaluation services. Use `dataset-split-leakage-controls-by-scale.md` before promoting datasets, label batches, replay packs, feature snapshots, or model releases that need independent holdout evidence. Use `model-monitoring-drift-response-by-scale.md` before wiring drift alerts to retraining, canary holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, split/leakage contamination, drift response gaps, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `experiment-tracking-reproducibility-by-scale.md` to decide whether a run is scratch, exploratory, baseline, candidate, release, evidence, or platform-benchmark authority, and whether the run meets the reproducibility level required for that authority. Use `model-registry-artifact-lifecycle-by-scale.md` to design registry records, lifecycle states, alias authority, artifact-set membership, rollback retention, and S0-S5 registry platform boundaries. Use `serving-inference-operations-by-scale.md` to govern batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, ODD-cell canaries, and rollback at the right maturity level. Use `pipeline-orchestration-release-workflows-by-scale.md` to separate data, training, evaluation, export, release, and incident workflows so automated DAGs produce evidence without silently creating release authority. Use `evaluation-platform-replay-gates-by-scale.md` to design metric specs, evaluation manifests, replay gates, runtime package checks, shadow/canary evidence, and platform-scale evaluation services. Use `dataset-split-leakage-controls-by-scale.md` before promoting datasets, label batches, replay packs, feature snapshots, or model releases that need independent holdout evidence. Use `model-monitoring-drift-response-by-scale.md` before wiring drift alerts to retraining, canary holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
 
 ---
 
@@ -58,7 +58,7 @@ The common mistake is jumping from S0 to S5 tools before S1-S2 discipline exists
 | Experiment tracking | MLflow/W&B/DVC run tracking with authority states | Run registry linked to dataset, split, code, seed, hardware, metric, and output digests | Organization-wide experiment/eval warehouse with lineage, audit export, and policy templates |
 | Registry | File path and release note | MLflow or managed registry with aliases | Registry integrated with policy, approvals, software bill of materials, secure artifact attestations, rollback |
 | Evaluation | Single validation split and smoke tests | Slice metrics, replay, calibration, runtime package smoke, evaluation manifest, regression suite | Eval service with scenario mining, red-team cases, safety-case claims, platform SLOs |
-| Serving | Local script or batch job | Triton/TensorRT, KServe, BentoML, managed endpoints, OTA artifacts | Multi-region serving, edge/cloud routing, progressive rollout, automated rollback |
+| Serving | Local script or batch job with sample input/output note | Triton/TensorRT, KServe, Seldon, Ray Serve, BentoML/MLServer, managed endpoints, OTA artifacts with serving manifest | Multi-tenant serving platform, edge/cloud routing, progressive rollout, policy-gated rollback, endpoint SLOs |
 | Monitoring | Logs and manual review | Latency, error rate, drift proxies, delayed-label metrics | Fleet-wide SLOs, incident response, root-cause attribution, compliance evidence |
 
 ### Pipeline Promotion Gates by Scale
@@ -116,7 +116,7 @@ The anti-pattern is buying an S5 platform to compensate for S1 discipline gaps. 
 | Dataset snapshot and splits | Data owner | Model owner, privacy/security owner; use `dataset-split-leakage-controls-by-scale.md` when the split affects release, replay, pseudo-label, or safety evidence |
 | Training run and checkpoint | Model owner | Compute/MLOps owner |
 | Evaluation suite and thresholds | Model owner | Safety validation, site operations |
-| Runtime package | Runtime owner | Model owner, OTA/SUMS owner |
+| Runtime package and serving manifest | Runtime or serving owner | Model owner, registry owner, OTA/SUMS owner, fleet operations |
 | Semantic map or map-derived labels | Map owner | Localization/SLAM owner, data owner, safety owner |
 | Release approval | Release owner | Model, data, runtime, safety, fleet operations |
 | Monitoring and rollback trigger | Fleet operations owner | Runtime owner, safety owner, MLOps owner |
@@ -213,6 +213,8 @@ Deployment modes should map to risk:
 | Emergency rollback | Recover from regression | Tested rollback alias and cached artifact |
 
 For vehicle and robot fleets, rollout is by ODD cell, not only by percentage. A 5% canary that covers only easy daylight routes does not prove a night/rain/stand-operation release.
+
+Use `serving-inference-operations-by-scale.md` to decide whether the deployment is a local batch job, online endpoint, asynchronous endpoint, shadow route, canary, managed cloud endpoint, Triton/KServe/Seldon/Ray/BentoML service, or OTA edge package. The serving manifest should bind the registry alias to the input contract, output contract, runtime target, traffic policy, scaling policy, observability, security evidence, and rollback path.
 
 ### 6.1 Incident and Rollback Scale Ladder
 
@@ -443,6 +445,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | Experiment tracking and reproducibility controls (`experiment-tracking-reproducibility-by-scale.md`) | Prevents scratch runs from becoming hidden baselines and candidate/release runs from lacking data, split, config, environment, artifact, cost, and audit lineage |
 | P1 | Model registry and artifact lifecycle (`model-registry-artifact-lifecycle-by-scale.md`) | Defines immutable artifact identity, alias authority, lifecycle states, artifact-set registry records, rollback retention, and managed-site registry scope across S0-S5 |
+| P1 | Serving and inference operations (`serving-inference-operations-by-scale.md`) | Defines batch, online, shadow, canary, edge, and platform serving patterns, service manifests, autoscaling, ODD-cell traffic routing, rollback, and observability controls across S0-S5 |
 | P1 | Pipeline orchestration and release workflows (`pipeline-orchestration-release-workflows-by-scale.md`) | Separates build, eval, export, register, release, incident, and evidence workflows so automation produces artifacts and evidence without bypassing approval gates |
 | P1 | Evaluation platforms and replay gates (`evaluation-platform-replay-gates-by-scale.md`) | Defines metric specs, evaluator identity, replay packages, runtime package checks, shadow/canary evidence, ODD-cell evaluation manifests, and platform-scale evaluation service SLOs |
 | P1 | Dataset split and leakage controls (`dataset-split-leakage-controls-by-scale.md`) | Prevents train/eval/replay/local-holdout contamination across temporal, site, vehicle, map, labeler, synthetic, feature, and federated boundaries |
@@ -467,6 +470,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest contract, tracker architecture options, and autonomy-specific run lineage.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry records, lifecycle states, alias authority, artifact-set membership, rollback retention, and platform registry boundaries.
+- `serving-inference-operations-by-scale.md` - batch, online, shadow, canary, edge, and platform inference operations by scale.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow state machines, orchestrator choices, release workflow gates, and incident/evidence lanes by scale.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and platform evaluation SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests, leakage taxonomies, holdout controls, and training/evaluation architecture tradeoffs by scale.
@@ -516,6 +520,9 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
 - Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
+- NVIDIA, "NVIDIA Triton Inference Server Architecture." https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- Ray, "Ray Serve Autoscaling." https://docs.ray.io/en/latest/serve/autoscaling-guide.html
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - TensorFlow, "TFX: ML Production Pipelines." https://www.tensorflow.org/tfx
 - Feast, "Introduction." https://docs.feast.dev/

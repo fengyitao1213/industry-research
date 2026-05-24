@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-Model monitoring is the feedback control layer of MLOps. It detects when deployed or release-candidate models are no longer behaving like the evidence that approved them. For autonomy, monitoring must cover more than feature drift: model quality, input quality, output consistency, calibration, runtime health, site/ODD slices, map and calibration state, delayed labels, replay regressions, intervention signals, and incident evidence all matter.
+Model monitoring is the feedback control layer of MLOps. It detects when deployed or release-candidate models are no longer behaving like the evidence that approved them. For autonomy, monitoring must cover more than feature drift: model quality, input quality, output consistency, calibration, runtime health, serving manifest state, endpoint traffic policy, site/ODD slices, map and calibration state, delayed labels, replay regressions, intervention signals, and incident evidence all matter.
 
 The key rule is that monitoring is not an automatic retraining switch. A drift alert should create a controlled artifact: a triage ticket, label batch, replay case, local holdout update, canary hold, ODD-cell quarantine, rollback decision, safety-case delta, or retraining proposal. Training remains gated by dataset lineage, split integrity, evaluation, shadow/canary evidence, and release approval.
 
@@ -13,6 +13,7 @@ The key rule is that monitoring is not an automatic retraining switch. A drift a
 | Question | Example signal | Why it matters |
 |---|---|---|
 | Is the system alive? | Endpoint health, model load status, queue time, p99 latency, GPU memory, dropped frames | Runtime failure can masquerade as model failure |
+| Is the serving route correct? | Serving manifest version, shadow/canary/champion route, traffic split, ODD-cell cohort, endpoint or batch job ID | A good model can be unsafe if served outside its approved scope |
 | Is the input valid? | Missing sensor fields, timestamp skew, LiDAR point-count shift, camera exposure, calibration validity | The model may be fine but the input contract is broken |
 | Is production like training? | Feature skew against training baseline, weather/site mix, object count distribution, map-state distribution | Training-serving skew can degrade performance before labels arrive |
 | Is production changing over time? | Drift against recent production windows, seasonal shift, new aircraft or equipment type, construction zone | A model can become stale even with valid inputs |
@@ -41,7 +42,7 @@ The key rule is that monitoring is not an automatic retraining switch. A drift a
 | Human operations | Intervention rate, teleop request, operator override, near-miss note | Incident command, reportability assessment, corrective action | Treating operator behavior as noise |
 | Foundation-model/agent drift | Prompt-output distribution, retrieval miss, judge disagreement, tool-call error | Trace retention, prompt-injection alert, policy-gated tool action | Treating generated summaries as evidence |
 
-Managed services such as SageMaker Model Monitor, Azure ML model monitoring, and Vertex AI Model Monitoring use a common production pattern: collect production inputs/outputs, define a reference baseline, calculate monitoring metrics on a schedule or stream, compare to thresholds, and route alerts. Autonomy needs the same pattern with richer artifact IDs, ODD slices, delayed labels, and safety actions.
+Managed services such as SageMaker Model Monitor, Azure ML model monitoring, and Vertex AI Model Monitoring use a common production pattern: collect production inputs/outputs, define a reference baseline, calculate monitoring metrics on a schedule or stream, compare to thresholds, and route alerts. Serving platforms such as Triton, KServe, Ray Serve, Seldon, BentoML, and managed endpoints also emit readiness, latency, queue, replica, and routing signals. Autonomy needs those signals joined with richer artifact IDs, ODD slices, delayed labels, and safety actions.
 
 ---
 
@@ -84,6 +85,7 @@ The durable interface is not the dashboard. It is the monitoring event contract:
 | `event_type` | Service health, data quality, skew, drift, prediction drift, calibration, OOD, delayed label, replay, incident, suppression |
 | `artifact_set` | Model, runtime, map, calibration, telemetry schema, semantic taxonomy, prompt/labeler/evaluator, feature/index snapshot |
 | `deployment_scope` | Site, route, zone, task, vehicle kit, weather/lighting, map release state, tenant, rollout channel |
+| `serving_scope` | Endpoint, batch job, model server, service manifest, traffic policy, shadow/canary/champion state, autoscaling policy |
 | `baseline_reference` | Training snapshot, validation snapshot, recent production window, safety holdout, replay suite, or SLO target |
 | `comparison_window` | Production time window, fleet denominator, sample count, missing-data rate |
 | `metric_payload` | Metric name, value, threshold, confidence/uncertainty, slice denominator, severity |
@@ -210,6 +212,7 @@ For aggregated-map semantic segmentation and ML-related SLAM, monitoring should 
 - `mlops-scorecards-and-kpis-by-scale.md` - release-blocking metrics, cadence, and anti-metrics.
 - `mlops-reference-architectures-by-scale.md` - S0-S5 architecture patterns and monitoring interfaces.
 - `mlops-migration-checklist-by-scale.md` - migration gates and adoption evidence packets.
+- `serving-inference-operations-by-scale.md` - serving telemetry, service manifests, traffic policy, endpoint readiness, autoscaling, and rollback hooks.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage controls for monitoring-derived datasets.
 - `model-governance-release-evidence.md` - release packet, rollback, and incident evidence.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and local holdout gates.
@@ -227,6 +230,8 @@ For aggregated-map semantic segmentation and ML-related SLAM, monitoring should 
 - Microsoft Learn, "Model monitoring in production - Azure Machine Learning." https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
 - Google Cloud, "Introduction to Vertex AI Model Monitoring." https://docs.cloud.google.com/vertex-ai/docs/model-monitoring/overview
 - Evidently AI, "Monitoring overview." https://docs.evidentlyai.com/docs/platform/monitoring_overview
+- NVIDIA, "NVIDIA Triton Inference Server Architecture." https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
+- Ray, "Ray Serve Autoscaling." https://docs.ray.io/en/latest/serve/autoscaling-guide.html
 - TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
 - OpenTelemetry, "What is OpenTelemetry?" https://opentelemetry.io/docs/what-is-opentelemetry/
 - Prometheus, "Alerting rules." https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/

@@ -4,7 +4,7 @@
 
 A model registry is the identity and lifecycle system for release-affecting ML artifacts. In autonomy, that scope is broader than model weights: it includes ONNX/TensorRT engines, containers, calibration-aware packages, semantic maps, map-hygiene layers, prompt packs, offboard labelers, evaluator packs, replay packs, feature/embedding snapshots, adapter weights, rollback bundles, and signed evidence records.
 
-Use this page to design registry semantics across S0-S5 MLOps. Use `model-governance-release-evidence.md` for claims-and-evidence release packets, `secure-artifact-attestation-profile.md` for signatures and provenance, `evaluation-platform-replay-gates-by-scale.md` for evaluation/replay gates, `pipeline-orchestration-release-workflows-by-scale.md` for artifact-producing workflows, and `../ota/perception-slam-artifact-compatibility-matrix.md` for the artifact-set compatibility manifest.
+Use this page to design registry semantics across S0-S5 MLOps. Use `model-governance-release-evidence.md` for claims-and-evidence release packets, `secure-artifact-attestation-profile.md` for signatures and provenance, `evaluation-platform-replay-gates-by-scale.md` for evaluation/replay gates, `serving-inference-operations-by-scale.md` for serving manifests, endpoint traffic policy, batch/online/edge scope, and rollback load paths, `pipeline-orchestration-release-workflows-by-scale.md` for artifact-producing workflows, and `../ota/perception-slam-artifact-compatibility-matrix.md` for the artifact-set compatibility manifest.
 
 The core rule is: **aliases are authority, not labels.** Moving `candidate`, `shadow`, `champion`, `rollback`, `site_champion`, or `quarantined` changes what downstream systems may load, evaluate, deploy, mine, or trust. Alias movement should therefore be gated by evidence, policy, owner, rollback state, and scope.
 
@@ -16,6 +16,7 @@ The core rule is: **aliases are authority, not labels.** Moving `candidate`, `sh
 |---|---|---|
 | Model weights/checkpoint | Immutable version, source run, dataset/split lineage, metric evidence, output digest | Prevents ambiguous "latest model" handoffs |
 | Runtime package | ONNX/TensorRT engine, container digest, class order, hardware target, dependency lock | Prevents offline checkpoint approval from bypassing deployability checks |
+| Serving endpoint or batch service | Service manifest, traffic policy, input/output contract, autoscaling, telemetry, rollback route | Prevents a valid artifact from being served to the wrong client, site, or ODD cell |
 | Adapter or LoRA | Parent model, site/task scope, training data, compatibility, rollback pair | Prevents local adapters from becoming invisible production variants |
 | Semantic map or map layer | Map bundle, source-map acceptance, semantic taxonomy, map-hygiene layer, release state | Prevents wrong map truth from contaminating runtime or training exports |
 | Calibration-aware bundle | Sensor kit, calibration package, time-sync assumptions, hardware cohort | Prevents model/map approval from moving across incompatible vehicles |
@@ -132,6 +133,7 @@ Autonomy releases are artifact sets, not single models.
 |---|---|
 | Model or adapter | Was it trained and evaluated for this taxonomy, ODD, and runtime package? |
 | Runtime engine/container | Does the deployed artifact match the evaluated package and target hardware? |
+| Serving service manifest | Does the endpoint, batch job, traffic split, input/output schema, telemetry, and scaling policy match the approved scope? |
 | Semantic map/map layer | Does the map state, release-state layer, and taxonomy match the model contract? |
 | Calibration package | Does the sensor kit and time-sync state match training/eval/replay evidence? |
 | Telemetry schema | Can monitoring, canary, and incident replay interpret outputs correctly? |
@@ -198,6 +200,7 @@ The registry is therefore also a map and label governance system. It must preven
 - `mlops-scorecards-and-kpis-by-scale.md` - registry, release, rollback, and evidence KPIs.
 - `model-governance-release-evidence.md` - claims-and-evidence release packets and approval ownership.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests and replay/runtime gates before alias movement.
+- `serving-inference-operations-by-scale.md` - serving manifests, traffic policy, endpoint readiness, autoscaling, ODD-cell rollout, and rollback.
 - `secure-artifact-attestation-profile.md` - signing, SBOM, provenance, and policy verification.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow states that produce and promote artifacts.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and site-scoped aliases.
@@ -216,5 +219,7 @@ The registry is therefore also a map and label governance system. It must preven
 - Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - Amazon SageMaker AI, "Update the Approval Status of a Model." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-approve.html
 - Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- Google Cloud, "Deploy a model to an endpoint." https://cloud.google.com/vertex-ai/docs/general/deployment
 - OCI Distribution Specification. https://github.com/opencontainers/distribution-spec
 - SLSA Specification. https://slsa.dev/spec/latest/

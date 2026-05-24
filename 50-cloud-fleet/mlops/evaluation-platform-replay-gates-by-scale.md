@@ -4,7 +4,7 @@
 
 An evaluation platform is the control surface that decides whether a model, map, labeler, prompt pack, runtime package, or training export has earned more authority. It is not a dashboard of aggregate accuracy. At autonomy scale, evaluation must join offline metrics, slice metrics, calibration, OOD behavior, scenario replay, runtime package smoke, shadow disagreement, canary exposure, delayed labels, safety-case claims, and rollback readiness.
 
-Use this page when designing the evaluation layer for MLOps programs from S0 research through S5 shared platforms. Use `mlops-scale-research-scope.md` for the maturity ladder, `experiment-tracking-reproducibility-by-scale.md` for run authority, `dataset-split-leakage-controls-by-scale.md` for independent release data, `pipeline-orchestration-release-workflows-by-scale.md` for workflow placement, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, and `model-governance-release-evidence.md` for the release packet that consumes evaluation evidence.
+Use this page when designing the evaluation layer for MLOps programs from S0 research through S5 shared platforms. Use `mlops-scale-research-scope.md` for the maturity ladder, `experiment-tracking-reproducibility-by-scale.md` for run authority, `dataset-split-leakage-controls-by-scale.md` for independent release data, `serving-inference-operations-by-scale.md` for serving manifests, endpoint readiness, package parity, traffic policy, and shadow/canary telemetry, `pipeline-orchestration-release-workflows-by-scale.md` for workflow placement, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, and `model-governance-release-evidence.md` for the release packet that consumes evaluation evidence.
 
 The core rule is: **the evaluated artifact set must be the released artifact set.** A checkpoint score is not release evidence if the deployed ONNX/TensorRT engine, container, map, calibration package, semantic taxonomy, prompt/labeler, replay pack, telemetry schema, or threshold policy differs from what was evaluated.
 
@@ -117,6 +117,7 @@ Most autonomy programs need a hybrid: lightweight model-eval tooling for metric 
 | Slice evaluation | Did any required class, site, weather, route, map state, or task regress? | S2 |
 | Calibration/OOD/uncertainty | Are confidence, abstention, unknown, and threshold behavior controlled? | S2 |
 | Runtime package evaluation | Does the deployable artifact load and meet edge constraints? | S2 |
+| Serving manifest evaluation | Does the endpoint, batch job, traffic route, autoscaling policy, telemetry, and rollback path match the approved artifact set? | S2 |
 | Replay regression | Do known incidents and required scenarios still pass? | S2 |
 | Shadow disagreement | Does the candidate disagree with champion in acceptable ways on live inputs? | S3 |
 | Canary/delayed-label evaluation | Does limited authority produce acceptable outcomes in the target ODD cell? | S3 |
@@ -200,6 +201,7 @@ The evaluation service should not simply score the final model. It should also e
 | Unsupported evaluator comparison | S1-S5 | Candidate and baseline used different metric specs, slice sets, thresholds, or evaluator versions |
 | Evaluation data leakage | S1-S5 | Training, tuning, pseudo-labeling, replay mining, feature building, or local holdouts contaminated the release gate |
 | Runtime/evaluation artifact mismatch | S2-S5 | The released engine/container/map/calibration/taxonomy is not the evaluated artifact set |
+| Serving/evaluation mismatch | S2-S5 | Endpoint, batch service, traffic policy, input schema, preprocessing path, autoscaling setting, or rollout scope differs from evaluated evidence |
 | Replay suite mismatch | S2-S5 | Required incidents, changed tiles, hazard scenarios, or ODD-cell cases are missing |
 | Target slice regression | S3-S5 | Aggregate score improves while site, class, weather, map-state, or task slice regresses |
 | Missing shadow/canary denominator | S3-S5 | Live exposure cannot support the requested ODD-cell decision |
@@ -240,6 +242,7 @@ At S5, platform scorecards should measure adoption and bypass attempts, but prod
 - `mlops-scorecards-and-kpis-by-scale.md` - KPI families, release blockers, and operating cadence.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority and reproducibility inputs to evaluation.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow state machine for build/eval/release separation.
+- `serving-inference-operations-by-scale.md` - serving manifests, endpoint readiness, traffic routing, autoscaling, package parity, and rollback checks.
 - `dataset-split-leakage-controls-by-scale.md` - split firewall and leakage controls for release evaluation.
 - `model-monitoring-drift-response-by-scale.md` - monitoring, delayed-label, replay, and incident response inputs.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests and local release decisions.
@@ -265,6 +268,8 @@ At S5, platform scorecards should measure adoption and bypass attempts, but prod
 - Evidently AI, "Tests." https://docs.evidentlyai.com/docs/library/tests
 - Google Cloud, "Model evaluation in Vertex AI." https://cloud.google.com/vertex-ai/docs/evaluation/introduction
 - Google Cloud, "Gen AI evaluation service overview." https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview
+- NVIDIA, "NVIDIA Triton Inference Server Architecture." https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
+- KServe, "Open Inference Protocol (V2 Inference Protocol)." https://kserve.github.io/website/docs/concepts/architecture/data-plane/v2-protocol
 - ASAM OpenSCENARIO. https://www.asam.net/standards/detail/openscenario/
 - ASAM OpenLABEL. https://www.asam.net/standards/detail/openlabel/
 - Waymo, "Safe to Deploy: How We Know The Waymo Driver Is Ready For The Road." https://waymo.com/blog/2025/06/safe-to-deploy

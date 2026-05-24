@@ -6,7 +6,7 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `model-registry-artifact-lifecycle-by-scale.md` for immutable artifact identity, alias authority, lifecycle states, artifact-set membership, rollback retention, and registry-scope controls before alias movement. Use `pipeline-orchestration-release-workflows-by-scale.md` to keep build, eval, export, register, release, incident, and evidence workflows separated so a successful training DAG cannot silently approve a release. Use `evaluation-platform-replay-gates-by-scale.md` for the metric spec, evaluator identity, replay/runtime checks, shadow/canary evidence, ODD-cell evaluation manifest, and platform evaluation SLOs that decide whether the release packet has enough evidence. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `model-registry-artifact-lifecycle-by-scale.md` for immutable artifact identity, alias authority, lifecycle states, artifact-set membership, rollback retention, and registry-scope controls before alias movement. Use `serving-inference-operations-by-scale.md` for the serving manifest, endpoint or batch route, input/output contract, traffic policy, autoscaling, ODD-cell canary, telemetry, and rollback load path that prove the approved artifact is the served artifact. Use `pipeline-orchestration-release-workflows-by-scale.md` to keep build, eval, export, register, release, incident, and evidence workflows separated so a successful training DAG cannot silently approve a release. Use `evaluation-platform-replay-gates-by-scale.md` for the metric spec, evaluator identity, replay/runtime checks, shadow/canary evidence, ODD-cell evaluation manifest, and platform evaluation SLOs that decide whether the release packet has enough evidence. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
@@ -69,6 +69,7 @@ Release governance fails when "the model team approved it" means nobody checked 
 | Candidate model is reviewable | Model owner | Data owner | Training provenance, dataset manifest, evaluation report |
 | Dataset snapshot is eligible | Data owner | Privacy/security owner, map owner for map-derived labels | Lineage, split policy, label QA, retention/data-use class |
 | Runtime artifact is deployable | Runtime owner | OTA/SUMS owner | ONNX/TensorRT/container compatibility, load test, rollback artifact |
+| Serving route is approved | Serving/runtime owner | Fleet operations, release manager | Serving manifest, traffic policy, endpoint readiness, autoscaling, ODD-cell scope, rollback load test |
 | ODD/site scope is valid | Fleet operations owner | Safety owner, site operations | Site slices, shadow coverage, local holdout metrics |
 | Release claim is defensible | Safety owner | Model owner, data owner, runtime owner, release manager | Scenario replay, safety-case claim IDs, residual-risk decision |
 | Champion alias can move | Release manager | Model, data, runtime, safety, fleet operations | Signed release decision, rollback trigger, expiry date |
@@ -88,6 +89,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Pseudo-label invalidation record | Batch ID, invalidation trigger, affected source map/calibration/taxonomy/release-state scope, downstream consumers, rebuild or waiver decision | Data owner |
 | Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
 | Evaluation manifest/report | Eval authority, evaluator identity, metric spec, artifact-set hash, primary metrics, calibration, uncertainty, class/site/weather/map-state slices, runtime smoke, comparable-baseline proof | Model owner |
+| Serving manifest | Service ID, endpoint or batch job, registry alias, input/output contract, traffic policy, scaling policy, telemetry fields, security state, rollback route | Runtime/serving owner |
 | Scenario replay report | Required scenario suite, replay package IDs, new mined scenarios, changed-map tiles, failures, flake state, waiver owner/expiry | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
 | Site-sliced release record | ODD-cell manifest, local holdout, shadow/canary exposure, delayed-label review, rollout decision, expiry, waiver state | Release manager |
@@ -149,6 +151,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
 | Drift alert ignored or auto-retrains | Release state changes without evidence, or a local regression remains uncontained | Route monitoring events through response states, owner, containment action, and retraining trigger policy |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
+| Serving route mismatch | Approved artifact is served through an unreviewed endpoint, traffic split, or ODD cohort | Require serving manifest parity, endpoint readiness, telemetry IDs, and rollback route before deployment |
 | Artifact digest or provenance missing | Release packet cannot prove the deployed package is the evaluated package | Require signed artifacts, SBOM/provenance, policy result, and trusted-builder evidence before alias movement |
 | Offline labeler changes without governance | Training labels or semantic maps shift while the deployed model appears unchanged | Version prompt sets, labeler models, thresholds, accepted/rejected statistics, and rollback impact |
 | Rollback model not executable | Recovery depends on a manual hotfix | Keep `rollback` alias and compatible artifact bundle current |
@@ -162,6 +165,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
 - `50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md`
+- `50-cloud-fleet/mlops/serving-inference-operations-by-scale.md`
 - `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md`
 - `50-cloud-fleet/mlops/pipeline-orchestration-release-workflows-by-scale.md`
@@ -188,6 +192,8 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
 - Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
+- KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
+- Google Cloud, "Deploy a model to an endpoint." https://cloud.google.com/vertex-ai/docs/general/deployment
 - MLflow, "MLflow Tracking." https://mlflow.org/docs/latest/ml/tracking/
 - Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
 - DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management

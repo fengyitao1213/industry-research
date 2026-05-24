@@ -26,15 +26,15 @@ This document covers the hard engineering problems of deploying ML models -- par
 
 ## Deployment Scale Boundary
 
-The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training. Use `../../50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md` for the registry aliases, artifact lifecycle states, artifact-set membership, and rollback retention rules that decide what runtime is allowed to load. The companion MLOps guide `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` defines how runtime monitoring events become release holds, label batches, replay cases, ODD-cell quarantine, rollback, retraining proposals, or safety-case deltas.
+The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training. Use `../../50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md` for the registry aliases, artifact lifecycle states, artifact-set membership, and rollback retention rules that decide what runtime is allowed to load. Use `../../50-cloud-fleet/mlops/serving-inference-operations-by-scale.md` for the broader batch/online/edge serving architecture, inference service manifests, traffic policy, autoscaling, ODD-cell canary, and rollback controls. The companion MLOps guide `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` defines how runtime monitoring events become release holds, label batches, replay cases, ODD-cell quarantine, rollback, retraining proposals, or safety-case deltas.
 
 | MLOps scale | Runtime deployment posture | Required runtime evidence |
 |---|---|---|
 | S0-S1 research/prototype | Local script, batch inference, or developer workstation | Reproducible environment and basic output smoke test |
 | S2 production product | Versioned container or TensorRT engine with registry alias | Load test, latency/memory budget, rollback artifact, compatibility manifest |
-| S3 fleet and multi-site | Site/channel canaries with fleet telemetry | Per-site latency, health, disagreement, intervention, and ODD coverage metrics |
+| S3 fleet and multi-site | Site/channel canaries with serving manifest and fleet telemetry | Per-site latency, health, disagreement, intervention, traffic-scope, and ODD coverage metrics |
 | S4 regulated safety-critical | Evidence-linked release and rollback | Safety-case claim linkage, scenario replay, shadow/canary report, incident trigger policy |
-| S5 platform scale | Shared serving platform and policy-as-code | Multi-tenant isolation, quota/cost tracking, automated evidence collection, standardized observability |
+| S5 platform scale | Shared serving platform and policy-as-code | Multi-tenant isolation, quota/cost tracking, serving SLOs, automated evidence collection, standardized observability |
 
 For autonomous vehicles, runtime deployment cannot be separated from maps, calibration, sensor health, and OTA/SUMS controls. A model can be correctly trained and still be undeployable if its TensorRT engine targets the wrong GPU, its class order mismatches the semantic map, its calibration assumptions are stale, or the rollback model cannot load under the active runtime.
 
@@ -55,6 +55,8 @@ Runtime promotion should be the last step in an evidence ladder, not a direct co
 At S3+, do not promote by fleet percentage alone. Promote by ODD cell: airport, terminal zone, vehicle type, sensor kit, weather/lighting band, map release state, and operational task. A low-percentage canary that only covers easy daytime service roads does not validate night operations, stand entry, jetblast zones, or crowded baggage areas.
 
 The companion MLOps page `../../50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md` defines the ODD-cell release manifest that should feed this runtime gate. Runtime canary dashboards should use that manifest as the denominator: the model is not "in canary"; it is in canary for a named site, route/task, vehicle kit, map/calibration state, weather band, release channel, and rollback target.
+
+The serving manifest in `../../50-cloud-fleet/mlops/serving-inference-operations-by-scale.md` should be treated as a runtime artifact: it binds the registry alias to input/output contracts, hardware target, model-server or edge-package configuration, traffic route, autoscaling, telemetry fields, endpoint security, and rollback path.
 
 ---
 
@@ -1000,6 +1002,8 @@ For a battery-powered airport tug or baggage tractor with an Orin compute system
 ### Deployment Strategies
 - [MLflow Model Registry Workflows](https://www.mlflow.org/docs/latest/ml/model-registry/workflow/)
 - [Vertex AI Model Registry Versioning](https://cloud.google.com/vertex-ai/docs/model-registry/versioning)
+- [KServe Serving Runtime](https://kserve.github.io/website/docs/concepts/resources/servingruntime)
+- [Ray Serve Autoscaling](https://docs.ray.io/en/latest/serve/autoscaling-guide.html)
 - [Shadow Deployment vs. Canary Release (JFrog ML)](https://www.qwak.com/post/shadow-deployment-vs-canary-release-of-machine-learning-models)
 - [Model Deployment Strategies (Neptune.ai)](https://neptune.ai/blog/model-deployment-strategies)
 - [Shadow Testing in Autonomous Vehicles (ResearchGate)](https://www.researchgate.net/publication/385733470_Shadow_Testing_in_Autonomous_Vehicles_A_Novel_Approach_to_Validating_Full_Self-Driving_AI_Systems)
