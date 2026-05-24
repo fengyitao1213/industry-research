@@ -96,7 +96,7 @@ Training orchestration should start as a reproducibility tool and mature into a 
 
 Do not let orchestration hide weak contracts. A DAG is useful only if every edge has an input artifact, output artifact, owner, retry rule, and downstream consumer. Otherwise the team has automated an undocumented process.
 
-The run manifest contract belongs at the orchestration boundary: emit it before training starts, update it as child eval/export/replay runs finish, and block candidate registration when code, data, split, environment, metric, output digest, or dirty-state fields are missing.
+The run manifest contract belongs at the orchestration boundary: emit it before training starts, update it as child eval/export/replay runs finish, and block candidate registration when code, data, split, environment, metric, output digest, or dirty-state fields are missing. Use `../../50-cloud-fleet/mlops/pipeline-orchestration-release-workflows-by-scale.md` when choosing whether a workflow should remain a script/DVC/GitHub Actions job or move to Airflow, Argo, Kubeflow, TFX, Ray, Slurm, or a managed platform.
 
 ---
 
@@ -504,6 +504,10 @@ jobs:
 - [Weights & Biases](https://wandb.ai/)
 - [MLflow Tracking](https://mlflow.org/docs/latest/ml/tracking/)
 - [DVC Experiment Management](https://doc.dvc.org/user-guide/experiment-management)
+- [Apache Airflow DAGs](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html)
+- [Argo Workflows](https://argo-workflows.readthedocs.io/en/latest/)
+- [Kubeflow Pipelines](https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/)
+- [Ray Train](https://docs.ray.io/en/latest/train/train.html)
 - [TensorFlow ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd)
 - [Lambda Labs](https://lambdalabs.com/)
 - [TensorRT Developer Guide](https://docs.nvidia.com/deeplearning/tensorrt/)

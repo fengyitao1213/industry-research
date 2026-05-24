@@ -137,7 +137,7 @@ These are raw recording volumes. With selective recording (section 3.2), actual 
 
 ### 2.7 Data Platform Scale Ladder
 
-The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone, and use `../mlops/dataset-split-leakage-controls-by-scale.md` before promoting any split that can affect release, replay, or safety evidence. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, split-firewall evidence, and site-sliced training exports.
+The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone, use `../mlops/pipeline-orchestration-release-workflows-by-scale.md` before moving bag decode, QA, label export, replay, training export, or evidence-freeze steps into a shared orchestrator, and use `../mlops/dataset-split-leakage-controls-by-scale.md` before promoting any split that can affect release, replay, or safety evidence. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, split-firewall evidence, and site-sliced training exports.
 
 | MLOps scale | Data platform posture | Required upgrade trigger | Avoid this mistake |
 |---|---|---|---|
@@ -152,7 +152,7 @@ The key scaling variable is not only terabytes per day. It is the number of inde
 
 ### 2.8 Pipeline Orchestration by MLOps Scale
 
-Fleet data pipelines should expose durable states to MLOps. A bag moving through upload, decode, QA, labeling, training export, replay, and retention should have state transitions that are machine-readable and auditable.
+Fleet data pipelines should expose durable states to MLOps. A bag moving through upload, decode, QA, labeling, training export, replay, and retention should have state transitions that are machine-readable and auditable. The detailed orchestrator and state-machine pattern is `../mlops/pipeline-orchestration-release-workflows-by-scale.md`.
 
 | MLOps scale | Data pipeline orchestration | Required state boundary | Failure mode to avoid |
 |---|---|---|---|

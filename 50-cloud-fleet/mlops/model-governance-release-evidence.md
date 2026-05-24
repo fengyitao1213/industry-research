@@ -6,7 +6,7 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, runtime monitoring, or the safety case; it is the MLOps evidence packet that those systems consume. Use `experiment-tracking-reproducibility-by-scale.md` for the run authority, reproducibility level, and training/evaluation manifest layer that proves the candidate or release run can be rebuilt, compared, and traced to output artifacts. Use `pipeline-orchestration-release-workflows-by-scale.md` to keep build, eval, export, register, release, incident, and evidence workflows separated so a successful training DAG cannot silently approve a release. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `model-monitoring-drift-response-by-scale.md` for the event contract and state machine that turns drift, delayed-label, replay, canary, and incident signals into release holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
@@ -160,6 +160,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
 - `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md`
+- `50-cloud-fleet/mlops/pipeline-orchestration-release-workflows-by-scale.md`
 - `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
@@ -182,6 +183,9 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
 - DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
 - OpenLineage, "Object Model." https://openlineage.io/docs/spec/object-model/
+- Apache Airflow, "Dags." https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
+- Argo Workflows, "What is Argo Workflows?" https://argo-workflows.readthedocs.io/en/latest/
+- Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
 - SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
 - OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842

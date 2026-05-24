@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -176,7 +176,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 |---|---|---|
 | Experiment tracker | Two people compare runs, a baseline must be preserved, or a candidate needs run authority/reproducibility evidence | Single throwaway exploration |
 | Data versioning/catalog | Datasets influence baselines or release evidence | Raw samples are exploratory only |
-| Pipeline orchestrator | Steps repeat across candidates and artifacts need lineage | One-off preprocessing dominates |
+| Pipeline orchestrator | Steps repeat across candidates, artifacts need lineage, or release/evidence workflows need explicit states | One-off preprocessing dominates |
 | Model registry | A model can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
 | Feature/embedding store | Derived representations are reused across teams, retrieval, mining, or evidence | One model owns a local feature file |
 | GPU scheduler | Jobs compete for accelerators or incidents need priority | One user rents occasional GPUs |
@@ -250,6 +250,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architectures and durable interfaces.
 - `mlops-scorecards-and-kpis-by-scale.md` - migration scorecards and release blockers.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
+- `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator choices, workflow state machines, artifact handoff contracts, and release/evidence gates.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and local rollout gates.
 - `feature-embedding-store-ops-by-scale.md` - store migration triggers.
@@ -269,6 +270,11 @@ The migration is not complete when the tool is installed. It is complete when a 
 - MLflow, "MLflow Tracking." https://mlflow.org/docs/latest/ml/tracking/
 - Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
 - DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
+- Apache Airflow, "Dags." https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
+- Argo Workflows, "What is Argo Workflows?" https://argo-workflows.readthedocs.io/en/latest/
+- GitHub Docs, "Workflows." https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows
+- DVC, "Pipelines." https://doc.dvc.org/user-guide/pipelines
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
+- TensorFlow, "Understanding TFX Pipelines." https://www.tensorflow.org/tfx/guide/understanding_tfx_pipelines
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - SLSA specification v1.2. https://slsa.dev/spec/latest/
