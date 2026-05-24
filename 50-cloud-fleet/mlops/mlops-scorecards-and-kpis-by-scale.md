@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `experiment-tracking-reproducibility-by-scale.md` for run authority and reproducibility levels, `pipeline-orchestration-release-workflows-by-scale.md` for workflow gates and orchestrator health, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifest coverage, replay/runtime gates, shadow/canary evidence, flake rate, and evaluation-service SLOs, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `model-monitoring-drift-response-by-scale.md` for drift-response evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `experiment-tracking-reproducibility-by-scale.md` for run authority and reproducibility levels, `model-registry-artifact-lifecycle-by-scale.md` for registry identity, alias authority, lifecycle-state hygiene, artifact-set membership, and rollback retention, `pipeline-orchestration-release-workflows-by-scale.md` for workflow gates and orchestrator health, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifest coverage, replay/runtime gates, shadow/canary evidence, flake rate, and evaluation-service SLOs, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `model-monitoring-drift-response-by-scale.md` for drift-response evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -21,6 +21,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 | Evaluation platform health | Whether evaluator identity, metric specs, replay packages, runtime checks, shadow/canary evidence, and platform SLOs are complete | Prevents dashboards or green training jobs from becoming unsupported release approval |
 | Runtime quality | Whether the deployable artifact meets latency, memory, determinism, and compatibility needs | Prevents a model that passes offline tests from failing on vehicle hardware |
 | Artifact compatibility | Whether model, map, calibration, runtime, telemetry, semantic taxonomy, labeler, prompt, and replay artifacts are mutually valid | Prevents release from activating an artifact set that was never evaluated together |
+| Registry lifecycle | Whether artifact identity, aliases, authority states, rollback targets, and retention rules are complete | Prevents mutable `latest`, stale aliases, and undeployable rollback artifacts from controlling release |
 | Artifact trust and provenance | Whether release-affecting artifacts are digest-pinned, signed, attested, and policy-verified | Prevents unsigned models, stale engines, mutable datasets, and untrusted prompt/eval packs from reaching release |
 | Release reliability | Whether candidate, shadow, canary, champion, and rollback transitions are controlled | Prevents training completion from becoming deployment approval |
 | Observability and incident response | Whether anomalies become evidence-backed action | Prevents dashboards from replacing mitigation, rollback, or learning loops |
@@ -64,6 +65,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Evaluation | Manifest coverage, comparable baseline, slice coverage, replay pass/flake rate, and evaluation lead time | Small smoke replay and metric spec | Incident, rare-class, map-change replay packages, runtime smoke, shadow/canary denominator | Scenario catalog coverage, platform SLO, waiver expiry, and residual-risk record |
 | Runtime | Package load and latency | Smoke test | p50/p95/p99 latency, memory, queue time, TensorRT/ONNX compatibility | Hardware cohort SLO, deterministic replay, degradation policy |
 | Compatibility | Artifact-set compatibility | Manual note of model/map/calibration assumptions | Compatibility manifest with hash over model, map, calibration, runtime, telemetry, taxonomy, and rollback | Policy-enforced manifest with safety-case links, expiry, and incident retention |
+| Registry | Alias hygiene, lifecycle-state coverage, rollback retention | Checkpoint hash and baseline alias | Candidate/shadow/champion/rollback states, alias movement evidence, artifact-set membership | Site-scoped aliases, quarantine state, audit API, retention and deletion policy |
 | Artifact trust | Signature/provenance coverage | Checksum manifest for preserved baselines | Signed containers/models/maps/prompts, SBOM, provenance, registry policy result | SLSA/in-toto provenance, trusted builder evidence, admission verification, immutable audit record |
 | Federated/privacy training | Centralized-vs-local-vs-federated comparison | Simulated-client experiment note | Site/client metrics, privacy review, aggregation evidence, local holdouts | Privacy budget, secure aggregation, poisoning tests, safety-case release scope |
 | GenAI and agent evaluation | Prompt/model/corpus/tool behavior under task-specific evals | Prompt examples and manual failures | Eval pack, trace capture, reviewer correction, grounding and tool-call metrics | Red-team, prompt-injection, safety-case, trace retention, and policy-gated tool actions |
@@ -96,6 +98,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, site/local holdout, map tile, source-map session, feature/index corpus, labeler benchmark, synthetic source asset, or federated client holdout |
 | Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
+| Unsupported registry alias movement | S2-S5 | `candidate`, `shadow`, `champion`, `rollback`, `site_champion`, or `quarantined` changes without registry lifecycle evidence, scope, approval, compatibility, and rollback state |
 | Missing artifact attestation | S2-S5 | Model, ONNX/TensorRT engine, container, map layer, labeler/prompt pack, eval pack, or release packet lacks required digest-bound signature, SBOM, provenance, or policy result |
 | Unsupported federated training output | S3-S5 | Federated or hybrid model/adaptor lacks trigger-policy justification, client manifests, privacy controls, local holdouts, aggregation report, or site-scoped release evidence |
 | Unsupported GenAI/agent output | S2-S5 | Prompt, RAG, judge, VLM/VLA, or tool-agent output affects labels, maps, release evidence, incident closure, or operations without eval pack, trace, reviewer disposition, policy result, and rollback bundle |
@@ -182,6 +185,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
 - `mlops-migration-checklist-by-scale.md` - migration readiness gates, workstream matrix, and adoption evidence packets.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest contract, tracker options, and comparison rules.
+- `model-registry-artifact-lifecycle-by-scale.md` - registry identity, alias authority, lifecycle states, artifact-set membership, and rollback retention KPIs.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow state machines, orchestrator choices, artifact handoffs, release/evidence gates, and platform workflow KPIs.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifest KPIs, replay pass/flake rates, runtime package gates, shadow/canary evidence, and platform evaluation SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split-firewall KPIs, leakage modes, holdout controls, and split architecture tradeoffs.
@@ -215,6 +219,10 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - GitHub Docs, "Workflows." https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows
 - PyTorch, "Reproducibility." https://docs.pytorch.org/docs/2.12/notes/randomness.html
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- Weights & Biases, "Reference an artifact version with aliases." https://docs.wandb.ai/models/registry/aliases
+- Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
+- Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
+- Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
 - scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
 - TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
 - MLflow, "Model Evaluation." https://mlflow.org/docs/latest/ml/evaluation/

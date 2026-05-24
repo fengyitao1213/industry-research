@@ -4,7 +4,7 @@
 
 This page defines the secure artifact chain for MLOps systems that train, label, evaluate, package, and release autonomy artifacts. It extends software supply-chain controls into ML-specific assets: model weights, ONNX exports, TensorRT engines, semantic-map layers, map-hygiene sidecars, dataset manifests, prompt packs, evaluator models, replay packs, containers, and release packets.
 
-The core rule is that signing proves integrity only after the organization defines what identity, builder, inputs, evidence, and policy are trusted. A signed but unreviewed artifact is not release evidence. A model registry entry without digest-bound provenance is not enough for a vehicle, map publication, or safety case.
+The core rule is that signing proves integrity only after the organization defines what identity, builder, inputs, evidence, and policy are trusted. A signed but unreviewed artifact is not release evidence. A model registry entry without digest-bound provenance is not enough for a vehicle, map publication, or safety case. Use `model-registry-artifact-lifecycle-by-scale.md` to define which registry records, lifecycle states, aliases, artifact-set memberships, and rollback retention policies the attestations must bind to.
 
 ---
 
@@ -206,6 +206,7 @@ This metadata can begin as a checked manifest and later move into a registry or 
 
 - `mlops-scale-research-scope.md` - maturity ladder and research backlog.
 - `mlops-reference-architectures-by-scale.md` - where artifact trust belongs in S0-S5 architectures.
+- `model-registry-artifact-lifecycle-by-scale.md` - registry identity, alias authority, lifecycle states, and rollback retention for signed artifacts.
 - `mlops-scorecards-and-kpis-by-scale.md` - attestation metrics and release blockers.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, and retrieval artifacts.
@@ -231,3 +232,7 @@ This metadata can begin as a checked manifest and later move into a registry or 
 - Kubernetes admission controllers. https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
 - Open Policy Agent for Kubernetes admission control. https://www.openpolicyagent.org/docs/latest/kubernetes-introduction/
 - MLflow Model Registry workflows. https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- Weights & Biases, "Reference an artifact version with aliases." https://docs.wandb.ai/models/registry/aliases
+- Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
+- Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
+- Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/

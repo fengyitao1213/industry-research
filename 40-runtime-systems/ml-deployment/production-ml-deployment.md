@@ -26,7 +26,7 @@ This document covers the hard engineering problems of deploying ML models -- par
 
 ## Deployment Scale Boundary
 
-The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training. The companion MLOps guide `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` defines how runtime monitoring events become release holds, label batches, replay cases, ODD-cell quarantine, rollback, retraining proposals, or safety-case deltas.
+The MLOps scale ladder is defined in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. This page covers the runtime side of that ladder: how a model artifact is packaged, loaded, monitored, rolled out, and rolled back once it leaves training. Use `../../50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md` for the registry aliases, artifact lifecycle states, artifact-set membership, and rollback retention rules that decide what runtime is allowed to load. The companion MLOps guide `../../50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` defines how runtime monitoring events become release holds, label batches, replay cases, ODD-cell quarantine, rollback, retraining proposals, or safety-case deltas.
 
 | MLOps scale | Runtime deployment posture | Required runtime evidence |
 |---|---|---|
@@ -998,6 +998,8 @@ For a battery-powered airport tug or baggage tractor with an Orin compute system
 - [ML Monitoring and Drift Detection (BentoML)](https://www.bentoml.com/blog/a-guide-to-ml-monitoring-and-drift-detection)
 
 ### Deployment Strategies
+- [MLflow Model Registry Workflows](https://www.mlflow.org/docs/latest/ml/model-registry/workflow/)
+- [Vertex AI Model Registry Versioning](https://cloud.google.com/vertex-ai/docs/model-registry/versioning)
 - [Shadow Deployment vs. Canary Release (JFrog ML)](https://www.qwak.com/post/shadow-deployment-vs-canary-release-of-machine-learning-models)
 - [Model Deployment Strategies (Neptune.ai)](https://neptune.ai/blog/model-deployment-strategies)
 - [Shadow Testing in Autonomous Vehicles (ResearchGate)](https://www.researchgate.net/publication/385733470_Shadow_Testing_in_Autonomous_Vehicles_A_Novel_Approach_to_Validating_Full_Self-Driving_AI_Systems)

@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -75,7 +75,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 
 | Checklist item | Required output |
 |---|---|
-| Introduce registry identity | Immutable model/map/labeler/eval artifact version and digest |
+| Introduce registry identity | Immutable model/map/labeler/eval/runtime artifact version, digest, authority state, aliases, and artifact-set membership |
 | Add release packet | Claim, evidence, limitations, rollback, approvers |
 | Freeze datasets and labels | Dataset manifest, label QA, leakage check, allowed-use state |
 | Package runtime artifact | ONNX/TensorRT/container package, load test, latency/memory report |
@@ -178,7 +178,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Experiment tracker | Two people compare runs, a baseline must be preserved, or a candidate needs run authority/reproducibility evidence | Single throwaway exploration |
 | Data versioning/catalog | Datasets influence baselines or release evidence | Raw samples are exploratory only |
 | Pipeline orchestrator | Steps repeat across candidates, artifacts need lineage, or release/evidence workflows need explicit states | One-off preprocessing dominates |
-| Model registry | A model can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
+| Model/artifact registry | A model, runtime package, map, labeler, evaluator, replay pack, or adapter can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
 | Feature/embedding store | Derived representations are reused across teams, retrieval, mining, or evidence | One model owns a local feature file |
 | GPU scheduler | Jobs compete for accelerators or incidents need priority | One user rents occasional GPUs |
 | Policy engine | Manual gates miss required fields or many teams share release paths | Requirements are still changing daily |
@@ -220,6 +220,7 @@ Before declaring a migration complete, attach:
 |---|---|
 | Current-state audit | Shows which controls already exist and which are missing |
 | Artifact inventory | Lists models, maps, prompts, evals, datasets, replay packs, and runtime packages by authority level |
+| Registry lifecycle sample | Shows one artifact moving through `candidate`, `shadow`, `site_canary`, `champion`, `rollback`, or `quarantined` without losing evidence or scope |
 | Interface manifest set | Proves durable contracts exist before platform migration |
 | Evaluation manifest sample | Proves the new path can compare candidate and baseline artifacts with evaluator, metric, split, replay, runtime, waiver, and decision identity |
 | Scorecard baseline | Measures reproducibility, data quality, release readiness, observability, cost, and governance |
@@ -252,6 +253,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architectures and durable interfaces.
 - `mlops-scorecards-and-kpis-by-scale.md` - migration scorecards and release blockers.
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
+- `model-registry-artifact-lifecycle-by-scale.md` - registry records, alias authority, lifecycle states, artifact-set membership, and rollback retention.
 - `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator choices, workflow state machines, artifact handoff contracts, and release/evidence gates.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and platform service SLOs.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
@@ -284,4 +286,8 @@ The migration is not complete when the tool is installed. It is complete when a 
 - Evidently AI, "Tests." https://docs.evidentlyai.com/docs/library/tests
 - Google Cloud, "Model evaluation in Vertex AI." https://cloud.google.com/vertex-ai/docs/evaluation/introduction
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- Weights & Biases, "Reference an artifact version with aliases." https://docs.wandb.ai/models/registry/aliases
+- Google Cloud, "Model versioning with Model Registry." https://cloud.google.com/vertex-ai/docs/model-registry/versioning
+- Amazon SageMaker AI, "Model Registry Models, Model Versions, and Model Groups." https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
+- Kubeflow, "Kubeflow Model Registry." https://www.kubeflow.org/docs/components/model-registry/
 - SLSA specification v1.2. https://slsa.dev/spec/latest/

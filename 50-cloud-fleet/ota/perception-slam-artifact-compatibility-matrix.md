@@ -21,7 +21,7 @@ Compatibility evidence should grow with MLOps authority. A research checkpoint c
 | S4 regulated safety-critical | Evidence-locked compatibility | Signed compatibility manifest linked to safety-case claims, replay packs, incident retention, and rollback drill | Behavior authority changes while compatibility evidence is ticket-only, expired, or mutable |
 | S5 platform scale | Policy-enforced compatibility | Policy-as-code checks over registry, map, calibration, prompt/evaluator, telemetry, feature/embedding, and deployment services | Shared platform permits a tenant to bypass compatibility or reuse unsupported artifacts |
 
-This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md`, `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and `../mlops/secure-artifact-attestation-profile.md`: architecture defines where artifacts live, the scorecard defines what blocks release, the attestation profile defines artifact trust, and this matrix defines whether the artifact set can safely activate.
+This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md`, `../mlops/model-registry-artifact-lifecycle-by-scale.md`, `../mlops/mlops-scorecards-and-kpis-by-scale.md`, and `../mlops/secure-artifact-attestation-profile.md`: architecture defines where artifacts live, the registry lifecycle guide defines immutable artifact identity and alias authority, the scorecard defines what blocks release, the attestation profile defines artifact trust, and this matrix defines whether the artifact set can safely activate.
 
 ## Compatibility Axes
 
@@ -112,6 +112,7 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - `40-runtime-systems/software-operations/on-vehicle-supply-chain-runtime-security.md`
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
+- `50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md`
 - `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/mlops/model-governance-release-evidence.md`
@@ -124,6 +125,8 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - Uptane Standard 2.1.0: https://uptane.org/docs/2.1.0/standard/uptane-standard
 - Uptane Standard 2.0.0: https://uptane.org/docs/2.0.0/standard/uptane-standard
 - SLSA specification v1.2: https://slsa.dev/spec/latest/
+- MLflow Model Registry workflows: https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- Amazon SageMaker AI Model Registry: https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry-models.html
 - ISO 24089:2023, Road vehicles - Software update engineering: https://www.iso.org/standard/77796.html
 - Autoware perception component interfaces: https://autowarefoundation.github.io/autoware-documentation/main/design/autoware-architecture-v1/interfaces/components/perception/
 - OpenTelemetry telemetry schemas: https://opentelemetry.io/docs/specs/otel/schemas/
