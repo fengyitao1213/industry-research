@@ -179,6 +179,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/federated-privacy-preserving-training-policy-by-scale.md`
 - `50-cloud-fleet/mlops/llmops-agent-evaluation-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/data-platform/data-catalog-lineage-quality-ops.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
 - `50-cloud-fleet/ota/software-update-management-system-ops.md`
@@ -199,6 +200,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
 - DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
 - OpenLineage, "Object Model." https://openlineage.io/docs/spec/object-model/
+- OpenLineage, "Data Quality Metrics Facet." https://openlineage.io/docs/spec/facets/dataset-facets/data_quality_metrics/
 - Apache Airflow, "Dags." https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
 - Argo Workflows, "What is Argo Workflows?" https://argo-workflows.readthedocs.io/en/latest/
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/

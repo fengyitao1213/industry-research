@@ -207,6 +207,7 @@ The registry is therefore also a map and label governance system. It must preven
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and site-scoped aliases.
 - `offboard-labeler-registry-by-scale.md` - prompt, labeler, evaluator, threshold, and reviewer artifact governance.
 - `feature-embedding-store-ops-by-scale.md` - feature/vector index identity and deletion propagation.
+- `../data-platform/data-catalog-lineage-quality-ops.md` - dataset, label, feature, replay, and semantic-map data-product contracts that registry records must cite.
 - `../ota/perception-slam-artifact-compatibility-matrix.md` - artifact-set compatibility manifest.
 - `../ota/software-update-management-system-ops.md` - OTA/SUMS update and rollback controls.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - production loading, canary, monitoring, and rollback.

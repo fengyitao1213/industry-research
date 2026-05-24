@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, serving platform, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, platform SRE owner, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, and ODD-cell canaries, use `serving-inference-operations-by-scale.md`. For platform service criticality, SLOs, error budgets, backup/restore, DR, incident lanes, tenant isolation, and bypass controls, use `platform-sre-reliability-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, data catalog, lineage graph, quality platform, registry, serving platform, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, platform SRE owner, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For data-product contracts, catalog/lakehouse choices, lineage event boundaries, quality gates, retention, deletion propagation, and quality SLOs, use `../data-platform/data-catalog-lineage-quality-ops.md`. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, and ODD-cell canaries, use `serving-inference-operations-by-scale.md`. For platform service criticality, SLOs, error budgets, backup/restore, DR, incident lanes, tenant isolation, and bypass controls, use `platform-sre-reliability-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -176,7 +176,8 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Tooling | Add when | Avoid when |
 |---|---|---|
 | Experiment tracker | Two people compare runs, a baseline must be preserved, or a candidate needs run authority/reproducibility evidence | Single throwaway exploration |
-| Data versioning/catalog | Datasets influence baselines or release evidence | Raw samples are exploratory only |
+| Data versioning/catalog | Datasets influence baselines, labels, replay, evaluation, semantic maps, release evidence, or downstream consumers need snapshot identity and allowed-use state | Raw samples are exploratory only |
+| Lineage and quality platform | Root cause crosses pipelines, data products need promotion gates, or invalidation must find downstream consumers | A validation script plus manifest is still sufficient and no release authority exists |
 | Pipeline orchestrator | Steps repeat across candidates, artifacts need lineage, or release/evidence workflows need explicit states | One-off preprocessing dominates |
 | Model/artifact registry | A model, runtime package, map, labeler, evaluator, replay pack, or adapter can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
 | Serving platform | Batch jobs, endpoints, shadows, canaries, or edge packages need a shared service contract, rollout policy, autoscaling, telemetry, and rollback | Local inference has no production client and no release authority |
@@ -267,6 +268,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `secure-artifact-attestation-profile.md` - artifact trust-chain migration gates.
 - `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy before adding federated or privacy-preserving training lanes.
 - `../data-platform/fleet-data-pipeline.md` - data-platform posture by MLOps scale.
+- `../data-platform/data-catalog-lineage-quality-ops.md` - data-product contracts, lineage/quality platform triggers, promotion states, SLOs, and deletion propagation.
 - `../../40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md` - CI/CD and deployment lane architecture.
 
 ## Sources
@@ -276,6 +278,10 @@ The migration is not complete when the tool is installed. It is complete when a 
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS, "What is MLOps?" https://aws.amazon.com/what-is/mlops/
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
+- OpenLineage, "Object Model." https://openlineage.io/docs/spec/object-model/
+- Apache Iceberg, "Spec." https://iceberg.apache.org/spec/
+- lakeFS, "Welcome to lakeFS." https://docs.lakefs.io/
+- AWS Glue, "Data Quality Definition Language (DQDL) reference." https://docs.aws.amazon.com/glue/latest/dg/dqdl.html
 - MLflow, "MLflow Tracking." https://mlflow.org/docs/latest/ml/tracking/
 - Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
 - DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
