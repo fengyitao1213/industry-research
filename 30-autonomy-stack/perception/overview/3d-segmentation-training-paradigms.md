@@ -1,6 +1,6 @@
 # Training Paradigms for 3D / LiDAR Segmentation: A Comparative Reference
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 This page is the deep-dive companion to §7.6 (Self-Supervised Pre-Training and 3D Foundation Models) and §7.8 (Training Architecture Comparison) of the [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) hub page. It addresses the *how-you-train* axis: each paradigm's mechanism, cost structure, accuracy ceiling, and operational fit — independent of which backbone is used. The hub's §7.8 addresses the *which-model* axis (architecture families, benchmark rankings, inference speed); both pages are complementary and should be read together when scoping a new deployment. The airside focus is LiDAR-primary throughout; camera-assisted paradigms that distill into a LiDAR-only inference model are explicitly covered.
 
@@ -280,6 +280,25 @@ The operational shortcut for end-to-end semantic segmentation of registered LiDA
 | Existing SLAM map and small review budget | Auto-label from map -> reviewer correction -> pseudo-label consolidation -> semi-supervised scan refinement | Map-level verification is cheaper than per-scan annotation and produces back-projected training labels | SLAM drift, dynamic ghosts, and static-but-wrong objects can scale into label errors |
 | Multi-site rollout with one strong backbone | PEFT adapters after the site-specific fine-tune | Per-site adapter files are cheap to train and version | Rank selection and adapter/backbone compatibility must be release-gated |
 | Rare safety classes dominate risk | Active learning on top of the current best model | Annotation budget goes to uncertain, rare, and high-impact regions first | Cold-start uncertainty is weak; seed with class-stratified random labels before relying on acquisition scores |
+
+### Map-Scale Architecture x Training Route Matrix
+
+The tables above compare supervision regimes. For an aggregated LiDAR map, the training decision is only complete after choosing the backbone family and the release contract together. The same training paradigm has different risk depending on whether the backbone is sparse-conv, PTv3/Sonata, SPT, projection-based, or an emerging SSM/Mamba model.
+
+| Backbone family | Default training route | Why this pairing fits map segmentation | Advantages | Disadvantages / controls |
+|---|---|---|---|---|
+| Sparse-conv U-Net / MinkowskiNet / SpConv | Supervised or semi-supervised fine-tune from public LiDAR pre-training, then map auto-label flywheel | Sparse tensors are predictable on tiles and align with voxelized release artifacts | Strong production baseline, mature tooling, stable convergence, clear TensorRT path | Thin classes can vanish at coarse voxel sizes; run rare-class sampling and wire/marking recall gates |
+| KPConv / RandLA-Net | Fully supervised or weakly supervised baseline plus active learning | Raw-point neighborhoods preserve geometry where voxel grids blur fine structure | Good reference for poles, kerbs, wires, facade edges, and markings | Neighbor search and sampling cost are high; enforce class-balanced sampling so rare structures are not dropped |
+| Superpoint Transformer / SuperCluster | Weak/semi-supervised or map auto-label route after geometry partition QA | Superpoints match the object/surface granularity of registered maps and reduce tile fragmentation | Efficient whole-scene context, low memory, strong small-label-budget fit | Partition errors are upstream errors; validate superpoint boundary recall before trusting model metrics |
+| PTv3 / Sonata / PPT-style transformer | SSL or supervised multi-dataset pre-training -> domain-continuation SSL -> PEFT/full fine-tune | High-capacity transformer pays off only when pre-training absorbs the label hunger | Highest ceiling, strongest 2024-2026 checkpoint ecosystem, good LiDAR-only inference path | Finicky from scratch; require linear probe, warmup schedule, tile-halo ablation, and domain-specific validation |
+| Projection / WaffleIron-style | Cross-modal distillation or supervised LiDAR-only training with strong deployment tests | Dense 2D operations are easy to optimize and audit | Clean dependency footprint, simple inference, good edge-deployment candidate | Projection resolution is a hard detail limit; validate facade/vertical and long-thin infrastructure classes |
+| LiDAR-image late/feature fusion | Train-time distillation when possible; direct fusion only for offline map-labeling jobs | Images help appearance-defined classes but should not be mandatory for runtime map loading unless the product contract says so | Better color/texture semantics, useful for GridNet-HD-like assets and facade labels | Calibration and image coverage become data-quality risks; store projection provenance and provide LiDAR-only fallback |
+| SSM / Mamba point backbones | Experimental branch initialized from strongest available checkpoint, evaluated with same tile manifests as mature baselines | Linear sequence cost may increase context radius without transformer memory growth | Attractive for large urban districts where seams and context loss dominate | Research-stage; audit ordering sensitivity, rotation robustness, density shift, and stitching consistency before production use |
+
+Two rules keep this matrix practical:
+
+- **Start conservative, then add capacity.** A sparse-conv or SPT baseline with clean tiles, labels, and map hygiene usually beats a larger model trained on contaminated maps. Upgrade to PTv3/Sonata or SSM only after the source-map QA and split discipline are stable.
+- **Make camera use a training decision, not a hidden runtime dependency.** Cross-modal distillation, map colorization, and image-assisted review are excellent for offline learning; a released semantic map should still declare whether its labels can be reproduced from LiDAR-only evidence or require RGB provenance.
 
 ---
 

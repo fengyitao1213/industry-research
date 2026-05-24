@@ -48,6 +48,29 @@ The practical point: these datasets shape what every 3D segmentation method repo
 | SIP (Site in Pieces) | TLS (single-station) | Construction-site segmentation | 23 | mIoU | Public split |
 | Waymo-4DSeg / SAM4D | Camera + LiDAR (pseudo-labeled) | Class-agnostic masklets | class-agnostic | mask metrics | Derived (Waymo Open) |
 
+### Dataset Selection Protocol for Aggregated-Map Segmentation
+
+Do not rank datasets by leaderboard prestige alone. For an aggregated-map semantic layer, the first question is whether the public benchmark exercises the same *map-production failure mode* as the target product. A SemanticKITTI or Waymo score is useful for single-scan LiDAR semantics; it is not sufficient evidence that a model will preserve taxiway markings, terminal frontage details, utility poles, construction equipment, or stationary-but-transient clutter in a registered multi-session map.
+
+Use the following protocol before choosing a pre-training or validation pool:
+
+1. **Match acquisition geometry first.** Vehicle MLS and accumulated mobile-mapping datasets are the highest-value sources for ground-robot maps; ALS/UAV datasets are site-survey complements; TLS/indoor datasets are managed-building or terminal-interior proxies; mesh/photogrammetry datasets are digital-twin transfer aids rather than LiDAR sensor-noise evidence.
+2. **Match the class pressure second.** Choose datasets that contain the failure-critical classes: road markings, kerbs, poles, wires, signs, facade openings, utilities, workers, temporary equipment, rail/corridor furniture, or industrial MEP. A generic "outdoor" class set is not enough.
+3. **Separate training evidence from release evidence.** Photogrammetric and mesh corpora are acceptable for pre-training features or taxonomy stress, but release claims for a LiDAR map need LiDAR validation data with comparable density, intensity behavior, registration quality, and sensor pose.
+4. **Require split discipline.** Favor spatially disjoint geographic splits over random point splits. Aggregated maps leak context easily: adjacent tiles can share the same facade, road marking, or pole-line pattern even when point IDs differ.
+5. **Audit license and access before planning.** Several useful 2025-2026 additions are email-gated, challenge-gated, non-commercial, or still pending full release. Treat them as research proxies until download, redistribution, and commercial-use terms are verified.
+6. **Score map hygiene separately.** Datasets built for semantic segmentation rarely label dynamic residuals, static-but-transient objects, or false deletions. Pair this page with moving/static and map-cleaning benchmarks whenever the target product is a publishable map, not a per-frame perception output.
+
+| Release question | Primary dataset evidence | Secondary evidence | What still needs in-house validation |
+|---|---|---|---|
+| Can a model label a ground-level registered LiDAR map? | KITTI-360, Paris-Lille-3D, Toronto-3D, WHU-Urban3D, SemanticRail3D, WHU-Railway3D | SemanticKITTI multi-scan, SemanticTHAB, MLDAS | Site-specific registration drift, map tiling, intensity calibration, and static/transient quarantine |
+| Can it preserve non-road managed-site classes? | Point Cloud City / Open3D-ML PCC, SIP, S.MID, Industrial3D, USCILab3D | S3DIS, ScanNet200, CUS3D | Outdoor transfer, vehicle-mounted density, safety-critical minority classes, operational clutter |
+| Can it use LiDAR plus image evidence without requiring camera at release time? | GridNet-HD, KITTI-360, CUS3D, H3D | 2DPASS/ScaLR-style distillation papers, SAM4D pseudo-labels | Calibration residuals, projection provenance, image-unavailable fallback, LiDAR-only artifact compatibility |
+| Can it handle facade and terminal-frontage semantics? | ZAHA, City-Facade, SUM Parts, CUS3D, WHU-Urban3D | H3D, Toronto-3D | Full-site ground classes, facade-to-ground boundary policy, BIM/digital-twin handoff rules |
+| Can it handle overhead/long-thin infrastructure? | GridNet-HD, ECLAIR, WHU-Railway3D, SemanticRail3D, DALES | OpenTrench3D for utility taxonomy pressure | Wire/pole recall at target sensor density, false deletion during map cleaning, camera projection visibility |
+| Can it support airside, port, depot, or industrial-yard rollout? | GOOSE-Ex, SIP, S.MID, Industrial3D, WHU-Urban3D, KITTI-360 | STPLS3D, CUS3D, SemanticTHAB | Airport/yard-specific objects, GSE/vehicle vocabulary, FOD exclusion, stationary people, staged equipment |
+| Can it produce a releaseable semantic-map artifact? | No public dataset is sufficient by itself | MapBench, SceneEdited, HKCD, moving/static datasets, map-hygiene protocols | A held-out, manually reviewed site map with semantic labels, removal labels, provenance, and publication gates |
+
 ## Per-Benchmark Evaluation Detail
 
 ### SemanticKITTI — the AV-domain reference
