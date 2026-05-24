@@ -4,7 +4,7 @@
 
 Offboard labelers are models, prompts, rules, tools, and human workflows that create labels outside the runtime vehicle stack. They include classical auto-labelers, heavy offline 3D detectors, foundation-model segmenters, VLM scene reviewers, LLM QA assistants, open-vocabulary point-cloud labelers, retrieval-augmented label search, and model-as-judge evaluators. They may never control a vehicle directly, but they can still change training data, semantic maps, replay assertions, safety reports, and release evidence.
 
-The registry rule is simple: **if a labeler output can enter training, replay, evaluation, a signed map, a taxonomy, or a safety case, the labeler is a release-affecting artifact.** It needs identity, scope, evaluation, rollback, owner, allowed-use controls, and the digest-bound trust-chain evidence defined in `secure-artifact-attestation-profile.md`.
+The registry rule is simple: **if a labeler output can enter training, replay, evaluation, a signed map, a taxonomy, or a safety case, the labeler is a release-affecting artifact.** It needs identity, scope, evaluation, rollback, owner, allowed-use controls, the digest-bound trust-chain evidence defined in `secure-artifact-attestation-profile.md`, and the GenAI/agent evaluation controls in `llmops-agent-evaluation-by-scale.md` when prompts, RAG, judges, or tool calls are involved.
 
 ---
 
@@ -190,6 +190,7 @@ Labeler scorecards should be reviewed before training data freezes, map publicat
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation for map-derived training exports.
 - `feature-embedding-store-ops-by-scale.md` - retrieval corpus and vector-index controls.
 - `secure-artifact-attestation-profile.md` - signatures, SBOM/provenance, and policy verification for release-affecting labeler artifacts.
+- `llmops-agent-evaluation-by-scale.md` - prompt, RAG, judge, tool-agent, trace, and GenAI eval controls.
 - `data-flywheel-airside.md` - auto-labeling pipeline, quality gate, and closed-loop training.
 - `../data-platform/active-labeling-budget-ops.md` - label-budget states and promotion boundaries.
 - `../data-platform/3d-annotation-tools.md` - annotation tooling, pre-labels, and reviewer workflows.

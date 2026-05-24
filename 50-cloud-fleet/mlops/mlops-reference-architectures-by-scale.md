@@ -74,7 +74,7 @@ These interfaces should exist before the platform becomes large. They can begin 
 | Deployment manifest | model alias, runtime container, map bundle, calibration package, vehicle/site/ODD scope, rollout cohort, rollback artifact | fleet deployment, operations, incident response |
 | Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields | fleet observability, active learning, incident triage |
 | Incident evidence link | event ID, active artifacts, logs/clips, replay scenario, safety monitor state, containment action, corrective action | governance, safety case, post-release learning |
-| Foundation-model artifact manifest | prompt/model/checkpoint, retrieval corpus, tool permissions, decoding policy, trace bundle, reviewer disposition | label operations, evaluator governance, safety review |
+| Foundation-model artifact manifest | prompt/model/checkpoint, retrieval corpus, tool permissions, decoding policy, agent graph, eval pack, trace bundle, reviewer disposition | label operations, evaluator governance, agent review, safety review |
 | Artifact attestation manifest | subject digest, artifact type, producer identity, build provenance, SBOM/eval/map-QA predicate, policy result, allowed scope, rollback target | registry, OTA/SUMS, Kubernetes/admission policy, safety case, audit |
 
 If any of these interfaces are missing at S2+, scale will produce hidden coupling. The symptom is familiar: a model passes offline tests, but nobody can prove which data, labeler, map, calibration, runtime, or prompt artifact produced the behavior.
@@ -160,7 +160,7 @@ Avoid: platform mandates that ignore autonomy-specific metadata, centralized que
 | Incidents need root-cause across model/map/runtime/calibration | Common artifact IDs in telemetry and incident evidence link | New dashboards without schema fixes |
 | Label volume exceeds reviewer capacity | Label workflow states, QA sampling, auto-label provenance, budget metrics | More auto-labeling without allowed-use controls |
 | Many teams contend for GPUs | Shared queue, image cache, quotas, owner tags, unit-cost metrics | Multi-cloud abstraction before capacity policy |
-| Foundation models influence labels, evals, incidents, or safety prose | Prompt/model/retrieval registry, trace capture, calibrated judge evals | Letting assistants write release truth |
+| Foundation models influence labels, evals, incidents, safety prose, or tool actions | Prompt/model/retrieval/tool registry, trace capture, calibrated judge evals, and `llmops-agent-evaluation-by-scale.md` gates | Letting assistants write release truth |
 
 Architectures scale cleanly when each migration preserves the old interface. For example, a local JSON dataset manifest can become a catalog entry later if the fields are already correct. A local run note can become a registry metadata record if it already names code, data, config, hardware, and metrics.
 
@@ -206,6 +206,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `gpu-queueing-finops-by-scale.md` - GPU scheduler, queueing, quota, and FinOps architecture by scale.
 - `secure-artifact-attestation-profile.md` - signing, SBOM, provenance, registry alias policy, and policy-enforced verification by scale.
 - `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy for federated, hybrid, local, and privacy-preserving training lanes.
+- `llmops-agent-evaluation-by-scale.md` - prompt, RAG, judge, VLM/VLA, and tool-agent architecture gates by scale.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, data product states, and retention.

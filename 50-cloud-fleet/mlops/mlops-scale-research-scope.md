@@ -448,7 +448,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
 | P1 | Reference architecture migration checklist (`mlops-migration-checklist-by-scale.md`) | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
 | P2 | Federated and privacy-preserving training trigger policy (`federated-privacy-preserving-training-policy-by-scale.md`) | Identifies when cross-site data restrictions justify federated, hybrid, local, or privacy-preserving training |
-| P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
+| P2 | LLMOps and agent-evaluation extension (`llmops-agent-evaluation-by-scale.md`) | Needed if VLM/VLA copilots, prompt packs, RAG systems, judge models, or tool-using agents become production artifacts |
 
 ---
 
@@ -465,6 +465,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `gpu-queueing-finops-by-scale.md` - GPU queueing, quotas, priority lanes, unit economics, and assurance capacity controls.
 - `secure-artifact-attestation-profile.md` - digest-bound signing, SBOMs, SLSA/in-toto provenance, registry alias policy, and runtime verification by scale.
 - `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy for centralized, local, hybrid, federated, and privacy-preserving training.
+- `llmops-agent-evaluation-by-scale.md` - prompt, RAG, judge, VLM/VLA, tool-agent, trace, and GenAIOps evaluation controls by scale.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

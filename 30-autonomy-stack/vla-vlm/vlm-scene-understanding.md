@@ -584,7 +584,7 @@ The operational boundary should stay explicit:
 - VLM outputs should not directly mutate maps, labels, safety cases, incident records, or route approvals without a workflow gate and reviewer disposition.
 - VLM-generated labels or explanations should be stored as candidates with prompt/model provenance, not as ground truth.
 
-Evaluation needs to cover more than language quality. A production VLM should be tested for spatial consistency against LiDAR geometry, grounding against retrieved documents, hallucination/unsupported-claim rate, abstention behavior, rare-object slices, site-specific terminology, prompt-injection resistance, and regression across prompt/model/corpus versions.
+Evaluation needs to cover more than language quality. A production VLM should be tested for spatial consistency against LiDAR geometry, grounding against retrieved documents, hallucination/unsupported-claim rate, abstention behavior, rare-object slices, site-specific terminology, prompt-injection resistance, and regression across prompt/model/corpus versions. The scale-specific operating model is `../../50-cloud-fleet/mlops/llmops-agent-evaluation-by-scale.md`.
 
 ---
 

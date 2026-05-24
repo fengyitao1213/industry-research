@@ -209,6 +209,7 @@ This metadata can begin as a checked manifest and later move into a registry or 
 - `mlops-scorecards-and-kpis-by-scale.md` - attestation metrics and release blockers.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, and retrieval artifacts.
+- `llmops-agent-evaluation-by-scale.md` - prompt, RAG, judge, tool-agent, trace, and GenAI evaluation controls.
 - `gpu-queueing-finops-by-scale.md` - queueing and cost controls for trusted build/eval capacity.
 - `../data-platform/data-catalog-lineage-quality-ops.md` - lineage and data-product promotion states.
 - `../ota/perception-slam-artifact-compatibility-matrix.md` - activation-time artifact-set compatibility.

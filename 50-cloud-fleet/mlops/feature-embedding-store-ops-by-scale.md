@@ -18,7 +18,7 @@ For autonomy, the default should be conservative: start with immutable manifests
 | Embedding/vector store | Can users retrieve similar scenes, clips, map tiles, labels, or documents? | Scenario mining, active learning, semantic search, RAG, foundation-model label triage | Release truth without reviewer, lineage, and snapshot controls |
 | Lakehouse/catalog table | Can large derived datasets be queried, versioned, and governed? | Training/eval tables, feature materialization outputs, lineage and retention | Low-latency serving without online materialization |
 
-The feature-store decision is not "Feast or Tecton?" first. The first decision is whether the artifact is a reusable model input with a stable entity/time contract. The embedding-store decision is not "Milvus or pgvector?" first. The first decision is whether retrieval results can be reconstructed from a named corpus snapshot, embedding model, index build, filter policy, and access class.
+The feature-store decision is not "Feast or Tecton?" first. The first decision is whether the artifact is a reusable model input with a stable entity/time contract. The embedding-store decision is not "Milvus or pgvector?" first. The first decision is whether retrieval results can be reconstructed from a named corpus snapshot, embedding model, index build, filter policy, and access class. When retrieval feeds prompts, judge models, or tool-using agents, apply `llmops-agent-evaluation-by-scale.md` so retrieval traces, grounding checks, prompt-injection tests, and reviewer dispositions become part of the evidence.
 
 ---
 
@@ -223,6 +223,7 @@ The scorecard should treat store health as a release dependency when the store i
 - `mlops-scorecards-and-kpis-by-scale.md` - MLOps KPIs and release blockers.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine for map-derived labels.
 - `model-governance-release-evidence.md` - release packet and registry evidence.
+- `llmops-agent-evaluation-by-scale.md` - RAG, prompt, judge, and agent evaluation controls for retrieval-backed workflows.
 - `../data-platform/data-catalog-lineage-quality-ops.md` - catalog, lineage, quality, and data-product states.
 - `../data-platform/replay-scenario-mining-ops.md` - scenario mining and replay package governance.
 - `data-flywheel-airside.md` - active learning and closed-loop data mining.

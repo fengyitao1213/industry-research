@@ -432,7 +432,7 @@ class FoundationModelLabeler:
 
 The output of this stage is a `candidate_label`, not training truth. For open-vocabulary or semantic-map labels, the quality gate cannot auto-accept directly into training, replay, safety evidence, or a signed map bundle. It can only route candidates to review. Promotion requires controlled-taxonomy mapping, QA evidence, dataset/catalog manifest IDs, and semantic-map manifest or back-projection export IDs.
 
-The labeler itself is a governed artifact. Register the prompt pack, model/checkpoint, retrieval corpus, thresholds, projection code, reviewer workflow, allowed-use state, and rollback bundle using `offboard-labeler-registry-by-scale.md` before foundation-model labels feed an S2+ training snapshot, replay assertion, semantic map, or release packet. Once the labeler can affect release truth, attach digest-bound signatures, provenance, and policy results using `secure-artifact-attestation-profile.md` so prompt, model, retrieval, and threshold drift cannot hide behind the same labeler name.
+The labeler itself is a governed artifact. Register the prompt pack, model/checkpoint, retrieval corpus, thresholds, projection code, reviewer workflow, allowed-use state, and rollback bundle using `offboard-labeler-registry-by-scale.md` before foundation-model labels feed an S2+ training snapshot, replay assertion, semantic map, or release packet. Once the labeler can affect release truth, attach digest-bound signatures, provenance, and policy results using `secure-artifact-attestation-profile.md`, and evaluate prompt/RAG/judge/tool behavior using `llmops-agent-evaluation-by-scale.md`, so prompt, model, retrieval, and threshold drift cannot hide behind the same labeler name.
 
 ### 3.5 Quality Gate and Human Review
 
