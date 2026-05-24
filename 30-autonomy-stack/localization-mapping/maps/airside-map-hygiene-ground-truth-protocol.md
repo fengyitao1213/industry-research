@@ -1,6 +1,6 @@
 # Airside Map Hygiene Ground Truth Protocol
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -14,7 +14,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 
 | Downstream consumer | What it consumes from this protocol |
 |---|---|
-| [Aggregated-map semantic segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) | `static_keep`, `movable_static`, `hazard`, `artifact`, and `unknown_review` labels for QA gates and semantic-map release evidence |
+| [Aggregated-map semantic segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) | canonical hygiene labels plus release-state aliases (`permanent_static`, `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, `unknown_review`) for QA gates, training export, and semantic-map release evidence |
 | [Map construction pipeline](map-construction-pipeline.md) | capture plan, rejected-object layer, change manifest, and pre-publication map-cleaning labels |
 | [Map publication gates](../../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md) | hygiene-validation gate inputs: dynamic rejection, static preservation, FOD retention, unknown/quarantine report, and reviewer state |
 | [Map hygiene operational monitoring](../../../50-cloud-fleet/observability/map-hygiene-operational-monitoring.md) | runtime telemetry fields and alerts for ghost rate, static preservation, FOD candidates, unknown area, and semantic QA drift |
@@ -27,10 +27,28 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Permanent static | `static_keep` | Fixed infrastructure, fixed signs, terminal edges, approved markings | Aircraft, GSE, temporary objects |
 | Static change candidate | `static_change` | New/removed/shifted fixed features pending approval | One-pass occlusion or perception artifacts |
 | Movable-static | `movable_static` | Parked aircraft, staged GSE, carts, stairs, cones, barriers | Permanent localization anchors |
+| Static transient | `static_transient` | Stationary people, temporary work-zone objects, event equipment, staged non-asset clutter | Approved permanent assets or movable assets with lifecycle ownership |
 | Current dynamic | `dynamic` | Moving vehicles, people, aircraft under tow, wildlife | Base map elements |
 | FOD/hazard | `hazard` | Debris, tools, loose material, spills, unsafe objects | Static-map features |
 | Artifact | `artifact` | Rain spray, reflections, bad registration, sensor noise | Operational obstacles unless persistent/confirmed |
 | Unknown/review | `unknown_review` | Ambiguous clusters or conflicting evidence | Automatic promotion/deletion |
+
+## Semantic-Map Release-State Aliases
+
+The operational labels above are the annotation vocabulary. Semantic-map release and benchmark pages use a stricter release-state vocabulary so map publication, training export, and dynamic-cleaning evaluation share one interface. Use the mapping below when producing `semantic_map_manifest.json`, moving/static benchmark slices, or map-derived training labels.
+
+| Ground-truth protocol label | Release-state alias | Export rule |
+|---|---|---|
+| `static_keep` | `permanent_static` | Eligible for permanent geometry, localization priors, and positive semantic-map training after geometry QA |
+| `static_change` | `unknown_review` before approval; `permanent_static` after approval | Never auto-promote without ops/change evidence and reviewer decision |
+| `movable_static` | `movable_static` | Quarantine or soft-context layer; not a permanent-map positive |
+| `static_transient` | `static_transient` | Hard exclusion from permanent map; may become a training negative or review item |
+| `dynamic` | `dynamic_residual` when residual points remain in the aggregate | Remove from permanent map and score ghost leakage separately |
+| `hazard` | `fod_candidate` unless the hazard is reclassified by inspection | Preserve evidence and reviewer state even if points are excluded from the static map |
+| `artifact` | `artifact` | Exclude from release and count against source-map conditioning quality |
+| `unknown_review` | `unknown_review` | Keep out of automatic publication and route to reviewer or active learning |
+
+Do not infer the release-state alias from semantic class alone. A cone can be a `fod_candidate`, `movable_static`, or `static_transient` depending on ownership, placement, and evidence. A person can be moving, stationary-transient, or a sparse unknown cluster. The alias is a reviewed state variable, not a synonym for a class ID.
 
 ## Capture Plan
 
@@ -61,7 +79,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 1. Register all captures into the airport ENU map frame and record pose-quality flags.
 2. Build a quiet baseline candidate from high-quality passes only.
 3. Annotate obvious permanent infrastructure and approved markings as `static_keep`.
-4. Annotate aircraft, GSE, workers, carts, cones, and other movable classes as `movable_static` or `dynamic` based on motion/state.
+4. Annotate aircraft, GSE, workers, carts, cones, and other movable classes as `movable_static`, `static_transient`, or `dynamic` based on lifecycle ownership and motion/state.
 5. Route debris, loose tools, foreign material, and spills to `hazard` even if the static map cleaner would remove them.
 6. Compare current captures against the approved prior map and label candidate additions/removals/edits as `static_change`.
 7. Require reviewer decision for every safety-critical deletion and every route/topology change.
@@ -78,6 +96,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Prior marking absent in clear dry multi-view evidence | `static_change` | Review deletion/repaint |
 | New barrier appears with active work-zone record | `static_change` or temporary restriction | Add restriction; promote only if permanent |
 | New cone line appears without ops record | `movable_static` | Live restriction, expire/review |
+| Stationary person, passenger queue, or temporary crew cluster appears in a map tile | `static_transient` | Hard exclude from permanent map; retain source evidence for review or training negatives |
 | Small debris visible in route | `hazard` | Alert/inspection, not map feature |
 | Moving object trail in accumulated map | `dynamic` | Remove from static map |
 | Sensor ghost or registration streak | `artifact` | Reject from map and benchmark positives |
@@ -91,6 +110,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 | Inter-session alignment | Control points and static landmarks agree within tolerance |
 | Static preservation | Fixed landmarks retained after cleaning |
 | Movable rejection | Aircraft/GSE not present in permanent layer |
+| Static-transient exclusion | Stationary people and temporary non-asset objects absent from permanent layer |
 | Hazard handling | FOD/hazard labels preserved as alerts |
 | Local holdout integrity | Do-not-delete/adverse-airside holdout is locked, traceable, and separated from training/tuning |
 | Localization regression | No unacceptable scan-to-map residual or relocalization degradation |
@@ -113,6 +133,7 @@ This map-operations page is the canonical owner for the ground-truth vocabulary,
 |---|---|
 | Static preservation rate | feature class, tile, stand |
 | Movable-static rejection rate | aircraft, GSE, cones/barriers |
+| Static-transient hard-exclusion recall | stationary people, temporary objects, work-zone clutter |
 | Hazard retention/alert recall | FOD type, size, surface, lighting/weather |
 | False-free-space rate | route segment, stand, safety-critical zone |
 | Change precision/recall | insertion, deletion, geometry edit, topology edit |

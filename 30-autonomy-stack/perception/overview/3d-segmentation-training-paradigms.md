@@ -249,6 +249,22 @@ Pipeline: (1) **Map construction** — SLAM or pose-graph optimization accumulat
 | Disadvantages | SLAM drift and dynamic-object contamination propagate label errors at scale. Static-world assumption breaks at active gates and during pushback; special handling required. Map quality determines pseudo-label quality — poor SLAM means noisy labels and a degraded downstream model. Moving object removal must be robust; missed aircraft or GSE in the map corrupts static-class labels for surrounding points. |
 | Representative method | UniLiPs: https://arxiv.org/abs/2601.05105 — LESS: https://arxiv.org/abs/2210.08064 |
 
+### Training-Data Eligibility Contract for Map-Derived Labels
+
+Map-derived labels are useful only when the training manifest carries two independent labels: the **semantic class** and the **release-state / map-hygiene layer**. The semantic class says what the point looks like; the release state says whether that point is suitable as permanent map truth, transient evidence, a hazard candidate, an artifact, or a review item. Treating every semantically labeled map point as a supervised positive is the fastest way to teach a single-scan model that parked GSE, stationary people, ghost trails, and FOD-like debris are normal permanent structure.
+
+| Release-state label | Use in semantic training | Do not use as | Required evidence before export |
+|---|---|---|---|
+| `permanent_static` | Positive label for fixed stuff/static infrastructure classes | Positive for movable assets or dynamic actors | Source-map acceptance, pose residual, view count, semantic confidence, map-quality QA region |
+| `dynamic_residual` | Hard negative or ignore mask for permanent classes; optional dynamic-removal auxiliary target | Static map positive | Source scan bundle proving motion trail or temporal inconsistency |
+| `movable_static` | Optional context/soft-occupancy class if the downstream model has that output; otherwise ignore for permanent-map training | Permanent infrastructure positive | TTL/quarantine state, asset class, future absence or movement evidence |
+| `static_transient` | Training negative for permanent-map release; single-scan person/object labels only when verified in source frames | Map permanence label | Reviewer disposition and source-frame evidence, especially for stationary people |
+| `fod_candidate` | Active-learning or hazard-review target; rare-class candidate after human confirmation | Noise/background or permanent ground | Raw point evidence, size/surface slice, inspection/reviewer outcome |
+| `artifact` | Artifact/noise auxiliary target or ignore mask | Thin-structure negative without source-quality proof | Sensor/registration quality evidence and artifact reason code |
+| `unknown_review` | Active-learning queue only | Any supervised positive | Candidate label, uncertainty, reviewer state, and promotion/demotion outcome |
+
+Practical rule: the loss mask for a map-derived training point should be a function of `(semantic_class, release_state, confidence, source_map_acceptance, pose_quality, split_id)`, not just `semantic_class`. Validation and test scans must be selected before pseudo-label generation, and their timestamps must be excluded from the map back-projection pool to prevent optimistic leakage. If images are used for distillation or review, store camera/LiDAR projection residuals and image-quality flags with the exported labels; RGB evidence can improve semantics, but it does not override a failed LiDAR map-hygiene decision.
+
 ---
 
 ## Comparison Table
@@ -438,6 +454,8 @@ The stages above are not the only valid combination. The following table summari
 - [LiDAR Foundation Models](lidar-foundation-models.md) — foundation model landscape for 3D
 - [3D Segmentation Class Taxonomy Design](3d-segmentation-class-taxonomy-design.md) — taxonomy design, safety-criticality weighting, cross-dataset harmonization
 - [Large-Scale 3D Segmentation Tiling and Throughput](large-scale-3d-segmentation-tiling-and-throughput.md) — map-scale inference and tiling
+- [Airside Map Hygiene Ground Truth Protocol](../../localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) — canonical release-state aliases and reviewer-disposition labels for map-derived training data
+- [Map Publication Gates for Airside Hygiene](../../../50-cloud-fleet/map-operations/map-publication-gates-airside-hygiene.md) — publication and training-export gates for semantic map bundles
 - [Foundation Model Training First Principles](../../../10-knowledge-base/machine-learning/foundation-model-training-first-principles.md) — LoRA derivation, adapter theory
 - [Point Transformer V3](../methods/point-transformer-v3.md) — PTv3 architecture and Sonata details
 - [2DPASS](../methods/2dpass.md) — cross-modal distillation implementation

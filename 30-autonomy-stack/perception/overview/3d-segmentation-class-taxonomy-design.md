@@ -371,6 +371,20 @@ The release contract should carry both products: per-point or per-voxel semantic
 
 **Release rule:** a point can be semantically correct and still be wrong for the permanent map. Publication gates must evaluate semantic class, permanence layer, confidence, change history, and consumer contract together.
 
+### Training and Evaluation Consequences
+
+The semantic taxonomy is therefore not the same thing as the training-data acceptance policy. A class config can say that class 12 means `staged GSE`; it cannot say whether a particular staged-GSE cluster is a supervised positive, an ignored pseudo-label, a soft-context overlay, or a quarantine object. That decision belongs to the release-state layer and must be carried into the training manifest defined in [Training Paradigms for 3D / LiDAR Segmentation](3d-segmentation-training-paradigms.md).
+
+| Consumer | Semantic class it needs | Release-state evidence it also needs | Failure if omitted |
+|---|---|---|---|
+| Permanent HD-map layer | Fixed infrastructure, pavement, markings, kerbs, signs, poles | `permanent_static` plus source-map QA and confidence gates | Parked assets or stationary people become map truth |
+| Single-scan auto-label export | Class labels back-projected from the map | Release-state-specific loss masks and split exclusion | Pseudo-labels teach the model to hallucinate temporary objects as static classes |
+| Dynamic-removal training | Dynamic actor, ghost, or temporal-inconsistency targets | `dynamic_residual` with source-frame motion evidence | Cleaners over-delete fixed thin structures near moving objects |
+| Hazard/FOD review | Debris/tool/chock/unknown-small-object candidate labels | `fod_candidate` and reviewer outcome | Safety-relevant small objects are erased as noise |
+| Active-learning queue | Unknown/open-vocabulary candidate names | `unknown_review` with candidate-label provenance | Novel equipment is silently mapped to the nearest known class |
+
+Evaluation should report semantic mIoU and release-state confusion separately. A model may improve pavement IoU while worsening false-permanent rate on staged equipment; that is not a release improvement. Conversely, a conservative model may abstain more often into `unknown_review`, lowering coverage but improving safety review yield. Both effects are invisible if the taxonomy and hygiene layer are collapsed into one label map.
+
 ### Non-road urban-district permanence mapping
 
 Non-road managed districts — airport aprons, campuses, ports, yards, utility corridors, and industrial sites — have more static-but-movable structure than public-road AV datasets. Their taxonomies should therefore define permanence policy at the superclass level before fine class IDs are promoted.

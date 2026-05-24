@@ -39,6 +39,22 @@ The manifest must also carry `outputs.map_hygiene_layer_digests` and `metrics_ev
 
 The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground Truth Protocol](../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md) as its label and reviewer-disposition source, with the [V&V companion](../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md) defining benchmark exchange fields and acceptance outputs. Publication is blocked when the candidate map lacks a signed static/dynamic/FOD/artifact/unknown report, rejected-object layer, reviewer decision state, or quarantine disposition for safety-critical deletions.
 
+## Training-Data Export Gate
+
+Many semantic-map releases also export back-projected single-scan labels for the perception training flywheel. Treat that export as a separate gate from map publication. A map may be acceptable for vehicle localization while still being unsafe as a training corpus if transient objects, unresolved review regions, or pose-drift boundaries are exported as supervised positives.
+
+| Export condition | Allowed training use | Blocker |
+|---|---|---|
+| `permanent_static` with source-map acceptance, pose-quality pass, semantic confidence, and split assignment | Positive label for fixed semantic classes | Missing source-map QA, low view count, or validation/test timestamp leakage |
+| `dynamic_residual` | Dynamic-removal auxiliary target or permanent-map negative | Exported as pavement, building, marking, or other static positive |
+| `movable_static` | Quarantine/context layer or ignored pseudo-label | Parked aircraft, GSE, cones, or barriers exported as permanent infrastructure |
+| `static_transient` | Hard negative, review evidence, or ignored pseudo-label | Stationary people or temporary objects exported as map truth |
+| `fod_candidate` | Hazard/FOD active-learning queue after reviewer disposition | Deleted as noise without retained evidence or exported as background |
+| `artifact` | Artifact/noise auxiliary target or ignored point | Used to train against true thin structures without source-quality proof |
+| `unknown_review` | Active-learning queue only | Any automatic supervised positive |
+
+The export manifest should include semantic class, release-state label, confidence, source-frame IDs, pose-quality bucket, split ID, reviewer state, and reason code for every exported point/voxel cluster. Publication is blocked for a training-enabled bundle if these fields are absent, even when the vehicle-facing map layers themselves pass. This mirrors the training eligibility contract in `../../30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`.
+
 ## Map Hygiene Checks
 
 | Check | Pass signal | Blocker |
@@ -59,12 +75,13 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 4. Block publication if source-map acceptance, semantic provenance, taxonomy/class-order, confidence/unknown thresholds, safety-class metrics, map-hygiene layer digests, map-hygiene metrics, QA report, or reviewer disposition is missing.
 5. Block publication if unknown regions intersect route/geofence/FOD-sensitive zones without an approved ODD restriction or quarantine decision.
 6. Block publication when the active ODD includes adverse-airside conditions but the bundle lacks signed local holdout results for do-not-delete hazards, or an explicit quarantine/ODD restriction.
-7. Confirm Autoware map loaders launch from the signed bundle and that projection, Lanelet2, pointcloud metadata, and PCD cells are mutually consistent; if dynamic map loading is enabled, replay a representative route that requests nearby cells without unhealthy diagnostics.
-8. Confirm rollback bundle availability before canary deployment.
-9. Canary by zone, route, stand, and vehicle cohort, not by percentage alone.
-10. Monitor localization, route failures, map disagreement, semantic unknown-rate drift, FOD tickets, and interventions.
-11. Promote only after the monitoring window covers relevant conditions such as shift handover, night, rain, or busy stand operations.
-12. Retire superseded bundles only after all vehicles report leaving the old version.
+7. If the bundle exports training labels, block publication unless every exported point has a release-state label and split assignment, and unless non-`permanent_static` labels are masked or routed as review/auxiliary targets.
+8. Confirm Autoware map loaders launch from the signed bundle and that projection, Lanelet2, pointcloud metadata, and PCD cells are mutually consistent; if dynamic map loading is enabled, replay a representative route that requests nearby cells without unhealthy diagnostics.
+9. Confirm rollback bundle availability before canary deployment.
+10. Canary by zone, route, stand, and vehicle cohort, not by percentage alone.
+11. Monitor localization, route failures, map disagreement, semantic unknown-rate drift, FOD tickets, and interventions.
+12. Promote only after the monitoring window covers relevant conditions such as shift handover, night, rain, or busy stand operations.
+13. Retire superseded bundles only after all vehicles report leaving the old version.
 
 ## Operational Overrides
 
@@ -93,6 +110,7 @@ The **hygiene-validation** gate uses the canonical [Airside Map Hygiene Ground T
 - SLSA build provenance v1.2: https://slsa.dev/spec/v1.2/build-provenance
 - Local context: hd-map-lifecycle-operations.md
 - Local context: movable-static-asset-lifecycle-policy.md
+- Local context: ../../30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md
 - Local context: ../../30-autonomy-stack/localization-mapping/maps/airside-map-hygiene-ground-truth-protocol.md
 - Local context: ../../60-safety-validation/verification-validation/airside-map-hygiene-ground-truth-protocol.md
 - Local context: ../observability/map-hygiene-operational-monitoring.md
