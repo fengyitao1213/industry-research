@@ -288,6 +288,18 @@ PTv3 at 44 ms (A100) corresponds to roughly 200–400 ms on Orin — feasible in
 | On-vehicle real-time perception (Orin) | Not suitable — use sparse-conv baseline + distilled student |
 | Few-shot fine-tuning on new airside domain | **Best fit — Sonata linear probe viable at < 1K labels** |
 
+### Release-Map Controls
+
+PTv3 is the accuracy-ceiling lane, so it needs stricter evidence than a production baseline. A semantic-map release should record:
+
+| Control | Required evidence |
+|---|---|
+| Source-map conditioning | Source-map acceptance package, registration-blur metrics, dynamic-residual removal results, static-transient quarantine, and map-hygiene layer digests before PTv3 inference starts. |
+| Tile and serialization replay | Tile IDs, tile origin, halo width, quantization step, patch size, serialization orders, no-clipping boundary policy, TTA/ensemble settings, and logit-merge policy. |
+| Pre-training lineage | Sonata/PPT/checkpoint source, licence, pre-training dataset families, domain-continuation SSL status, and train/validation/test split leakage checks. |
+| Product-mode permission | Runtime maps can consume PTv3 labels after QA; training exports still need release-state eligibility masks; benchmark reports must include the same sparse-conv or SPT baseline for comparison. |
+| Acceptance metrics | Semantic mIoU, class-balanced mIoU, rare/thin-class recall, boundary F1, seam disagreement, calibration error, release-state confusion, false-permanent rate, false-deletion rate, and cost per map area. |
+
 ## Inputs and Outputs
 
 - Inputs: a point cloud as `(x, y, z)` plus per-point features — intensity/reflectance, RGB colour, surface normal, or other channels.

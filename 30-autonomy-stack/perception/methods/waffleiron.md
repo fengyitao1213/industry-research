@@ -207,6 +207,18 @@ Practical considerations for aggregated-map use:
 - ScaLR pre-training on public datasets followed by fine-tuning on site-specific scans is the documented path to strong airside performance without large labelled airside datasets.
 - WaffleIron's hardware-agnostic profile is especially useful for aggregated-map pipelines running on CPUs or non-NVIDIA hardware (cloud batch jobs, AMD inference clusters).
 
+### Release-Map Controls
+
+WaffleIron is the dependency-minimization lane. Its release evidence should focus on the projection contract rather than custom-kernel behavior:
+
+| Control | Required evidence |
+|---|---|
+| Projection manifest | Grid resolution `ρ`, projection axes, tile origin, grid extents, cell aggregation rule, empty-cell policy, and back-projection tie handling. |
+| Detail-loss audit | Thin marking, wire/cable, pole, fence, curb, facade-edge, and small-safety-feature recall against a sparse-conv or point-conv baseline at the same tile split. |
+| Product-mode fit | Runtime semantic maps are acceptable only if projection detail loss is below the class threshold; training exports still obey release-state eligibility masks; digital-twin transfer needs point-to-surface provenance after back-projection. |
+| Modality evidence | If ScaLR, colorized points, or image-derived features are used, record projection QA, teacher coverage, image capture window, and whether those features are training-only or release-time inputs. |
+| Non-road transfer | For apron, campus, port, industrial, utility, facade, and terminal-interior slices, report whether axis-aligned projections fail on slopes, ramps, overhead structures, or oblique facades. |
+
 See `../overview/aggregated-map-semantic-segmentation.md` §7.8 for head-to-head comparison of WaffleIron against the four other model families in the aggregated-map context.
 
 ## Domain Fit

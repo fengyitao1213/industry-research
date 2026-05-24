@@ -180,6 +180,18 @@ Complementary pre-training stack:
 
 This two-stage approach combines the label efficiency of SSL pre-training with the accuracy ceiling of supervised distillation.
 
+### Map-Release Distillation Contract
+
+2DPASS should be treated as a training-time modality contract, not just a model score improvement. A semantic-map manifest should record:
+
+| Contract item | Required evidence |
+|---|---|
+| Image dependency class | State explicitly that imagery is training-only and that released inference consumes LiDAR points only. If any image feature remains in the deployed graph, the product becomes image-dependent fusion rather than 2DPASS-style distillation. |
+| Projection QA | Camera intrinsics/extrinsics version, time-sync window, per-camera coverage, occlusion mask policy, reprojection residuals, and rejected-frame list. |
+| Distillation lineage | 3D backbone, 2D teacher/encoder, distillation scales K, loss weight, image augmentations, paired-survey capture IDs, and whether SLidR/ScaLR pre-training preceded supervised 2DPASS. |
+| Label-use permissions | Distilled labels can improve semantic logits, but map-derived training exports still require semantic class plus release-state labels; non-`permanent_static` points stay masked, auxiliary, or active-learning candidates. |
+| Acceptance checks | Compare the distilled model against the same LiDAR-only backbone without distillation, reporting rare appearance-defined classes, night/day or exposure slices, calibration-stress slices, seam disagreement, ECE, and false-permanent contamination. |
+
 ## Domain Fit
 
 | Domain | Fit | Note |
