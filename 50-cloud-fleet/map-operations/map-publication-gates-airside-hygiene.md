@@ -55,6 +55,20 @@ Many semantic-map releases also export back-projected single-scan labels for the
 
 The export manifest should include semantic class, release-state label, confidence, source-frame IDs, pose-quality bucket, split ID, reviewer state, and reason code for every exported point/voxel cluster. Publication is blocked for a training-enabled bundle if these fields are absent, even when the vehicle-facing map layers themselves pass. This mirrors the training eligibility contract in `../../30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`.
 
+## Semantic-Map Product Mode Gate
+
+Semantic-map releases can produce multiple products from the same source run. The publication record must declare which product modes are enabled so vehicle runtime, training, monitoring, and digital-twin consumers do not inherit each other's assumptions.
+
+| Product mode | Required evidence | Primary blocker |
+|---|---|---|
+| `runtime_semantic_map` | semantic-map manifest, runtime map contract, loader smoke test, compatibility hash, rollback package | Missing loader evidence, map-hygiene layer digest, or canary plan |
+| `training_export` | release-state label, loss-mask policy, split manifest, source-map QA, reviewer state, projection QA if RGB was used | Any non-`permanent_static` point exported as a static semantic positive |
+| `hygiene_monitoring` | reason-coded removal sidecar, rejected-object layers, TTL/zone policy, reviewer queue, monitoring schema | Deleted/quarantined points lack reason code or downstream permission |
+| `digital_twin_transfer` | point-to-mesh/3DGS/BIM transfer manifest, source point digest, projection/texture evidence, reviewer acceptance | Mesh/texture label cannot be traced back to accepted LiDAR source evidence |
+| `benchmark_acceptance` | locked held-out split, semantic labels, release-state labels, source-map QA, class/zone stratification | Public proxy results used as release acceptance without local held-out evidence |
+
+A bundle may pass one product mode and fail another. For example, a map can be acceptable for `runtime_semantic_map` while its `training_export` is blocked because transient or unknown-review regions have not been masked. Conversely, a candidate can be useful for `benchmark_acceptance` analysis while still blocked from runtime because loader compatibility or operational approval is missing.
+
 ## Map Hygiene Checks
 
 | Check | Pass signal | Blocker |

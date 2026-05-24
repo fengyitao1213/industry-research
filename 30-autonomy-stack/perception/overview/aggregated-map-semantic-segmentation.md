@@ -186,7 +186,21 @@ Both are valid; they are not exclusive. A strong production design uses **segmen
 
 The pragmatic production answer is **hybrid**: a learned 3D network as the end-to-end core, with two cheap heuristics retained as *guards*, not as the primary classifier — a geometric ground prior (regularizes the dominant class, anchors elevation) and an intensity prior for paint (a strong, near-free signal the network should agree with). The heuristics become QA cross-checks (§13), echoing the Simplex pattern used elsewhere in this corpus: the learned path is authoritative, the classical path is the auditable check.
 
-### 3.4 Research Scope and Page Contribution Map
+### 3.4 Application Architecture Patterns
+
+The same segmentation machinery can serve several products. Treat them as separate architectures because each product has different consumers, evidence thresholds, and failure modes.
+
+| Product pattern | Primary output | Best fit | Advantages | Controls / disadvantages |
+|---|---|---|---|---|
+| Runtime semantic map release | Signed semantic HD-map layer plus confidence and hygiene layers | Vehicles that consume fixed map semantics for localization, routing, geofencing, or inspection | Stable artifact, auditable release gate, reproducible from source map and manifest | Slowest path; requires source-map acceptance, map-hygiene digests, runtime-loader compatibility, rollback, and canary monitoring |
+| Map-derived training flywheel | Back-projected per-scan labels and training-export manifest | Building in-domain LiDAR/image segmentation datasets where public data is missing | Turns one reviewed map into many labeled scans; lowest marginal label cost after the first site | Highest leakage risk; non-`permanent_static` layers must be masked, routed to auxiliary targets, or sent to active learning |
+| Map hygiene and change monitoring | Release-state deltas, rejected-object layers, changed-tile alerts | Managed districts with repeated surveys: airports, campuses, ports, warehouses, industrial yards | Separates dynamic residuals, movable-static objects, static transients, FOD candidates, artifacts, and true infrastructure changes | False deletion can hurt localization; false permanent can hide hazards, so reason-coded sidecars and reviewer state are mandatory |
+| Digital twin / mesh / facade product | Point labels transferred to mesh, BIM, 3DGS, or facade/interior layers | Terminal frontage, public-safety facilities, utility corridors, BIM handoff, simulation assets | Supports visual QA, simulation, inspection, and asset inventory beyond vehicle runtime maps | RGB/texture can improve semantics but should not override LiDAR source-map evidence; mesh transfer needs point-to-surface provenance |
+| Local benchmark and acceptance set | Held-out labeled tiles with semantic and release-state labels | Proving non-road urban-district performance across apron/depot, campus, port, utility, facade, and interior slices | Converts proxy-dataset learning into owned evidence; exposes road-dataset blind spots | Public mIoU is not acceptance evidence; local held-out maps need release-state overlays and locked split manifests |
+
+Architecture rule: one map run can emit all five products, but no product should silently consume another product's labels. Runtime release, training export, monitoring, digital twin transfer, and benchmark reporting each need an explicit manifest field, consumer contract, and allowed-use policy.
+
+### 3.5 Research Scope and Page Contribution Map
 
 This topic should be treated as a **cross-corpus architecture**, not as one standalone perception page. The map-scale segmentation model is only the visible learned component. Its quality is bounded by upstream SLAM, map cleaning, map QA, class taxonomy, data lineage, and release contracts.
 

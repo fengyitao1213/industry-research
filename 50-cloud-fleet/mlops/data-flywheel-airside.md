@@ -79,6 +79,20 @@ The airside environment has characteristics that make a data flywheel especially
 5. **High stakes per error**: $250K average aircraft damage from GSE collision, potential $139M+ for structural damage
 6. **Seasonal variation**: Snow, de-icing operations, heat shimmer, different lighting — a summer model may fail in winter
 
+### 1.4 Map-Derived Semantic Label Branch
+
+The aggregated-map semantic segmentation pipeline adds a second flywheel branch beside clip-level auto-labeling. Instead of labeling every single scan independently, the fleet builds a reviewed semantic map once, then back-projects accepted labels to all contributing scans.
+
+| Step | Artifact | Gate before it can feed training |
+|---|---|---|
+| Source-map build | registered LiDAR map, poses, calibration, source-map QA | source-map acceptance package and map-hygiene sidecars present |
+| Semantic map labeling | per-point semantic labels, confidence, release-state layers | held-out semantic/release-state QA and reviewer disposition |
+| Training export | back-projected scan labels plus split manifest | `permanent_static` positives only by default; dynamic/movable/transient/FOD/artifact/unknown states masked or routed as auxiliary/review targets |
+| Active learning | uncertain tiles, unknown-review clusters, rare-class misses | reviewer task IDs, candidate-label provenance, and non-overlapping validation/test timestamps |
+| Model refresh | single-scan and map-segmentation checkpoints | release evidence links model version back to map, taxonomy, loss-mask policy, and training-export manifest |
+
+The advantage is label efficiency: one reviewed map can produce millions of scan-level labels. The risk is label leakage: if a stationary person, parked GSE unit, ghost trail, FOD candidate, or artifact survives into the `permanent_static` export, the next model learns the wrong map as truth. The flywheel should therefore treat semantic-map exports as governed data products, not as generic auto-labels.
+
 ---
 
 ## 2. Trigger-Based Data Collection
