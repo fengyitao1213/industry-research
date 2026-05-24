@@ -28,6 +28,8 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention.
+
 ---
 
 ## Scale Levels
@@ -455,6 +457,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
+- `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.
 - `../../20-av-platform/compute/training-infrastructure.md` - GPU training infrastructure and experiment management.

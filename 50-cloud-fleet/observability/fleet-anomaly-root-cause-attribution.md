@@ -84,6 +84,8 @@ Fleet anomaly attribution should mature with MLOps scale. At S0-S1 the goal is t
 
 The attribution system should always emit an evidence artifact, not only a dashboard. Minimum fields are anomaly ID, affected cohorts, active artifacts, candidate root causes, confidence, evidence links, owner, mitigation, downstream data-mining tasks, and whether release gates or safety-case claims changed.
 
+The KPI companion for this MLOps scope is `../mlops/mlops-scorecards-and-kpis-by-scale.md`. Use it to decide when an attribution signal is only informational versus release-blocking: target ODD slice regression, rollback not executable, missing evidence retention, alert suppression without audit, and platform-policy bypass all change the release state.
+
 ### 1.4 Why Manual Triage Does Not Scale Past 20 Vehicles
 
 Manual root-cause analysis follows a predictable workflow that breaks at fleet scale:

@@ -137,6 +137,8 @@ The label budget is a release-control budget, not only a cost budget. A fleet ca
 
 The flywheel should report cost per accepted label, not only cost per submitted task. Useful KPIs include candidate-to-accepted rate, reviewer correction rate, rework rate, duplicate rate, rare-class coverage, safety-slice coverage, and model/replay impact per labeling dollar.
 
+For the wider MLOps scorecard, use `mlops-scorecards-and-kpis-by-scale.md`. The flywheel KPIs here measure whether data collection and labeling are improving models; the scale scorecard adds release reliability, rollback readiness, evidence retention, runtime package compatibility, platform cost, and site/ODD release blockers.
+
 ---
 
 ## 2. Trigger-Based Data Collection
