@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -62,8 +62,8 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Release reliability | Change failure rate | Regression count | Candidate hold/reject/rollback rate by cause | Safety-relevant change failure and corrective-action closure |
 | Monitoring | Alert actionability | Failure notes become issues | Alerts produce label batch, replay case, rollback check, or ODD quarantine | Alert suppression audit, reportability, safety-case delta |
 | Incident response | MTTR / containment time | Time to explain regression | Time to isolate artifact and affected cohort | Time to evidence freeze, rollback, and reportability decision |
-| Cost | Unit cost | Cost per run | Cost per accepted label, training run, replay hour, released model/map | Cost per evidence pack, platform tenant, and reserved incident lane |
-| Platform | Adoption and bypass rate | Not applicable | Shared registry/eval use by product team | Tenant compliance, bypass attempts, service SLOs, queue wait time |
+| Cost | Unit cost | Cost per run | Cost per accepted label, training run, replay hour, released model/map, queue wait time | Cost per evidence pack, platform tenant, reserved incident lane, and ODD-cell approval |
+| Platform | Adoption and bypass rate | Not applicable | Shared registry/eval use by product team | Tenant compliance, bypass attempts, service SLOs, GPU queue wait time |
 
 The goal is not to maximize every metric. For example, low candidate rejection can mean weak exploration, and high deployment frequency can be dangerous if release evidence is shallow. Interpret KPIs against the scale and authority of the artifact.
 
@@ -86,6 +86,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Target ODD slice regression | S3-S5 | Aggregate score improves but target site, night, rain, stand-entry, FOD, or personnel slice regresses |
 | Safety monitor regression | S4-S5 | New model increases false-free-space, protected-zone violation, unsafe speed, or intervention correlation |
 | Rollback not executable | S2-S5 | Previous model cannot load under active runtime, schema, calibration, or map package |
+| Assurance capacity unavailable | S4-S5 | Incident replay, release replay, rollback proof, or safety evidence job cannot run within the required response window because routine jobs consumed reserved capacity |
 | Missing evidence retention | S4-S5 | Raw logs, replay package, release packet, approval, or incident evidence can be garbage-collected |
 | Platform policy bypass | S5 | Team moves artifact outside shared registry/eval/policy controls |
 
@@ -162,6 +163,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
+- `gpu-queueing-finops-by-scale.md` - queue wait, utilization, unit economics, priority lanes, and assurance capacity controls.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.
 - `../observability/fleet-anomaly-root-cause-attribution.md` - fleet anomaly attribution and MTTR reduction.

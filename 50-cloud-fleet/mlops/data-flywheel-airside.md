@@ -115,6 +115,8 @@ The reference-architecture companion (`mlops-reference-architectures-by-scale.md
 
 A data flywheel needs a cadence that matches its MLOps scale. Running every step continuously is usually wrong for autonomy: collection can be continuous, but label QA, training, evaluation, release, and safety review should remain gated.
 
+The compute side of that cadence is governed by `gpu-queueing-finops-by-scale.md`. Auto-labeling, semantic-map segmentation, retraining, replay, and incident analysis should not share one undifferentiated GPU queue once the flywheel reaches S3; release replay and incident response need explicit priority lanes.
+
 | Scale | Collection cadence | Training cadence | Release cadence | Review owner |
 |---|---|---|---|---|
 | S0-S1 research/prototype | Manual pulls or small fixed samples | Ad hoc reruns | No deployment release | Research owner |

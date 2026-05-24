@@ -74,6 +74,8 @@ Use `../mlops/mlops-scale-research-scope.md` to decide how much backend infrastr
 
 For a 5-20 vehicle airside fleet, S2-S3 is the correct target: immutable raw data, curated training snapshots, site-aware slices, registry integration, and fleet telemetry. S4 evidence retention is still required for safety-critical model and map releases even before the infrastructure reaches full platform scale.
 
+GPU processing is part of the backend contract. Use `../mlops/gpu-queueing-finops-by-scale.md` when auto-labeling, replay, semantic-map segmentation, training, and incident analysis begin competing for accelerator capacity; the backend should expose workload class, site/ODD, owner, artifact IDs, queue wait, utilization, and cost tags rather than only node counts.
+
 ---
 
 ## 2. End-to-End Data Architecture

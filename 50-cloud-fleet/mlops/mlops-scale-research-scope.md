@@ -346,7 +346,7 @@ This applies to TensorRT engines, ONNX exports, map tiles, semantic-map manifest
 
 ### GPU FinOps for ML Systems
 
-GPU capacity becomes a shared product resource at S3+. Cost control should not mean blocking safety-critical learning; it should mean making priority, ownership, and waste visible.
+GPU capacity becomes a shared product resource at S3+. Cost control should not mean blocking safety-critical learning; it should mean making priority, ownership, and waste visible. The detailed queueing and unit-economics policy is `gpu-queueing-finops-by-scale.md`.
 
 | Control | S0-S1 | S2-S3 | S4-S5 |
 |---|---|---|---|
@@ -441,10 +441,10 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Unified model/data/map/calibration compatibility manifest | Prevents a model from deploying against the wrong semantic map, calibration, or runtime container |
 | P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
-| P1 | GPU cost and queueing model for training and replay | Determines when to move from rented GPUs to owned or reserved capacity |
+| P1 | GPU cost and queueing model for training and replay (`gpu-queueing-finops-by-scale.md`) | Determines when to move from rented GPUs to owned, reserved, or queued capacity |
 | P1 | Offboard labeler registry (`offboard-labeler-registry-by-scale.md`) | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
 | P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
-| P1 | GPU FinOps unit-cost model | Tracks cost per label, training run, replay hour, released model, released map, and site so S3-S5 scale does not hide waste |
+| P1 | GPU FinOps unit-cost model (`gpu-queueing-finops-by-scale.md`) | Tracks cost per label, training run, replay hour, released model, released map, ODD-cell approval, and safety evidence pack so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
 | P1 | Reference architecture migration checklist | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
 | P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
@@ -461,6 +461,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
 - `offboard-labeler-registry-by-scale.md` - prompt packs, foundation-model labelers, evaluator models, thresholds, and reviewer workflows as governed artifacts.
+- `gpu-queueing-finops-by-scale.md` - GPU queueing, quotas, priority lanes, unit economics, and assurance capacity controls.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

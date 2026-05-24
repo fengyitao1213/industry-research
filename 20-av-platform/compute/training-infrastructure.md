@@ -58,7 +58,7 @@ For autonomy, the expensive mistake is under-instrumented training, not merely u
 
 ### 1.5 GPU FinOps and Secure Training Controls
 
-Training infrastructure becomes a shared platform before it becomes technically elegant. The practical controls are queueing, quotas, cost attribution, signed artifacts, and data access boundaries. These controls should be lightweight at S0-S1 and enforced by policy at S3-S5.
+Training infrastructure becomes a shared platform before it becomes technically elegant. The practical controls are queueing, quotas, cost attribution, signed artifacts, and data access boundaries. These controls should be lightweight at S0-S1 and enforced by policy at S3-S5. The companion MLOps control page is `../../50-cloud-fleet/mlops/gpu-queueing-finops-by-scale.md`.
 
 | Scale | Capacity model | Cost control | Security control |
 |---|---|---|---|

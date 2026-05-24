@@ -137,7 +137,7 @@ Avoid: metric-only approval, expired evidence, ticket-only approval records, unv
 ### S5: Platform Lane
 
 - Multi-tenant data/model/eval registry with policy-as-code.
-- Shared GPU scheduler with quotas, priority lanes, cache policy, and cost attribution.
+- Shared GPU scheduler with quotas, priority lanes, cache policy, cost attribution, and `gpu-queueing-finops-by-scale.md` unit economics.
 - Standardized feature/embedding service only where reuse justifies it.
 - Shared evaluation platform with product-specific adapters.
 - Audit API for model, data, prompt, evaluator, map, calibration, and deployment artifacts.
@@ -199,6 +199,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, and rollout state machine.
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
+- `gpu-queueing-finops-by-scale.md` - GPU scheduler, queueing, quota, and FinOps architecture by scale.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, data product states, and retention.
