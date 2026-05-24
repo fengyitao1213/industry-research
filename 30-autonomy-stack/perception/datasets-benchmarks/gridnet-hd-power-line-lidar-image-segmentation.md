@@ -92,6 +92,18 @@ The paper reports that multimodal fusion improves over the best unimodal baselin
 
 For airside maps, the main value is proxy evidence for thin overhead/edge infrastructure and camera-LiDAR projection QA. It does not validate runway/apron pavement, aircraft, GSE, FOD, wet-apron multipath, de-icing mist, jet-blast dust, or safety-critical do-not-delete rules.
 
+### Managed-Site Transfer Protocol
+
+When using GridNet-HD inside a non-road urban-district benchmark bundle, keep three questions separate:
+
+| Question | GridNet-HD can answer | Must be validated locally |
+|---|---|---|
+| Does RGB help thin-asset segmentation? | Yes: compare LiDAR-only SPT, image-vote, and late-fusion baselines on cables, pylons, and insulators | Whether cameras cover the target asset under airport/yard lighting, weather, and occlusion |
+| Does the taxonomy need overhead-infrastructure splits? | Yes: pylon, conductor cable, structural cable, and insulator expose class-pressure missing from road datasets | Whether `wire/cable`, `gantry`, `mast`, or `overhead equipment` deserves a release class rather than a reviewed alias |
+| Can points be published as permanent map truth? | No: the dataset has semantic labels, not target-site permanence labels | Release-state overlay for `permanent_static`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review` |
+
+For an aggregated semantic-map pipeline, GridNet-HD should therefore sit in the **pre-training / stress-test** lane. It can justify architecture choices such as LiDAR-image distillation or late fusion; it cannot replace the local release-state benchmark that decides whether a cable-like, pole-like, or artifact-like cluster belongs in the permanent map.
+
 ---
 
 ## Domain Fit

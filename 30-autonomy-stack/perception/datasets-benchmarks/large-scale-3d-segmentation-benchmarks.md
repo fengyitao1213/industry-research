@@ -71,6 +71,21 @@ Use the following protocol before choosing a pre-training or validation pool:
 | Can it support airside, port, depot, or industrial-yard rollout? | GOOSE-Ex, SIP, S.MID, Industrial3D, WHU-Urban3D, KITTI-360 | STPLS3D, CUS3D, SemanticTHAB | Airport/yard-specific objects, GSE/vehicle vocabulary, FOD exclusion, stationary people, staged equipment |
 | Can it produce a releaseable semantic-map artifact? | No public dataset is sufficient by itself | MapBench, SceneEdited, HKCD, moving/static datasets, map-hygiene protocols | A held-out, manually reviewed site map with semantic labels, removal labels, provenance, and publication gates |
 
+### Non-Road Urban-District Benchmark Bundles
+
+For managed districts, use public datasets as a **bundle**, not as a single leaderboard proxy. The bundle should cover acquisition geometry, class pressure, long-tail objects, and release-state risk. No public bundle replaces a held-out local map, but the combinations below expose failures that a road-only benchmark will miss.
+
+| Target district slice | Minimum public proxy bundle | Classes to stress | Release-state risks to add locally |
+|---|---|---|---|
+| Airport apron, depot, or service-road network | KITTI-360, Toronto-3D, Paris-Lille-3D, WHU-Urban3D, SemanticRail3D or WHU-Railway3D, GridNet-HD for thin assets | pavement/markings, kerbs, poles, signs, fences, gantries, long linear boundaries | parked aircraft/GSE, stationary people, FOD candidates, wet-apron artifacts, work-zone equipment |
+| Campus or pedestrian district | YUTO Semantic, USCILab3D, SemanticTHAB, MLDAS, Point Cloud City / Open3D-ML PCC | walkways, plazas, buildings, vegetation, furniture, poles, bicycles/carts, delivery robots | event furniture, parked bikes/carts, stationary people, temporary barriers, open-vocabulary campus objects |
+| Port, logistics yard, or industrial depot | SIP, S.MID, Industrial3D, GOOSE-Ex, OpenTrench3D, WHU-Urban3D | containers, trailers, cranes/gantries, pipes/ducts, cabinets, trenches, gravel/asphalt transitions | moved containers, staged pallets, tools/cables, construction clutter, dust/rain artifacts |
+| Utility corridor or overhead-infrastructure site | GridNet-HD, ECLAIR, DALES, SemanticRail3D, WHU-Railway3D, Toronto-3D | pylons, poles, overhead lines, structural cables, insulators, vegetation, water/soil/road | false deletion of wires/poles, vegetation encroachment freshness, camera-projection gaps, artifact-vs-wire confusion |
+| Terminal frontage, facade, or managed-building exterior | City-Facade, ZAHA, SUM Parts, CUS3D, Point Cloud City / Open3D-ML PCC | wall/window/door/sign/awning/balcony, facade-to-ground boundary, roof/overhang parts | advertisements, scaffolds, temporary signs, construction wraps, BIM-vs-current-map differences |
+| Terminal interior or public-safety facility | Point Cloud City / Open3D-ML PCC, S3DIS, ScanNet200, USCILab3D | doors, corridors, structural columns, furniture, equipment, clutter, tail classes | movable furniture, people, temporary queues, maintenance tools, access-control changes |
+
+The local benchmark should add a release-state overlay for every bundle: `permanent_static`, `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review`. Public mIoU answers whether the semantic class is plausible; the overlay answers whether the point is safe to publish or use as training data.
+
 ## Per-Benchmark Evaluation Detail
 
 ### SemanticKITTI — the AV-domain reference
