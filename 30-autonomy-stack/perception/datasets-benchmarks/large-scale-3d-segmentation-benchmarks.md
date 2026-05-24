@@ -556,6 +556,18 @@ Three additions are worth singling out for airside work specifically:
 - **City-Facade** adds an MLS facade proxy where the existing facade evidence was mostly mesh or photogrammetry. It is useful when the release map needs finer building-frontage semantics or digital-twin handoff, but it is not a substitute for full-site road/yard/apron validation.
 - **ZAHA** adds the current largest public point-cloud facade benchmark and a standards-oriented LoFG hierarchy. It complements City-Facade: City-Facade is a city-road frontage benchmark with semantic and instance labels; ZAHA is a facade-generalization stress test with two nested class levels. Use both for terminal-frontage and vertical-structure taxonomy design, not as substitutes for site-wide map acceptance evidence.
 
+### Product-Mode Benchmark Coverage
+
+Public proxy datasets support pre-training, stress testing, and architecture selection, but product acceptance still needs owned held-out maps. Use this matrix to decide which public bundles to pair with local evidence.
+
+| Product mode | Public proxy bundle | Owned evidence required | Rejection signal |
+|---|---|---|---|
+| Runtime semantic map | Paris-Lille-3D, Toronto-3D, KITTI-360, SemanticRail3D, WHU-Urban3D, DALES/FRACTAL for aerial layers | Same-site held-out tiles with source-map QA, class-balanced mIoU, seam disagreement, localization regression, and release-state confusion | High public mIoU but false deletion of markings, kerbs, poles, signs, or other localization-useful thin structure |
+| Map-derived training export | SemanticKITTI/nuScenes/Waymo for scan-taxonomy compatibility; MLS proxies for map-to-scan density gap | Back-projection audit from owned maps to contributing scans, with `permanent_static` eligibility masks and scan-level split isolation | Pseudo-label batches contain movable-static, static-transient, artifact, FOD-candidate, or unknown-review points as positives |
+| Map hygiene and change monitoring | MOS/moving-static benchmarks, dynamic-map-cleaning benchmarks, multi-session map-maintenance datasets where available | Repeated local surveys with reason-coded release-state labels for dynamic residual, movable-static, static-transient, FOD, artifact, and true infrastructure change | Cleaner preserves dynamic ghosts or deletes protected permanent thin structures under the same threshold |
+| Digital twin / mesh / facade | City-Facade, ZAHA, Point Cloud City / Open3D-ML PCC, CUS3D, SUM/SUM Parts, STPLS3D | Point-to-mesh or point-to-surface transfer QA, visual review, asset-inventory checks, and facade/interior held-out labels | Facade or mesh labels look good visually but lack point-cloud provenance, source confidence, or consumer-specific class mapping |
+| Local benchmark and acceptance set | Non-road bundle matched to the target slice: apron/depot, campus, port, utility, facade, terminal/interior, construction/industrial | Locked owned train/validation/test split with semantic labels, release-state labels, product-mode manifest, and reviewer/audit evidence | Public proxy score is used as acceptance evidence without matching local ODD, sensor, class, and hygiene-layer coverage |
+
 The full selection rationale and the proposed airside benchmark specification are in `../overview/aggregated-map-semantic-segmentation.md` §5.3–§5.4.
 
 ## Sources

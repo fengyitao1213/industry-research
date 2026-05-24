@@ -385,6 +385,18 @@ The semantic taxonomy is therefore not the same thing as the training-data accep
 
 Evaluation should report semantic mIoU and release-state confusion separately. A model may improve pavement IoU while worsening false-permanent rate on staged equipment; that is not a release improvement. Conversely, a conservative model may abstain more often into `unknown_review`, lowering coverage but improving safety review yield. Both effects are invisible if the taxonomy and hygiene layer are collapsed into one label map.
 
+### Product-Mode Class Coverage Matrix
+
+The same labeled aggregated map can feed several products, but each product needs a different class-resolution floor. Do not force every product to consume the finest taxonomy; do not let a coarse product erase evidence needed by another product.
+
+| Product mode | Minimum semantic coverage | Classes to keep separate | Hygiene / release-state requirement | Safe collapses |
+|---|---|---|---|---|
+| Runtime semantic map | Drivable/walkable surfaces, pavement markings, kerbs/edges, buildings/facades, fences/barriers, poles/lights/signs, fixed infrastructure | Marking vs pavement, kerb vs pavement, fixed infrastructure vs movable assets, safety-sign/VDGS where consumed by the vehicle | Only `permanent_static` enters the base layer; soft context must be explicitly requested by the runtime contract | Fine facade labels, utility subtypes, and interior labels can collapse unless runtime consumers use them |
+| Map-derived training export | All classes that will supervise single-scan models plus a compatible label map back to the scan taxonomy | Any class used as a supervised positive, especially rare/thin classes and appearance-defined equipment | Every exported point needs semantic class plus release-state; non-`permanent_static` defaults to ignore, auxiliary, or active learning | Product-only digital-twin sublabels may collapse before scan export if no single-scan target head exists |
+| Map hygiene and change monitoring | Permanent infrastructure, movable-static assets, static-transient objects, dynamic residuals, FOD candidates, artifacts, unknown-review regions | Movable asset vs fixed asset, FOD candidate vs artifact, static-transient vs infrastructure change | Reason-coded release-state layers are first-class; semantic detail can be coarse when policy evidence is decisive | Fine visual classes can collapse to policy superclasses such as movable asset, human, artifact, or infrastructure change |
+| Digital twin / mesh / facade | Building/frontage/mesh classes, doors/windows/walls/signage, roofs/awnings/HVAC-like assets, utility and inspection assets | Facade hierarchy and asset inventory classes required by BIM, simulation, or inspection consumers | Point-to-surface provenance and source-map confidence travel with transferred labels; visual texture cannot override LiDAR evidence | Runtime-only drivable surface splits can collapse if the product is facade/interior-only |
+| Local benchmark and acceptance set | The target release taxonomy plus proxy-specific stress classes for non-road slices | Rare/thin classes, movable-static quarantine classes, unknown-review candidates, domain-specific edge classes | Held-out tiles need both semantic labels and release-state labels with locked splits | Classes can collapse only through a versioned benchmark config, never ad hoc at scoring time |
+
 ### Non-road urban-district permanence mapping
 
 Non-road managed districts — airport aprons, campuses, ports, yards, utility corridors, and industrial sites — have more static-but-movable structure than public-road AV datasets. Their taxonomies should therefore define permanence policy at the superclass level before fine class IDs are promoted.
