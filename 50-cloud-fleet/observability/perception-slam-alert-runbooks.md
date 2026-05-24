@@ -1,6 +1,6 @@
 # Perception-SLAM Alert Runbooks
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 ## Purpose
 
@@ -43,6 +43,20 @@ This page defines fleet runbooks for perception, SLAM/localization, map, calibra
 | Model runtime red | Engine mismatch, deserialization failure, p99 latency, GPU OOM | Keep previous artifact or stop affected perception path | Abort rollout; rebuild or rollback | ML runtime owner |
 | Diagnostics graph unknown | Critical diagnostic node missing/stale/unlatched | Treat dependent function as unknown | Repair producer/config; evidence invalid until fixed | Fleet SRE |
 | OTA compatibility failure | Candidate artifact set fails matrix | Do not activate | Stop rollout; update eligibility or manifest | Release manager |
+
+## MLOps Scale Escalation
+
+Alert response should scale with the MLOps maturity and release risk defined in `../mlops/mlops-scale-research-scope.md`. The same drift signal can be a notebook warning at S0, a canary blocker at S2, and a safety-case event at S4.
+
+| MLOps scale | Alert handling | Evidence retention |
+|---|---|---|
+| S0-S1 research/prototype | Log anomaly and attach to experiment notes | Sample inputs, model output, config, quick reviewer note |
+| S2 production product | Create release ticket and block promotion if the signal affects the candidate | Bag/MCAP window, model version, dataset snapshot, shadow/canary comparison |
+| S3 fleet and multi-site | Split alert by site, route, weather, vehicle, map, and calibration cohort | Fleet denominator, affected ODD cell, local holdout/replay case, active-learning task |
+| S4 regulated safety-critical | Escalate P0/P1 to safety owner and update release/safety evidence | Incident timeline, manifest, root cause, waiver/suppression approval, rollback proof |
+| S5 platform scale | Feed standard alert schema into shared model-observability and governance services | Tenant owner, policy decision, evidence link, platform SLO impact |
+
+Suppressions are not scale-neutral. A P2 dashboard nuisance at S1 can become a release-blocking evidence gap at S4 if it hides model runtime, semantic map drift, calibration, or safety-monitor activation during canary.
 
 ## P0 Free-Space Red
 

@@ -1,6 +1,6 @@
 # ML Assurance and Data Governance
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -21,6 +21,21 @@ For airside autonomy, this matters because perception and prediction failures ra
 5. **Model assurance case.** For each model release, include architecture, training code version, data version, hyperparameters, calibration, confidence behavior, slice metrics, stress tests, OOD tests, ablation results, robustness tests, and comparison against the prior release. Link each metric to an operational threshold or safety monitor action.
 
 6. **Runtime governance.** Monitor drift, confidence distribution, false-positive and false-negative cases, operator interventions, disengagements, near misses, and safety monitor activations. Define retraining triggers and emergency rollback triggers before deployment.
+
+## Assurance Controls by MLOps Scale
+
+The MLOps scale ladder in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md` is also an assurance ladder. The evidence threshold is determined by how the model is used, not by team size.
+
+| MLOps scale | Assurance posture | Required governance evidence |
+|---|---|---|
+| S0 notebook research | Research-only, no safety claim | Run notes, data pointer, limitation statement |
+| S1 repeatable prototype | Comparable baseline, no operational authority | Dataset snapshot, validation script, known-gap list |
+| S2 production product | Controlled release to one operational workflow | Model card/release note, registry record, dataset manifest, rollback instruction |
+| S3 fleet and multi-site | ODD-scoped release with local evidence | Site slices, local holdouts, drift monitors, fleet incident intake, active-learning disposition |
+| S4 regulated safety-critical | Safety-case-backed release | Risk register, claim/evidence traceability, approver record, scenario replay, incident retention, rollback drill |
+| S5 platform scale | Organization-wide AI management system | Policy-as-code, audit trails, model/data inventory, retention controls, role-based approval, periodic management review |
+
+For airside autonomy, S4 controls can be required before S3 fleet size exists. A model that influences aircraft proximity, free-space, FOD response, semantic map publication, or protected-zone behavior needs release evidence, monitoring, and rollback authority even if it runs at one airport on a small fleet.
 
 ## Acceptance Checks
 

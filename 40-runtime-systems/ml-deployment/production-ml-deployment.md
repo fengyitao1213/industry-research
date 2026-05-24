@@ -235,6 +235,21 @@ Off-vehicle (fleet level):
 - Evidently AI or similar tools for drift analysis
 - Automated retraining triggers when drift exceeds thresholds
 
+### Monitoring by MLOps Scale
+
+The monitoring burden grows with deployment risk. At S0-S1, monitoring is mostly experiment hygiene. At S3-S4, the same signal can block a canary, quarantine a site, or update the safety case. The scale ladder in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md` should therefore be reflected in alert thresholds, evidence retention, and release reviews.
+
+| MLOps scale | Monitoring goal | Minimum signals | Action |
+|---|---|---|---|
+| S0 notebook research | Catch obvious data or metric mistakes | Training/validation curves, sample visualizations, failure examples | Fix experiment or mark result non-comparable |
+| S1 repeatable prototype | Compare candidates fairly | Dataset snapshot, metric confidence intervals, basic slice table, runtime smoke test | Promote to baseline only with reproducible run evidence |
+| S2 production product | Protect one deployed workflow | Latency p99, error rate, input schema, confidence drift, shadow disagreement, delayed-label QA | Hold candidate, roll back canary, or mine new data |
+| S3 fleet and multi-site | Detect site-specific regressions | Per-site/route/weather/object slices, calibration/map/model compatibility, intervention correlation | Pause rollout for affected ODD cell and open active-learning queue |
+| S4 regulated safety-critical | Preserve audit and safety evidence | All S3 signals plus incident linkage, safety monitor activations, waiver/suppression audit, rollback proof | Trigger safety review, update assurance case, or stop autonomous use |
+| S5 platform scale | Run monitoring as a shared service | Standard telemetry schema, model SLOs, tenant ownership, policy-as-code, cost and alert quality metrics | Enforce platform policy and prevent bespoke silent monitors |
+
+Do not let monitoring become an automatic retraining switch. For autonomy, monitoring should create evidence: a candidate data batch, a regression scenario, a rollback trigger, or a safety-case update. Training remains gated by dataset lineage, evaluation, shadow/canary evidence, and release approval.
+
 ### Autonomous Vehicle-Specific Drift Sources
 
 - **Seasonal changes**: Snow, rain, lighting conditions shift input distributions
