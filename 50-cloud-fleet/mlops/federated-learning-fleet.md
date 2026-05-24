@@ -4,6 +4,8 @@
 
 **Key Takeaway**: Federated learning is not a replacement for centralized training at the reference airside AV stack's current scale (5-20 vehicles, 1-2 airports) -- the overhead exceeds the benefit. But as the fleet crosses ~30 vehicles across 3+ airports, FL becomes essential: raw data upload costs $98K+/year for 10 vehicles (see `50-cloud-fleet/data-platform/fleet-data-pipeline.md`), airport operators will resist sharing raw sensor data with competitors' infrastructure, and GDPR/data sovereignty requirements make centralized collection legally complex across jurisdictions. The recommended path is a **hybrid architecture**: centralized training on consented/owned data + federated LoRA adapter fine-tuning per airport, reducing communication cost by 97% compared to full-model FL while achieving within 1-2% of centralized accuracy.
 
+Use `federated-privacy-preserving-training-policy-by-scale.md` before applying the techniques in this guide. That companion page defines when centralized, local-only, hybrid, federated, secure-aggregation, differential-privacy, or confidential-compute patterns are justified at each MLOps scale and what release evidence is required before a federated output can affect production.
+
 ---
 
 ## Table of Contents

@@ -148,7 +148,7 @@ The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes th
 | S4 regulated safety-critical | Immutable evidence bundles, privacy policy, safety-case links, incident retention | Model decisions affect people, aircraft, high-value assets, or compliance claims | Deleting raw evidence before audit, incident, or rollback windows expire |
 | S5 platform scale | Lakehouse governance, feature/embedding store, lineage graph, multi-tenant quotas | Many teams share data, compute, labels, and evaluations | Every team invents its own schema, retention rules, and label states |
 
-The key scaling variable is not only terabytes per day. It is the number of independent consumers that need trustworthy answers from the same data: perception training, SLAM/map construction, semantic-map label export, simulation replay, safety validation, operations analytics, and incident investigation. Once those consumers exist, the data pipeline must preserve provenance even for data that is never used for training.
+The key scaling variable is not only terabytes per day. It is the number of independent consumers that need trustworthy answers from the same data: perception training, SLAM/map construction, semantic-map label export, simulation replay, safety validation, operations analytics, and incident investigation. Once those consumers exist, the data pipeline must preserve provenance even for data that is never used for training. If raw data cannot move across site, tenant, or jurisdiction boundaries, route the decision through `../mlops/federated-privacy-preserving-training-policy-by-scale.md` before replacing centralized training with federated or hybrid training.
 
 ### 2.8 Pipeline Orchestration by MLOps Scale
 

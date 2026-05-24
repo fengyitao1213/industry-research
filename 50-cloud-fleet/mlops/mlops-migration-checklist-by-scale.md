@@ -83,7 +83,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Add secure artifact chain | Signatures, SBOM/provenance, trusted-builder or CI identity, policy result |
 | Add rollback proof | Previous compatible artifact set and cache state |
 
-**Do not add yet:** automated continuous retraining to champion, one-click fleet expansion, federated learning, generic online feature store.
+**Do not add yet:** automated continuous retraining to champion, one-click fleet expansion, federated learning without the trigger policy in `federated-privacy-preserving-training-policy-by-scale.md`, generic online feature store.
 
 **Exit gate:** the exact artifact can be deployed, observed, held, rejected, or rolled back without ambiguity.
 
@@ -253,6 +253,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `feature-embedding-store-ops-by-scale.md` - store migration triggers.
 - `gpu-queueing-finops-by-scale.md` - compute migration triggers and unit economics.
 - `secure-artifact-attestation-profile.md` - artifact trust-chain migration gates.
+- `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy before adding federated or privacy-preserving training lanes.
 - `../data-platform/fleet-data-pipeline.md` - data-platform posture by MLOps scale.
 - `../../40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md` - CI/CD and deployment lane architecture.
 

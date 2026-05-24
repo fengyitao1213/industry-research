@@ -109,7 +109,7 @@ The full MLOps scale taxonomy is maintained in `mlops-scale-research-scope.md`. 
 
 The practical target for the reference airside AV stack is not "continuous training pushes directly to vehicles." It is continuous data mining and repeatable candidate generation, followed by evidence-gated release. The release gate remains manual or policy-controlled until shadow/canary evidence and safety-case traceability prove the candidate is suitable for the requested ODD.
 
-The reference-architecture companion (`mlops-reference-architectures-by-scale.md`) keeps this flywheel from overbuilding. In S2, the flywheel can be one product lane with dataset manifests, registry aliases, replay smoke, and rollback artifacts. In S3, it becomes a site-sliced data engine with local holdouts and ODD-cell canaries governed by `site-sliced-release-evidence-by-scale.md`. In S4, the same flywheel must preserve immutable evidence and safety-case links before any model, map, labeler, or prompt output can affect release truth.
+The reference-architecture companion (`mlops-reference-architectures-by-scale.md`) keeps this flywheel from overbuilding. In S2, the flywheel can be one product lane with dataset manifests, registry aliases, replay smoke, and rollback artifacts. In S3, it becomes a site-sliced data engine with local holdouts and ODD-cell canaries governed by `site-sliced-release-evidence-by-scale.md`; if raw data cannot move across site or customer boundaries, use `federated-privacy-preserving-training-policy-by-scale.md` before introducing hybrid or federated training. In S4, the same flywheel must preserve immutable evidence and safety-case links before any model, map, labeler, or prompt output can affect release truth.
 
 ### 1.6 Operating Cadence by Scale
 

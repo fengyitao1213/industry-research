@@ -447,7 +447,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P1 | GPU FinOps unit-cost model (`gpu-queueing-finops-by-scale.md`) | Tracks cost per label, training run, replay hour, released model, released map, ODD-cell approval, and safety evidence pack so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
 | P1 | Reference architecture migration checklist (`mlops-migration-checklist-by-scale.md`) | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
-| P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
+| P2 | Federated and privacy-preserving training trigger policy (`federated-privacy-preserving-training-policy-by-scale.md`) | Identifies when cross-site data restrictions justify federated, hybrid, local, or privacy-preserving training |
 | P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
 
 ---
@@ -464,6 +464,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `offboard-labeler-registry-by-scale.md` - prompt packs, foundation-model labelers, evaluator models, thresholds, and reviewer workflows as governed artifacts.
 - `gpu-queueing-finops-by-scale.md` - GPU queueing, quotas, priority lanes, unit economics, and assurance capacity controls.
 - `secure-artifact-attestation-profile.md` - digest-bound signing, SBOMs, SLSA/in-toto provenance, registry alias policy, and runtime verification by scale.
+- `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy for centralized, local, hybrid, federated, and privacy-preserving training.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

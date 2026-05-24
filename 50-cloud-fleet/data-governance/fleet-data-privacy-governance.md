@@ -85,11 +85,11 @@ Privacy governance becomes harder as MLOps scale increases because derived artif
 | S0 notebook research | No personal/customer data in local experiments unless approved | Local exports and notebooks |
 | S1 repeatable prototype | Dataset manifest records access class and retention | DVC snapshots, labels, metrics, shared artifacts |
 | S2 production product | Training/eval reuse gate before registry release | Splits, model cards, release packets, annotation exports |
-| S3 fleet and multi-site | Site/customer partitions and deletion workflow | Active-learning queues, embeddings, replay packages, local holdouts |
+| S3 fleet and multi-site | Site/customer partitions, deletion workflow, and federated/hybrid training trigger review | Active-learning queues, embeddings, replay packages, local holdouts, federated update records |
 | S4 regulated safety-critical | Legal hold separation from training reuse | Incident evidence, safety-case bundles, regulator reports, waivers |
 | S5 platform scale | Automated lineage-driven deletion and restriction propagation | Catalog, feature store, embedding store, eval warehouse, model registry |
 
-Do not delete safety/legal-hold evidence merely because routine training data expires. Instead, move the evidence into a restricted retention class, block non-forensic use, and record the legal/safety owner. Conversely, do not let legal-hold status become a blanket permission to reuse personal data for model improvement.
+Do not delete safety/legal-hold evidence merely because routine training data expires. Instead, move the evidence into a restricted retention class, block non-forensic use, and record the legal/safety owner. Conversely, do not let legal-hold status become a blanket permission to reuse personal data for model improvement. When raw data cannot move across site, tenant, or jurisdiction boundaries, use `../mlops/federated-privacy-preserving-training-policy-by-scale.md` to decide between local training, hybrid adapters, federated learning, secure aggregation, differential privacy, or no cross-site learning.
 
 ### 5. Monitor platform changes
 
@@ -114,6 +114,7 @@ Cloud service status can affect governance. AWS announced that AWS IoT FleetWise
 - `50-cloud-fleet/data-platform/data-engine-from-bags.md`
 - `40-runtime-systems/data-logging/on-vehicle-data-triage-selective-upload.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/mlops/federated-privacy-preserving-training-policy-by-scale.md`
 - `50-cloud-fleet/mlops/federated-learning-fleet.md`
 - `60-safety-validation/cybersecurity/cybersecurity-airside-av.md`
 - `60-safety-validation/safety-case/incident-reporting-post-market-monitoring.md`

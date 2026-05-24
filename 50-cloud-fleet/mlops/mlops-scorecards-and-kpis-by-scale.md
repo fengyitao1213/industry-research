@@ -60,6 +60,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Runtime | Package load and latency | Smoke test | p50/p95/p99 latency, memory, queue time, TensorRT/ONNX compatibility | Hardware cohort SLO, deterministic replay, degradation policy |
 | Compatibility | Artifact-set compatibility | Manual note of model/map/calibration assumptions | Compatibility manifest with hash over model, map, calibration, runtime, telemetry, taxonomy, and rollback | Policy-enforced manifest with safety-case links, expiry, and incident retention |
 | Artifact trust | Signature/provenance coverage | Checksum manifest for preserved baselines | Signed containers/models/maps/prompts, SBOM, provenance, registry policy result | SLSA/in-toto provenance, trusted builder evidence, admission verification, immutable audit record |
+| Federated/privacy training | Centralized-vs-local-vs-federated comparison | Simulated-client experiment note | Site/client metrics, privacy review, aggregation evidence, local holdouts | Privacy budget, secure aggregation, poisoning tests, safety-case release scope |
 | Deployment | Promotion lead time | Time from result to baseline | Time from candidate to shadow/canary/champion with evidence | Time from claim approval to controlled rollout with audit trail |
 | Release reliability | Change failure rate | Regression count | Candidate hold/reject/rollback rate by cause | Safety-relevant change failure and corrective-action closure |
 | Monitoring | Alert actionability | Failure notes become issues | Alerts produce label batch, replay case, rollback check, or ODD quarantine | Alert suppression audit, reportability, safety-case delta |
@@ -86,6 +87,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
 | Missing artifact attestation | S2-S5 | Model, ONNX/TensorRT engine, container, map layer, labeler/prompt pack, eval pack, or release packet lacks required digest-bound signature, SBOM, provenance, or policy result |
+| Unsupported federated training output | S3-S5 | Federated or hybrid model/adaptor lacks trigger-policy justification, client manifests, privacy controls, local holdouts, aggregation report, or site-scoped release evidence |
 | Compatibility manifest mismatch | S2-S5 | Model, map, calibration, runtime, semantic taxonomy, prompt/labeler, telemetry schema, or replay pack differs from the evaluated artifact set |
 | Target ODD slice regression | S3-S5 | Aggregate score improves but target site, night, rain, stand-entry, FOD, or personnel slice regresses |
 | Safety monitor regression | S4-S5 | New model increases false-free-space, protected-zone violation, unsafe speed, or intervention correlation |
@@ -171,6 +173,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
 - `gpu-queueing-finops-by-scale.md` - queue wait, utilization, unit economics, priority lanes, and assurance capacity controls.
 - `secure-artifact-attestation-profile.md` - artifact signing, SBOM/provenance, registry alias policy, and verification gates.
+- `federated-privacy-preserving-training-policy-by-scale.md` - federated/hybrid/local training trigger policy, privacy controls, and release gates.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.
 - `../observability/fleet-anomaly-root-cause-attribution.md` - fleet anomaly attribution and MTTR reduction.

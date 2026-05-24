@@ -177,7 +177,7 @@ For a 5-20 vehicle airside, port, yard, campus, or warehouse deployment, the pra
 - S4 for releases that affect aircraft/personnel proximity, false-free-space, FOD, map publication, semantic-map training exports, or regulatory evidence.
 - S5 only for shared foundation-model tooling, cross-product data catalogs, large GPU scheduling, or multi-team platform services once reuse pressure is real.
 
-The minimum architecture should therefore include registry-backed release packets, immutable dataset snapshots, map/model/calibration compatibility manifests, trigger-based data collection, site holdouts, replay packages, and explicit rollback. Feature stores, federated learning, and multi-tenant platform services are optional until cross-site reuse, data-sovereignty, or team count forces them.
+The minimum architecture should therefore include registry-backed release packets, immutable dataset snapshots, map/model/calibration compatibility manifests, trigger-based data collection, site holdouts, replay packages, and explicit rollback. Feature stores, federated learning, and multi-tenant platform services are optional until cross-site reuse, data-sovereignty, or team count forces them; use `federated-privacy-preserving-training-policy-by-scale.md` before adding FL as an architectural lane.
 
 ---
 
@@ -205,6 +205,7 @@ The minimum architecture should therefore include registry-backed release packet
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
 - `gpu-queueing-finops-by-scale.md` - GPU scheduler, queueing, quota, and FinOps architecture by scale.
 - `secure-artifact-attestation-profile.md` - signing, SBOM, provenance, registry alias policy, and policy-enforced verification by scale.
+- `federated-privacy-preserving-training-policy-by-scale.md` - trigger policy for federated, hybrid, local, and privacy-preserving training lanes.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, data product states, and retention.

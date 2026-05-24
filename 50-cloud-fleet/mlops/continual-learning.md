@@ -3,6 +3,8 @@
 **Date:** 2026-03-22
 **Scope:** Comprehensive survey of continual/lifelong learning techniques applicable to autonomous vehicle fleets, with emphasis on multi-site deployment (e.g., airport airside operations), fleet-scale data pipelines, and safety-critical adaptation.
 
+Use `federated-privacy-preserving-training-policy-by-scale.md` before treating federated continual learning as a production path. Continual adaptation still needs data-use approval, local holdouts, privacy controls, registry evidence, and release gates before any adapted model affects a vehicle, semantic map, labeler, or safety case.
+
 ---
 
 ## Table of Contents

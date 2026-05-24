@@ -120,6 +120,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Any map-derived pseudo-label batch has semantic class, confidence, release-state label, source-map acceptance ID, split ID, and reviewer state; non-`permanent_static` labels cannot appear as supervised static positives without an explicit auxiliary-task declaration.
 - Any suspect or quarantined map-derived pseudo-label batch has an invalidation record and cannot feed training, release evaluation, or safety evidence until rebuilt, reapproved, or waived.
 - Any feature materialization or embedding/vector index used for training, replay, evaluation, RAG, or safety evidence resolves to a snapshot with point-in-time join proof, corpus/index version, deletion state, and stale-index/backfill status.
+- Any federated, hybrid, or privacy-preserving training output has trigger-policy justification, client/site manifests, aggregation-round evidence, privacy controls, local holdouts, and release scope before it can move beyond `candidate`.
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
@@ -155,6 +156,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`
 - `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
+- `50-cloud-fleet/mlops/federated-privacy-preserving-training-policy-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
