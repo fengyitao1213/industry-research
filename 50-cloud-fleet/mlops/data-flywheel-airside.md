@@ -241,6 +241,7 @@ Raw Sensor Data (LiDAR + Camera + IMU + GPS)
 │  │  - High confidence → auto-accept        │   │
 │  │  - Medium → human review                │   │
 │  │  - Low → discard or flag                │   │
+│  │  - Map labels require release-state QA  │   │
 │  └──────────────┬─────────────────────────┘   │
 │                  ↓                              │
 │         Auto-Labeled Dataset                   │
@@ -411,6 +412,20 @@ class QualityGate:
             'discarded': discarded     # ~5-10% of labels
         }
 ```
+
+For labels exported from the aggregated semantic map, confidence is only one gate. The training batch must carry semantic class, release-state label, source-map acceptance ID, pose-quality bucket, source-frame IDs, reviewer state, and split ID. Auto-accept means "eligible for the configured training use," not "safe to publish as permanent map truth."
+
+| Map-derived label state | Flywheel routing | Training use |
+|---|---|---|
+| `permanent_static` with accepted source-map QA and no split leakage | Auto-accept for supervised static-class training | Positive label with confidence weight |
+| `dynamic_residual` | Route to dynamic-removal dataset or review if ambiguous | Negative/auxiliary target, not static positive |
+| `movable_static` | Quarantine/context dataset | Ignore for permanent-map training unless model has an explicit context class |
+| `static_transient` | Review or negative-mining queue | Hard negative for permanent map; source-frame verified person/object labels only |
+| `fod_candidate` | Safety review and rare-class active learning | FOD/hazard target only after reviewer disposition |
+| `artifact` | Source-quality and artifact-removal dataset | Ignore or artifact auxiliary target |
+| `unknown_review` | Human review or taxonomy-promotion queue | No supervised positive until resolved |
+
+This prevents a common flywheel failure: the offboard map labeler improves coverage, but the training corpus silently learns that stationary people, parked GSE, temporary cones, or split FOD clusters are normal static geometry.
 
 **Expected auto-labeling throughput and cost:**
 

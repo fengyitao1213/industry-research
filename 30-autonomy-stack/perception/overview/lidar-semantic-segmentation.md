@@ -672,8 +672,9 @@ Step 4: Fine-tune on 500-1000 labeled scans
 3. For each contributing single scan:
        look up its SLAM pose -> transform scan into map frame ->
        nearest-neighbour each scan point to a labeled map point ->
-       copy the label back
+       copy the semantic label, confidence, and release-state eligibility back
 4. Result: every survey scan is now a labeled single-scan training sample
+       only where the release-state policy allows training use
 5. Use auto-labels as weak/abundant supervision; keep a small
    human-verified set for fine-tuning and held-out evaluation
 ```
@@ -686,6 +687,7 @@ Step 4: Fine-tune on 500-1000 labeled scans
 - **Taxonomy must align.** Back-projection only works if the map taxonomy is the static subset of the 18-class single-scan taxonomy (§8.1); `aggregated-map-semantic-segmentation.md` §6.3 keeps the two deliberately aligned.
 - **Registration error propagates.** Pose error blurs the scan-to-map nearest-neighbour step; sub-5 cm map accuracy keeps it negligible, above ~10 cm thin-class labels smear.
 - **Confidence-gate the transfer.** Carry the map model's per-point confidence into the auto-label; drop low-confidence points rather than training on guesses.
+- **Release-state-gate the transfer.** Carry the map-hygiene layer alongside the semantic class. `permanent_static` points can become supervised positives for static classes; `movable_static`, `static_transient`, `dynamic_residual`, `fod_candidate`, `artifact`, and `unknown_review` points should become masks, negatives, auxiliary targets, or active-learning items according to the training contract in `3d-segmentation-training-paradigms.md`.
 
 This is industry-standard practice — leading AV programs run exactly this offboard auto-labeling loop (heavy offline model over accumulated clouds → back-projected single-frame labels). It is the cheapest route to the label volume §1.2 calls for, and to the airside benchmark (§13.3).
 

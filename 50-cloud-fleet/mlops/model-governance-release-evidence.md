@@ -1,6 +1,6 @@
 # Model Governance and Release Evidence
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ## Why It Matters
 
@@ -24,7 +24,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 |---|---|---|
 | Model registry record | Registered model, immutable version, aliases, tags, release notes | MLOps |
 | Training provenance | Run ID, code commit, dependency lock, training config, random seeds, hardware | Model owner |
-| Dataset manifest | Iceberg/DVC snapshot IDs, label schema, excluded data, leakage checks | Data owner |
+| Dataset manifest | Iceberg/DVC snapshot IDs, label schema, release-state label schema for map-derived data, excluded data, leakage checks | Data owner |
 | Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
 | Evaluation report | Primary metrics, calibration, uncertainty, class slices, airport and weather slices | Model owner |
 | Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
@@ -37,6 +37,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 - The model can be loaded by registry alias and by immutable version.
 - The model version has dataset, code, config, and runtime provenance sufficient to rebuild or explain the release.
 - Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
+- Any map-derived pseudo-label batch has semantic class, confidence, release-state label, source-map acceptance ID, split ID, and reviewer state; non-`permanent_static` labels cannot appear as supervised static positives without an explicit auxiliary-task declaration.
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
@@ -50,6 +51,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 | Alias moved without evidence | Fleet runs a model that was not reviewed | Require signed release decision before alias mutation |
 | Metric-only approval | Model improves averages while regressing rare safety cases | Gate on scenario replay and ODD slices |
 | Dataset snapshot missing | Release cannot be reproduced or audited | Block release unless dataset IDs are immutable |
+| Map-derived labels lack release-state evidence | Model learns transient or quarantined map points as permanent static classes | Require release-state masks, source-map acceptance, split IDs, and pseudo-label batch invalidation controls |
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
 | Offline labeler changes without governance | Training labels or semantic maps shift while the deployed model appears unchanged | Version prompt sets, labeler models, thresholds, accepted/rejected statistics, and rollback impact |
@@ -61,6 +63,8 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
+- `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`
 - `50-cloud-fleet/ota/software-update-management-system-ops.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`
 - `60-safety-validation/verification-validation/testing-validation-methodology.md`
