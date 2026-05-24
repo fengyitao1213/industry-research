@@ -143,6 +143,41 @@
     "waiver_or_quarantine_state": "none",
     "safety_case_evidence_ids": ["safety-evidence-map-semantic-20260524-001"]
   },
+  "training_export": {
+    "enabled": true,
+    "policy_id": "semantic-map-training-export-policy/v1",
+    "export_manifest_digest": "sha256:1357135713571357135713571357135713571357135713571357135713571357",
+    "split_manifest_digest": "sha256:2468246824682468246824682468246824682468246824682468246824682468",
+    "release_state_label_set": [
+      "permanent_static",
+      "dynamic_residual",
+      "movable_static",
+      "static_transient",
+      "fod_candidate",
+      "artifact",
+      "unknown_review"
+    ],
+    "supervised_positive_release_state": "permanent_static",
+    "non_positive_state_handling": {
+      "dynamic_residual": "auxiliary_target",
+      "movable_static": "quarantine_context",
+      "static_transient": "hard_negative",
+      "fod_candidate": "active_learning",
+      "artifact": "ignore_mask",
+      "unknown_review": "review_only"
+    },
+    "source_evidence_fields": [
+      "semantic_class",
+      "confidence",
+      "release_state",
+      "source_map_acceptance_id",
+      "pose_quality_bucket",
+      "source_frame_ids",
+      "reviewer_state",
+      "split_id",
+      "reason_code"
+    ]
+  },
   "runtime_export_adapter": {
     "autoware_exported": true,
     "runtime_map_contract_id": "runtime-map-contract-SIN-v2.3.1",

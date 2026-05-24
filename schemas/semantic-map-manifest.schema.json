@@ -19,6 +19,7 @@
     "outputs",
     "prior_inputs",
     "metrics_evidence",
+    "training_export",
     "runtime_export_adapter",
     "signatures_provenance",
     "compatibility"
@@ -334,6 +335,87 @@
           "type": "array",
           "minItems": 1,
           "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "training_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "policy_id",
+        "export_manifest_digest",
+        "split_manifest_digest",
+        "release_state_label_set",
+        "supervised_positive_release_state",
+        "non_positive_state_handling",
+        "source_evidence_fields"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "policy_id": { "type": "string", "minLength": 1 },
+        "export_manifest_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "split_manifest_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "release_state_label_set": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "permanent_static",
+              "dynamic_residual",
+              "movable_static",
+              "static_transient",
+              "fod_candidate",
+              "artifact",
+              "unknown_review"
+            ]
+          }
+        },
+        "supervised_positive_release_state": {
+          "type": "string",
+          "const": "permanent_static"
+        },
+        "non_positive_state_handling": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dynamic_residual",
+            "movable_static",
+            "static_transient",
+            "fod_candidate",
+            "artifact",
+            "unknown_review"
+          ],
+          "properties": {
+            "dynamic_residual": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] },
+            "movable_static": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] },
+            "static_transient": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] },
+            "fod_candidate": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] },
+            "artifact": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] },
+            "unknown_review": { "type": "string", "enum": ["ignore_mask", "hard_negative", "auxiliary_target", "active_learning", "review_only", "quarantine_context"] }
+          }
+        },
+        "source_evidence_fields": {
+          "type": "array",
+          "minItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "semantic_class",
+              "confidence",
+              "release_state",
+              "source_map_acceptance_id",
+              "pose_quality_bucket",
+              "source_frame_ids",
+              "reviewer_state",
+              "split_id",
+              "reason_code",
+              "calibration_package_id"
+            ]
+          }
         }
       }
     },

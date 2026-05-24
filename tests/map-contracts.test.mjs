@@ -74,6 +74,22 @@ test('semantic map manifest requires map hygiene layer and metric evidence', () 
   assert.match(validateDocument(missingMetric, schema).join('\n'), /false_permanent_rate is required/)
 })
 
+test('semantic map manifest requires training export release-state evidence', () => {
+  const schema = readJson('schemas/semantic-map-manifest.schema.json')
+
+  const missingExport = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingExport.training_export
+  assert.match(validateDocument(missingExport, schema).join('\n'), /training_export is required/)
+
+  const missingHandling = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  delete missingHandling.training_export.non_positive_state_handling.static_transient
+  assert.match(validateDocument(missingHandling, schema).join('\n'), /static_transient is required/)
+
+  const wrongPositiveState = readJson('examples/map-contracts/semantic-map-manifest.example.json')
+  wrongPositiveState.training_export.supervised_positive_release_state = 'movable_static'
+  assert.match(validateDocument(wrongPositiveState, schema).join('\n'), /should equal "permanent_static"/)
+})
+
 test('runtime map contract rejects missing loader evidence', () => {
   const schema = readJson('schemas/runtime-map-contract.schema.json')
   const example = readJson('examples/map-contracts/runtime-map-contract.example.json')
