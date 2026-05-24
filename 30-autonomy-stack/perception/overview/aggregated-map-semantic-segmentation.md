@@ -1208,6 +1208,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 │  Optional     semantic-SLAM histograms, Gaussian/neural priors, │
 │  priors:      and static/dynamic masks only as manifest-logged  │
 │               CRF or QA evidence, never release truth           │
+│               (must satisfy the ML-SLAM handoff contract)       │
 │                              ↓                                 │
 │  Post:        k-NN smoothing → dense CRF (prior + heuristic    │
 │               unaries) → class-wise clustering for instances   │
@@ -1219,6 +1220,8 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 │               single-scan auto-labels (data flywheel)          │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+The optional-priors lane is governed by the ML-SLAM-to-semantic-map handoff contract in `../../localization-mapping/overview/ml-related-slam-research-scope.md` and the learned-prior acceptance rules in `../../localization-mapping/maps/semantic-mapping-learned-priors.md`. A prior, descriptor, semantic-SLAM histogram, or Gaussian/neural map may propose labels, smooth logits, or route tiles to review, but it cannot be release truth without source-map acceptance, map-hygiene layer digests, model/version evidence, and current-survey confirmation.
 
 ### 15.2 Roadmap
 

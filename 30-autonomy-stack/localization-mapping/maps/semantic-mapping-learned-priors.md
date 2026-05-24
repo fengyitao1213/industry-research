@@ -1204,6 +1204,21 @@ L2 geometric elements + L3 infrastructure elements (with per-element confidence)
 
 **Why this matters for the update strategy.** Treating the segmentation pipeline as the L2-L3 producer changes the §9.2 cadence: L3 need not be a quarterly *manual* effort — each survey re-drive re-segments the map and proposes L2-L3 updates automatically, with human QC reduced to reviewing low-confidence and changed regions. This is the same auto-labeling flywheel that supplies on-vehicle perception training data (`../../perception/overview/lidar-semantic-segmentation.md` §9.4) — one segmentation pass serves both the map layers and the perception models.
 
+### 9.4 Learned-Prior Acceptance Rules
+
+Learned priors are powerful because they amortize fleet experience, but they are not observations. A semantic-map release should distinguish observed geometry, learned prior evidence, external operational feeds, and reviewer decisions.
+
+| Prior source | Valid role | Release risk | Acceptance rule |
+|---|---|---|---|
+| Neural Map Prior / PriorDrive feature grid | Improve online map prediction, suggest missing L2-L3 elements, improve adverse-condition recall | Stale priors can hallucinate removed markings, closed routes, or old construction layouts | Require prior version, staleness score, source corpus, and current-survey confirmation before promotion |
+| Topology and scene-graph reasoning | Infer connectivity, right-of-way, allowed movements, and operational relationships | Topology can be right while geometry is wrong, especially after temporary stand, gate, or traffic-flow changes | Bind every inferred rule to explicit source geometry, operations feed, or reviewer approval |
+| Semantic-SLAM class histograms | Seed stable-class weights and CRF unaries for aggregated-map segmentation | Class histograms can preserve taxonomy mistakes or dynamic-object contamination | Use only as a prior input with calibration evidence; final label still comes from segmentation plus QA |
+| Gaussian/neural dense map | Photoreal QA, simulation, inspection overlay, candidate semantic attributes | Dynamic artifacts, scale ambiguity, and weak uncertainty can look visually plausible | Treat as visualization/evidence unless converted to explicit geometry and gated through source-map QA |
+| Fleet change statistics | Detect staleness, propose review tiles, adjust update cadence | Repeated operational clutter can look permanent in busy managed sites | Cross-check against map-hygiene layers and zone policy before updating the permanent layer |
+| NOTAM/A-CDM/AIRAC/AMDB feeds | Dynamic constraints, route restrictions, authoritative base geometry | Feed latency, schema mismatch, and local operations overrides can desynchronize the map | Keep feed identity, timestamp, authority, and expiry in the release package |
+
+The acceptance rule is deliberately conservative: a prior may **propose**, **rank**, **smooth**, or **route to review**, but publication needs observed source-map evidence, map-quality checks, semantic-confidence evidence, and map-hygiene layer digests. This mirrors the ML-SLAM handoff contract in `../overview/ml-related-slam-research-scope.md` and prevents a learned prior from silently overwriting the physical map.
+
 ---
 
 ## 10. Integration with Existing Stack

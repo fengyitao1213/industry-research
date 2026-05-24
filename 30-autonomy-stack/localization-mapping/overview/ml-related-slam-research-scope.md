@@ -90,6 +90,24 @@ The production rule is simple: learned modules may propose, rank, filter, or ref
 
 ---
 
+## ML-SLAM to Semantic-Map Handoff Contract
+
+The semantic-map pipeline should treat ML-related SLAM outputs as typed evidence, not as a single confidence score. Each learned output must declare whether it is allowed to affect geometry, semantics, map hygiene, QA routing, or training data. This contract keeps frontier SLAM research useful without letting unvalidated neural state silently become release truth.
+
+| ML-SLAM output | Allowed downstream use | Required evidence | Release guard |
+|---|---|---|---|
+| Learned registration, correspondence, or overlap score | Rank candidate alignments; propose loop-closure verification pairs; flag low-overlap tiles | Classical residuals, overlap estimate, pose covariance, before/after MapEval metrics, rejected-loop log | Cannot update the released map frame unless geometric verification and localization regression pass |
+| Learned place-recognition descriptor | Retrieve loop/relocalization candidates | Top-K retrieval record, descriptor model/version, positive/negative geometric verification results | Retrieval is advisory; no factor enters the pose graph without ICP/NDT/GICP or equivalent verification |
+| Semantic/dynamic SLAM mask | Weight scan matching, suppress dynamic residuals, seed hygiene layers | Class taxonomy version, calibration statistics, false-static/false-dynamic slice metrics, source-frame IDs | May influence `dynamic_residual` or `static_transient`; cannot promote permanent geometry alone |
+| MOS, scene-flow, or radar Doppler dynamic cue | Dynamic residual removal and review routing | Temporal window, velocity/flow confidence, contradiction evidence, point digest | Must preserve rejected evidence; no hard deletion without layer digest and reason code |
+| Neural implicit or Gaussian map primitive | Dense QA, visual inspection, simulation asset, candidate semantic overlay | Input modality, scale source, uncertainty summary, dynamic artifact policy, renderer/model digest | Not a pose-critical or release-truth layer until converted to explicit geometry and validated against source map QA |
+| Learned map prior or neural spatial memory | Prior feature for online mapping, CRF unary, active-learning queue, change proposal | Prior version, temporal scope, training/source corpus, staleness metric, downstream-use declaration | Prior can propose or smooth; publication still follows source-map acceptance, segmentation confidence, and map-hygiene gates |
+| Back-projected semantic map labels | Pseudo-label training data for single-scan models | Pose lookup, tile confidence, map-hygiene layer, reviewer/auto-label provenance, label age | Exclude dynamic, movable-static, static-transient, FOD-candidate, artifact, and unknown-review layers from training ground truth |
+
+The release package should therefore carry two separate records: the **map substrate record** (poses, loop closures, source scans, map-quality evidence) and the **learned-evidence record** (models, priors, masks, descriptors, uncertainty, and permitted use). Mixing these records is risky because it hides whether a semantic-map label came from observed geometry, a learned prior, a dynamic-removal decision, or a reviewer correction.
+
+---
+
 ## Inputs and Modality Choices
 
 ### LiDAR-only
@@ -157,6 +175,7 @@ Recommended evidence package:
 - raw data manifest: sensors, calibration, timestamps, poses, source-map hash;
 - SLAM manifest: method, parameters, trajectory covariance, loop closures, rejected loops;
 - cleaner manifest: method decisions, removed-point layer, uncertainty, disagreement regions;
+- learned-evidence manifest: registration descriptors, semantic/dynamic masks, Gaussian or neural map priors, model digests, downstream-use declarations, uncertainty, and staleness summaries;
 - map QA report: MapEval-style metrics, localization regression, alignment residuals;
 - segmentation report: metrics, confidence, class-wise error decomposition, taxonomy version;
 - map contract: semantic-map manifest, runtime map contract, OTA compatibility matrix.
