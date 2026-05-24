@@ -35,7 +35,7 @@ For airside autonomy, model governance should usually reach S2 before the first 
 
 ### Where Governance Lives in the Architecture
 
-Governance should attach to architecture boundaries, not meeting rituals. The companion `mlops-reference-architectures-by-scale.md` page defines which components are local versus shared; the release rule is that any artifact crossing from local experimentation into shared release authority must gain immutable identity, ownership, allowed use, evidence, and rollback metadata.
+Governance should attach to architecture boundaries, not meeting rituals. The companion `mlops-reference-architectures-by-scale.md` page defines which components are local versus shared, and `mlops-migration-checklist-by-scale.md` defines the gate evidence before an artifact crosses from one scale to the next. The release rule is that any artifact crossing from local experimentation into shared release authority must gain immutable identity, ownership, allowed use, evidence, and rollback metadata.
 
 | Scale boundary | Governance anchor | What must be blocked |
 |---|---|---|
@@ -150,6 +150,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
 - `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
+- `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`

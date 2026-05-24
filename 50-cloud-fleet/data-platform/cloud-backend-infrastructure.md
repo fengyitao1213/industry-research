@@ -62,7 +62,7 @@ Without documented backend infrastructure, each new airport deployment reinvents
 
 ### 1.4 Backend Scope by MLOps Scale
 
-Use `../mlops/mlops-scale-research-scope.md` to decide how much backend infrastructure is justified. The backend should expand when evidence, reproducibility, or multi-consumer pressure demands it, not because a platform diagram looks mature.
+Use `../mlops/mlops-scale-research-scope.md` to decide how much backend infrastructure is justified, and `../mlops/mlops-migration-checklist-by-scale.md` before adding shared platform services. The backend should expand when evidence, reproducibility, or multi-consumer pressure demands it, not because a platform diagram looks mature.
 
 | MLOps scale | Backend pattern | Required services | Scale failure if skipped |
 |---|---|---|---|

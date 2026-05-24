@@ -6,7 +6,7 @@ This page turns the MLOps scale ladder into concrete architecture choices. Use i
 
 The architecture should grow by contract first, platform second. A small team can run on scripts, manifests, and a lightweight tracker if the artifact boundaries are disciplined. A large platform still fails if it centralizes dashboards while leaving labels, dataset snapshots, registry aliases, evaluation packs, and rollback evidence ambiguous.
 
-Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
+Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Use `mlops-migration-checklist-by-scale.md` before moving an artifact family from one scale to the next. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist, and pair release-affecting artifacts with `secure-artifact-attestation-profile.md` so signatures, SBOMs, provenance, and alias policy are added at the right authority level.
 
 ---
 
@@ -164,6 +164,8 @@ Avoid: platform mandates that ignore autonomy-specific metadata, centralized que
 
 Architectures scale cleanly when each migration preserves the old interface. For example, a local JSON dataset manifest can become a catalog entry later if the fields are already correct. A local run note can become a registry metadata record if it already names code, data, config, hardware, and metrics.
 
+The checklist companion (`mlops-migration-checklist-by-scale.md`) turns this table into explicit S0->S1, S1->S2, S2->S3, S3->S4, and S4->S5 gates, including migration evidence packets and 30/60/90-day rollout plans.
+
 ---
 
 ## Airside and Managed-Site Reference Target
@@ -197,6 +199,7 @@ The minimum architecture should therefore include registry-backed release packet
 ## Related Pages
 
 - `mlops-scale-research-scope.md` - scale ladder and lifecycle controls.
+- `mlops-migration-checklist-by-scale.md` - transition gates, tooling triggers, and migration evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, and rollout state machine.
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.

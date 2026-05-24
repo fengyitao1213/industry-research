@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
 
 ---
 
@@ -78,7 +78,7 @@ This is the key distinction from web CI/CD: the pipeline can generate evidence a
 
 Managed cloud platforms are useful at S2 when the team needs repeatability faster than it can build platform engineering. Open-source stacks become attractive when deployment targets, data gravity, cost, air-gapped sites, or custom vehicle constraints require more control.
 
-For a concrete component-level blueprint, use `mlops-reference-architectures-by-scale.md`. The split is intentional: this page defines the maturity model and research scope; the reference-architecture page defines which components are local, shared, centralized, delayed, or policy-gated at S0-S5.
+For a concrete component-level blueprint, use `mlops-reference-architectures-by-scale.md`. For adoption sequencing, use `mlops-migration-checklist-by-scale.md` before adding a new platform component or moving an artifact family to a higher scale. The split is intentional: this page defines the maturity model and research scope; the reference-architecture page defines which components are local, shared, centralized, delayed, or policy-gated at S0-S5; the migration checklist defines when the next level is justified.
 
 ---
 
@@ -446,7 +446,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P1 | Secure artifact attestation profile (`secure-artifact-attestation-profile.md`) | Defines signing, SBOM, SLSA/provenance, registry-verification, alias-policy, and admission requirements for models, maps, prompts, labels, eval packs, and containers |
 | P1 | GPU FinOps unit-cost model (`gpu-queueing-finops-by-scale.md`) | Tracks cost per label, training run, replay hour, released model, released map, ODD-cell approval, and safety evidence pack so S3-S5 scale does not hide waste |
 | P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
-| P1 | Reference architecture migration checklist | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
+| P1 | Reference architecture migration checklist (`mlops-migration-checklist-by-scale.md`) | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
 | P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
 | P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
 
@@ -457,6 +457,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
+- `mlops-migration-checklist-by-scale.md` - transition gates, workstream migration matrix, tooling triggers, and adoption evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
