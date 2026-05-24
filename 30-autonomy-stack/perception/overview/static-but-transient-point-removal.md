@@ -114,6 +114,20 @@ The method families below span the full spectrum from geometry-only multi-pass d
 | Free-space update across passes | Yes | No | Highest geometric reliability | Needs accurate alignment; 3D ray-marching cost |
 | Learned multi-pass models | Yes | Partial | Potential for end-to-end optimization | Does not yet exist for LiDAR transient-removal |
 
+### Method Selection by Evidence Availability
+
+Choose the static-transient method from available evidence, not from a generic leaderboard. The same site may move between rows as the map program matures from first survey to repeated lifecycle operation.
+
+| Evidence available | Recommended stack | Release output | Main risk to audit |
+|---|---|---|---|
+| Single survey, no reliable semantic model | Classical dynamic removal first, then conservative unknown-review for unexplained stationary clusters | `unknown_review` or `static_transient` only after reviewer/policy evidence | False deletion of true permanent structure because geometry alone cannot prove transience. |
+| Single survey with LiDAR detector or semantic map model | Detector-ground projection plus semantic transient-class list, followed by reviewer sampling | `movable_static`, `static_transient`, or `fod_candidate` | Class confusion can remove bollards, poles, lights, markings, or utility hardware. |
+| Single survey with calibrated imagery | LiDAR semantic model plus image-assisted review/open-vocabulary proposals; keep image evidence as candidate, not release truth | Candidate layer until taxonomy, projection QA, and reviewer gates promote it | Projection errors or visual hallucinations can create false removals. |
+| Repeated surveys with good alignment | K-of-N persistence, LT-Mapper/ELite-style ephemerality, free-space absence votes, lifecycle version control | `confirmed-transient`, `movable_static`, or approved `permanent_static` change | Misregistration can mimic disappearance; require covariance-aware thresholds. |
+| Operational zone or asset registry available | Zone policy, TTL, flight/stand schedule, work-order, asset registry, and semantic class fused with geometry | Policy-backed quarantine or promotion | Operational convenience can be mistaken for permanence. |
+| Small ground-level unknown object | FOD-candidate rule, short TTL, inspection workflow, dedicated FOD sensor handoff | `fod_candidate` | Baking debris into the permanent map suppresses future FOD alarms. |
+| Map-derived training export requested | Apply semantic label plus release-state eligibility masks before back-projection | Training positives only from `permanent_static`; all others masked, auxiliary, or active-learning candidates | False-permanent labels poison future single-scan and map-scale training. |
+
 ### Multi-Pass Map Differencing and Change Detection
 
 **LT-Mapper (ICRA 2022)** — Kim et al. The canonical open-source framework for LiDAR lifelong mapping. Divides the problem into three sub-problems: (i) Multi-Session SLAM (LT-SLAM) aligns sessions without requiring a good initial pose; (ii) LT-Removert distinguishes high-dynamic changes (objects that moved within a session) from low-dynamic changes (objects present in session A but absent in session B); (iii) LT-Map manages positive changes (new permanent structure) and negative changes (removed permanent structure), maintaining a live map and a meta-map. Validated at year-level temporal gaps. ([arXiv 2107.07712](https://arxiv.org/abs/2107.07712))

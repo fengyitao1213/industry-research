@@ -94,6 +94,20 @@ When a robot traverses an environment and accumulates sequential LiDAR scans int
 | Post-cleaning map-quality evaluation | [MapEval](mapeval-point-cloud-map-quality-evaluation.md) | AC, COM, CD, MME, AWD, SCS over estimated and reference point-cloud maps | Verifying that cleaned or merged maps are geometrically consistent before semantic segmentation, localization regression, or publication. |
 | Multi-session consensus and version control | Fleet map lifecycle, Lifelong 3D Map Version Control | Persistence across days / shifts, PD/ND diffs, reconstructable map versions | Production promotion, rejection, rollback, and queryable map-change history. |
 
+### Semantic-Map Removal Stack Selector
+
+Use this selector before publishing an aggregated semantic map or exporting map-derived training labels. It turns the method taxonomy into an ordered removal stack and avoids the common mistake of asking one algorithm to solve dynamic residuals, stationary people, FOD, and infrastructure change at the same time.
+
+| Dominant condition | Primary method stack | Secondary evidence | Default release state | Guardrail |
+|---|---|---|---|---|
+| Weather, ghost, multipath, or registration artifact | Classical/learned artifact filters plus ghost/multipath diagnostics | Raw-vs-filtered point evidence, weather slice, pose residual, sensor health | `artifact` | Do not train semantic positives or localization references from filtered artifact clusters. |
+| In-session dynamic residual | FreeDOM, ERASOR++, Raymoval, BeautyMap, DUFOMap, OTD, MOS, scene flow | Free-space contradiction, timestamp spread, motion label, rejected-layer digest | `dynamic_residual` | Preserve ground, markings, poles, fences, drains, and edge lights with static-preservation tests. |
+| Stationary person or crew | Human semantic/detector/thermal cue plus policy hard exclusion | Reviewer label, privacy policy, zone/camera evidence | `static_transient` | No persistence, K-of-N rule, or localization utility may promote a person into permanent map truth. |
+| Parked movable asset | Detector-ground projection, semantic class, multi-session absence, asset registry | GSE/vehicle/aircraft/container class, stand schedule, operations log | `movable_static` | May be retained only as low-weight context; never as default training-positive or FOD baseline evidence. |
+| Small unknown ground object or FOD candidate | Ground-cluster rule plus FOD workflow | Size/height, no prior support, inspection ticket, short TTL | `fod_candidate` | Do not erase as noise and do not promote into pavement; publication must keep it outside the permanent layer. |
+| Real infrastructure change | Multi-session map version control, MapEval, map authority review | Positive/negative change evidence, registration covariance, work order | `unknown_review` until approved | Dynamic cleaners can propose a change region but cannot approve permanent promotion alone. |
+| Protected permanent thin structure | Static-preservation audit plus semantic/taxonomy checks | Multi-pass support, localization contribution, rare-class label, manual sample | `permanent_static` | Over-cleaning is blocked if rare/thin-class recall or localization residual regresses. |
+
 ### Removal Gate Matrix for Semantic Map Production
 
 The cleaning output should not be a binary "kept vs removed" point cloud. A releaseable semantic map needs a gate matrix that explains **why** each point was retained, removed, or quarantined, because downstream segmentation, localization, FOD detection, and auto-labeling use the same map differently.

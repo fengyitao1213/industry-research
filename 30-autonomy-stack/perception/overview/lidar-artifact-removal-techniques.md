@@ -37,6 +37,18 @@ For airside autonomous vehicles, the broad removal layer should include:
 | Segmentation pipeline | [LiDAR Semantic Segmentation](lidar-semantic-segmentation.md) | The downstream task this conditioning serves. |
 | Point-cloud representations | [Point-Cloud Representations and Voxelization](../../../10-knowledge-base/geometry-3d/point-cloud-representations-voxelization-first-principles.md) | Voxel grids, sparse tensors, range images — data structures underpinning conditioning stages. |
 
+## Map-Scale Handoff to Removal Governance
+
+Artifact filters should output evidence, not just a smaller point cloud. Weather, ghost, multipath, and sensor-contamination filters decide whether a measurement looks physically valid; the dynamic-removal and static-transient pages decide whether a physically valid cluster belongs in the permanent map. Keep those decisions separate.
+
+| Artifact-filter output | Persist in sidecar | Downstream use |
+|---|---|---|
+| Removed-point IDs or cluster IDs | Filter family, parameter version, confidence, raw scan IDs, and retained raw evidence path | Lets reviewers distinguish true noise from false deletion of thin permanent structure. |
+| Artifact class | Weather, aerosol, multipath, bloom, saturation, blockage, registration duplicate, or unknown artifact | Routes to the `artifact` hygiene layer instead of semantic training positives. |
+| Impacted features | Intensity, reflectivity, return count, waveform, pose residual, sector dropout, or projection residual | Explains why segmentation, localization, or projection QA should distrust a region. |
+| Preservation exceptions | Thin markings, edge lights, poles, wires, fences, drains, hi-vis returns, or FOD-like small objects restored after filtering | Prevents artifact filters from silently hiding safety-relevant or localization-useful points. |
+| Handoff decision | Artifact discard, quarantine, reviewer sample, or pass-through with degraded confidence | Feeds the release-state matrix in dynamic removal and the semantic-map manifest digests. |
+
 ---
 
 ## 1. Why Conditioning Matters
