@@ -313,6 +313,7 @@
 | MLOps reference architectures by scale | `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md` | Concrete S0-S5 MLOps architecture blueprints: minimum viable stack, centralize/decentralize/delay decisions, durable interfaces, fleet and regulated reference lanes, migration sequence, and platform-scale failure modes |
 | MLOps migration checklist by scale | `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md` | Transition gates for S0->S1, S1->S2, S2->S3, S3->S4, and S4->S5, covering migration principles, entry/exit criteria, workstream migration matrix, tooling triggers, 30/60/90 plan, managed-site notes, and migration evidence packets |
 | MLOps scorecards and KPIs by scale | `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md` | Scale-specific MLOps scorecards covering reproducibility, data and label quality, model/runtime quality, release reliability, observability, incident response, governance, cost, release-blocking metrics, cadence, ownership, and anti-metrics |
+| Experiment tracking and reproducibility by scale | `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md` | Run authority states, reproducibility levels, run manifest fields, tracker architecture options, comparison rules, and autonomy-specific LiDAR/image/map/ML-SLAM lineage controls across S0-S5 |
 | Dataset split and leakage controls by scale | `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md` | Split-firewall guide for S0-S5 MLOps covering split manifests, temporal/site/route/vehicle/map/labeler/feature/synthetic/federated leakage, LiDAR-image and ML-SLAM-specific controls, non-road managed-site holdouts, training architecture tradeoffs, scorecards, and release blockers |
 | Model monitoring and drift response by scale | `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` | Monitoring and drift-response guide for S0-S5 MLOps covering service health, data quality, training-serving skew, prediction drift, delayed labels, map/calibration drift, alert routing, retraining trigger policy, ODD-cell quarantine, rollback, safety-case deltas, and platform alert-quality controls |
 | Site-sliced release evidence by scale | `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md` | ODD-cell release evidence guide for site, route, task, weather, vehicle kit, map/calibration state, artifact set, local holdouts, replay, shadow, canary, delayed-label review, safety-case linkage, and rollback |
@@ -408,6 +409,7 @@
 | Recurring MLOps migration checklist loop | MLOps scale, reference architecture, scorecards, model governance, fleet data pipeline, training infrastructure, README, and INDEX now define S0-S5 migration gates, entry/exit criteria, workstream upgrade matrix, tooling triggers, 30/60/90 adoption plan, and migration evidence packets |
 | Recurring dataset split/leakage controls loop | MLOps scale, scorecards, model governance, data catalog, fleet data pipeline, site-sliced evidence, pseudo-label invalidation, README, and INDEX now define split manifests and leakage controls for temporal logs, routes, sites, vehicles, map tiles, labelers, feature/vector stores, synthetic data, federated clients, LiDAR-image fusion, and ML-SLAM-derived labels |
 | Recurring model monitoring/drift response loop | MLOps scale, reference architecture, scorecards, model governance, production deployment, fleet anomaly attribution, fleet SRE, README, and INDEX now define monitoring event contracts, drift signal taxonomy, retraining trigger policy, ODD-cell quarantine, rollback, safety-case deltas, suppression expiry, and alert-quality KPIs |
+| Recurring experiment tracking/reproducibility loop | MLOps scale, reference architecture, migration checklist, scorecards, model governance, training infrastructure, README, and INDEX now define run authority states, reproducibility levels, tracker architecture choices, run manifest fields, comparable-baseline rules, and autonomy-specific LiDAR/image/map/ML-SLAM lineage controls |
 | Recurring federated/privacy training policy loop | MLOps scale, reference architecture, migration checklist, scorecards, model governance, data privacy, fleet data pipeline, federated learning guide, README, and INDEX now define when centralized, local, hybrid, federated, secure-aggregation, differential-privacy, or confidential-compute training is justified and how release evidence is gated |
 | Recurring LLMOps/agent evaluation loop | MLOps scale, reference architecture, scorecards, model governance, offboard labeler registry, feature/embedding store, VLM scene understanding, README, and INDEX now define prompt, RAG, judge, VLM/VLA, tool-agent, trace, telemetry, prompt-injection, and release-gate controls across S0-S5 |
 | Recurring semantic-map non-road benchmark-bundle loop | Large-scale benchmark, GridNet-HD, and aggregated-map hub pages now define non-road urban-district benchmark bundles and release-state overlay requirements for apron/depot, campus, port/industrial, utility, facade, and terminal-interior slices |
@@ -508,6 +510,7 @@
 | `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md` | MLOps reference architectures by scale: S0-S5 blueprints, minimum viable stack, centralize/decentralize/delay decisions, durable manifest interfaces, product/fleet/regulatory/platform lanes, migration sequence, airside managed-site target, and platform failure modes |
 | `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md` | MLOps migration checklist by scale: artifact-authority migration principles, S0-S5 entry/exit criteria, transition checklists, workstream migration matrix, tooling upgrade triggers, 30/60/90 rollout plan, managed-site caveats, migration evidence packet, and failure modes |
 | `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md` | MLOps scorecards and KPIs by scale: reproducibility, data lineage, label quality, model/runtime quality, release reliability, observability, incident response, governance, cost, release blockers, cadence, ownership, managed-site KPI focus, and anti-metrics |
+| `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md` | Experiment tracking and reproducibility by scale: scratch/exploratory/baseline/candidate/release/evidence/platform-benchmark authority states, R0-R5 reproducibility levels, run manifest contract, MLflow/W&B/DVC/TensorBoard/MLMD/OpenLineage architecture comparison, run comparison rules, LiDAR-image and ML-SLAM lineage, managed-site rules, scorecards, and failure modes |
 | `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md` | Dataset split and leakage controls by scale: split manifests as release artifacts, leakage taxonomy, S0-S5 controls, manifest contract fields, training/evaluation architecture comparison, LiDAR/image/ML-SLAM rules, managed-site non-road holdouts, scorecards, and failure modes |
 | `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md` | Model monitoring and drift response by scale: monitoring signal taxonomy, S0-S5 response authority, architecture comparison, monitoring event contract, response state machine, trigger-to-action matrix, retraining trigger policy, managed-site rules, KPIs, and failure modes |
 | `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md` | Site-sliced release evidence by scale: ODD-cell release units, S0-S5 evidence ladder, release manifests, managed-site slice taxonomy, release state machine, training/adaptation tradeoffs, statistical discipline, semantic-map/ML-SLAM coupling, acceptance checks, and failure modes |
@@ -539,15 +542,15 @@
 
 | Metric | Value |
 |--------|-------|
-| Reader Markdown pages | 859 |
-| Core research documents | 855 |
+| Reader Markdown pages | 860 |
+| Core research documents | 856 |
 | Reader/research lines | 390k+ |
 | `00-start-here/` documents | 4 |
 | `10-knowledge-base/` documents | 137 |
 | `20-av-platform/` documents | 41 |
 | `30-autonomy-stack/` documents | 458 |
 | `40-runtime-systems/` documents | 23 |
-| `50-cloud-fleet/` documents | 35 |
+| `50-cloud-fleet/` documents | 36 |
 | `60-safety-validation/` documents | 56 |
 | `70-operations-domains/` documents | 27 |
 | `80-industry-intel/` documents | 62 |

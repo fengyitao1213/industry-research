@@ -14,7 +14,7 @@ The core rule is: **contract first, platform second.** A team should not buy or 
 2. Find the highest authority level in the artifact set. A single semantic map, labeler, runtime engine, or prompt pack can raise the required scale even if the team is small.
 3. Apply the transition checklist before migrating tooling.
 4. Preserve the manifest/interface from the previous scale so migration adds control without breaking reproducibility.
-5. Measure the migration with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`.
+5. Measure the migration with the scorecard in `mlops-scorecards-and-kpis-by-scale.md` and the run-authority/reproducibility contract in `experiment-tracking-reproducibility-by-scale.md`.
 
 Do not treat scale as a vanity maturity score. A research team can stay S1 for months. A small airport, yard, campus, or warehouse fleet can require S4 controls for one map publication or safety-relevant model release.
 
@@ -59,6 +59,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Record data identity | Data pointer, sample manifest, split definition, excluded data |
 | Freeze environment | Dependency lock or container image digest |
 | Record configuration | Versioned config, random seed, preprocessing settings |
+| Assign run authority | `scratch_run`, `exploratory_run`, or `baseline_run` state plus required reproducibility level |
 | Produce deterministic metric output | Metric table, confidence interval if applicable, failure examples |
 | Preserve limitations | ODD, input modality, label caveats, known missing slices |
 
@@ -173,7 +174,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 
 | Tooling | Add when | Avoid when |
 |---|---|---|
-| Experiment tracker | Two people compare runs or a baseline must be preserved | Single throwaway exploration |
+| Experiment tracker | Two people compare runs, a baseline must be preserved, or a candidate needs run authority/reproducibility evidence | Single throwaway exploration |
 | Data versioning/catalog | Datasets influence baselines or release evidence | Raw samples are exploratory only |
 | Pipeline orchestrator | Steps repeat across candidates and artifacts need lineage | One-off preprocessing dominates |
 | Model registry | A model can be deployed, shadowed, rolled back, or consumed by another system | Checkpoints are local research only |
@@ -248,6 +249,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `mlops-scale-research-scope.md` - maturity ladder and research scope.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architectures and durable interfaces.
 - `mlops-scorecards-and-kpis-by-scale.md` - migration scorecards and release blockers.
+- `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and local rollout gates.
 - `feature-embedding-store-ops-by-scale.md` - store migration triggers.
@@ -264,6 +266,9 @@ The migration is not complete when the tool is installed. It is complete when a 
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS, "What is MLOps?" https://aws.amazon.com/what-is/mlops/
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
+- MLflow, "MLflow Tracking." https://mlflow.org/docs/latest/ml/tracking/
+- Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
+- DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - SLSA specification v1.2. https://slsa.dev/spec/latest/

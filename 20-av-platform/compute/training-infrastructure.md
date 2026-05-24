@@ -43,7 +43,7 @@
 
 ### 1.4 Training Infrastructure by MLOps Scale
 
-The full scale taxonomy is in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. Training infrastructure should scale with release risk, not with ambition. A single workstation is fine for S0-S1 exploration; a safety-critical fleet model needs reproducible containers, dataset snapshots, registry linkage, replay evaluation, and cost visibility even if the fleet is still small.
+The full scale taxonomy is in `../../50-cloud-fleet/mlops/mlops-scale-research-scope.md`. Training infrastructure should scale with release risk, not with ambition. A single workstation is fine for S0-S1 exploration; a safety-critical fleet model needs reproducible containers, dataset snapshots, registry linkage, replay evaluation, and cost visibility even if the fleet is still small. Use `../../50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md` to decide which training runs need scratch, exploratory, baseline, candidate, release, evidence, or platform-benchmark authority.
 
 | MLOps scale | Compute pattern | Required controls | Upgrade trigger |
 |---|---|---|---|
@@ -95,6 +95,8 @@ Training orchestration should start as a reproducibility tool and mature into a 
 | S5 platform scale | Multi-tenant training and evaluation platform | Standard artifact schema, provenance, quotas, policy checks, cost attribution, and audit API | Policy blocks alias movement across teams when required evidence is absent |
 
 Do not let orchestration hide weak contracts. A DAG is useful only if every edge has an input artifact, output artifact, owner, retry rule, and downstream consumer. Otherwise the team has automated an undocumented process.
+
+The run manifest contract belongs at the orchestration boundary: emit it before training starts, update it as child eval/export/replay runs finish, and block candidate registration when code, data, split, environment, metric, output digest, or dirty-state fields are missing.
 
 ---
 
@@ -500,6 +502,9 @@ jobs:
 
 - [DVC (Data Version Control)](https://dvc.org/)
 - [Weights & Biases](https://wandb.ai/)
+- [MLflow Tracking](https://mlflow.org/docs/latest/ml/tracking/)
+- [DVC Experiment Management](https://doc.dvc.org/user-guide/experiment-management)
+- [TensorFlow ML Metadata](https://www.tensorflow.org/tfx/guide/mlmd)
 - [Lambda Labs](https://lambdalabs.com/)
 - [TensorRT Developer Guide](https://docs.nvidia.com/deeplearning/tensorrt/)
 - [PyTorch Distributed Training](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)

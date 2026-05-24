@@ -17,7 +17,7 @@ MLOps covers the operating system around models:
 | Problem and data contract | Task definition, label semantics, feature schema, ODD, acceptance metric | Class taxonomy, map release-state labels, sensor schema, scenario coverage |
 | Data platform | Ingestion, storage, lineage, quality, privacy, retention, split hygiene | Rosbags, MCAP, Iceberg/DVC snapshots, lakehouse tables, event clips |
 | Label operations | Annotation tools, auto-labelers, reviewer workflow, label QA | 3D boxes, semantic masks, map-derived pseudo-labels, FOD review |
-| Experiment tracking | Code, config, metrics, artifacts, seeds, hardware, environment | MLflow, W&B, ClearML, custom run registry |
+| Experiment tracking | Code, config, metrics, artifacts, seeds, hardware, environment, run authority, reproducibility level | MLflow, W&B, DVC experiments, TensorBoard, MLMD, custom run registry |
 | Pipeline orchestration | Repeatable DAGs for preprocessing, training, evaluation, packaging | Airflow, Argo, Kubeflow Pipelines, TFX, GitHub Actions |
 | Compute platform | GPU scheduling, images, caches, quotas, cost attribution | Workstations, cloud A100/H100, Kubernetes, Ray, Slurm |
 | Model registry | Immutable model versions, aliases, approvals, rollback targets | MLflow aliases such as `candidate`, `shadow`, `champion`, `rollback` |
@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, split/leakage contamination, drift response gaps, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `dataset-split-leakage-controls-by-scale.md` before promoting datasets, label batches, replay packs, feature snapshots, or model releases that need independent holdout evidence. Use `model-monitoring-drift-response-by-scale.md` before wiring drift alerts to retraining, canary holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, split/leakage contamination, drift response gaps, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `experiment-tracking-reproducibility-by-scale.md` to decide whether a run is scratch, exploratory, baseline, candidate, release, evidence, or platform-benchmark authority, and whether the run meets the reproducibility level required for that authority. Use `dataset-split-leakage-controls-by-scale.md` before promoting datasets, label batches, replay packs, feature snapshots, or model releases that need independent holdout evidence. Use `model-monitoring-drift-response-by-scale.md` before wiring drift alerts to retraining, canary holds, ODD-cell quarantine, rollback, or safety-case evidence. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
 
 ---
 
@@ -55,7 +55,7 @@ The common mistake is jumping from S0 to S5 tools before S1-S2 discipline exists
 | Data versioning | DVC, object-store paths, manifest JSON | Lakehouse tables plus DVC/Iceberg snapshots | Data catalog, lineage graph, retention policy, privacy tiers |
 | Orchestration | Makefile, scripts, GitHub Actions | Airflow, Argo, Kubeflow Pipelines, managed cloud pipelines | Multi-tenant orchestration with quotas, SLAs, lineage, audit logs |
 | Training compute | Workstation, rented GPU, small cloud batch | Kubernetes/Ray/Slurm GPU pool, reproducible containers | Dedicated GPU fleet, scheduler, cache, cost attribution, capacity planning |
-| Experiment tracking | MLflow/W&B run tracking | Run registry linked to dataset and code commits | Organization-wide experiment/eval warehouse |
+| Experiment tracking | MLflow/W&B/DVC run tracking with authority states | Run registry linked to dataset, split, code, seed, hardware, metric, and output digests | Organization-wide experiment/eval warehouse with lineage, audit export, and policy templates |
 | Registry | File path and release note | MLflow or managed registry with aliases | Registry integrated with policy, approvals, software bill of materials, secure artifact attestations, rollback |
 | Evaluation | Single validation split and smoke tests | Slice metrics, replay, calibration, regression suite | Eval service with scenario mining, red-team cases, safety-case claims |
 | Serving | Local script or batch job | Triton/TensorRT, KServe, BentoML, managed endpoints, OTA artifacts | Multi-region serving, edge/cloud routing, progressive rollout, automated rollback |
@@ -168,7 +168,7 @@ For autonomy, "auto-label accepted" should never be a single confidence threshol
 
 ### 4. Training and Experiment Reproducibility
 
-A training run is reproducible only when it records code commit, config, dependency lock, random seeds, hardware class, dataset snapshot, label schema, preprocessing version, augmentation policy, and evaluation code. At S2+, this should be machine-generated by the training pipeline rather than hand-written in a notebook.
+A training run is reproducible only when it records code commit, config, dependency lock, random seeds, hardware class, dataset snapshot, split manifest, label schema, preprocessing version, augmentation policy, evaluator version, output digests, and downstream registry or release links. At S2+, this should be machine-generated by the training pipeline rather than hand-written in a notebook. The detailed contract is `experiment-tracking-reproducibility-by-scale.md`: it separates run authority states from reproducibility levels, defines which manifest fields are required by scale, and names the conditions under which runs may be compared.
 
 ### 5. Evaluation, Replay, and Promotion
 
@@ -441,6 +441,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Unified model/data/map/calibration compatibility manifest | Prevents a model from deploying against the wrong semantic map, calibration, or runtime container |
 | P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
+| P1 | Experiment tracking and reproducibility controls (`experiment-tracking-reproducibility-by-scale.md`) | Prevents scratch runs from becoming hidden baselines and candidate/release runs from lacking data, split, config, environment, artifact, cost, and audit lineage |
 | P1 | Dataset split and leakage controls (`dataset-split-leakage-controls-by-scale.md`) | Prevents train/eval/replay/local-holdout contamination across temporal, site, vehicle, map, labeler, synthetic, feature, and federated boundaries |
 | P1 | Model monitoring and drift response (`model-monitoring-drift-response-by-scale.md`) | Turns runtime, drift, delayed-label, replay, and incident signals into controlled actions instead of automatic retraining or dashboard-only alerts |
 | P1 | GPU cost and queueing model for training and replay (`gpu-queueing-finops-by-scale.md`) | Determines when to move from rented GPUs to owned, reserved, or queued capacity |
@@ -461,6 +462,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `mlops-migration-checklist-by-scale.md` - transition gates, workstream migration matrix, tooling triggers, and adoption evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
+- `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest contract, tracker architecture options, and autonomy-specific run lineage.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests, leakage taxonomies, holdout controls, and training/evaluation architecture tradeoffs by scale.
 - `model-monitoring-drift-response-by-scale.md` - monitoring event contracts, drift response states, retraining triggers, ODD-cell quarantine, rollback, and alert-quality controls.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
@@ -487,6 +489,11 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - Microsoft Learn, "Model monitoring in production - Azure Machine Learning." https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
+- MLflow, "MLflow Tracking." https://mlflow.org/docs/latest/ml/tracking/
+- Weights & Biases, "Experiments overview." https://docs.wandb.ai/models/track
+- DVC, "Experiment Management." https://doc.dvc.org/user-guide/experiment-management
+- OpenLineage, "Object Model." https://openlineage.io/docs/spec/object-model/
+- PyTorch, "Reproducibility." https://docs.pytorch.org/docs/2.12/notes/randomness.html
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
 - Kubeflow, "Pipeline." https://www.kubeflow.org/docs/components/pipelines/concepts/pipeline/
 - TensorFlow, "TFX: ML Production Pipelines." https://www.tensorflow.org/tfx
