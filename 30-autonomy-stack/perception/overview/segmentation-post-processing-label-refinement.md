@@ -1,6 +1,6 @@
 # Segmentation Post-Processing and Label Refinement for 3D / LiDAR Segmentation
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 This page is the deep-dive companion to [Aggregated-Map Semantic Segmentation §10 (Post-Processing and Refinement)](aggregated-map-semantic-segmentation.md). It covers every stage that runs after the network emits per-point logits and before the labeled map is packaged into an HD-map semantic layer or back-projected to raw scans. The pre-processing companion — the stage that prepares the cloud before inference — is [LiDAR Artifact Removal Techniques](lidar-artifact-removal-techniques.md).
 
@@ -401,6 +401,22 @@ The semantic point cloud is aggregated into the HD-map semantic layer. Typical r
 
 The HD-map semantic layer supports downstream tasks: localization (matching live scan semantic labels to map), planning (drivable area, obstacle zones), and map-change detection.
 
+### Map-Hygiene Layer Products
+
+For aggregated maps, post-processing must emit more than one label array. The semantic label answers what the point is; the map-hygiene label answers whether that point is publishable permanent geometry, a movable/static-transient object, a FOD candidate, an artifact, or an unknown/review region.
+
+| Output layer | Typical source signals | Publication meaning |
+|---|---|---|
+| `permanent_static` | High-confidence static infrastructure classes, stable across sessions, low residual error | Eligible for released base-map geometry and localization priors |
+| `movable_static` | Parked vehicles, staged GSE, parked aircraft, containers, movable barriers | Soft context or quarantine only; not fused into permanent map truth |
+| `static_transient` | Stationary people, temporary work equipment, event furniture, short-lived clutter | Hard exclusion from permanent map; retain evidence for review and training negatives |
+| `dynamic_residual` | Ghost trails, motion-smears, inconsistent scan support, MOS/scene-flow disagreement | Removal evidence and map-conditioning defect signal |
+| `fod_candidate` | Small isolated objects on operational surfaces, cones/chocks/tools/cables, open-set hazard candidates | Operational inspection or safety-review layer, never structural map geometry |
+| `artifact` | Multipath, weather returns, scan shadows, registration doubles, impossible height/intensity combinations | Exclude and count against source-map or conditioning quality |
+| `unknown_review` | Low-confidence, high-entropy, OOD, open-vocabulary candidates without taxonomy promotion | Human review or active-learning queue |
+
+This layer split is the post-processing counterpart to [Semantic Class Taxonomy Design](3d-segmentation-class-taxonomy-design.md): a correctly labeled `person`, `staged GSE`, or `cable` can still be a wrong base-map point. The release bundle should therefore package semantic labels, calibrated confidence, and hygiene labels together, with digests recorded in `semantic_map_manifest.json`.
+
 ### Auto-Label Back-Projection to Single Scans
 
 Once the aggregated map is labeled (typically with higher accuracy due to dense context), those labels can be back-projected to individual raw scans for training-data generation:
@@ -446,8 +462,14 @@ For **production HD-map labeling** (airside or urban AV), the industry-aligned s
    - Class-height violations → nearest-neighbor re-classification or `unknown`.
    - Road marking / reflectance cross-check using calibrated intensity.
 
-8. Back-projection of map labels to individual raw scans for data flywheel.
+8. Emit semantic, confidence, and map-hygiene layers.
+   - `permanent_static` may feed base-map publication.
+   - `movable_static`, `static_transient`, `dynamic_residual`, `fod_candidate`, `artifact`, and `unknown_review` remain separate quarantine/review layers.
+   - Record layer digests and map-hygiene metrics in the semantic-map manifest.
+
+9. Back-projection of map labels to individual raw scans for data flywheel.
    - Propagate map-voxel label and confidence to scan points.
+   - Do not back-project quarantine layers as clean permanent labels; use them as negatives, review tasks, or exclusion masks.
    - Label weight in training proportional to map confidence.
 ```
 
@@ -473,6 +495,7 @@ TTA (8×) and model ensembling (3–5 models) are applied for the **annotation q
 | Bayesian voxel fusion | Low | Reduces flicker | Multi-pass / online pipelines | Log-odds diverges with badly wrong priors |
 | Overlap-halo stitching | ~10–20 % extra inference | Eliminates seam artifacts | Any tiled-inference pipeline | Halo size must match receptive field |
 | Height/intensity prior checks | Very low | Removes implausible labels | Domain-specific maps | Rules must be validated per environment |
+| Hygiene-layer emission | Low | Prevents semantic labels from becoming wrong permanent map truth | Every aggregated-map release | Requires maintained policy table and manifest digests |
 
 ---
 
@@ -485,6 +508,7 @@ TTA (8×) and model ensembling (3–5 models) are applied for the **annotation q
 - **Connected-component thresholds.** Set `N_min` values conservatively — it is worse to delete a genuine sparse cluster than to retain a small false-positive. Validate against a labeled test tile before applying to production maps.
 - **Batch norm at inference.** When running tiled inference with halo overlap, freeze batch norm statistics (use stored running-average stats, not per-tile batch stats). This is the single most common source of seam artifacts in practice.
 - **Logging.** Store pre- and post-processed label arrays plus per-point confidences for every production map build. Post-processing bugs are often discovered only when downstream tasks (localization, planning) expose map inconsistencies.
+- **Layer digests.** Hash semantic, confidence, and hygiene layers after every post-processing stage that can change labels. The final manifest should identify which rule set, calibration file, connected-component thresholds, and abstention policy produced each released digest.
 
 ---
 
@@ -501,6 +525,7 @@ TTA (8×) and model ensembling (3–5 models) are applied for the **annotation q
 | Calibration makes accuracy worse | Calibration set is out-of-distribution relative to inference map | Validate calibration tile matches target scene type; check for class imbalance in calibration set |
 | Label flicker in multi-session maps | Bayesian voxel fusion prior initialized with wrong Pass A labels | Inspect voxel histogram distributions; check for systematic per-scan misclassification before fusion |
 | Auto-labeled scan points receive wrong class from map back-projection | Poor scan-to-map registration at voxel resolution | Inspect point-to-voxel assignment; tighten registration quality gate or increase voxel resolution |
+| Correctly labeled movable/static-transient points become permanent map geometry | Post-processing exports a single semantic layer without a hygiene-layer split | Emit `movable_static`, `static_transient`, `fod_candidate`, `artifact`, and `unknown_review` layers and block publication if they are fused into `permanent_static` |
 | Physically implausible labels survive to output | Rule-based sanity pass not covering the domain | Extend rule table from operational observation; apply after every map build and log rule-triggered changes |
 
 ---

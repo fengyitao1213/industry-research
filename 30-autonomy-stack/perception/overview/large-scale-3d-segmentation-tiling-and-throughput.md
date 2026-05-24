@@ -1,6 +1,6 @@
 # Large-Scale 3D Segmentation: Tiling, Stitching, and Throughput Engineering
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 This page is the deep-dive companion to §8 (Tiling, Chunking, and Stitching) of the [Aggregated-Map Semantic Segmentation](aggregated-map-semantic-segmentation.md) hub page. It covers the full engineering discipline of partitioning billion-point outdoor clouds into GPU-sized tiles, merging partial predictions without seam artifacts, and achieving production-viable throughput — with particular attention to airside aerial LiDAR pipelines where no latency budget exists but accuracy and reproducibility are paramount. Readers implementing a new pipeline should also read §3 (Pipeline Architecture) and §15 (Recommended Pipeline) of the hub page alongside this document.
 
@@ -433,6 +433,24 @@ On NVMe, caching pre-voxelised tiles reduces per-tile CPU preprocessing from sec
 
 Every prediction output must be traceable to: raw input file + model checkpoint hash + inference config hash. Store this provenance in a per-tile sidecar JSON. Enables auditable re-labelling when a model is updated, and satisfies traceability requirements if the segmentation outputs feed into a safety case or map certification process.
 
+### Tile Release Ledger
+
+For a semantic map release, the tile manifest should graduate from a scheduler convenience into a **tile release ledger**. The ledger is the bridge between GPU inference artifacts and the signed `semantic_map_manifest.json`: it proves which tiles produced which logits, labels, confidence maps, hygiene candidates, seam metrics, and QA decisions.
+
+| Ledger field | Purpose |
+|---|---|
+| `tile_id`, `partition_spec_hash`, `source_map_digest` | Reconstructs the exact input tile and coordinate frame |
+| `input_point_digest`, `input_feature_digest` | Detects accidental re-voxelization, changed intensity calibration, or image-colorization drift |
+| `model_id`, `weights_digest`, `taxonomy_digest`, `calibration_digest` | Ties predictions to the exact model, taxonomy, and confidence stack |
+| `logit_digest`, `semantic_label_digest`, `confidence_layer_digest` | Makes stitched semantic outputs content-addressable before packaging |
+| `hygiene_candidate_digest` | Records per-tile permanent/static-transient/movable/FOD/artifact/unknown candidates before global post-processing |
+| `seam_metric_block`, `boundary_metric_block`, `unknown_rate` | Carries the evidence used to accept or re-run the tile |
+| `postprocess_config_hash`, `rule_trigger_counts` | Shows which smoothing, calibration, abstention, and physical-rule passes changed the tile |
+| `qa_disposition`, `reviewer_or_policy_id`, `waiver_id` | Distinguishes accepted, quarantined, waived, and human-reviewed tiles |
+| `runtime_export_digest` | Links the release tile to downstream map formats or runtime adapters |
+
+The global semantic-map manifest should reference aggregate digests produced from the ledger rather than recomputing provenance informally. `outputs.map_hygiene_layer_digests` should be derivable from the per-tile `hygiene_candidate_digest` plus the global post-processing merge, and `metrics_evidence.map_hygiene_metrics` should be computed over the same tile set. This prevents a common release failure: semantic labels are reproducible, but the quarantine, unknown, FOD, or artifact layers that justified publication cannot be reconstructed.
+
 ---
 
 ## Multi-Resolution and Hierarchical Segmentation
@@ -537,8 +555,9 @@ An ordered recipe for a new large-scale airside segmentation run:
 8. **Stitch.** Use ZoR hard crop if halo ≥ ½ RF is confirmed. Use Gaussian-weighted logit averaging in overlap zones if halo is borderline.
 9. **Compute seam-consistency metric.** Compute `median(1 - Dice)` in overlap strips. If > 0.02, investigate halo width and normalization before proceeding.
 10. **Apply coarse-then-fine sweep** for thin classes (poles, kerb, markings) if initial pass shows low boundary IoU on those classes.
-11. **Run QA pass.** Human review of seam regions and low-confidence predictions; update manifest with QA status.
-12. **Record provenance.** Write per-tile sidecar JSON with raw input hash + model checkpoint hash + inference config hash.
+11. **Write tile release ledger.** Record semantic, confidence, hygiene-candidate, seam, boundary, and QA digests per tile before global post-processing collapses them.
+12. **Run QA pass.** Human review of seam regions and low-confidence predictions; update the tile ledger and semantic-map manifest with QA status.
+13. **Record provenance.** Write per-tile sidecar JSON with raw input hash + model checkpoint hash + inference config hash.
 
 ---
 
@@ -564,6 +583,7 @@ An ordered recipe for a new large-scale airside segmentation run:
 - **Do not use LAZ decompression inside the inference loop.** Decompression throughput is typically 50–200 MB/s; on NVMe, raw LAS reads at 3–7 GB/s. Pre-extract tiles to uncompressed LAS before inference.
 - **Separate tile-level QA from global QA.** Check seam-consistency metrics per tile pair first; do not wait for a full mosaic to diagnose seam problems. A single bad tile type (e.g., all tiles near map edges) reveals a systematic issue faster at tile level.
 - **Version the model ID in the manifest.** When the model checkpoint is updated, old manifests remain valid as historical records. Reprocess status-done tiles only if the model update affects that class (partial re-labelling is a significant cost saving).
+- **Keep the tile ledger and semantic-map manifest in sync.** The manifest should point to aggregate digests; the tile ledger should explain those digests tile-by-tile. If a permanent-static layer, FOD-candidate layer, or unknown-review layer cannot be traced back to tile outputs, the release is not reproducible.
 - **Log GPU memory utilisation per tile.** A sudden utilisation spike on certain tiles reveals outlier-density regions that could cause OOM in future runs. Catch these during first-pass validation.
 - **Freeze coordinate normalisation parameters.** The voxelisation step typically normalises coordinates to a unit cube or to zero-mean per tile. These normalisation parameters (mean, scale) must be fixed from the first run and stored in the partition spec. Allowing them to be recomputed per tile produces different input distributions and invalidates tile-level caching.
 - **For airside maps, treat pavement markings as a first-class thin class.** Markings are the primary localisation anchors in airside HD maps and appear at approximately 2–5 % of apron surface area — enough to train on, but thin enough that default tile sizing at 0.10 m voxels will degrade their recall. Verify marking recall separately using boundary IoU on annotated sections before accepting pipeline outputs for HD map production.
@@ -581,6 +601,7 @@ An ordered recipe for a new large-scale airside segmentation run:
 | GPU OOM on certain tiles despite tile size meeting formula budget | Density outlier tiles (dense urban returns or overlapping flight strips); activation memory underestimated | Log per-tile point count; add a 10 % memory safety margin; reject tiles above max count |
 | Throughput collapses on sparse-tile batches | Padding waste from equal-tile-count batching on variable-density tiles | Switch to bin-packing by point count; implement FlatFormer-style equal-size grouping |
 | Pipeline fails partway through a 1,000-tile batch with no restart capability | No manifest-based checkpointing; naive sequential loop | Implement tile manifest with atomic status updates; re-queue failed tiles |
+| Semantic layer reproduces but hygiene layers cannot be reconstructed | Tile manifest records labels only, not hygiene candidates, rule triggers, or post-processing digests | Promote the tile manifest to a release ledger and require aggregate layer digests in `semantic_map_manifest.json` |
 | Thin classes (poles, kerb, markings) correctly labelled in isolation but missing in stitched mosaic | Thin classes appear only in halo regions of most tiles; ZoR hard crop discards them | Use coarse-then-fine sweep; ensure thin-class points appear in at least one tile's ZoR |
 | Pseudo-labels generated by ensemble model show systematic class confusion at tile boundaries | Ensemble members see different tile contexts; logit averaging not applied across ensemble | Ensure ensemble members tile identically; average logits before argmax across both tiles and ensemble members |
 | Reproducibility failure: re-running the pipeline produces different tile-level predictions | Random sphere-centre sampling without fixed seed; variable floating-point ordering | Fix `random_seed` in partition spec; use deterministic CUDA ops (`torch.use_deterministic_algorithms(True)`) |
