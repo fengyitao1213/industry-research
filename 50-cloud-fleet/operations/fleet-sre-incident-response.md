@@ -1,6 +1,6 @@
 # Fleet SRE and Incident Response for Autonomous Vehicle Fleets
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 Fleet SRE is the operating discipline that keeps an autonomous vehicle fleet safe, observable, and recoverable after deployment. It sits between vehicle runtime monitoring, fleet operations, safety assurance, cybersecurity response, and customer/site operations. For AVs, the unit of reliability is not only a cloud service; it is the combined system of vehicles, operators, maps, models, networks, charging, depots, and local site procedures.
 
@@ -34,6 +34,21 @@ Severity should be based on safety risk and operational blast radius, not only s
 | SEV-3 Component issue | Single vehicle, sensor, charger, depot gateway, or data pipeline problem with bounded impact | Service-owner response; ticket and trend tracking |
 
 When severity is uncertain, classify high, stabilize, and downgrade only after evidence review. PagerDuty's public incident response guidance makes the same operational point: an incident is not the right time to litigate severity.
+
+## MLOps Incident Response by Scale
+
+Model, map, calibration, prompt, and data-pipeline failures are operational incidents when they can change vehicle behavior, release evidence, or safety-case assumptions. The MLOps scale ladder defines how much containment authority and evidence discipline is required.
+
+| MLOps scale | Typical incident trigger | First containment action | Evidence to preserve |
+|---|---|---|---|
+| S0 notebook research | Bad experiment result, leakage discovery, mislabeled sample | Mark the run non-comparable and stop citing the result | Code/config, data pointer, sample output, analyst note |
+| S1 repeatable prototype | Baseline regression, corrupted snapshot, broken validation script | Freeze the baseline until the evaluation can be rerun | Dataset snapshot, run logs, metric script, failure examples |
+| S2 production product | Candidate model, label batch, or runtime package fails release gate | Hold alias promotion, revert candidate channel, open release ticket | Registry version, release packet, replay result, package hash |
+| S3 fleet and multi-site | Shadow/canary regression, drift spike, site-specific intervention cluster | Quarantine affected ODD cell, site, route, vehicle cohort, or artifact version | Fleet denominator, active manifests, raw clips, local holdout/replay cases |
+| S4 regulated safety-critical | Safety monitor activation, reportable near miss, rollback after behavior change | Engage incident commander and safety officer; freeze evidence and assess reportability | Timeline, decision log, safety-case delta, waiver status, rollback proof |
+| S5 platform scale | Shared pipeline, registry, prompt, evaluator, feature store, or policy outage | Disable the affected platform capability or tenant path through policy controls | Audit trail, tenant blast radius, policy decision, platform SLO impact |
+
+The blast-radius query is an MLOps primitive. Every SEV-0/SEV-1 involving autonomy behavior should be searchable by model version, map package, semantic layer, calibration package, runtime container, prompt/evaluator pack, data snapshot, feature flag, vehicle hardware, site, route, weather, and ODD state. Without that join, the team cannot know whether a rollback, site stop, or fleet stop is correctly scoped.
 
 ## Deployment Operations
 

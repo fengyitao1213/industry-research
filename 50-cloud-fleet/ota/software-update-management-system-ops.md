@@ -1,6 +1,6 @@
 # Software Update Management System Operations
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 This file covers the operational governance layer for software updates. It complements OTA mechanics by defining how updates are requested, classified, approved, deployed, monitored, rolled back, and audited across code, firmware, models, maps, configuration, calibration, and safety parameters.
 
@@ -34,6 +34,21 @@ The same manifest must cover behavior-changing models, maps, calibration, and co
 | Map/config/calibration | HD map, geofence, sensor calibration, thresholds, feature flags | Maps/calibration owner, operations, safety if behavior-affecting |
 | Cloud-only service | Dispatch, telemetry, dashboards, data ingest, user support tooling | Cloud SRE and operations, safety if it affects supervision/control |
 | Documentation/training | Operator workflow, maintenance checklist, site SOP | Operations and safety if procedures change |
+
+## Update and Rollback Controls by MLOps Scale
+
+SUMS controls should scale with the authority of the ML artifact being changed. A notebook checkpoint does not need a formal OTA record, but any model, map, calibration, prompt, evaluator, or data pipeline that can affect a deployed vehicle or release evidence belongs inside update governance.
+
+| MLOps scale | Update governance | Rollback requirement | Incident closure requirement |
+|---|---|---|---|
+| S0 notebook research | Commit or archive enough context to reproduce the run | Mark bad run obsolete | Correct the research note or exclude the result |
+| S1 repeatable prototype | Version dataset snapshot, container, and validation script | Restore prior baseline artifacts | Rerun the benchmark and document changed assumptions |
+| S2 production product | Create update request for candidate model/container/map/config/prompt artifacts | Registry alias and deployable package can return to previous approved version | Post-deployment report or release-ticket closure |
+| S3 fleet and multi-site | Use ringed rollout by site, vehicle cohort, ODD cell, and hardware/runtime compatibility | Rollback target is cached or prevalidated for the active cohort | Canary analysis, blast-radius query, delayed-label review |
+| S4 regulated safety-critical | Treat behavior-affecting ML/map/calibration changes as safety-case deltas | Emergency rollback has authority, compatibility proof, and risk acceptance | Incident report, safety-case update, waiver expiry, corrective action verification |
+| S5 platform scale | Enforce policy-as-code across teams, tenants, registries, and release channels | Rollback plans cover shared services and tenant isolation, not only vehicles | Audit trail, tenant notification, platform SLO and cost impact review |
+
+Emergency updates should shorten the approval path, not erase it. If evidence is incomplete because the update was urgent, the post-release record should name the missing evidence, owner, due date, and operating restriction that remains until the gap is closed.
 
 ## Deployment Operations
 

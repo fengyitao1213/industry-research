@@ -180,6 +180,21 @@ Deployment modes should map to risk:
 
 For vehicle and robot fleets, rollout is by ODD cell, not only by percentage. A 5% canary that covers only easy daylight routes does not prove a night/rain/stand-operation release.
 
+### 6.1 Incident and Rollback Scale Ladder
+
+MLOps is incomplete unless every release path has a matching incident and rollback path. At small scale this is mostly about reproducibility. At fleet and safety-critical scale it becomes containment authority, blast-radius analysis, reportability, and evidence preservation.
+
+| MLOps scale | Incident response posture | Rollback or containment rule | Evidence that must survive |
+|---|---|---|---|
+| S0 notebook research | Record failure in the run notes | Stop reusing invalid results | Code/config, data pointer, sampled outputs |
+| S1 repeatable prototype | Treat regressions as baseline hygiene issues | Freeze the benchmark until rerun is clean | Dataset snapshot, validation script, metric output |
+| S2 production product | Release manager owns candidate hold/reject decisions | Roll back registry alias, container, prompt pack, or label batch before users depend on it | Release packet, package hash, replay/shadow report |
+| S3 fleet and multi-site | Fleet SRE and ML owner jointly scope affected ODD cells | Quarantine by site, route, vehicle cohort, map tile, calibration, or model version | Active manifests, canary telemetry, raw clips, delayed labels |
+| S4 regulated safety-critical | Incident commander and safety officer own response | Fleet/site stop and emergency rollback require documented risk acceptance and post-incident review | Incident timeline, safety-case delta, waiver, rollback drill proof |
+| S5 platform scale | Platform owner manages tenant blast radius and policy state | Disable shared evaluator, registry alias, feature store, or pipeline lane through policy-as-code | Audit trail, tenant impact, policy decision, cost/SLO impact |
+
+Rollback is not only model rollback. A safe recovery may require reverting a map layer, semantic taxonomy, calibration package, runtime container, feature flag, prompt pack, evaluator model, data snapshot, or release threshold. The compatibility manifest should define which artifact sets can move together.
+
 ### 7. Monitoring and Continuous Learning
 
 Monitoring must separate system health from model quality:

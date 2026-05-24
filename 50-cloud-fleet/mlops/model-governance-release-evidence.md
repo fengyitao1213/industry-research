@@ -33,6 +33,21 @@ The companion scale hub (`mlops-scale-research-scope.md`) separates MLOps maturi
 
 For airside autonomy, model governance should usually reach S2 before the first shadow deployment and S4 before a model controls or materially influences a safety-critical behavior. That includes offline models when their outputs become semantic-map labels, training positives, route restrictions, or release evidence.
 
+## Incident and Rollback Evidence by Scale
+
+Post-release failures should update the model record, not only an operations ticket. The model registry is the anchor for finding which model, dataset, map, calibration, runtime, prompt, and evaluator artifacts were active when the failure occurred.
+
+| Scale | Incident linkage | Rollback evidence | Governance outcome |
+|---|---|---|---|
+| S0 notebook research | Attach failure examples to the run note | Previous run or baseline remains the comparison point | Result is marked exploratory or invalid |
+| S1 repeatable prototype | Link regression to dataset snapshot and validation script | Prior baseline can be rerun from archived artifacts | Baseline is frozen until comparison is clean |
+| S2 production product | Incident ticket links to registry version, candidate/shadow/champion alias, and release packet | `rollback` alias points to compatible model/container/config bundle | Release packet is corrected or rejected |
+| S3 fleet and multi-site | Incident links to active manifests by site, route, ODD cell, map tile, and vehicle cohort | Rollback/canary decision records affected and unaffected cohorts separately | Local holdouts and replay suite are updated |
+| S4 regulated safety-critical | Incident links to safety-case claims, monitor activations, waiver state, and reportability assessment | Rollback proof includes timeline, authority, compatibility, and residual-risk decision | Safety-case delta and corrective action are mandatory |
+| S5 platform scale | Incident links shared registry, evaluator, prompt, feature-store, and policy decisions across tenants | Rollback verifies tenant isolation and shared-service compatibility | Platform control or policy changes are reviewed organization-wide |
+
+The release packet should keep the last known-good model executable for as long as the operational rollback window requires. If a new taxonomy, map schema, calibration schema, or runtime container makes the previous model unloadable, the release is not rollback-ready even if the old checkpoint still exists.
+
 ## Release Ownership Matrix
 
 Release governance fails when "the model team approved it" means nobody checked data, runtime, maps, or safety evidence. Use explicit ownership:
