@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, split/leakage contamination, runtime package mismatch, unverified artifacts, rollback readiness, and evidence retention. Use `dataset-split-leakage-controls-by-scale.md` before promoting datasets, label batches, replay packs, feature snapshots, or model releases that need independent holdout evidence. Use `mlops-migration-checklist-by-scale.md` before moving between S0-S5 architecture levels, `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests, `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot, and `secure-artifact-attestation-profile.md` when artifacts need digest-bound signatures, SBOMs, provenance, or policy verification.
 
 ---
 
@@ -113,7 +113,7 @@ The anti-pattern is buying an S5 platform to compensate for S1 discipline gaps. 
 | Artifact or decision | Primary owner | Required collaborators |
 |---|---|---|
 | Label schema and taxonomy | Data owner | Model owner, safety owner, map owner |
-| Dataset snapshot and splits | Data owner | Model owner, privacy/security owner |
+| Dataset snapshot and splits | Data owner | Model owner, privacy/security owner; use `dataset-split-leakage-controls-by-scale.md` when the split affects release, replay, pseudo-label, or safety evidence |
 | Training run and checkpoint | Model owner | Compute/MLOps owner |
 | Evaluation suite and thresholds | Model owner | Safety validation, site operations |
 | Runtime package | Runtime owner | Model owner, OTA/SUMS owner |
@@ -441,6 +441,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P0 | Unified model/data/map/calibration compatibility manifest | Prevents a model from deploying against the wrong semantic map, calibration, or runtime container |
 | P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
 | P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
+| P1 | Dataset split and leakage controls (`dataset-split-leakage-controls-by-scale.md`) | Prevents train/eval/replay/local-holdout contamination across temporal, site, vehicle, map, labeler, synthetic, feature, and federated boundaries |
 | P1 | GPU cost and queueing model for training and replay (`gpu-queueing-finops-by-scale.md`) | Determines when to move from rented GPUs to owned, reserved, or queued capacity |
 | P1 | Offboard labeler registry (`offboard-labeler-registry-by-scale.md`) | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
 | P1 | Secure artifact attestation profile (`secure-artifact-attestation-profile.md`) | Defines signing, SBOM, SLSA/provenance, registry-verification, alias-policy, and admission requirements for models, maps, prompts, labels, eval packs, and containers |
@@ -459,6 +460,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `mlops-migration-checklist-by-scale.md` - transition gates, workstream migration matrix, tooling triggers, and adoption evidence packets.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
+- `dataset-split-leakage-controls-by-scale.md` - split manifests, leakage taxonomies, holdout controls, and training/evaluation architecture tradeoffs by scale.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
 - `offboard-labeler-registry-by-scale.md` - prompt packs, foundation-model labelers, evaluator models, thresholds, and reviewer workflows as governed artifacts.
@@ -477,6 +479,8 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 ## Sources
 
 - Google Cloud, "MLOps: Continuous delivery and automation pipelines in machine learning." https://docs.cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning
+- scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
+- TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/

@@ -137,7 +137,7 @@ These are raw recording volumes. With selective recording (section 3.2), actual 
 
 ### 2.7 Data Platform Scale Ladder
 
-The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, and site-sliced training exports.
+The MLOps maturity ladder in `../mlops/mlops-scale-research-scope.md` changes the data-platform design. Use `../mlops/mlops-migration-checklist-by-scale.md` before adding catalog, orchestration, feature-store, or platform services so data tooling follows release authority instead of storage volume alone, and use `../mlops/dataset-split-leakage-controls-by-scale.md` before promoting any split that can affect release, replay, or safety evidence. A small prototype can survive with DVC pointers and a disciplined folder layout; a multi-site autonomy fleet needs searchable lineage, privacy boundaries, cost controls, split-firewall evidence, and site-sliced training exports.
 
 | MLOps scale | Data platform posture | Required upgrade trigger | Avoid this mistake |
 |---|---|---|---|
@@ -174,7 +174,7 @@ The fleet pipeline should expose promotion states to MLOps, not just files in bu
 | Raw upload registered | Forensics, data catalog | Vehicle, site, time window, trigger, sensor list, retention class, access class |
 | Decoded clip | Scenario mining, labeling | Decode version, schema version, frame counts, timestamp quality, calibration package |
 | Labeling package | Annotation and auto-labeling | Taxonomy version, source-map/semantic-layer IDs if map-derived, reviewer queue |
-| Curated training table | Training pipeline | Split ID, leakage check, label QA score, redaction state, data-use approval |
+| Curated training table | Training pipeline | Split ID, grouping keys, leakage report, label QA score, redaction state, data-use approval |
 | Replay/eval package | Validation and release gate | Scenario ID, map/runtime compatibility hash, expected metrics, waiver state |
 | Evidence bundle | Safety case and audit | Immutable snapshot, source lineage, quality report, approval, retention hold |
 
@@ -1524,7 +1524,7 @@ def precompute_pillars(
 
 ### 9.2 Train/Val/Test Split Strategies
 
-Temporal data requires careful splitting to avoid data leakage:
+Temporal data requires careful splitting to avoid data leakage. The rules below are the minimum local implementation; the scale-specific policy, split manifest contract, and map/feature/labeler leakage taxonomy live in `../mlops/dataset-split-leakage-controls-by-scale.md`.
 
 **Rule 1: No future leakage.** Validation and test sets must contain only data collected after the training set cutoff time. This mirrors production conditions where the model has never seen future scenarios.
 

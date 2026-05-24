@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `mlops-migration-checklist-by-scale.md` for transition gates, `dataset-split-leakage-controls-by-scale.md` for split-firewall evidence, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, `gpu-queueing-finops-by-scale.md` for compute economics, `secure-artifact-attestation-profile.md` for artifact trust-chain evidence, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -14,6 +14,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 |---|---|---|
 | Reproducibility | Whether a result can be rebuilt and compared | Prevents notebook results from becoming untraceable baselines |
 | Data quality and lineage | Whether training/eval data is complete, valid, and attributable | Prevents models from learning from mutable, leaked, or unsafe data |
+| Split and leakage integrity | Whether train, validation, test, replay, safety holdout, site holdout, and benchmark partitions remain independent | Prevents temporal, route, site, map, labeler, feature, synthetic, and federated leakage |
 | Feature and embedding store health | Whether feature materializations and vector indices are fresh, reproducible, governed, and traceable | Prevents point-in-time leakage, stale retrieval, and unsupported reuse of derived representations |
 | Label quality | Whether labels are correct, reviewed, and allowed for the intended use | Prevents auto-labels, map-derived labels, and prompt outputs from becoming false truth |
 | Model quality | Whether offline metrics, calibration, uncertainty, and slices support the claim | Prevents aggregate improvements from hiding class, site, or ODD regressions |
@@ -50,6 +51,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 |---|---|---|---|---|
 | Data ingestion | Manifest coverage | Percentage of samples with source path and split | Percentage of release datasets with raw lineage, calibration, map, schema, and access class | Evidence completeness and retention-hold coverage |
 | Data quality | Quality gate pass rate | Manual sample pass/fail | Schema, timestamp, calibration, duplicate, leakage, and slice coverage checks | Quality report tied to safety claims and legal/privacy state |
+| Split integrity | Split firewall health | Fixed split note and duplicate spot check | Immutable split manifest, group-key completeness, temporal gap, replay overlap, and map/tile leakage checks | Evidence-locked holdout access log, evaluation budget, waiver aging, and split-policy audit |
 | Feature/vector store | Freshness, leakage, recall, and deletion propagation | Manual rebuild note or local index manifest | Point-in-time join tests, online/offline parity, index build ID, golden-query recall, deletion propagation | Immutable feature/index snapshot, audit trace, stale-index blocker, safety-case link |
 | Labeling | Accepted-label yield | Manual acceptance rate | Accepted / submitted / rejected / reworked labels by class and site | Expert-review yield, vendor quality, audit-export completeness |
 | Auto-labeling | Reviewer correction rate | Candidate-label usefulness | Correction rate by class, ODD, labeler version, prompt pack, and map release state | Safety-slice false acceptance rate and promotion-state violations |
@@ -84,7 +86,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
 | Suspect feature or embedding snapshot | S2-S5 | Training, eval, replay, or safety evidence consumes a feature materialization or vector index whose source map, calibration, corpus, embedding model, deletion state, or backfill has been invalidated |
 | Unregistered offboard labeler | S2-S5 | Training labels, semantic maps, replay assertions, or safety evidence consume outputs from a labeler, prompt pack, evaluator, threshold set, or retrieval corpus without registry evidence |
-| Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
+| Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, site/local holdout, map tile, source-map session, feature/index corpus, labeler benchmark, synthetic source asset, or federated client holdout |
 | Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
 | Missing artifact attestation | S2-S5 | Model, ONNX/TensorRT engine, container, map layer, labeler/prompt pack, eval pack, or release packet lacks required digest-bound signature, SBOM, provenance, or policy result |
@@ -142,6 +144,7 @@ For airside, port, yard, campus, warehouse, and other non-road managed-site auto
 - false-free-space, missed personnel, FOD, aircraft-proximity, and protected-zone regression rates;
 - map/model/calibration/runtime compatibility completeness;
 - semantic-map label export eligibility and release-state leakage;
+- split manifest coverage for local holdouts, replay sets, source-map tiles, prompt/labeler batches, and evidence-locked safety holdouts;
 - trigger yield by safety, localization, perception, planning, weather, map change, and operator flag;
 - reviewer correction rate for map-derived labels, open-vocabulary labels, VLM labels, and FOD candidates;
 - rollback readiness for model, map, calibration, runtime, prompt pack, and semantic taxonomy changes;
@@ -170,6 +173,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `mlops-scale-research-scope.md` - scale ladder, lifecycle controls, and research backlog.
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
 - `mlops-migration-checklist-by-scale.md` - migration readiness gates, workstream matrix, and adoption evidence packets.
+- `dataset-split-leakage-controls-by-scale.md` - split-firewall KPIs, leakage modes, holdout controls, and split architecture tradeoffs.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, retrieval, threshold, and reviewer workflow controls.
@@ -191,6 +195,8 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - Microsoft Azure Architecture Center, "MLOps maturity model." https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model
 - AWS Solutions, "AWS MLOps Framework." https://docs.aws.amazon.com/solutions/latest/aws-mlops-framework/
 - MLflow, "Model Registry Workflows." https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
+- scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
+- TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
 - ISO/IEC 5259-5:2025, "Artificial intelligence - Data quality for analytics and machine learning (ML) - Part 5: Data quality governance framework." https://www.iso.org/standard/84150.html
 - NIST, "Artificial Intelligence Risk Management Framework." https://www.nist.gov/itl/ai-risk-management-framework
 - FinOps Foundation, "FinOps Framework." https://www.finops.org/framework/

@@ -4,7 +4,7 @@
 
 Map-derived pseudo-labels are high-leverage and high-risk. A reviewed semantic map can back-project millions of labels into single-scan training data, but every exported label inherits the source map, pose graph, calibration, taxonomy, release-state decision, cleaner policy, reviewer state, and projection code that produced it. If any upstream artifact is corrected, the derived labels may become stale or unsafe.
 
-This protocol defines when a map-derived pseudo-label batch must be quarantined, rebuilt, or permanently retired. It is the P0 control behind the `mlops-scale-research-scope.md` backlog item "Map-derived pseudo-label invalidation protocol."
+This protocol defines when a map-derived pseudo-label batch must be quarantined, rebuilt, or permanently retired. It is the P0 control behind the `mlops-scale-research-scope.md` backlog item "Map-derived pseudo-label invalidation protocol." Use `dataset-split-leakage-controls-by-scale.md` for the companion split-firewall policy that prevents map-derived labels from contaminating release evaluation, replay, or local holdouts.
 
 ---
 
@@ -93,7 +93,7 @@ The data catalog should store this as lineage, not as prose. At minimum, each ed
 | `release_state_schema` | Allowed release-state values and training permissions |
 | `calibration_id` | Sensor/camera/extrinsic/timing calibration used for projection |
 | `projection_code_hash` | Back-projection/materialization code and parameters |
-| `split_id` | Train/val/test/replay split membership and leakage checks |
+| `split_id` | Train/val/test/replay/local-holdout split membership, grouping keys, allowed use, and leakage checks |
 | `review_state` | Candidate, reviewed, QA-passed, waived, rejected, or expired |
 | `allowed_use` | Training positive, auxiliary task, evaluation, replay, review only, or blocked |
 | `invalidation_status` | Active, suspect, quarantined, rebuilt, reapproved, deprecated, or restricted |
@@ -133,6 +133,7 @@ At S2+, invalidation should fail closed: if impact cannot be proven, treat the b
 ## Related Pages
 
 - `mlops-scale-research-scope.md` - scale ladder and backlog.
+- `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage controls for map-derived labels, replay, local holdouts, and release evidence.
 - `data-flywheel-airside.md` - map-derived semantic label branch.
 - `model-governance-release-evidence.md` - release evidence and registry controls.
 - `../data-platform/data-catalog-lineage-quality-ops.md` - catalog states, lineage, and data quality.

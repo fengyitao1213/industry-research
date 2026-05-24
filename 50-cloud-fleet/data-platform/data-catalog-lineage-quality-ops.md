@@ -6,14 +6,14 @@
 
 Fleet data becomes useful only when engineers can answer three questions quickly: what does this dataset contain, where did it come from, and is it fit for the model or safety decision being made? A catalog without lineage is a search index. Lineage without quality checks is an audit trail for bad data. Quality checks without ownership decay into dashboards nobody trusts.
 
-This page covers operational controls for curated fleet data products: raw logs, processed events, labels, features, replay sets, training splits, and evaluation datasets. When a data product can affect release, the catalog entry should also point to the digest-bound attestation pattern in `../mlops/secure-artifact-attestation-profile.md`.
+This page covers operational controls for curated fleet data products: raw logs, processed events, labels, features, replay sets, training splits, and evaluation datasets. When a data product can affect release, the catalog entry should also point to the split-firewall pattern in `../mlops/dataset-split-leakage-controls-by-scale.md` and the digest-bound attestation pattern in `../mlops/secure-artifact-attestation-profile.md`.
 
 ## Operating Model
 
 1. Define data products with named owners: raw bag archive, normalized telemetry, object labels, scenario clips, model training tables, and evaluation tables.
 2. Store large analytical datasets in snapshot-capable tables. Use Apache Iceberg snapshots, schema evolution, partition evolution, and retention policies to preserve reproducibility without freezing all storage forever.
 3. Emit lineage events from each pipeline step. OpenLineage concepts of runs, jobs, datasets, and facets map cleanly to bag extraction, decoding, label import, feature generation, and training-set assembly.
-4. Attach quality rules to the catalog entry, not only to the pipeline code. Rules should cover completeness, timestamp monotonicity, frame drops, calibration presence, label validity, class balance, schema compatibility, and privacy filters.
+4. Attach quality rules to the catalog entry, not only to the pipeline code. Rules should cover completeness, timestamp monotonicity, frame drops, calibration presence, label validity, class balance, split integrity, leakage reports, schema compatibility, and privacy filters.
 5. Promote data by state: `raw`, `decoded`, `validated`, `curated`, `approved_for_training`, `approved_for_safety_evidence`, `deprecated`.
 6. Review quality exceptions weekly with data owners and release blockers daily during model-release windows.
 
@@ -50,6 +50,8 @@ For map-derived pseudo-labels, use `../mlops/map-derived-pseudo-label-invalidati
 
 For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-by-scale.md` as the store-selection and evidence pattern. Catalog entries should record feature definition IDs, event-time semantics, materialization snapshots, online/offline parity checks, embedding model, corpus snapshot, index build ID, metadata filters, deletion state, and golden-query recall before derived representations can support training, replay, active learning, or safety evidence.
 
+For dataset splits and holdouts, use `../mlops/dataset-split-leakage-controls-by-scale.md` as the split manifest and leakage-report pattern. Catalog entries should record the split ID, assignment unit, grouping keys, temporal cutoff, exclusion windows, held-out sites/routes/vehicles/map tiles, labeler or prompt scope, synthetic source assets, federated client scope, and leakage report before a data product is promoted to training, release evaluation, replay, or safety evidence.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |
@@ -67,6 +69,7 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 ## Acceptance Checks
 
 - Every training and evaluation dataset resolves to immutable source snapshots.
+- Every promoted training, evaluation, replay, local holdout, safety holdout, feature, embedding, or pseudo-label dataset resolves to a split manifest and leakage report appropriate to its MLOps scale.
 - Every derived dataset has machine-readable lineage back to raw logs, labels, and processing code.
 - Every release-affecting dataset, label batch, feature snapshot, embedding index, or replay pack has an immutable manifest digest and attestation link.
 - Quality checks run before promotion and store both pass/fail status and failure samples.
@@ -85,6 +88,7 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 | Dataset name reused for mutable contents | Model release cannot be reproduced | Require snapshot IDs in manifests |
 | Data product lacks digest-bound attestation | Registry or release gate cannot prove the dataset evaluated is the dataset deployed or reused | Attach manifest digest, lineage predicate, quality policy result, and allowed-use scope |
 | Pipeline lineage stops at a staging table | Root cause analysis cannot trace bad labels or corrupted logs | Emit lineage at every materialization boundary |
+| Split manifest is missing or incomplete | Training data, local holdout, replay, feature corpus, or safety evidence may overlap without detection | Require split IDs, grouping keys, allowed use, and leakage reports before promotion |
 | Quality checks live only in notebooks | Failures are not enforced in production | Move checks into scheduled pipeline gates |
 | Schema evolution breaks consumers | Training jobs silently drop or misread fields | Data contract review before schema promotion |
 | Semantic-map context stripped during joins | Replay or training data points to labels from the wrong map/taxonomy | Require manifest, compatibility hash, semantic layer, taxonomy, and tile IDs in catalog records |
@@ -98,6 +102,7 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 - `50-cloud-fleet/data-platform/perception-slam-fleet-data-contract.md`
 - `50-cloud-fleet/data-platform/data-engine-from-bags.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/secure-artifact-attestation-profile.md`
 - `50-cloud-fleet/data-governance/fleet-data-privacy-governance.md`
@@ -108,6 +113,8 @@ For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-
 
 - ISO/IEC 5259-5:2025, "Artificial intelligence - Data quality for analytics and machine learning (ML) - Part 5: Data quality governance framework." https://www.iso.org/standard/84150.html
 - OpenLineage object model. https://openlineage.io/docs/spec/object-model/
+- scikit-learn, "Common pitfalls and recommended practices: Data leakage." https://scikit-learn.org/stable/common_pitfalls.html
+- TensorFlow, "Get started with TensorFlow Data Validation." https://www.tensorflow.org/tfx/data_validation/get_started/
 - OpenLineage facets and data quality metrics facet. https://openlineage.io/docs/spec/facets/ and https://openlineage.io/docs/spec/facets/dataset-facets/data_quality_metrics/
 - OpenTelemetry telemetry schemas. https://opentelemetry.io/docs/specs/otel/schemas/
 - Apache Iceberg, "Spec." https://iceberg.apache.org/spec/

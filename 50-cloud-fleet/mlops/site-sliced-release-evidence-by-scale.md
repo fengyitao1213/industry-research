@@ -47,7 +47,7 @@ Small fleets can still require S4 controls when the release affects people, airc
 | Gate | What it proves | Required for |
 |---|---|---|
 | Data contract | The requested ODD cell is named with site, route, task, weather, vehicle, map, calibration, and taxonomy scope | S2+ |
-| Offline holdout | The candidate does not regress on independent local data | S1+ |
+| Offline holdout | The candidate does not regress on independent local data, with split lineage checked through `dataset-split-leakage-controls-by-scale.md` | S1+ |
 | Scenario replay | Known incidents, map-change cases, hazard classes, and required maneuvers still pass | S2+ |
 | Runtime package test | The exact deployable artifact loads and meets latency/memory/class-order constraints | S2+ |
 | Shadow mode | The candidate behaves acceptably on live inputs without control authority | S3+ |
@@ -71,7 +71,7 @@ The gates are cumulative. A canary does not replace replay; replay does not repl
 | `task_scope` | Driving, inspection, FOD detection, tug crossing, routing, labeling, map publication, advisory-only |
 | `environment_scope` | Weather, lighting, surface state, de-icing, jetblast, dust, GNSS state, construction |
 | `vehicle_scope` | Vehicle type, sensor kit, compute hardware, firmware, maintenance/calibration status |
-| `data_evidence` | Training snapshot, local holdout, leakage check, label QA, source-map acceptance if map-derived |
+| `data_evidence` | Training snapshot, split manifest, local holdout, leakage check, label QA, source-map acceptance if map-derived |
 | `evaluation_evidence` | Offline metrics, confidence intervals, replay suite, hazard-slice metrics, known failures |
 | `shadow_evidence` | Exposure hours, denominator, disagreement taxonomy, interventions, operator notes, trigger yield |
 | `canary_evidence` | Cohort, start/end time, exposure denominator, monitor thresholds, rollback triggers |
@@ -171,6 +171,7 @@ A segmentation model trained from Airport A map-derived labels may be a strong p
 
 - Every production or safety-affecting release has an ODD-cell manifest.
 - Aggregate metrics are accompanied by target site, route, weather, object, map-state, and vehicle-kit slices.
+- Training, local holdout, replay, source-map tile, and safety-holdout assignments have split IDs and leakage reports for the target ODD cell.
 - The release packet names the exact model/runtime/map/calibration/telemetry/taxonomy artifact set.
 - Replay scenarios include known incidents, local map changes, rare objects, protected people, and operating procedures for the target cell.
 - Shadow/canary evidence covers the same ODD cell requested for approval.
@@ -204,6 +205,7 @@ A segmentation model trained from Airport A map-derived labels may be a strong p
 - `model-governance-release-evidence.md` - registry aliases, release packets, approval, and rollback evidence.
 - `mlops-scorecards-and-kpis-by-scale.md` - release-blocking metrics and operating cadence.
 - `mlops-reference-architectures-by-scale.md` - S2-S5 release lanes and artifact interfaces.
+- `dataset-split-leakage-controls-by-scale.md` - split manifests, local holdout leakage controls, and training/evaluation split architectures.
 - `data-flywheel-airside.md` - active learning, local holdouts, shadow/canary validation, and data mining.
 - `../data-platform/replay-scenario-mining-ops.md` - scenario mining and replay package promotion.
 - `../ota/perception-slam-artifact-compatibility-matrix.md` - model/map/calibration/runtime compatibility.

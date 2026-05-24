@@ -6,12 +6,12 @@
 
 An autonomy model release is not just a better checkpoint. It is a controlled change to vehicle behavior, data assumptions, safety evidence, runtime compatibility, and rollback posture. The release system must prove which model version is approved, what data and tests support it, where it is allowed to run, and how the fleet can return to the previous safe version.
 
-Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, or the safety case; it is the MLOps evidence packet that those systems consume. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
+Use this page for model release evidence. It does not replace OTA controls, software supply-chain evidence, or the safety case; it is the MLOps evidence packet that those systems consume. Use `dataset-split-leakage-controls-by-scale.md` for the split manifest and leakage-report layer that proves release evaluation remained independent from training, tuning, pseudo-labeling, replay mining, feature building, and local holdouts. Use `secure-artifact-attestation-profile.md` for the digest-bound signing, SBOM, SLSA/in-toto provenance, and policy verification layer that proves the release packet refers to the exact trusted artifacts.
 
 ## Operating Model
 
 1. Register every deployable model in a model registry before release review. Use immutable model versions and mutable aliases such as `candidate`, `shadow`, `champion`, and `rollback` for deployment routing.
-2. Attach release metadata to the model version: training run ID, code commit, dataset snapshots, label schema, feature schema, calibration package, runtime container, hardware target, and ODD scope.
+2. Attach release metadata to the model version: training run ID, code commit, dataset snapshots, split manifest, leakage report, label schema, feature schema, calibration package, runtime container, hardware target, and ODD scope.
 3. Treat release approval as a claims-and-evidence review. The release claim states what improved, what did not regress, which ODD is covered, and which operational risk is being reduced. Use `site-sliced-release-evidence-by-scale.md` when the approval must be scoped by site, route, weather, task, map state, or vehicle kit.
 4. Require named approval from the model owner, data owner, runtime owner, safety owner, and fleet operations owner before moving the `champion` alias.
 5. Move through gates: offline metrics, scenario replay, shadow execution, limited canary, fleet expansion. Each gate either promotes, holds, or rejects the exact model version.
@@ -82,7 +82,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 |---|---|---|
 | Model registry record | Registered model, immutable version, aliases, tags, release notes | MLOps |
 | Training provenance | Run ID, code commit, dependency lock, training config, random seeds, hardware | Model owner |
-| Dataset manifest | Iceberg/DVC snapshot IDs, label schema, release-state label schema for map-derived data, excluded data, leakage checks | Data owner |
+| Dataset and split manifest | Iceberg/DVC snapshot IDs, split ID, grouping keys, allowed-use state, label schema, release-state label schema for map-derived data, excluded data, leakage checks | Data owner |
 | Feature or embedding snapshot | Feature definition IDs, event-time join proof, materialization snapshot, embedding model, corpus/index build, parity/recall checks, deletion state | Data platform |
 | Pseudo-label invalidation record | Batch ID, invalidation trigger, affected source map/calibration/taxonomy/release-state scope, downstream consumers, rebuild or waiver decision | Data owner |
 | Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
@@ -115,6 +115,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 
 - The model can be loaded by registry alias and by immutable version.
 - The model version has dataset, code, config, and runtime provenance sufficient to rebuild or explain the release.
+- The model version names the split manifest and leakage report for training, validation, release test, replay, local holdout, feature/embedding snapshots, and any map-derived pseudo-label batch it consumes.
 - Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
 - Any offboard labeler promoted beyond research has a registry record with model/prompt/retrieval/threshold/config identity, evaluation scope, allowed-use state, and rollback bundle.
 - Any map-derived pseudo-label batch has semantic class, confidence, release-state label, source-map acceptance ID, split ID, and reviewer state; non-`permanent_static` labels cannot appear as supervised static positives without an explicit auxiliary-task declaration.
@@ -138,6 +139,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 | Alias moved without evidence | Fleet runs a model that was not reviewed | Require signed release decision before alias mutation |
 | Metric-only approval | Model improves averages while regressing rare safety cases | Gate on scenario replay and ODD slices |
 | Dataset snapshot missing | Release cannot be reproduced or audited | Block release unless dataset IDs are immutable |
+| Dataset split or leakage report missing | Release metrics may use examples, map tiles, feature corpora, labeler outputs, or replay scenarios that influenced training | Require split manifest, grouping keys, leakage report, and allowed-use state before candidate review |
 | Map-derived labels lack release-state evidence | Model learns transient or quarantined map points as permanent static classes | Require release-state masks, source-map acceptance, split IDs, and pseudo-label batch invalidation controls |
 | Shadow evidence from a different ODD | Approval does not support target deployment | Tie evidence to airport, route, weather, and vehicle class |
 | Runtime incompatibility | Model passes offline tests but fails on vehicle | Validate TensorRT/ONNX/runtime bundle before canary |
@@ -153,6 +155,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
 - `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
+- `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/offboard-labeler-registry-by-scale.md`
