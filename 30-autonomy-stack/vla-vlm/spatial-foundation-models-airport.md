@@ -2,7 +2,7 @@
 
 ## Unifying Perception, Spatial Reasoning, and Manipulation for Airside GSE Operations
 
-**Last updated:** 2026-04-11
+**Last updated:** 2026-05-24
 
 ---
 
@@ -1803,6 +1803,21 @@ Phase 4 (Full Spatial Intelligence, +$20K, 6 weeks):
   + Value: generalized spatial intelligence across fleet
 ```
 
+### 8.5 Foundation-Model Ops Boundary
+
+Spatial foundation models introduce operational artifacts that classical perception pages often miss: task prompts, language-conditioned goals, adapter weights, retrieval snippets, synthetic scene generators, evaluator prompts, and teacher-model outputs. These artifacts need MLOps governance when they influence docking heads, FOD labels, scene QA, route restrictions, map updates, or safety-case evidence.
+
+| Artifact | Release control | Reason |
+|---|---|---|
+| Task prompt or language goal | Versioned prompt pack, expected output schema, negative examples | "Dock at the forward cargo door" must map to stable geometry, not changing prose |
+| Adapter or LoRA | Dataset snapshot, base-model ID, training config, evaluation slices | Low-rank updates can silently specialize a shared backbone to one airport |
+| Teacher output | Model/checkpoint ID, prompt, decoding config, accepted/rejected statistics | Distillation quality depends on the teacher's errors and abstentions |
+| Retrieval context | Corpus snapshot, embedding/index ID, access tier, stale-document rule | Airport SOPs and NOTAMs change; old text can become unsafe |
+| Tool policy | Read/write allowlist, human approval gate, timeout, rollback route | An agent must not mutate maps, tasks, or tickets outside a governed workflow |
+| Evaluation pack | Task-specific holdouts, spatial tolerances, human labels, judge-model calibration | Generic VQA scores do not prove centimeter docking or FOD characterization |
+
+The product rule is that a spatial foundation model can be a shared representation, teacher, candidate generator, or advisory policy before it is a safety authority. Final control and release truth stay with the classical controller, runtime assurance, map QA, and human-reviewed evidence until the specific bounded ODD has an approved safety case.
+
 ---
 
 ## 9. Implementation Roadmap
@@ -1965,3 +1980,10 @@ Phase 4 (Full Spatial Intelligence, +$20K, 6 weeks):
 
 - Sha, L., Rajkumar, R., & Lehoczky, J. "Priority Inheritance Protocols: An Approach to Real-Time Synchronization." *IEEE Transactions on Computers*, 1990. (Simplex architecture foundations)
 - Ames, A. D., Xu, X., Grizzle, J. W., & Tabuada, P. "Control Barrier Functions: Theory and Applications." *ECC*, 2019.
+
+### Operations and Governance
+
+- Google Cloud, "Prompt management." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes
+- Google Cloud, "Gen AI evaluation service overview." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview
+- Microsoft Learn, "Advance your maturity level for GenAIOps." https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2
+- NIST, "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile." https://www.nist.gov/itl/ai-risk-management-framework

@@ -139,6 +139,63 @@ Continuous training should be gated, not automatic. Data can be automatically mi
 
 ---
 
+## Foundation-Model, Prompt, and Agent Ops by Scale
+
+GenAIOps, LLMOps, VLMOps, and agent operations are not separate from MLOps. They add new artifacts to the same release discipline: prompts, system instructions, retrieval corpora, tool permissions, evaluator prompts, judge models, trace logs, human feedback, synthetic data generators, and foundation-model checkpoints. In autonomy, these artifacts can alter datasets, semantic maps, incident reports, operator recommendations, and safety evidence even when no runtime detector or planner checkpoint changes.
+
+| Scale | Typical foundation-model use | Minimum operational controls | Failure mode to prevent |
+|---|---|---|---|
+| S0 notebook research | Manual prompts against a cloud or local model for exploration | Prompt text in git, sample inputs/outputs, model name, date, data sensitivity note | A useful answer becomes tribal knowledge that cannot be reproduced |
+| S1 repeatable prototype | Prompt pack for captioning, QA, data search, or offline labeling | Versioned prompt set, frozen eval examples, deterministic decoding where possible, manual error log | Demo prompt becomes a hidden production dependency |
+| S2 single-product production | Offboard labeler, VLM scene reviewer, retrieval QA assistant, or model evaluator | Prompt registry, model/checkpoint ID, decoding config, retrieval corpus snapshot, tool allowlist, offline eval report, reviewer acceptance statistics | Foundation-model output changes labels, maps, or reports without release evidence |
+| S3 fleet and multi-site | Site-specific prompt packs, local terminology, VLM/VLA copilots, fleet-scale data triage | ODD/site prompt variants, local holdout evals, trace sampling, drift monitors, per-site reviewer correction rates, rollback to previous prompt/model bundle | One global prompt works in one airport or district but fails in another |
+| S4 regulated safety-critical | Advisory VLM/VLA reasoning, incident summarization, safety-case evidence generation | Human-in-the-loop approval, safety-case claim linkage, immutable traces, red-team and misuse evals, tool-permission review, prohibited-action policy | A probabilistic assistant is treated as certified decision logic |
+| S5 foundation-model/platform scale | Shared foundation-model platform across products and teams | Multi-tenant prompt/model/tool/eval registry, policy-as-code, cost controls, data-governance tiers, automated eval pipelines, audit API | Teams reuse ungoverned prompts, judge models, or retrieval data across unrelated products |
+
+The promotion rule is conservative: a foundation model may propose, summarize, review, rank, or explain, but it does not become release truth until the downstream artifact passes the normal data, model, map, and safety gates. A VLM-generated FOD label is a candidate until reviewer and QA evidence promote it. A judge-model score is a signal until calibrated against task-specific human labels. A retrieval-augmented answer is only as valid as the corpus snapshot, access policy, citation coverage, and evaluation suite recorded with it.
+
+### Artifact Registry for GenAIOps
+
+At S2 and above, the registry should track more than model weights:
+
+| Artifact | Required fields | Why it matters |
+|---|---|---|
+| Prompt pack | Prompt text, system instruction, variables, examples, version, owner, intended task | Prompts change behavior like code |
+| Model endpoint or checkpoint | Provider, model ID, checkpoint, quantization, hosted region, data-retention mode | Vendor/model updates can change outputs under the same API surface |
+| Decoding and safety config | Temperature, top-p, max tokens, refusal/safety filters, abstention rule | Non-deterministic settings change label and report stability |
+| Retrieval corpus | Document/data snapshot, embedding model, index build ID, access tier, expiry | RAG answers can drift when the corpus or embedder changes |
+| Tool and agent policy | Tool allowlist, read/write scope, planner depth, human approval gates, timeout | Tool-using agents can mutate tickets, labels, or manifests |
+| Evaluation pack | Golden examples, slice definitions, judge prompt/model, human labels, acceptance thresholds | LLM/VLM metrics are task-specific and need calibration |
+| Trace bundle | Input digest, output, citations, tool calls, latency, reviewer correction | Debugging and audit require full lineage, not only final text |
+
+### Evaluation Patterns
+
+Foundation-model evaluation needs multiple layers because exact-match accuracy rarely captures the operational risk:
+
+| Evaluation layer | What to measure | Autonomy example |
+|---|---|---|
+| Task correctness | Answer, label, or decision matches task-specific ground truth | VLM correctly identifies active pushback, FOD, stand closure, or staged GSE |
+| Grounding and citation | Claims are supported by sensor evidence, map evidence, NOTAM, or retrieved document | NOTAM route impact answer cites the active closure and affected taxiway segment |
+| Spatial consistency | Textual reasoning agrees with metric geometry and object tracks | "Loader is clear of aircraft" is checked against 3D clearance |
+| Calibration and abstention | Confidence aligns with correctness and the model abstains on ambiguous cases | Low-quality night image triggers `unknown_review`, not a false permanent label |
+| Robustness and adversarial behavior | Prompt injection, misleading signs, corrupted retrieval, ODD weather, rare objects | A malicious document cannot make the assistant approve an unsafe route |
+| Human review load | Reviewer correction rate, time saved, disagreement categories | Auto-labeler reduces annotation time without raising false static-map positives |
+| Regression across versions | Prompt/model/corpus update does not regress key slices | New prompt improves apron scenes but does not break terminal-frontage cases |
+
+Use model-as-judge only as an evaluated instrument. The judge prompt, judge model, calibration set, and disagreement rate against humans must be versioned. For safety-relevant releases, judge-model scores should route review, not replace the approval authority.
+
+### Autonomy-Specific Boundaries
+
+For airside and non-road urban mapping, foundation-model operations must respect these boundaries:
+
+- VLM/VLA copilots can advise, narrate, flag, or request a safety action, but direct vehicle control remains behind deterministic runtime assurance, Simplex, CBF, or planner safety gates.
+- Open-vocabulary labels from VLMs, SAM/SAM2, Grounding-DINO, CLIP, ZOPP, SALT, OpenUrban3D, or similar tools stay in `candidate_label` state until reviewer, taxonomy, source-map, and QA evidence promote them.
+- Foundation-model summarizers used for incidents or safety cases must preserve source links, scenario IDs, and evidence IDs; generated prose is not evidence by itself.
+- Site-specific terminology matters. Airport stands, aprons, terminal frontages, service yards, pedestrian plazas, industrial estates, and depot lanes can use the same object name for different operational states.
+- Privacy and data residency are deployment controls. Airside imagery, tail numbers, security staff positions, and customer operations data should not be sent to a cloud model unless the data-governance record explicitly allows it.
+
+---
+
 ## Scale Transition Triggers
 
 | Trigger | Indicates | Required upgrade |
@@ -221,3 +278,8 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - TensorFlow, "TFX: ML Production Pipelines." https://www.tensorflow.org/tfx
 - Feast, "Introduction." https://docs.feast.dev/
 - BentoML Documentation. https://docs.bentoml.com/
+- Google Cloud, "Prompt management." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes
+- Google Cloud, "Gen AI evaluation service overview." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview
+- Microsoft Learn, "Advance your maturity level for GenAIOps." https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2
+- AWS Machine Learning Blog, "FMOps/LLMOps: Operationalize generative AI and differences with MLOps." https://aws.amazon.com/blogs/machine-learning/fmops-llmops-operationalize-generative-ai-and-differences-with-mlops/
+- NIST, "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile." https://www.nist.gov/itl/ai-risk-management-framework

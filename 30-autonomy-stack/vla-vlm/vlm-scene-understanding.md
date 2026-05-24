@@ -2,7 +2,7 @@
 
 ## Beyond Action Prediction: VLMs for Reasoning, Anomaly Detection, and Safety Explanation
 
-**Last updated:** 2026-04-11
+**Last updated:** 2026-05-24
 
 ---
 
@@ -564,6 +564,28 @@ Airside operations may involve sensitive information:
 
 **Mitigation**: Run VLMs on-premise (on-vehicle or airport edge server). Do NOT send airside images to cloud APIs (GPT-4V, Gemini).
 
+### 10.4 VLMOps and Prompt Governance
+
+A VLM co-pilot is a governed ML system even when it is advisory. The deployable artifact is not only the model weight; it is the model/checkpoint, prompt pack, decoding policy, retrieval corpus, perception-context adapter, tool permissions, evaluation pack, and trace schema. A prompt update can change anomaly wording, risk thresholds, FOD classification, NOTAM interpretation, and operator trust, so prompt packs should move through the same candidate/shadow/champion discipline as perception models.
+
+| Artifact | Version at release | Gate before use |
+|---|---|---|
+| Scene prompt pack | System instruction, templates, few-shot examples, terminology dictionary | Replay against airside QA, anomaly, NOTAM, and incident-summary eval sets |
+| Context adapter | Object/track schema, map zone schema, unit conventions, uncertainty fields | Contract test against perception and map outputs so the VLM does not reason over stale fields |
+| Model/checkpoint | Base model, fine-tune, quantization, runtime image, hosted region | Latency, memory, privacy, and slice accuracy review |
+| Retrieval corpus | NOTAMs, SOPs, airport maps, safety manuals, glossary, index build | Citation coverage and stale-document rejection |
+| Tool policy | Allowed read APIs, alert APIs, ticketing APIs, write restrictions | Human approval for any state-changing action |
+| Trace schema | Input digest, prompt version, model version, retrieved evidence, output, reviewer action | Audit, incident replay, and rollback drill |
+
+The operational boundary should stay explicit:
+
+- VLM outputs may be advisory for narration, data curation, anomaly triage, and operator explanation.
+- VLM outputs may request conservative actions such as slow, stop, reroute, or call operator only through the existing runtime-assurance path.
+- VLM outputs should not directly mutate maps, labels, safety cases, incident records, or route approvals without a workflow gate and reviewer disposition.
+- VLM-generated labels or explanations should be stored as candidates with prompt/model provenance, not as ground truth.
+
+Evaluation needs to cover more than language quality. A production VLM should be tested for spatial consistency against LiDAR geometry, grounding against retrieved documents, hallucination/unsupported-claim rate, abstention behavior, rare-object slices, site-specific terminology, prompt-injection resistance, and regression across prompt/model/corpus versions.
+
 ---
 
 ## 11. Recommended Strategy for reference airside AV stack {#11-recommended-strategy}
@@ -632,3 +654,10 @@ Phase 4 (ongoing): Continuous improvement
 - **Reason2Drive**: Reasoning chain correctness measurement
 - **DRAMA**: Risk assessment QA dataset
 - "Automated Evaluation of Large Vision-Language Models on Self-Driving Corner Cases" (WACV 2025)
+
+### Operations and Governance
+
+- Google Cloud, "Prompt management" - [docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes)
+- Google Cloud, "Gen AI evaluation service overview" - [docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)
+- Microsoft Learn, "Advance your maturity level for GenAIOps" - [learn.microsoft.com](https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2)
+- NIST, "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile" - [nist.gov](https://www.nist.gov/itl/ai-risk-management-framework)

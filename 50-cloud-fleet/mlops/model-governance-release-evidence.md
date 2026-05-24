@@ -47,6 +47,22 @@ For airside autonomy, model governance should usually reach S2 before the first 
 | Safety case link | Claim IDs supported by this release and evidence IDs attached to each claim | Safety owner |
 | Release decision record | Approvers, residual risks, rollout plan, rollback trigger, expiry date | Release manager |
 
+## Foundation-Model and Prompt Evidence
+
+Foundation-model artifacts need release evidence when they influence labels, maps, operator guidance, incident reports, safety-case drafts, or model evaluation. The question is not whether the model runs online. The question is whether its output can change a released artifact or an operational decision.
+
+| Artifact | Evidence required before promotion | Release boundary |
+|---|---|---|
+| Prompt pack | Prompt text, system instruction, variables, few-shot examples, prompt owner, intended task, change log | May generate candidates only until tied to an approved evaluation pack |
+| Foundation-model endpoint or checkpoint | Provider, model ID, checkpoint or API version, hosted region, data-retention mode, quantization | Provider updates require regression review when output affects evidence |
+| Decoding and safety policy | Temperature, top-p, max tokens, refusal policy, abstention/unknown policy, content filters | Non-deterministic settings must not be used for release labels without stability evidence |
+| Retrieval corpus | Corpus snapshot, embedding model, index ID, access policy, expiry, citation coverage | RAG outputs are invalid if the corpus or index cannot be reconstructed |
+| Tool-using agent policy | Tool allowlist, read/write permissions, planner depth, timeout, human approval gates | Agents cannot mutate maps, labels, manifests, tickets, or approvals without an explicit workflow gate |
+| Judge/evaluator model | Judge prompt, judge model, calibration set, human-disagreement rate, slice thresholds | Judge scores route review; they do not replace release approval in S4 contexts |
+| Trace bundle | Input digest, output, citations, tool calls, latency, reviewer correction, final disposition | Audit and rollback require the full chain, not only the accepted answer |
+
+For semantic-map pipelines, the strict boundary is `candidate_label -> review_label -> qa_label -> release_label`. VLMs, VLA teachers, open-vocabulary segmenters, prompt-driven labelers, and LLM reviewers can accelerate the first two states, but the release packet must still prove taxonomy action, source-map acceptance, calibration/projection hash, reviewer disposition, QA metrics, and rollback impact. A generated natural-language explanation is supporting context, not a substitute for geometric, scenario, or safety evidence.
+
 ## Acceptance Checks
 
 - The model can be loaded by registry alias and by immutable version.
@@ -92,6 +108,9 @@ For airside autonomy, model governance should usually reach S2 before the first 
 - ZOPP, "A Framework of Zero-shot Offboard Panoptic Perception for Autonomous Driving." https://arxiv.org/abs/2411.05311
 - SALT, "A Flexible Semi-Automatic Labeling Tool for General LiDAR Point Clouds with Cross-Scene Adaptability and 4D Consistency." https://arxiv.org/abs/2503.23980
 - OpenUrban3D, "Annotation-Free Open-Vocabulary Semantic Segmentation of Large-Scale Urban Point Clouds." https://arxiv.org/abs/2509.10842
+- Google Cloud, "Prompt management." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/prompt-classes
+- Google Cloud, "Gen AI evaluation service overview." https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview
+- Microsoft Learn, "Advance your maturity level for GenAIOps." https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/concept-llmops-maturity?view=azureml-api-2
 - Waymo, "Safe to Deploy: How We Know The Waymo Driver Is Ready For The Road," 2025-06. https://waymo.com/blog/2025/06/safe-to-deploy/
 - Waymo, "Building a credible case for safety: Waymo's approach for the determination of absence of unreasonable risk." https://waymo.com/research/building-a-credible-case-for-safety-waymos-appro/
 - Regulation (EU) 2024/1689, Artificial Intelligence Act, Articles 10-12 and Annex IV. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689
