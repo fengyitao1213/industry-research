@@ -13,7 +13,7 @@ method-priority:end -->
 
 Related docs: [Potentially Dynamic Object Map Policy](../maps/potentially-dynamic-object-map-policy.md) · [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md) · [LiDAR Map Cleaning and Dynamic Removal](lidar-map-cleaning-dynamic-removal.md) · [ERASOR](erasor.md) · [Removert](removert.md) · [Raymoval](raymoval.md) · [FreeDOM](freedom-dynamic-object-removal.md) · [MapCleaner](mapcleaner.md) · [BeautyMap](beautymap.md) · [Aggregated-Map Semantic Segmentation](../../perception/overview/aggregated-map-semantic-segmentation.md) · [Map Construction Pipeline](../maps/map-construction-pipeline.md)
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-24
 
 ---
 
@@ -86,6 +86,21 @@ The safe contract is:
 
 This is especially important for airside and industrial yards. A chock, tool, cone, cable, or dropped debris item might be small and removable, but it is also safety-relevant. It should not be erased by a generic movable-object cleaner.
 
+### Rejected-Object Evidence Sidecar
+
+A production implementation should emit a rejected-object sidecar for every detection-driven exclusion or projection. That sidecar is the single-survey counterpart to the static-transient release-state matrix.
+
+| Field | Reason |
+|---|---|
+| `object_id`, `frame_ids`, `tile_ids`, `source_point_digest` | Reconstructs the exact points that were excluded or projected |
+| `detector_model_id`, `weights_digest`, `class_id`, `class_confidence`, `box_digest` | Makes detector evidence reproducible and debuggable |
+| `ground_model_id`, `ground_quality_flag`, `projection_method`, `projected_point_digest` | Separates synthetic ground continuity from original observed geometry |
+| `policy_action` | One of `project_to_ground`, `exclude`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, or `unknown_review` |
+| `reason_code` | Explains the decision, e.g. `movable_asset_quarantine`, `human_exclusion`, `small_ground_unknown`, or `zone_policy_override` |
+| `review_state`, `waiver_id`, `source_map_acceptance_package_id` | Links the object to publication decisions and source-map acceptance |
+
+The semantic-map manifest should reference aggregate digests derived from these sidecars through `outputs.map_hygiene_layer_digests`. Without the sidecar, the system can show that points disappeared, but not whether they disappeared because they were a person, a belt loader, FOD, a detector false positive, or weak ground projection.
+
 ## Class Policy
 
 | Class family | Default action in static-map build | Reason |
@@ -147,6 +162,7 @@ The segmentation model then sees a cleaner static candidate map, while the publi
 4. Separate static-map projection from runtime occupancy. A projected ground patch is useful for map continuity, but it is not proof that the area is clear now.
 5. Validate on object footprints and behind-object infrastructure. The cleaner must preserve fixed poles, walls, signs, curb edges, jet-bridge geometry, terminal edges, and other static anchors near parked movable objects.
 6. Use multi-session version control as a backstop. Detector-based removal is strongest before the second pass exists; PD/ND lifecycle evidence is stronger after repeated surveys.
+7. Export rejected-object sidecars into the source-map acceptance package and semantic-map hygiene layers. If a detection-based projection is not traceable, publication should treat it as a waiver, not as clean evidence.
 
 ## Validation Gates
 
@@ -158,6 +174,7 @@ The segmentation model then sees a cleaner static candidate map, while the publi
 | Hazard retention | FOD-like or unknown objects are retained in review/hazard outputs. |
 | Localization regression | Scan-to-map localization error does not worsen after removal. |
 | Evidence audit | Every removed/projected cluster can be traced to detector, ground model, and frame IDs. |
+| Hygiene-layer digest | Rejected/projected objects appear in the semantic-map movable-static, static-transient, FOD-candidate, artifact, or unknown-review layer digests. |
 | Domain-slice test | Night, rain, glare, sparse returns, dense clutter, and non-road classes have separate metrics. |
 
 ## Sources

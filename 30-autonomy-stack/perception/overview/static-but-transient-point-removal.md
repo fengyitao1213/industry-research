@@ -370,6 +370,24 @@ Static-but-transient handling needs policy gates in addition to model prediction
 
 For map publication, the release artifact should expose the gate that decided each non-permanent point: `dynamic_residual`, `human_exclusion`, `movable_static`, `zone_quarantine`, `fod_candidate`, `artifact`, or `static_wrong_demotion`. This makes later QA tractable: a reviewer can ask "why was this cluster removed?" or "why did this stationary object not become permanent?" without replaying the entire pipeline.
 
+### Release-State Decision Matrix
+
+The release decision should be deterministic and auditable. Treat semantic class, detector output, persistence, future absence, zone policy, asset registry, and reviewer disposition as separate inputs to a rule table that emits one map-hygiene layer plus one reason code.
+
+| Evidence pattern | Release layer | Reason code | Publication rule |
+|---|---|---|---|
+| Human/person class, thermal human cue, reviewer human label | `static_transient` | `human_exclusion` | Never publish as permanent; retain rejected evidence for privacy/safety audit |
+| Movable class or detector box: GSE, aircraft, vehicle, pallet, container, trailer, bicycle, cart | `movable_static` | `movable_asset_quarantine` | Do not publish in base map; optional low-weight localization context only |
+| Small unknown ground cluster on apron, road, walkway, dock, utility corridor, or warehouse aisle | `fod_candidate` | `small_ground_unknown` | Route to hazard/review workflow; never erase as noise or promote by one survey |
+| Rain/snow speckle, multipath, scan shadow, registration duplicate, impossible height/intensity combination | `artifact` | `sensor_or_registration_artifact` | Exclude from semantic map and count against source-map conditioning quality |
+| Object inside construction, gate, loading-bay, event, storage, or temporary-work polygon | `static_transient` or `movable_static` | `zone_policy_override` | Require operations/reviewer disposition before any promotion |
+| Class is permanent infrastructure and observed in K of N passes within the zone window | `permanent_static` | `persistence_confirmed` | Publish only if MapEval/source-map and semantic-confidence gates also pass |
+| Previously permanent point has repeated future free-space contradiction | `unknown_review` or `static_transient` | `static_wrong_demotion` | Demote through change control; do not hard-delete from history |
+| Asset exists in authoritative fixed-asset registry and geometry matches | `permanent_static` | `asset_registry_confirmed` | Publish after reviewer or automated asset-match evidence is recorded |
+| Open-vocabulary or low-confidence candidate with no policy match | `unknown_review` | `taxonomy_or_confidence_gap` | Queue active learning/reviewer task; do not fold into nearest permanent class |
+
+The matrix output should be materialized as layer digests in the semantic-map manifest: permanent-static, movable-static, static-transient, dynamic-residual, FOD-candidate, artifact, and unknown-review. The same point can carry a semantic class and a hygiene decision, but publication consumes the hygiene layer. This is what prevents a semantically correct `person`, `parked aircraft`, `pallet`, or `cone` from becoming wrong permanent geometry.
+
 ### Multi-Pass Survey Protocol
 
 Practical parameters derived from LT-Mapper, ELite, and HD-map update literature:
@@ -571,6 +589,7 @@ The clean permanent layer then consists only of truly permanent, repeatedly conf
 - The semantic transient class list must be versioned alongside the map. If the class list changes between surveys, re-process the affected voxels against the new list before computing K-of-N statistics.
 - TTL policies per class should be set conservatively (shorter) initially and lengthened based on operational data. It is easier to re-observe a true permanent structure after a conservative quarantine than to retroactively identify and remove a baked-in transient from a production localization map.
 - For the auto-label flywheel: only the permanent layer should be used as pseudo-ground-truth for training downstream segmentation or detection models. The transient and FOD-candidate layers must be excluded from any auto-labeling pipeline that generates training data. Including transient-layer points as training labels for a permanent-class detector poisons future model iterations. See [Aggregated-Map Semantic Segmentation §10](aggregated-map-semantic-segmentation.md) for the post-processing context in which the permanent layer feeds back into the training loop.
+- Emit the release-state decision matrix outputs as map-hygiene layer digests, not as comments in a QA report. The publication gate and auto-label export need machine-readable permanent-static, movable-static, static-transient, FOD-candidate, artifact, and unknown-review layers.
 - Khronos-style change timing estimation (uniform probability between last-absence and first-observation timestamps) is useful for reconstructing when an object appeared or disappeared, which can feed operational analytics on GSE staging patterns.
 - When the semantic transient filter disagrees with the K-of-N persistence rule (e.g., an object with class = vehicle has K = 5/5 consistent observations), always default to the semantic class rule: K-of-N can be fooled by a permanently-staged piece of GSE that operationally never moves, but the semantic class correctly characterizes it as non-permanent infrastructure. Human operator review is warranted for any voxel where the two signals disagree after N ≥ 5 passes.
 - The distinction between "transient-candidate" and "confirmed-transient" in the three-class pipeline matters for operational use: transient-candidate points can still contribute as soft constraints in localization (e.g., in a factor graph with low confidence weight); confirmed-transient points should be actively suppressed from localization to avoid misleading the pose estimator with stale geometry.
@@ -590,6 +609,7 @@ The clean permanent layer then consists only of truly permanent, repeatedly conf
 | Auto-label training data degrading over successive model generations | Transient-layer points leaking into auto-labeling pipeline | Enforce strict layer separation in the auto-label pipeline; audit label source at model training time |
 | K-of-N parameters from road AV practice applied directly to airside | GSE staging patterns on aprons change on hours timescale, not days; road AV T = 14 days is far too long for apron zones | Set T = 48 hours for apron GSE areas; calibrate empirically from operational GSE movement records |
 | New construction persists in permanent layer for months | T_perm (time to graduate new structure to permanent) set too short; construction equipment present consistently across passes within the window | Use transient-zone layer from NOTAM/permit data; do not rely solely on geometric persistence for construction zones |
+| Reviewer cannot explain why a cluster was excluded or published | Removal pipeline outputs only a binary keep/remove mask; no reason code or hygiene layer was persisted | Use the release-state decision matrix and require reason-coded map-hygiene layer digests in the semantic-map manifest |
 
 ---
 

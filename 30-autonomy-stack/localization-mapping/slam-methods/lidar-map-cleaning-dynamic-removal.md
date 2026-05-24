@@ -111,6 +111,8 @@ The cleaning output should not be a binary "kept vs removed" point cloud. A rele
 
 This matrix is deliberately conservative about promotion. Dynamic residual removal is an *evidence-removal* problem; static-but-transient handling is a *map-governance* problem. The first can be solved within a survey pass by ERASOR/FreeDOM/BeautyMap/Raymoval-style evidence; the second needs semantic policy, multi-session history, or operator authority.
 
+For release packaging, route the matrix through the reason-coded decision table in [Static-But-Transient Point Removal](../../perception/overview/static-but-transient-point-removal.md): every non-permanent point should land in `dynamic_residual`, `movable_static`, `static_transient`, `fod_candidate`, `artifact`, or `unknown_review` with a reason code. A binary cleaned cloud is insufficient for semantic-map publication because it cannot explain whether a removed point was a moving ghost, a stationary person, a parked aircraft, a FOD candidate, or an artifact.
+
 ---
 
 ## Method Families — Detailed
