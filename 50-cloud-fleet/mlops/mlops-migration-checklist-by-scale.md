@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-24
 
-This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, serving platform, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, and ODD-cell canaries, use `serving-inference-operations-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
+This page converts the S0-S5 MLOps scale model into migration gates. Use it when a team asks whether to add a tracker, registry, serving platform, orchestration platform, evaluation service, feature store, GPU scheduler, policy engine, release board, platform SRE owner, or platform team. The answer should follow artifact authority and operational risk, not tool ambition. For registry identity, aliases, lifecycle states, artifact-set membership, and rollback retention, use `model-registry-artifact-lifecycle-by-scale.md`. For batch inference, online endpoints, edge runtime packages, service manifests, traffic splits, autoscaling, and ODD-cell canaries, use `serving-inference-operations-by-scale.md`. For platform service criticality, SLOs, error budgets, backup/restore, DR, incident lanes, tenant isolation, and bypass controls, use `platform-sre-reliability-by-scale.md`. For orchestrator selection and workflow-state design, use `pipeline-orchestration-release-workflows-by-scale.md`; for metric specs, evaluation manifests, replay gates, runtime package checks, and shared evaluation-service SLOs, use `evaluation-platform-replay-gates-by-scale.md`.
 
 The core rule is: **contract first, platform second.** A team should not buy or build S5 infrastructure to compensate for missing S1 reproducibility, and it should not ship S2 production models without release evidence just because training is automated.
 
@@ -185,6 +185,7 @@ Exit criteria are cumulative. S3 does not remove S2 release packets; it adds sit
 | Policy engine | Manual gates miss required fields or many teams share release paths | Requirements are still changing daily |
 | Attestation service | Artifacts cross release, runtime, OTA, map, or safety boundaries | Checksums are enough for local prototype |
 | Eval service | Multiple teams duplicate replay/eval infrastructure, release candidates need ODD-cell manifests, or replay/runtime/shadow evidence must be policy-checked | One product has a small local script and no release authority |
+| Platform SRE | Registry/eval/serving/orchestration outages can block release, rollback, incident response, or audit reconstruction | Services are research-only and have no release authority |
 | Platform team | Shared services need SLOs and support | Tool ownership is still part-time and local |
 
 ---
@@ -256,6 +257,7 @@ The migration is not complete when the tool is installed. It is complete when a 
 - `experiment-tracking-reproducibility-by-scale.md` - run authority states, reproducibility levels, manifest fields, and tracker architecture tradeoffs.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry records, alias authority, lifecycle states, artifact-set membership, and rollback retention.
 - `serving-inference-operations-by-scale.md` - serving modes, service manifests, platform selection, traffic routing, autoscaling, ODD-cell canary, and rollback controls.
+- `platform-sre-reliability-by-scale.md` - platform service criticality, SLOs, error budgets, backup/restore, DR, tenant isolation, and incident lanes.
 - `pipeline-orchestration-release-workflows-by-scale.md` - orchestrator choices, workflow state machines, artifact handoff contracts, and release/evidence gates.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and platform service SLOs.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
@@ -295,4 +297,6 @@ The migration is not complete when the tool is installed. It is complete when a 
 - NVIDIA, "NVIDIA Triton Inference Server Architecture." https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/architecture.html
 - KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
 - Microsoft Learn, "Online endpoints for real-time inference." https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints-online
+- Google SRE, "Service Level Objectives." https://sre.google/sre-book/service-level-objectives/
+- Microsoft Learn, "Azure Well-Architected Framework." https://learn.microsoft.com/en-us/azure/well-architected/
 - SLSA specification v1.2. https://slsa.dev/spec/latest/

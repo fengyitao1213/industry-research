@@ -213,6 +213,7 @@ For aggregated-map semantic segmentation and ML-related SLAM, monitoring should 
 - `mlops-reference-architectures-by-scale.md` - S0-S5 architecture patterns and monitoring interfaces.
 - `mlops-migration-checklist-by-scale.md` - migration gates and adoption evidence packets.
 - `serving-inference-operations-by-scale.md` - serving telemetry, service manifests, traffic policy, endpoint readiness, autoscaling, and rollback hooks.
+- `platform-sre-reliability-by-scale.md` - monitoring pipeline SLOs, alert-quality budgets, incident lanes, restore evidence, and platform bypass controls.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage controls for monitoring-derived datasets.
 - `model-governance-release-evidence.md` - release packet, rollback, and incident evidence.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and local holdout gates.

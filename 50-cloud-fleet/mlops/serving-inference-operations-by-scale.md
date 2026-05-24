@@ -4,7 +4,7 @@
 
 Serving is the operational boundary where a trained model, map labeler, evaluator, or foundation-model tool becomes an accountable production system. In MLOps, serving is not only an HTTP endpoint. It includes batch inference, offline map segmentation, shadow mode, canary rollout, on-vehicle runtime packages, cloud endpoints, multi-model servers, model-mesh platforms, traffic mirroring, autoscaling, rollback, and the telemetry that proves the served artifact is the artifact that was evaluated.
 
-Use this page with `mlops-scale-research-scope.md` for maturity, `model-registry-artifact-lifecycle-by-scale.md` for aliases and artifact identity, `evaluation-platform-replay-gates-by-scale.md` for runtime-package and replay gates, `site-sliced-release-evidence-by-scale.md` for ODD-cell rollout evidence, `model-monitoring-drift-response-by-scale.md` for telemetry and incident actions, `secure-artifact-attestation-profile.md` for signatures and provenance, and `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` for vehicle-side TensorRT/Triton details.
+Use this page with `mlops-scale-research-scope.md` for maturity, `model-registry-artifact-lifecycle-by-scale.md` for aliases and artifact identity, `evaluation-platform-replay-gates-by-scale.md` for runtime-package and replay gates, `platform-sre-reliability-by-scale.md` for endpoint SLOs, error budgets, restore drills, incident lanes, and bypass controls, `site-sliced-release-evidence-by-scale.md` for ODD-cell rollout evidence, `model-monitoring-drift-response-by-scale.md` for telemetry and incident actions, `secure-artifact-attestation-profile.md` for signatures and provenance, and `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` for vehicle-side TensorRT/Triton details.
 
 The core rule is: **serving authority must be scoped, observable, and reversible.** A served model is release-relevant only for the scope named in its registry alias, deployment manifest, input contract, runtime package, monitor policy, and rollback bundle.
 
@@ -267,6 +267,7 @@ Serving KPIs should be interpreted with risk. Reducing p99 by removing safety ch
 - `mlops-scorecards-and-kpis-by-scale.md` - serving, runtime, release, and platform KPIs.
 - `model-registry-artifact-lifecycle-by-scale.md` - aliases, lifecycle states, artifact-set records, and rollback retention.
 - `evaluation-platform-replay-gates-by-scale.md` - runtime package checks, replay gates, and shadow/canary evidence.
+- `platform-sre-reliability-by-scale.md` - endpoint and serving-platform SLOs, error budgets, backup/restore, incident lanes, and bypass controls.
 - `model-monitoring-drift-response-by-scale.md` - monitoring event contract and response state machine.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and canary denominators.
 - `pipeline-orchestration-release-workflows-by-scale.md` - export, package, register, deploy, and release state machines.

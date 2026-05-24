@@ -184,6 +184,7 @@ The platform team owns the measurement system at S5, but product teams own wheth
 - `mlops-scale-research-scope.md` - MLOps maturity ladder and GPU FinOps scope.
 - `mlops-reference-architectures-by-scale.md` - platform architecture and centralization triggers.
 - `mlops-scorecards-and-kpis-by-scale.md` - cost, platform, and release-blocking metrics.
+- `platform-sre-reliability-by-scale.md` - platform SLOs, incident lanes, reserved capacity, restore evidence, and bypass controls.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release evidence and local holdouts.
 - `data-flywheel-airside.md` - auto-labeling, active learning, retraining, and scenario mining workloads.
 - `../data-platform/cloud-backend-infrastructure.md` - Kubernetes backend, processing jobs, and cost model.

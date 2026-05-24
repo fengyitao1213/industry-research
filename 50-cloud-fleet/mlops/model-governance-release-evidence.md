@@ -166,6 +166,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `50-cloud-fleet/mlops/mlops-migration-checklist-by-scale.md`
 - `50-cloud-fleet/mlops/model-registry-artifact-lifecycle-by-scale.md`
 - `50-cloud-fleet/mlops/serving-inference-operations-by-scale.md`
+- `50-cloud-fleet/mlops/platform-sre-reliability-by-scale.md`
 - `50-cloud-fleet/mlops/dataset-split-leakage-controls-by-scale.md`
 - `50-cloud-fleet/mlops/experiment-tracking-reproducibility-by-scale.md`
 - `50-cloud-fleet/mlops/pipeline-orchestration-release-workflows-by-scale.md`

@@ -37,7 +37,7 @@ When severity is uncertain, classify high, stabilize, and downgrade only after e
 
 ## MLOps Incident Response by Scale
 
-Model, map, calibration, prompt, monitoring, and data-pipeline failures are operational incidents when they can change vehicle behavior, release evidence, or safety-case assumptions. The MLOps scale ladder defines how much containment authority and evidence discipline is required. Use `../mlops/model-monitoring-drift-response-by-scale.md` to route drift, delayed-label, replay, canary, and suppression signals into incident actions instead of automatic retraining or dashboard-only alerts.
+Model, map, calibration, prompt, monitoring, and data-pipeline failures are operational incidents when they can change vehicle behavior, release evidence, or safety-case assumptions. The MLOps scale ladder defines how much containment authority and evidence discipline is required. Use `../mlops/model-monitoring-drift-response-by-scale.md` to route drift, delayed-label, replay, canary, and suppression signals into incident actions instead of automatic retraining or dashboard-only alerts. Use `../mlops/platform-sre-reliability-by-scale.md` when the incident is in the MLOps control plane itself: registry, evaluation, serving, orchestration, attestation, monitoring, audit logs, backup/restore, or tenant isolation.
 
 | MLOps scale | Typical incident trigger | First containment action | Evidence to preserve |
 |---|---|---|---|
@@ -122,6 +122,7 @@ Post-incident reviews should cover detection, mitigation, communication, evidenc
 
 - `50-cloud-fleet/observability/fleet-anomaly-root-cause-attribution.md`
 - `50-cloud-fleet/mlops/model-monitoring-drift-response-by-scale.md`
+- `50-cloud-fleet/mlops/platform-sre-reliability-by-scale.md`
 - `50-cloud-fleet/fleet-management/fleet-management-dispatch.md`
 - `50-cloud-fleet/ota/ota-fleet-management.md`
 - `40-runtime-systems/data-logging/on-vehicle-data-triage-selective-upload.md`

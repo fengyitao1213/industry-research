@@ -201,6 +201,7 @@ The registry is therefore also a map and label governance system. It must preven
 - `model-governance-release-evidence.md` - claims-and-evidence release packets and approval ownership.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests and replay/runtime gates before alias movement.
 - `serving-inference-operations-by-scale.md` - serving manifests, traffic policy, endpoint readiness, autoscaling, ODD-cell rollout, and rollback.
+- `platform-sre-reliability-by-scale.md` - registry SLOs, alias audit durability, backup/restore, DR, tenant isolation, and platform incident controls.
 - `secure-artifact-attestation-profile.md` - signing, SBOM, provenance, and policy verification.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow states that produce and promote artifacts.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests and site-scoped aliases.

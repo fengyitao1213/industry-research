@@ -208,6 +208,7 @@ This metadata can begin as a checked manifest and later move into a registry or 
 - `mlops-reference-architectures-by-scale.md` - where artifact trust belongs in S0-S5 architectures.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry identity, alias authority, lifecycle states, and rollback retention for signed artifacts.
 - `serving-inference-operations-by-scale.md` - serving manifests, endpoint/batch/edge traffic policy, package parity, endpoint security, and rollback verification.
+- `platform-sre-reliability-by-scale.md` - attestation/signing service SLOs, key recovery, backup/restore, incident response, and audit durability.
 - `mlops-scorecards-and-kpis-by-scale.md` - attestation metrics and release blockers.
 - `model-governance-release-evidence.md` - release packets, aliases, and rollback evidence.
 - `offboard-labeler-registry-by-scale.md` - labeler, prompt, evaluator, and retrieval artifacts.

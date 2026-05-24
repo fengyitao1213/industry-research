@@ -4,7 +4,7 @@
 
 Pipeline orchestration is where MLOps discipline becomes enforceable. A workflow engine can run preprocessing, labeling, training, evaluation, export, replay, packaging, attestation, and deployment tasks, but the important design question is not "which orchestrator should we buy?" It is which state transitions must be automated, which must be gated, which artifacts must be immutable, and which failures should block release.
 
-Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `model-registry-artifact-lifecycle-by-scale.md` for registry lifecycle and alias authority, `serving-inference-operations-by-scale.md` for serving manifests, package/export readiness, endpoint traffic policy, canary rollout, autoscaling, and rollback load paths, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifests and replay/runtime/shadow evidence, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
+Use this page with `mlops-scale-research-scope.md` for maturity, `experiment-tracking-reproducibility-by-scale.md` for run manifests, `model-registry-artifact-lifecycle-by-scale.md` for registry lifecycle and alias authority, `serving-inference-operations-by-scale.md` for serving manifests, package/export readiness, endpoint traffic policy, canary rollout, autoscaling, and rollback load paths, `platform-sre-reliability-by-scale.md` for workflow SLOs, incident lanes, restore evidence, and platform bypass controls, `evaluation-platform-replay-gates-by-scale.md` for evaluation manifests and replay/runtime/shadow evidence, `dataset-split-leakage-controls-by-scale.md` for split gates, `model-governance-release-evidence.md` for release packets, `secure-artifact-attestation-profile.md` for trust-chain gates, and `gpu-queueing-finops-by-scale.md` for workload routing.
 
 The core rule is simple: orchestration may produce evidence automatically, but it must not silently create release authority. A green DAG can create a candidate. It cannot move a model, semantic map, labeler, prompt pack, or runtime artifact into production without the required evidence and approval state.
 
@@ -256,6 +256,7 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - `experiment-tracking-reproducibility-by-scale.md` - run authority, reproducibility levels, and run manifest contract.
 - `model-registry-artifact-lifecycle-by-scale.md` - registry records, alias authority, lifecycle states, artifact-set membership, and rollback retention.
 - `serving-inference-operations-by-scale.md` - serving manifest, endpoint/batch/edge rollout policy, autoscaling, telemetry, and rollback.
+- `platform-sre-reliability-by-scale.md` - workflow service SLOs, error budgets, incident lanes, backup/restore, and platform bypass controls.
 - `mlops-scorecards-and-kpis-by-scale.md` - scorecards and release-blocking metrics.
 - `evaluation-platform-replay-gates-by-scale.md` - evaluation manifests, metric specs, replay gates, runtime package checks, shadow/canary evidence, and evaluation-service SLOs.
 - `dataset-split-leakage-controls-by-scale.md` - split manifests and leakage reports.
@@ -276,6 +277,7 @@ At S5, platform SLOs should include workflow start latency, median/95th task run
 - TensorFlow, "Getting Started with TensorFlow Model Analysis." https://www.tensorflow.org/tfx/model_analysis/get_started
 - KServe, "Serving Runtime." https://kserve.github.io/website/docs/concepts/resources/servingruntime
 - Seldon, "Seldon Core 2 Architecture." https://docs.seldon.ai/seldon-core-2/v2.9/about/architecture
+- Google SRE, "Service Level Objectives." https://sre.google/sre-book/service-level-objectives/
 - GitHub Docs, "Workflows." https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows
 - DVC, "Pipelines." https://doc.dvc.org/user-guide/pipelines
 - Ray, "Ray Train: Scalable Model Training." https://docs.ray.io/en/latest/train/train.html

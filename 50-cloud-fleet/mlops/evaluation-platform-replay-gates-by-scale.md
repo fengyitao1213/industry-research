@@ -243,6 +243,7 @@ At S5, platform scorecards should measure adoption and bypass attempts, but prod
 - `experiment-tracking-reproducibility-by-scale.md` - run authority and reproducibility inputs to evaluation.
 - `pipeline-orchestration-release-workflows-by-scale.md` - workflow state machine for build/eval/release separation.
 - `serving-inference-operations-by-scale.md` - serving manifests, endpoint readiness, traffic routing, autoscaling, package parity, and rollback checks.
+- `platform-sre-reliability-by-scale.md` - evaluation-service SLOs, error budgets, replay capacity, incident lanes, backup/restore, and platform bypass controls.
 - `dataset-split-leakage-controls-by-scale.md` - split firewall and leakage controls for release evaluation.
 - `model-monitoring-drift-response-by-scale.md` - monitoring, delayed-label, replay, and incident response inputs.
 - `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests and local release decisions.
