@@ -2,7 +2,7 @@
 
 ## Causal Discovery, Shapley Attribution, Bayesian Diagnosis, and Streaming Analytics for Autonomous GSE Fleets
 
-**Last updated:** 2026-04-11
+**Last updated:** 2026-05-24
 
 ---
 
@@ -69,7 +69,22 @@ Every fleet anomaly traces to one or more of eight root cause categories. These 
 | 7 | **Operator behavior change** | Intervention pattern shift without vehicle anomaly | Gradual (new operators) or step (policy change) | 4-48 hours |
 | 8 | **Software bug** | Deterministic failure on specific input pattern | Step change (code deployment) | 2-24 hours |
 
-### 1.3 Why Manual Triage Does Not Scale Past 20 Vehicles
+### 1.3 MLOps Observability by Scale
+
+Fleet anomaly attribution should mature with MLOps scale. At S0-S1 the goal is to explain experiment failures. At S3-S4 the same analysis determines whether a model, map, calibration, site, ODD cell, or fleet cohort must be quarantined.
+
+| MLOps scale | Observability question | Attribution method | Required action |
+|---|---|---|---|
+| S0 notebook research | Did this run fail because of data, code, or metric setup? | Manual sample review, run-note comparison, simple metric plots | Mark result exploratory/non-comparable |
+| S1 repeatable prototype | Why did the baseline change? | Dataset snapshot diff, config diff, confidence interval, failure examples | Freeze baseline until rerun is explained |
+| S2 production product | Did a candidate or package regress one workflow? | Release packet comparison, replay/shadow deltas, artifact-version join | Hold candidate or roll back alias |
+| S3 fleet and multi-site | Which site, vehicle, route, weather band, map tile, model, or calibration caused the spike? | Hierarchical anomaly detection, cohort comparison, Shapley attribution, blast-radius query | Quarantine affected ODD cell and open active-learning/replay tasks |
+| S4 regulated safety-critical | Does the anomaly invalidate a safety-case claim or require reporting? | Incident-linked causal analysis, monitor activation review, Bayesian diagnosis, evidence freeze | Safety review, reportability assessment, rollback or ODD restriction |
+| S5 platform scale | Did a shared service, evaluator, registry, feature store, or policy affect multiple products? | Tenant-aware causal graph, policy/audit log correlation, platform SLO analysis | Disable or fix shared capability and notify affected owners |
+
+The attribution system should always emit an evidence artifact, not only a dashboard. Minimum fields are anomaly ID, affected cohorts, active artifacts, candidate root causes, confidence, evidence links, owner, mitigation, downstream data-mining tasks, and whether release gates or safety-case claims changed.
+
+### 1.4 Why Manual Triage Does Not Scale Past 20 Vehicles
 
 Manual root-cause analysis follows a predictable workflow that breaks at fleet scale:
 

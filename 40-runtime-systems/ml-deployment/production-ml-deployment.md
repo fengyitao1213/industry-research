@@ -266,6 +266,20 @@ The monitoring burden grows with deployment risk. At S0-S1, monitoring is mostly
 
 Do not let monitoring become an automatic retraining switch. For autonomy, monitoring should create evidence: a candidate data batch, a regression scenario, a rollback trigger, or a safety-case update. Training remains gated by dataset lineage, evaluation, shadow/canary evidence, and release approval.
 
+### Drift Evidence Contract by Scale
+
+Drift alerts are only useful when they route to the correct next artifact. The monitoring system should therefore emit structured evidence, not only graphs.
+
+| MLOps scale | Drift evidence | Next artifact |
+|---|---|---|
+| S0-S1 | Example frames, failed plots, run/config notes | Experiment correction or baseline rerun |
+| S2 | Input schema drift, confidence drift, delayed-label sample, shadow disagreement | Release-ticket hold, label batch, or replay case |
+| S3 | Site/route/weather/object slice drift, artifact compatibility, fleet denominator | ODD-cell canary block, active-learning task, local holdout update |
+| S4 | Safety monitor activation, incident linkage, waiver/suppression audit, rollback proof | Safety-case update, reportability assessment, emergency rollback |
+| S5 | Tenant/model SLO breach, platform policy decision, alert quality and cost impact | Platform control change, scorecard update, shared service incident |
+
+At S3+, every drift event should include active model, map, calibration, runtime, telemetry schema, site, route, ODD, and vehicle cohort IDs. Without those identifiers the fleet cannot distinguish a model problem from a sensor, map, site, operator, or weather problem.
+
 ### Autonomous Vehicle-Specific Drift Sources
 
 - **Seasonal changes**: Snow, rain, lighting conditions shift input distributions

@@ -2,7 +2,7 @@
 
 ## Detecting Silent ML Degradation, Input/Output Anomaly Detection, Cross-Modal Consistency, and Automated Graceful Degradation for Airport Airside Autonomous GSE
 
-**Last updated:** 2026-04-11
+**Last updated:** 2026-05-24
 
 ---
 
@@ -90,7 +90,22 @@ This document fills the gap: **online perception quality monitoring** that detec
 | **Uncertainty quantification** (`uncertainty-quantification-calibration.md`) | Per-prediction confidence | MC-Dropout, evidential, conformal | Provides per-detection uncertainty; this aggregates into system-level health |
 | **This document** | ML perception quality | Input/output statistics, cross-modal consistency, OOD scores, calibration drift | Continuous trustworthiness assessment of the perception pipeline as a whole |
 
-### 1.4 Threat Model for Perception Degradation
+### 1.4 MLOps Scale Handoff
+
+Online monitoring is an MLOps control when it feeds release gates, rollback triggers, active-learning queues, replay suites, and safety evidence. The same Perception Health Score can be a research diagnostic at S1 and an ODD-enforcement input at S4.
+
+| MLOps scale | Runtime monitoring posture | Data product emitted | Operational response |
+|---|---|---|---|
+| S0 notebook research | Offline plots and sampled failure frames | Failure examples and metric notes | Improve experiment setup |
+| S1 repeatable prototype | Replay/offline monitor run against a fixed validation set | Baseline drift report | Mark baseline changed or non-comparable |
+| S2 production product | Shadow or batch monitor over a controlled workflow | Candidate health report with input/output drift, OOD, and calibration summaries | Hold release or queue labels/replay before canary |
+| S3 fleet and multi-site | Per-site, route, weather, vehicle, map, and calibration monitoring | ODD-cell health event with active artifact IDs and exposure denominator | Slow/stop affected cohort, mine data, and update local holdouts |
+| S4 regulated safety-critical | Monitor outputs tied to safety case, incident response, and ODD enforcement | Evidence packet with thresholds, monitor version, suppression/waiver state, and rollback link | Enforce degraded mode, ODD restriction, or safety review |
+| S5 platform scale | Shared model-observability service across products | Standard telemetry schema, model SLO, tenant owner, policy decision, and cost/alert-quality metrics | Platform policy blocks silent monitors and unmanaged suppressions |
+
+Monitoring thresholds must be release artifacts. If a threshold, aggregation window, ODD binning policy, or suppression rule changes, the release packet should record the model/map/calibration/runtime versions it applies to and whether prior evidence remains valid.
+
+### 1.5 Threat Model for Perception Degradation
 
 We categorize perception degradation by onset speed and scope:
 

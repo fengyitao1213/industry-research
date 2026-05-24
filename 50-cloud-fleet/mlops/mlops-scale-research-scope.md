@@ -240,6 +240,21 @@ Monitoring must separate system health from model quality:
 
 Continuous training should be gated, not automatic. Data can be automatically mined and queued; release still needs reproducible training, validation, shadow/canary evidence, and rollback.
 
+### 7.1 Observability Response by Scale
+
+Monitoring is valuable only when it creates a controlled response. At higher scale, an alert must name the affected artifact set and the evidence state it changes.
+
+| MLOps scale | Observability scope | Response product | Failure mode to block |
+|---|---|---|---|
+| S0 notebook research | Training curves, sample outputs, obvious data defects | Run note or rejected result | Interesting failure disappears in a notebook |
+| S1 repeatable prototype | Baseline metrics, reproducible validation, smoke runtime | Baseline drift report | Comparing models on changed data or code |
+| S2 production product | Candidate health, package load, shadow disagreement, delayed labels | Release-ticket hold, label batch, replay case, rollback alias check | Monitoring finds issues but does not block promotion |
+| S3 fleet and multi-site | Per-site and per-ODD drift, intervention correlation, artifact compatibility | ODD-cell quarantine, active-learning queue, local holdout update | Global dashboard hides local regression |
+| S4 regulated safety-critical | Safety monitor activations, incident joins, waiver/suppression audit, rollback proof | Safety-case delta, reportability decision, emergency rollback package | Suppression hides safety evidence |
+| S5 platform scale | Shared model SLOs, telemetry schema conformance, tenant ownership, alert quality, cost | Platform policy decision, scorecard, shared-service incident | Teams run bespoke silent monitors |
+
+The observability schema should therefore carry both ML fields and autonomy fields: model version, prompt/evaluator version if relevant, dataset lineage, map package, semantic layer, calibration, runtime container, telemetry schema, site, route, ODD cell, vehicle hardware, and release channel.
+
 ---
 
 ## Foundation-Model, Prompt, and Agent Ops by Scale
