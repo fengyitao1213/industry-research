@@ -17,6 +17,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 | Label quality | Whether labels are correct, reviewed, and allowed for the intended use | Prevents auto-labels, map-derived labels, and prompt outputs from becoming false truth |
 | Model quality | Whether offline metrics, calibration, uncertainty, and slices support the claim | Prevents aggregate improvements from hiding class, site, or ODD regressions |
 | Runtime quality | Whether the deployable artifact meets latency, memory, determinism, and compatibility needs | Prevents a model that passes offline tests from failing on vehicle hardware |
+| Artifact compatibility | Whether model, map, calibration, runtime, telemetry, semantic taxonomy, labeler, prompt, and replay artifacts are mutually valid | Prevents release from activating an artifact set that was never evaluated together |
 | Release reliability | Whether candidate, shadow, canary, champion, and rollback transitions are controlled | Prevents training completion from becoming deployment approval |
 | Observability and incident response | Whether anomalies become evidence-backed action | Prevents dashboards from replacing mitigation, rollback, or learning loops |
 | Governance and compliance | Whether approvals, evidence, retention, and policy states are auditable | Prevents release claims from failing during incident review or audit |
@@ -54,6 +55,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 | Calibration | ECE / reliability / abstention | Diagnostic plot | Threshold selection and unknown routing | Conformal or calibrated coverage evidence where required |
 | Evaluation | Replay pass rate | Small smoke replay | Incident, rare-class, and map-change replay packages | Scenario catalog coverage, waiver expiry, and residual-risk record |
 | Runtime | Package load and latency | Smoke test | p50/p95/p99 latency, memory, queue time, TensorRT/ONNX compatibility | Hardware cohort SLO, deterministic replay, degradation policy |
+| Compatibility | Artifact-set compatibility | Manual note of model/map/calibration assumptions | Compatibility manifest with hash over model, map, calibration, runtime, telemetry, taxonomy, and rollback | Policy-enforced manifest with safety-case links, expiry, and incident retention |
 | Deployment | Promotion lead time | Time from result to baseline | Time from candidate to shadow/canary/champion with evidence | Time from claim approval to controlled rollout with audit trail |
 | Release reliability | Change failure rate | Regression count | Candidate hold/reject/rollback rate by cause | Safety-relevant change failure and corrective-action closure |
 | Monitoring | Alert actionability | Failure notes become issues | Alerts produce label batch, replay case, rollback check, or ODD quarantine | Alert suppression audit, reportability, safety-case delta |
@@ -75,6 +77,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
+| Compatibility manifest mismatch | S2-S5 | Model, map, calibration, runtime, semantic taxonomy, prompt/labeler, telemetry schema, or replay pack differs from the evaluated artifact set |
 | Target ODD slice regression | S3-S5 | Aggregate score improves but target site, night, rain, stand-entry, FOD, or personnel slice regresses |
 | Safety monitor regression | S4-S5 | New model increases false-free-space, protected-zone violation, unsafe speed, or intervention correlation |
 | Rollback not executable | S2-S5 | Previous model cannot load under active runtime, schema, calibration, or map package |
@@ -157,6 +160,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - runtime monitoring and promotion evidence.
 - `../../40-runtime-systems/ml-deployment/perception-slam-runtime-interface-contract.md` - runtime telemetry and interface gates.
 - `../data-platform/data-catalog-lineage-quality-ops.md` - data product quality, lineage, and promotion states.
+- `../ota/perception-slam-artifact-compatibility-matrix.md` - artifact-set compatibility and activation gates.
 
 ## Sources
 

@@ -1,12 +1,27 @@
 # Perception-SLAM Artifact Compatibility Matrix
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-05-24
 
 ## Purpose
 
 Perception-SLAM releases are not single artifacts. A safe runtime combination includes code, containers, models, TensorRT engines, maps, calibration, route/geofence overlays, parameters, diagnostics configuration, and cloud-side observability schemas. This matrix defines what must be compatible before an artifact can be activated on a vehicle or promoted through OTA rings.
 
 The operating rule is simple: compatibility is proven by a signed manifest and validation evidence, not inferred from file names or "latest" labels.
+
+## MLOps Scale Fit
+
+Compatibility evidence should grow with MLOps authority. A research checkpoint can be compared with a run note; a production fleet artifact needs a signed compatibility manifest that joins model, map, calibration, runtime, semantic taxonomy, telemetry schema, evidence, and rollback.
+
+| MLOps scale | Compatibility posture | Required compatibility artifact | What must not happen |
+|---|---|---|---|
+| S0 notebook research | Local comparison only | Run note naming code, data, model, and map/calibration assumptions | Result reused without recording incompatible inputs |
+| S1 repeatable prototype | Baseline reproducibility | Dataset and environment manifest plus fixed validation script | Baseline silently changes due to data, schema, or preprocessing drift |
+| S2 single-product production | Deployable artifact set | Model package manifest, dataset manifest, runtime package test, rollback target | Candidate model reaches shadow/canary with untested map, class order, calibration, or engine |
+| S3 fleet and multi-site | Site/ODD compatibility | Per-site rollout manifest with active model/map/calibration/runtime/telemetry IDs and canary evidence | One global artifact set activates across sites with different maps, sensor kits, or ODDs |
+| S4 regulated safety-critical | Evidence-locked compatibility | Signed compatibility manifest linked to safety-case claims, replay packs, incident retention, and rollback drill | Behavior authority changes while compatibility evidence is ticket-only, expired, or mutable |
+| S5 platform scale | Policy-enforced compatibility | Policy-as-code checks over registry, map, calibration, prompt/evaluator, telemetry, feature/embedding, and deployment services | Shared platform permits a tenant to bypass compatibility or reuse unsupported artifacts |
+
+This is the OTA/SUMS counterpart to `../mlops/mlops-reference-architectures-by-scale.md` and `../mlops/mlops-scorecards-and-kpis-by-scale.md`: architecture defines where artifacts live, the scorecard defines what blocks release, and this matrix defines whether the artifact set can safely activate.
 
 ## Compatibility Axes
 
@@ -37,6 +52,8 @@ The operating rule is simple: compatibility is proven by a signed manifest and v
 | Runtime config | Code/model/map version set, ODD, monitor thresholds, release ring | Threshold differs from validation without approval | Config schema validation, safety impact record |
 | Diagnostics graph | Node names, diagnostic producers, operation modes, latch policy | Missing critical node or changed severity semantics | Diagnostic graph test and alert routing proof |
 | Observability schema | On-vehicle telemetry, cloud pipeline, dashboards, alert rules | Breaking schema without dashboard migration | Schema version, migration test, sample event replay |
+| Offboard labeler / prompt pack | Label schema, prompt/model/checkpoint, retrieval corpus, projection/calibration hash, reviewer workflow | Labeler output can change datasets, semantic maps, and release evidence without runtime model changes | Labeler registry record, accepted/rejected statistics, reviewer QA, rollback impact |
+| Evaluation/replay pack | Scenario IDs, map/runtime compatibility hash, expected metrics, waiver state | A model can be approved against stale or incompatible replay evidence | Replay package manifest, deterministic replay evidence, evidence expiry check |
 
 ## Manifest Fields
 
@@ -53,6 +70,8 @@ Use the checked JSON Schema contracts as the narrow machine-readable surface for
 | `activation_preconditions` | Parked/mission-complete state, battery, network, operator acknowledgement if required |
 | `rollback_set` | Previous compatible artifact set and cache state |
 | `evidence_ids` | CI, replay, calibration, map QA, safety-case, security, and canary evidence |
+| `mlops_scale` | S0-S5 authority level for the artifact set, because the required evidence and approvers differ by scale |
+| `labeler_artifacts` | Offboard labeler, prompt, evaluator, retrieval, and candidate-label bundle IDs when any of them affected training, semantic maps, or release evidence |
 | `expiry` | Maximum activation window and sunset date for temporary overlays/configs |
 | `signatures` | Uptane/TUF metadata signatures plus build provenance attestations |
 
@@ -90,6 +109,9 @@ UNECE R156 and ISO 24089 are road-vehicle software-update references, but the SU
 - `50-cloud-fleet/ota/ota-fleet-management.md`
 - `40-runtime-systems/software-operations/on-vehicle-supply-chain-runtime-security.md`
 - `40-runtime-systems/ml-deployment/production-ml-deployment.md`
+- `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
+- `50-cloud-fleet/mlops/mlops-scorecards-and-kpis-by-scale.md`
+- `50-cloud-fleet/mlops/model-governance-release-evidence.md`
 - `50-cloud-fleet/observability/slam-timing-health-dashboard.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`
 

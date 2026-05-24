@@ -69,6 +69,7 @@ These interfaces should exist before the platform becomes large. They can begin 
 | Dataset manifest | dataset ID, raw sources, split ID, label schema, release-state label schema, access class, retention class, quality report | training, evaluation, privacy, safety case |
 | Training run manifest | code commit, dependency lock, config, seed, hardware class, dataset snapshot, augmentation policy, output model hash | model registry, experiment tracking, reproducibility review |
 | Model package manifest | model version, ONNX/TensorRT/container hashes, class order, calibration dependencies, map/schema compatibility, hardware target | runtime deployment, OTA/SUMS, rollback |
+| Compatibility manifest | model, map, calibration, runtime, telemetry, semantic taxonomy, labeler/prompt/evaluator dependencies, MLOps scale, rollback set | OTA/SUMS, release review, safety case, incident response |
 | Evaluation report | metric version, aggregate and slice metrics, confidence intervals, replay package IDs, known failures, waiver state | release review, safety validation, monitoring thresholds |
 | Deployment manifest | model alias, runtime container, map bundle, calibration package, vehicle/site/ODD scope, rollout cohort, rollback artifact | fleet deployment, operations, incident response |
 | Monitoring event schema | model/map/calibration/runtime IDs, site, route, ODD cell, input quality, output quality, latency, intervention/disagreement fields | fleet observability, active learning, incident triage |

@@ -88,6 +88,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
 | Safety case link | Claim IDs supported by this release and evidence IDs attached to each claim | Safety owner |
+| Compatibility manifest | Active model/map/calibration/runtime/telemetry/semantic-taxonomy artifact set, compatibility hash, MLOps scale, rollback set, labeler/prompt/evaluator dependencies | Release manager |
 | Release decision record | Approvers, residual risks, rollout plan, rollback trigger, expiry date | Release manager |
 
 ## Foundation-Model and Prompt Evidence
@@ -116,6 +117,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
 - The release packet states which previous model version is the rollback target and verifies runtime compatibility.
+- The release packet includes the compatibility manifest when the model depends on a specific map, calibration package, runtime container, semantic taxonomy, prompt/labeler, telemetry schema, or replay package.
 - The deployment decision references the relevant safety case claims and technical documentation record.
 
 ## Failure Modes
