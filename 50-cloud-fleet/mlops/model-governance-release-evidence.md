@@ -12,7 +12,7 @@ Use this page for model release evidence. It does not replace OTA controls, soft
 
 1. Register every deployable model in a model registry before release review. Use immutable model versions and mutable aliases such as `candidate`, `shadow`, `champion`, and `rollback` for deployment routing.
 2. Attach release metadata to the model version: training run ID, code commit, dataset snapshots, label schema, feature schema, calibration package, runtime container, hardware target, and ODD scope.
-3. Treat release approval as a claims-and-evidence review. The release claim states what improved, what did not regress, which ODD is covered, and which operational risk is being reduced.
+3. Treat release approval as a claims-and-evidence review. The release claim states what improved, what did not regress, which ODD is covered, and which operational risk is being reduced. Use `site-sliced-release-evidence-by-scale.md` when the approval must be scoped by site, route, weather, task, map state, or vehicle kit.
 4. Require named approval from the model owner, data owner, runtime owner, safety owner, and fleet operations owner before moving the `champion` alias.
 5. Move through gates: offline metrics, scenario replay, shadow execution, limited canary, fleet expansion. Each gate either promotes, holds, or rejects the exact model version.
 6. Keep rollback executable. The rollback model must be compatible with the active runtime, map schema, calibration schema, and config bundle.
@@ -89,6 +89,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Evaluation report | Primary metrics, calibration, uncertainty, class slices, airport and weather slices | Model owner |
 | Scenario replay report | Required scenario suite, new mined scenarios, failures, waivers | Safety validation |
 | Shadow-mode report | Disagreement with champion, intervention correlation, latency and resource use | Fleet operations |
+| Site-sliced release record | ODD-cell manifest, local holdout, shadow/canary exposure, delayed-label review, rollout decision, expiry, waiver state | Release manager |
 | Safety case link | Claim IDs supported by this release and evidence IDs attached to each claim | Safety owner |
 | Compatibility manifest | Active model/map/calibration/runtime/telemetry/semantic-taxonomy artifact set, compatibility hash, MLOps scale, rollback set, labeler/prompt/evaluator dependencies | Release manager |
 | Release decision record | Approvers, residual risks, rollout plan, rollback trigger, expiry date | Release manager |
@@ -120,6 +121,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
+- Site-sliced release evidence is present before expanding a model to a new site, route, task, vehicle kit, weather band, or map release state.
 - The release packet states which previous model version is the rollback target and verifies runtime compatibility.
 - The release packet includes the compatibility manifest when the model depends on a specific map, calibration package, runtime container, semantic taxonomy, prompt/labeler, telemetry schema, or replay package.
 - The deployment decision references the relevant safety case claims and technical documentation record.
@@ -144,6 +146,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
 - `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
+- `50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`
 - `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`

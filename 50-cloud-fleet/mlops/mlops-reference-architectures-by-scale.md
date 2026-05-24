@@ -170,7 +170,7 @@ Architectures scale cleanly when each migration preserves the old interface. For
 For a 5-20 vehicle airside, port, yard, campus, or warehouse deployment, the practical target is **S2-S3 with selective S4 gates**:
 
 - S2 for deployable perception, map-segmentation, labeler, and runtime packages.
-- S3 for site-sliced data mining, active learning, canary by ODD cell, and fleet observability.
+- S3 for site-sliced data mining, active learning, canary by ODD cell, fleet observability, and `site-sliced-release-evidence-by-scale.md` release manifests.
 - S4 for releases that affect aircraft/personnel proximity, false-free-space, FOD, map publication, semantic-map training exports, or regulatory evidence.
 - S5 only for shared foundation-model tooling, cross-product data catalogs, large GPU scheduling, or multi-team platform services once reuse pressure is real.
 
@@ -197,6 +197,7 @@ The minimum architecture should therefore include registry-backed release packet
 
 - `mlops-scale-research-scope.md` - scale ladder and lifecycle controls.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
+- `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, and rollout state machine.
 - `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.

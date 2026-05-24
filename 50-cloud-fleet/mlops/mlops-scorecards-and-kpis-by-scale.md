@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `site-sliced-release-evidence-by-scale.md` for ODD-cell release blockers, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -79,6 +79,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
 | Suspect feature or embedding snapshot | S2-S5 | Training, eval, replay, or safety evidence consumes a feature materialization or vector index whose source map, calibration, corpus, embedding model, deletion state, or backfill has been invalidated |
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
+| Missing ODD-cell release manifest | S3-S5 | Candidate expands to a new site, route, task, vehicle kit, weather band, or map state without site-sliced evidence |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
 | Compatibility manifest mismatch | S2-S5 | Model, map, calibration, runtime, semantic taxonomy, prompt/labeler, telemetry schema, or replay pack differs from the evaluated artifact set |
 | Target ODD slice regression | S3-S5 | Aggregate score improves but target site, night, rain, stand-entry, FOD, or personnel slice regresses |
@@ -157,6 +158,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 
 - `mlops-scale-research-scope.md` - scale ladder, lifecycle controls, and research backlog.
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
+- `site-sliced-release-evidence-by-scale.md` - ODD-cell manifests, local holdouts, shadow/canary gates, and release-state approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.

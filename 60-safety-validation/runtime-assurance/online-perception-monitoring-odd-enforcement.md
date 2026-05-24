@@ -105,6 +105,8 @@ Online monitoring is an MLOps control when it feeds release gates, rollback trig
 
 Monitoring thresholds must be release artifacts. If a threshold, aggregation window, ODD binning policy, or suppression rule changes, the release packet should record the model/map/calibration/runtime versions it applies to and whether prior evidence remains valid.
 
+For S3-S5 releases, runtime monitor bins should align with the ODD-cell release manifest in `../../50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`. A perception health score that is acceptable globally can still block a local canary if the target cell is night stand entry, terminal frontage, de-icing operations, a changed map tile, or a vehicle kit with different sensor coverage.
+
 ### 1.5 Threat Model for Perception Degradation
 
 We categorize perception degradation by onset speed and scope:

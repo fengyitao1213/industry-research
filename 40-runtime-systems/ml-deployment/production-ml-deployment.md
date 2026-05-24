@@ -54,6 +54,8 @@ Runtime promotion should be the last step in an evidence ladder, not a direct co
 
 At S3+, do not promote by fleet percentage alone. Promote by ODD cell: airport, terminal zone, vehicle type, sensor kit, weather/lighting band, map release state, and operational task. A low-percentage canary that only covers easy daytime service roads does not validate night operations, stand entry, jetblast zones, or crowded baggage areas.
 
+The companion MLOps page `../../50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md` defines the ODD-cell release manifest that should feed this runtime gate. Runtime canary dashboards should use that manifest as the denominator: the model is not "in canary"; it is in canary for a named site, route/task, vehicle kit, map/calibration state, weather band, release channel, and rollback target.
+
 ---
 
 ## 1. TensorRT Production Deployment

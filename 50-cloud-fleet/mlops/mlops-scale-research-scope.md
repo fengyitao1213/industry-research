@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention. Use `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention. Use `site-sliced-release-evidence-by-scale.md` for ODD-cell release manifests and `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot.
 
 ---
 
@@ -440,7 +440,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 |---|---|---|
 | P0 | Unified model/data/map/calibration compatibility manifest | Prevents a model from deploying against the wrong semantic map, calibration, or runtime container |
 | P0 | Map-derived pseudo-label invalidation protocol (`map-derived-pseudo-label-invalidation-protocol.md`) | Handles source-map corrections without contaminating future training sets |
-| P0 | Site-sliced model release evidence | Avoids approving a model for every airport or managed site from one aggregate score |
+| P0 | Site-sliced model release evidence (`site-sliced-release-evidence-by-scale.md`) | Avoids approving a model for every airport or managed site from one aggregate score |
 | P1 | GPU cost and queueing model for training and replay | Determines when to move from rented GPUs to owned or reserved capacity |
 | P1 | Offboard labeler registry | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
 | P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
@@ -458,6 +458,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
+- `site-sliced-release-evidence-by-scale.md` - ODD-cell release manifests, local holdouts, shadow/canary gates, and site-scope approvals.
 - `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.

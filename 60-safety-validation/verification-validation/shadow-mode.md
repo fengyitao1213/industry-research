@@ -102,6 +102,8 @@ Across all implementations, the common architectural elements are:
 | Data Upload Pipeline | Selected edge cases uploaded for model retraining |
 | Graduated Promotion | Shadow → supervised → primary, based on accumulated evidence |
 
+For fleet releases, shadow-mode evidence must be scoped to the same ODD cell requested for promotion. The site-sliced release guide (`../../50-cloud-fleet/mlops/site-sliced-release-evidence-by-scale.md`) defines the manifest fields for site, route, weather, task, map state, vehicle kit, artifact set, exposure denominator, and rollback target; aggregate shadow disagreement is not enough to approve a local autonomous canary.
+
 ---
 
 ## 2. ROS / ROS 2 Implementation
