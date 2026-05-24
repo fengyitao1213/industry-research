@@ -238,6 +238,8 @@ The baseline. Each point carries `(x, y, z, intensity)` and, after aggregation, 
 
 LiDAR-only is the most robust choice: it is illumination-invariant, needs no camera calibration, and the map already exists in metric 3D. It is the recommended default for airside (LiDAR-primary stack).
 
+Reusable derived features such as density, normals, local covariance statistics, visibility counts, map-hygiene flags, and image-teacher embeddings should be treated as governed data products when they feed multiple training runs or scenario-mining jobs. The MLOps handoff is `../../../50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`: early projects can keep these fields inside the semantic-map training-export manifest, while fleet/platform-scale programs need snapshot IDs, point-in-time semantics, source-map invalidation, and vector-index evidence for retrieval-based active learning.
+
 ### 4.2 Colorized Point Cloud (LiDAR Geometry + Projected RGB)
 
 The aggregated map is colorized by projecting camera imagery onto each point using known extrinsics and per-frame poses; each point gains `(r, g, b)`. The segmentation network then ingests `(x,y,z,intensity,r,g,b)` and runs as a standard RGB point-cloud segmenter.

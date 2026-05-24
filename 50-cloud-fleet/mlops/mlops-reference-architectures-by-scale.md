@@ -6,7 +6,7 @@ This page turns the MLOps scale ladder into concrete architecture choices. Use i
 
 The architecture should grow by contract first, platform second. A small team can run on scripts, manifests, and a lightweight tracker if the artifact boundaries are disciplined. A large platform still fails if it centralizes dashboards while leaving labels, dataset snapshots, registry aliases, evaluation packs, and rollback evidence ambiguous.
 
-Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale.
+Pair each architecture with the scorecard in `mlops-scorecards-and-kpis-by-scale.md`. The architecture defines where artifacts and decisions live; the scorecard defines whether those artifacts are reproducible, release-eligible, observable, rollback-ready, and cost-controlled at the current scale. Pair feature and vector-search decisions with `feature-embedding-store-ops-by-scale.md` so S5 tooling is not introduced before S1-S2 data contracts exist.
 
 ---
 
@@ -186,7 +186,7 @@ The minimum architecture should therefore include registry-backed release packet
 | Local flexibility with no central IDs | Models, maps, labels, and telemetry cannot be joined after incidents | Centralize artifact IDs and telemetry fields early |
 | Registry without release evidence | Alias movement looks controlled but approvals are empty | Make alias mutation depend on release packet fields |
 | Data catalog without quality states | Users find bad data faster | Promotion states and quality reports gate training/eval use |
-| Feature store too early | Team maintains infrastructure for features that no model reuses | Use manifest-backed offline files until reuse threshold is crossed |
+| Feature store too early | Team maintains infrastructure for features that no model reuses | Use manifest-backed offline files until reuse threshold is crossed; apply the feature/embedding store scale guide |
 | Global canary by percentage | Easy routes pass while target ODD fails | Canary by site, route, vehicle, weather, lighting, and map state |
 | Foundation-model outputs treated as truth | Prompt drift changes labels, reports, or safety evidence silently | Prompt/model/retrieval registry plus reviewer disposition and trace bundle |
 | Platform bypass | Teams ship bespoke pipelines outside governance | Platform SLOs, self-service templates, fast incident lanes, and policy enforcement at artifact boundaries |
@@ -197,6 +197,7 @@ The minimum architecture should therefore include registry-backed release packet
 
 - `mlops-scale-research-scope.md` - scale ladder and lifecycle controls.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific KPIs, release blockers, cadence, and anti-metrics.
+- `feature-embedding-store-ops-by-scale.md` - feature, embedding, vector-search, and manifest store architecture by scale.
 - `model-governance-release-evidence.md` - registry aliases, claims-and-evidence release packets, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop fleet learning and active data mining.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, data product states, and retention.

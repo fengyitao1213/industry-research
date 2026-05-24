@@ -19,6 +19,8 @@ This page covers the operational loop from mined fleet event to replayable scena
 7. When a scenario is mined from semantic-map drift or open-vocabulary/offboard labeling, preserve whether the label is a reviewed map class, a candidate concept, or a deliberate `unknown` region. A replay can assert "this must remain unknown" just as legitimately as "this should be promoted to class X".
 8. Promote scenarios by state: `candidate`, `triaged`, `replay_ready`, `regression_required`, `retired`.
 
+Embedding search indices used for mining are MLOps artifacts, not invisible infrastructure. Each query result should be attributable to a corpus snapshot, embedding model, chunk/window policy, vector index build, metadata filters, access class, and deletion state. Use `../mlops/feature-embedding-store-ops-by-scale.md` to decide when a local exploratory index is enough and when a governed vector-search service needs recall, freshness, and audit SLOs.
+
 ## Replay Suite by MLOps Scale
 
 Replay is not only a simulator asset; it is an MLOps release gate. The suite should start lightweight, then become a governed regression product as the model gains operational authority.
@@ -39,6 +41,7 @@ The state machine should be stricter at higher scale. At S0-S1, `candidate` and 
 | Artifact | Minimum contents | Owner |
 |---|---|---|
 | Scenario mining query | Query text or rule, search index version, time window, filters, requester | Scenario curator |
+| Embedding index manifest | Corpus snapshot, embedding model/checkpoint, preprocessing window, vector metric, index parameters, metadata filters, recall check, deletion propagation state | Data platform |
 | Candidate clip manifest | Source log IDs, timestamps, manifest ID, compatibility hash, semantic layer ID, taxonomy ID, map tile IDs, telemetry schema URL/version, sensor availability, model versions | Data platform |
 | Triage record | Why the clip matters, duplicate check, severity, regression priority | Safety validation |
 | Scenario metadata | Actors, maneuvers, triggers, ODD tags, semantic-map context, affected map tiles, expected classes/unknown regions, source evidence IDs, expected behavior, acceptance metric | Scenario curator |
@@ -76,6 +79,7 @@ The state machine should be stricter at higher scale. At S0-S1, `candidate` and 
 ## Related Repository Docs
 
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/data-platform/fleet-data-pipeline.md`
 - `30-autonomy-stack/simulation/simulators-for-airside.md`
 - `30-autonomy-stack/end-to-end-driving/airside-autonomy-benchmark-spec.md`

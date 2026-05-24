@@ -83,6 +83,7 @@ Scale changes the ceremony, not the ownership. S0 may record the owner in a run 
 | Model registry record | Registered model, immutable version, aliases, tags, release notes | MLOps |
 | Training provenance | Run ID, code commit, dependency lock, training config, random seeds, hardware | Model owner |
 | Dataset manifest | Iceberg/DVC snapshot IDs, label schema, release-state label schema for map-derived data, excluded data, leakage checks | Data owner |
+| Feature or embedding snapshot | Feature definition IDs, event-time join proof, materialization snapshot, embedding model, corpus/index build, parity/recall checks, deletion state | Data platform |
 | Pseudo-label invalidation record | Batch ID, invalidation trigger, affected source map/calibration/taxonomy/release-state scope, downstream consumers, rebuild or waiver decision | Data owner |
 | Offboard labeler evidence | Labeler pipeline version, prompt set, model/checkpoint IDs, calibration/projection hash, threshold file, accepted/rejected candidate statistics, taxonomy-promotion IDs | Label operations |
 | Evaluation report | Primary metrics, calibration, uncertainty, class slices, airport and weather slices | Model owner |
@@ -115,6 +116,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - Any offline labeler or prompt pack that contributed labels has immutable provenance and a rollback impact assessment for affected datasets, semantic-map manifests, and taxonomy versions.
 - Any map-derived pseudo-label batch has semantic class, confidence, release-state label, source-map acceptance ID, split ID, and reviewer state; non-`permanent_static` labels cannot appear as supervised static positives without an explicit auxiliary-task declaration.
 - Any suspect or quarantined map-derived pseudo-label batch has an invalidation record and cannot feed training, release evaluation, or safety evidence until rebuilt, reapproved, or waived.
+- Any feature materialization or embedding/vector index used for training, replay, evaluation, RAG, or safety evidence resolves to a snapshot with point-in-time join proof, corpus/index version, deletion state, and stale-index/backfill status.
 - The evaluation report includes both aggregate metrics and operational slices for airport zone, lighting, weather, vehicle platform, and object class.
 - No critical scenario replay regression is open without an approved safety waiver and an explicit operational mitigation.
 - Shadow-mode evidence covers the same ODD requested for release.
@@ -142,6 +144,7 @@ For semantic-map pipelines, the strict boundary is `candidate_label -> review_la
 - `40-runtime-systems/ml-deployment/av-cicd-devops-pipeline.md`
 - `50-cloud-fleet/mlops/mlops-scale-research-scope.md`
 - `50-cloud-fleet/mlops/mlops-reference-architectures-by-scale.md`
+- `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
 - `30-autonomy-stack/perception/overview/3d-segmentation-training-paradigms.md`
 - `30-autonomy-stack/perception/overview/aggregated-map-semantic-segmentation.md`

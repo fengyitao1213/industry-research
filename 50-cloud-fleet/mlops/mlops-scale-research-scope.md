@@ -28,7 +28,7 @@ MLOps covers the operating system around models:
 
 For autonomy, the planes are coupled. A model update is also a data update, map update, calibration dependency, runtime compatibility event, safety-case delta, and rollback commitment.
 
-The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention.
+The companion `mlops-scorecards-and-kpis-by-scale.md` defines how to measure whether those planes are healthy at S0-S5. Use it to separate informational metrics from release blockers, especially for site/ODD slice regression, label allowed-use violations, runtime package mismatch, rollback readiness, and evidence retention. Use `feature-embedding-store-ops-by-scale.md` when deciding whether a derived representation belongs in manifests, offline feature tables, online serving, vector search, or an evidence-locked snapshot.
 
 ---
 
@@ -384,7 +384,7 @@ Most autonomy programs do not need an online feature store early. They do need d
 | Retrieve SOP/NOTAM/map documents for VLM tools | No | No | No | Yes, with corpus snapshots |
 | Support safety evidence | Yes | Yes if immutable | Only with strict audit/freshness proof | Only as supporting search evidence |
 
-For aggregated-map semantic segmentation, the most important data store is still the manifest-backed training export, not a generic feature platform. A back-projected label set must preserve source map, semantic layer, taxonomy, release-state label, split ID, reviewer state, and invalidation policy before it can enter training.
+For aggregated-map semantic segmentation, the most important data store is still the manifest-backed training export, not a generic feature platform. A back-projected label set must preserve source map, semantic layer, taxonomy, release-state label, split ID, reviewer state, and invalidation policy before it can enter training. The dedicated store guide (`feature-embedding-store-ops-by-scale.md`) separates reusable offline LiDAR/map features from vector-search indices used for scenario mining, active learning, and foundation-model label triage.
 
 ---
 
@@ -445,7 +445,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 | P1 | Offboard labeler registry | Treats foundation-model prompt packs and thresholds as release-affecting artifacts |
 | P1 | Secure artifact attestation profile | Defines signing, SBOM, SLSA/provenance, and registry-verification requirements for models, maps, prompts, and containers |
 | P1 | GPU FinOps unit-cost model | Tracks cost per label, training run, replay hour, released model, released map, and site so S3-S5 scale does not hide waste |
-| P1 | Feature/embedding store decision guide | Clarifies when online feature stores matter versus when offline manifests are enough |
+| P1 | Feature/embedding store decision guide (`feature-embedding-store-ops-by-scale.md`) | Clarifies when online feature stores matter versus when offline manifests are enough, and when vector retrieval needs corpus/index evidence |
 | P1 | Reference architecture migration checklist | Prevents teams from buying S5 tooling before S1 reproducibility or shipping S2 models without release evidence |
 | P2 | Federated and privacy-preserving training trigger policy | Identifies when cross-site data restrictions justify federated learning |
 | P2 | LLMOps and agent-evaluation extension | Needed if VLM/VLA copilots, prompt packs, or tool-using agents become production artifacts |
@@ -458,6 +458,7 @@ For the reference airside AV stack, the practical near-term target is S2-S3: rep
 - `model-governance-release-evidence.md` - release evidence packet and approval controls.
 - `mlops-reference-architectures-by-scale.md` - concrete S0-S5 architecture patterns, centralization boundaries, interfaces, and migration sequence.
 - `mlops-scorecards-and-kpis-by-scale.md` - scale-specific scorecards, release-blocking metrics, KPI cadence, and anti-metrics.
+- `feature-embedding-store-ops-by-scale.md` - feature-store, vector-search, and data-product controls by maturity level.
 - `map-derived-pseudo-label-invalidation-protocol.md` - invalidation state machine and impact graph for semantic-map training exports.
 - `../data-platform/fleet-data-pipeline.md` - raw logs, ingestion, storage, labeling, and fleet-scale data movement.
 - `../../40-runtime-systems/ml-deployment/production-ml-deployment.md` - edge inference, monitoring, A/B testing, TensorRT, and Triton.

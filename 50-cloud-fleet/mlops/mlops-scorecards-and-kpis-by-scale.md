@@ -4,7 +4,7 @@
 
 MLOps metrics should measure whether the ML system can be improved without losing reproducibility, safety, release control, or operational trust. A single "model accuracy" dashboard is not an MLOps scorecard. At production scale, the scorecard must join data quality, label quality, experiment reproducibility, release reliability, runtime behavior, incident response, cost, and governance evidence.
 
-This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, and `model-governance-release-evidence.md` for release evidence.
+This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-research-scope.md` for maturity, `mlops-reference-architectures-by-scale.md` for architecture, `feature-embedding-store-ops-by-scale.md` for feature/vector-store health, and `model-governance-release-evidence.md` for release evidence.
 
 ---
 
@@ -14,6 +14,7 @@ This page defines scale-specific KPIs for S0-S5 MLOps. Use it with `mlops-scale-
 |---|---|---|
 | Reproducibility | Whether a result can be rebuilt and compared | Prevents notebook results from becoming untraceable baselines |
 | Data quality and lineage | Whether training/eval data is complete, valid, and attributable | Prevents models from learning from mutable, leaked, or unsafe data |
+| Feature and embedding store health | Whether feature materializations and vector indices are fresh, reproducible, governed, and traceable | Prevents point-in-time leakage, stale retrieval, and unsupported reuse of derived representations |
 | Label quality | Whether labels are correct, reviewed, and allowed for the intended use | Prevents auto-labels, map-derived labels, and prompt outputs from becoming false truth |
 | Model quality | Whether offline metrics, calibration, uncertainty, and slices support the claim | Prevents aggregate improvements from hiding class, site, or ODD regressions |
 | Runtime quality | Whether the deployable artifact meets latency, memory, determinism, and compatibility needs | Prevents a model that passes offline tests from failing on vehicle hardware |
@@ -48,6 +49,7 @@ At S2 and above, every KPI should name the artifact it applies to. "mAP improved
 |---|---|---|---|---|
 | Data ingestion | Manifest coverage | Percentage of samples with source path and split | Percentage of release datasets with raw lineage, calibration, map, schema, and access class | Evidence completeness and retention-hold coverage |
 | Data quality | Quality gate pass rate | Manual sample pass/fail | Schema, timestamp, calibration, duplicate, leakage, and slice coverage checks | Quality report tied to safety claims and legal/privacy state |
+| Feature/vector store | Freshness, leakage, recall, and deletion propagation | Manual rebuild note or local index manifest | Point-in-time join tests, online/offline parity, index build ID, golden-query recall, deletion propagation | Immutable feature/index snapshot, audit trace, stale-index blocker, safety-case link |
 | Labeling | Accepted-label yield | Manual acceptance rate | Accepted / submitted / rejected / reworked labels by class and site | Expert-review yield, vendor quality, audit-export completeness |
 | Auto-labeling | Reviewer correction rate | Candidate-label usefulness | Correction rate by class, ODD, labeler version, prompt pack, and map release state | Safety-slice false acceptance rate and promotion-state violations |
 | Experiment | Rebuild success | Can rerun locally | CI or pipeline can rebuild training/eval from manifests | Rebuild evidence preserved for audit window |
@@ -75,6 +77,7 @@ Some metrics are informational; others should block promotion. For autonomy, the
 |---|---|---|
 | Missing immutable dataset or label snapshot | S1 for baselines, S2 for release | Candidate points to mutable bucket prefix or unlabeled local files |
 | Label allowed-use violation | S2 | `candidate_label`, `movable_static`, `fod_candidate`, or `unknown_review` used as permanent-static positive without auxiliary-task declaration |
+| Suspect feature or embedding snapshot | S2-S5 | Training, eval, replay, or safety evidence consumes a feature materialization or vector index whose source map, calibration, corpus, embedding model, deletion state, or backfill has been invalidated |
 | Evaluation data leakage | S1-S5 | Training set overlaps with release gate, replay scenario, or site holdout |
 | Runtime package mismatch | S2-S5 | Evaluated checkpoint differs from deployed ONNX/TensorRT/container artifact |
 | Compatibility manifest mismatch | S2-S5 | Model, map, calibration, runtime, semantic taxonomy, prompt/labeler, telemetry schema, or replay pack differs from the evaluated artifact set |
@@ -154,6 +157,7 @@ These KPIs keep MLOps connected to operational risk. A model that improves avera
 
 - `mlops-scale-research-scope.md` - scale ladder, lifecycle controls, and research backlog.
 - `mlops-reference-architectures-by-scale.md` - architecture blueprints and durable interfaces.
+- `feature-embedding-store-ops-by-scale.md` - feature and vector-store health, leakage, freshness, recall, and invalidation controls.
 - `model-governance-release-evidence.md` - release packet, governance, and rollback evidence.
 - `data-flywheel-airside.md` - closed-loop learning metrics, active learning, and label economics.
 - `../observability/fleet-anomaly-root-cause-attribution.md` - fleet anomaly attribution and MTTR reduction.

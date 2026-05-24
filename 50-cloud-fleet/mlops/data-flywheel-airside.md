@@ -1047,6 +1047,8 @@ class ScenarioMiner:
         return novel_clusters
 ```
 
+In production, the embedding layer above needs the same evidence discipline as a training dataset. Store the corpus snapshot, embedding model/checkpoint, clip windowing policy, vector metric, metadata filters, index build ID, recall check, access class, and deletion propagation state. The scale-specific decision rules are in `feature-embedding-store-ops-by-scale.md`; local indices are fine for S0-S1 exploration, but S3-S5 scenario mining and active learning need governed vector-store manifests because retrieval changes can alter label queues, replay coverage, and release evidence.
+
 ### 8.3 Scenario Balancing for Training
 
 Training data should overrepresent rare but important scenarios:

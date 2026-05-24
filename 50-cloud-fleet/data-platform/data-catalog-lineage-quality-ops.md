@@ -48,6 +48,8 @@ Deletion, taxonomy changes, source-map corrections, and calibration fixes must p
 
 For map-derived pseudo-labels, use `../mlops/map-derived-pseudo-label-invalidation-protocol.md` as the required propagation pattern. The catalog entry should be able to answer which source map, semantic layer, release-state mask, calibration package, projection code, split ID, labeler/prompt artifact, model version, and release packet consumed the affected labels before a batch returns from `suspect` or `quarantined` to `active`.
 
+For reusable features and embeddings, use `../mlops/feature-embedding-store-ops-by-scale.md` as the store-selection and evidence pattern. Catalog entries should record feature definition IDs, event-time semantics, materialization snapshots, online/offline parity checks, embedding model, corpus snapshot, index build ID, metadata filters, deletion state, and golden-query recall before derived representations can support training, replay, active learning, or safety evidence.
+
 ## Evidence Artifacts
 
 | Artifact | Minimum contents | Owner |
@@ -93,6 +95,7 @@ For map-derived pseudo-labels, use `../mlops/map-derived-pseudo-label-invalidati
 - `50-cloud-fleet/data-platform/perception-slam-fleet-data-contract.md`
 - `50-cloud-fleet/data-platform/data-engine-from-bags.md`
 - `50-cloud-fleet/mlops/data-flywheel-airside.md`
+- `50-cloud-fleet/mlops/feature-embedding-store-ops-by-scale.md`
 - `50-cloud-fleet/data-governance/fleet-data-privacy-governance.md`
 - `60-safety-validation/safety-case/safety-case-evidence-traceability.md`
 - `60-safety-validation/verification-validation/perception-slam-statistical-validity-protocol.md`
