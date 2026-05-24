@@ -232,7 +232,7 @@ The aggregated map is colorized by projecting camera imagery onto each point usi
 - **Cons:** colorization quality depends on camera–LiDAR calibration and exposure consistency; moving shadows and rolling-shutter artifacts bleed into colour; multi-pass colour conflicts must be resolved (median/most-confident projection); colour is illumination-dependent — a night-only map has poor colour.
 - **Verdict:** strong accuracy gain when imagery is well-calibrated and well-lit; treat colour as an *augmenting* channel the network can learn to down-weight, never a required one.
 
-Colorization stands or falls on the camera-LiDAR projection — the extrinsics, time-sync, and distortion handling that decide whether colour lands on the right point. Those mechanics are covered in `camera-lidar-fusion-interfaces.md`; a miscalibrated projection here is the dominant failure mode of colorized input.
+Colorization stands or falls on the camera-LiDAR projection — the extrinsics, time-sync, and distortion handling that decide whether colour lands on the right point. Those mechanics are covered in `camera-lidar-fusion-interfaces.md`, including the release contract for LiDAR-only, pre-baked color, train-time distillation, image-dependent fusion, and candidate-label lanes; a miscalibrated projection here is the dominant failure mode of colorized input.
 
 ### 4.3 Multimodal LiDAR + Image Fusion
 
@@ -1342,6 +1342,7 @@ This maps onto the airside safety case in `60-safety-validation/safety-case/airs
 - `30-autonomy-stack/perception/overview/lidar-semantic-segmentation.md` — single-scan / real-time on-vehicle segmentation (the complementary page)
 - `30-autonomy-stack/localization-mapping/overview/ml-related-slam-research-scope.md` — ML-related SLAM research scope for the upstream map substrate, learned registration, semantic/dynamic SLAM, neural/Gaussian maps, point-cloud removal, and map-segmentation handoffs
 - `30-autonomy-stack/perception/overview/lidar-foundation-models.md` — PTv3, Sonata, ScaLR, PointLoRA pre-training
+- `30-autonomy-stack/perception/overview/camera-lidar-fusion-interfaces.md` — camera-LiDAR projection, colorization, distillation, image-dependent fusion, and modality release contracts
 - `30-autonomy-stack/perception/overview/3d-segmentation-class-taxonomy-design.md` — class-taxonomy design deep dive (§6 companion)
 - `30-autonomy-stack/perception/overview/segmentation-post-processing-label-refinement.md` — post-processing & refinement deep dive (§10 companion)
 - `30-autonomy-stack/perception/overview/large-scale-3d-segmentation-tiling-and-throughput.md` — tiling, stitching, and throughput-engineering deep dive (§8 companion)
