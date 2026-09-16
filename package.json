@@ -7,8 +7,8 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "docs:dev": "vitepress dev . --host 127.0.0.1",
-    "docs:build": "vitepress build .",
+    "docs:dev": "node --max-old-space-size=4096 ./node_modules/vitepress/bin/vitepress.js dev . --host 127.0.0.1",
+    "docs:build": "node --max-old-space-size=8192 ./node_modules/vitepress/bin/vitepress.js build .",
     "docs:preview": "vitepress preview . --host 127.0.0.1",
     "restructure:print-map": "node tools/restructure/migrate.mjs --print-map",
     "restructure:move": "node tools/restructure/migrate.mjs --move",

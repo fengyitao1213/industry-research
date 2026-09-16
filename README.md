@@ -2,7 +2,9 @@
 
 Markdown-first knowledge base for autonomous vehicle technology across road, airside, warehouse, logistics yard, port, mining, construction, agriculture, delivery robot, and outdoor campus domains. Airside autonomous vehicles remain the best-developed reference ODD, not the default evaluation lens.
 
-**Read it as a site:** https://kvynlim.github.io/industry-research/
+**Read this independent mirror as a site:** https://fengyitao1213.github.io/industry-research/
+
+**Original project:** https://github.com/kvynlim/industry-research
 
 The repository remains Markdown-first, but the VitePress reader is the intended reading surface: local search, generated sidebar navigation, clean URLs, last-updated metadata, and source links back into the repo.
 

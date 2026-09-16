@@ -6,6 +6,9 @@ export default defineConfig({
   title: 'Industry Research',
   description: 'Autonomous vehicle technology and airport airside operations research library.',
   base: '/industry-research/',
+  sitemap: {
+    hostname: 'https://fengyitao1213.github.io/industry-research/'
+  },
   cleanUrls: true,
   rewrites: {
     'README.md': 'index.md',
@@ -54,7 +57,7 @@ export default defineConfig({
       }
     },
     editLink: {
-      pattern: 'https://github.com/kvynlim/industry-research/blob/main/:path',
+      pattern: 'https://github.com/fengyitao1213/industry-research/blob/main/:path',
       text: 'View source on GitHub'
     },
     docFooter: {
@@ -62,11 +65,11 @@ export default defineConfig({
       next: 'Next'
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/kvynlim/industry-research' }
+      { icon: 'github', link: 'https://github.com/fengyitao1213/industry-research' }
     ],
     footer: {
-      message: 'Public research notes collected from public sources.',
-      copyright: 'Copyright © 2026 kvynlim'
+      message: 'Independent public mirror maintained by fengyitao1213. Original project by kvynlim.',
+      copyright: 'Research notes collected from public sources.'
     }
   }
 })

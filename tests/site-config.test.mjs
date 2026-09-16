@@ -8,6 +8,10 @@ const config = configModule.default ?? configModule
 test('sets GitHub Pages base path and clean URLs', () => {
   assert.equal(config.base, '/industry-research/')
   assert.equal(config.cleanUrls, true)
+  assert.equal(
+    config.sitemap.hostname,
+    'https://fengyitao1213.github.io/industry-research/'
+  )
 })
 
 test('rewrites README as homepage and INDEX as a directory route', () => {
@@ -38,9 +42,13 @@ test('enables local static search', () => {
 test('configures repository source links', () => {
   assert.equal(
     config.themeConfig.editLink.pattern,
-    'https://github.com/kvynlim/industry-research/blob/main/:path'
+    'https://github.com/fengyitao1213/industry-research/blob/main/:path'
   )
   assert.equal(config.themeConfig.editLink.text, 'View source on GitHub')
+  assert.deepEqual(config.themeConfig.socialLinks, [
+    { icon: 'github', link: 'https://github.com/fengyitao1213/industry-research' }
+  ])
+  assert.match(config.themeConfig.footer.message, /Original project by kvynlim/)
 })
 
 test('provides sidebar and top nav entries', () => {
